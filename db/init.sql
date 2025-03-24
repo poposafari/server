@@ -1,6 +1,6 @@
-CREATE SCHEMA IF NOT EXISTS poposafari_default;
+CREATE SCHEMA IF NOT EXISTS db0;
 
-CREATE TABLE poposafari_default.account (
+CREATE TABLE db0.account (
     -- 사용자를 식별하기 위한 값.
     id SERIAL PRIMARY KEY,
 
@@ -19,9 +19,9 @@ CREATE TABLE poposafari_default.account (
     CONSTRAINT uq_provider UNIQUE (provider, provider_id)
 );
 
-CREATE TABLE poposafari_default.ingame (
+CREATE TABLE db0.ingame (
   id SERIAL PRIMARY KEY,
-  account_id INTEGER REFERENCES poposafari_default.account(id) ON DELETE CASCADE,
+  account_id INTEGER REFERENCES db0.account(id) ON DELETE CASCADE,
   location CHAR(3) NOT NULL,
   x INT NOT NULL,
   y INT NOT NULL,

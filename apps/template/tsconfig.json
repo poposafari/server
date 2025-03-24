@@ -8,7 +8,8 @@
       "@controllers/*": ["controllers/*"],
       "@services/*": ["services/*"],
       "@routes/*": ["routes/*"],
-      "@entities/*": ["entities/*"]
+      "@entities/*": ["entities/*"],
+      "@db/*": ["db/*"]
     }
   },
   "include": ["src/**/*"],

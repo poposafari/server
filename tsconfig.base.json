@@ -13,7 +13,7 @@
     "rootDir": "apps",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["apps/**/*"]
+      "@/*": ["apps/*"]
     },
 
     //TypeORM을 위한 설정.
