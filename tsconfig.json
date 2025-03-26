@@ -10,11 +10,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "outDir": "dist",
-    "rootDir": "apps",
+    "rootDir": ".",
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["apps/*"]
-    },
+    "paths": {},
 
     //TypeORM을 위한 설정.
     "experimentalDecorators": true,

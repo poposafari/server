@@ -8,14 +8,28 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_USER: ${DB_USERNAME_0}
-      POSTGRES_PASSWORD: ${DB_PASSWORD_0}
-      POSTGRES_DB: ${DB_NAME_0}
+      POSTGRES_USER: ${DB_0_USERNAME}
+      POSTGRES_PASSWORD: ${DB_0_PASSWORD}
+      POSTGRES_DB: ${DB_0_NAME}
     volumes:
       - ./db/data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "${DB_PORT_0}:5432"
+      - "${DB_0_PORT}:5432"
+    networks:
+      - poposerver
+
+  account:
+    container_name: account
+    build:
+      context: .
+      dockerfile: apps/account/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${SERVICE_ACCOUNT_PORT}:${SERVICE_ACCOUNT_PORT}"
+    depends_on:
+      - db0
     networks:
       - poposerver
 
