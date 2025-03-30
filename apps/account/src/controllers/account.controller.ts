@@ -7,6 +7,21 @@ export class AccountController {
   static async register(req: Request, res: Response): Promise<any> {
     try {
       const newAccount = await AccountService.register(req.body);
+
+      const accessToken = createAccessToken({
+        id: newAccount.id,
+      });
+
+      return res
+        .cookie("access_token", accessToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+          maxAge: 1000 * 60 * 15,
+        })
+        .status(201)
+        .json({ access_token: accessToken });
+
       return res.status(201).json(newAccount.username);
     } catch (err: any) {
       if (err instanceof HttpError) {
@@ -23,7 +38,6 @@ export class AccountController {
 
       const accessToken = createAccessToken({
         id: hasAccount.id,
-        username: hasAccount.username,
       });
 
       return res
