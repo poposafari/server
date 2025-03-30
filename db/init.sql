@@ -1,5 +1,8 @@
 CREATE SCHEMA IF NOT EXISTS db0;
 
+CREATE TYPE ingame_gender AS ENUM ('boy', 'girl');
+CREATE TYPE ingame_avatar AS ENUM ('1', '2', '3', '4');
+
 CREATE TABLE db0.account (
     -- 사용자를 식별하기 위한 값.
     id SERIAL PRIMARY KEY,
@@ -19,13 +22,14 @@ CREATE TABLE db0.account (
     CONSTRAINT uq_provider UNIQUE (provider, provider_id)
 );
 
+-- 테이블 생성
 CREATE TABLE db0.ingame (
   id SERIAL PRIMARY KEY,
   account_id INTEGER REFERENCES db0.account(id) ON DELETE CASCADE,
   location CHAR(3) NOT NULL,
-  x INT NOT NULL,
-  y INT NOT NULL,
-  gender BOOLEAN NOT NULL,
-  avatar SMALLINT NOT NULL,
-  nickname VARCHAR(10) NOT NULL
+  x INTEGER NOT NULL,
+  y INTEGER NOT NULL,
+  gender ingame_gender NOT NULL,
+  avatar ingame_avatar NOT NULL,
+  nickname VARCHAR(10) UNIQUE
 );

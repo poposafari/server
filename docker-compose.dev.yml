@@ -11,6 +11,7 @@ services:
       - ./nginx/certs:/etc/nginx/certs
     depends_on:
       - account
+      - ingame
     networks:
       - poposerver
 
@@ -41,6 +42,20 @@ services:
       - .env
     ports:
       - "${SERVICE_ACCOUNT_PORT}:${SERVICE_ACCOUNT_PORT}"
+    depends_on:
+      - db0
+    networks:
+      - poposerver
+
+  ingame:
+    container_name: ingame
+    build:
+      context: .
+      dockerfile: apps/ingame/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${SERVICE_INGAME_PORT}:${SERVICE_INGAME_PORT}"
     depends_on:
       - db0
     networks:
