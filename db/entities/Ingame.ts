@@ -56,4 +56,7 @@ export class Ingame {
 
   @Column({ type: "varchar", length: 10, unique: true })
   nickname?: string;
+
+  @Column()
+  money?: number;
 }

@@ -33,6 +33,19 @@ services:
     networks:
       - poposerver
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+    networks:
+      - poposerver
+
   account:
     container_name: account
     build:
@@ -44,6 +57,7 @@ services:
       - "${SERVICE_ACCOUNT_PORT}:${SERVICE_ACCOUNT_PORT}"
     depends_on:
       - db0
+      - redis
     networks:
       - poposerver
 
@@ -58,6 +72,7 @@ services:
       - "${SERVICE_INGAME_PORT}:${SERVICE_INGAME_PORT}"
     depends_on:
       - db0
+      - redis
     networks:
       - poposerver
 

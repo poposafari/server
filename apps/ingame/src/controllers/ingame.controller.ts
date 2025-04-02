@@ -9,7 +9,20 @@ export class IngameController {
         req.body,
         req.cookies.access_token
       );
-      return res.status(201).json();
+      return res.status(201).json(newGameAccount);
+    } catch (err: any) {
+      if (err instanceof HttpError) {
+        return res.status(err.getStatus()).json({ error: err.message });
+      } else {
+        return res.status(500).json({ error: err.message });
+      }
+    }
+  }
+
+  static async getUserData(req: Request, res: Response): Promise<any> {
+    try {
+      const userData = await IngameService.getUserData(res.locals.user.id);
+      return res.status(201).json(userData);
     } catch (err: any) {
       if (err instanceof HttpError) {
         return res.status(err.getStatus()).json({ error: err.message });

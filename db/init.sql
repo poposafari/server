@@ -31,5 +31,6 @@ CREATE TABLE db0.ingame (
   y INTEGER NOT NULL,
   gender ingame_gender NOT NULL,
   avatar ingame_avatar NOT NULL,
+  money INTEGER NOT NULL,
   nickname VARCHAR(10) UNIQUE
 );

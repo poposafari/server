@@ -31,12 +31,26 @@ export class IngameService {
       x: 10,
       y: 10,
       location: "000",
+      money: 5000,
       nickname: data.nickname,
       gender: getGenderEnum(data.gender),
       avatar: getAvatarEnum(data.avatar),
     });
 
-    return await this.repo.save(ingameAccount);
+    await this.repo.save(ingameAccount);
+    return ingameAccount;
+  }
+
+  static async getUserData(user: number) {
+    if (!user) throw Error("empty user.");
+
+    const exist = await this.repo.findOneBy({
+      account_id: user,
+    });
+
+    if (!exist) return null;
+
+    return exist;
   }
 }
 
