@@ -41,7 +41,7 @@ export const authenticate = async (
       res.locals.user = payload;
 
       return next();
-    } catch (innerErr) {
+    } catch (err: any) {
       return next(new UnauthorizedHttpError("Token refresh failed"));
     }
   }

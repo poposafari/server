@@ -6,6 +6,7 @@ const accountRouter = Router();
 
 accountRouter.post("/register", AccountController.register);
 accountRouter.post("/login", AccountController.login);
+accountRouter.get("/logout", AccountController.logout);
 accountRouter.get("/auto-login", authenticate, AccountController.autoLogin);
 
 export default accountRouter;

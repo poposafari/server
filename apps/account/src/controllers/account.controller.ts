@@ -5,6 +5,8 @@ import { createAccessToken } from "../share/jwt";
 import { createRefreshToken } from "../share/jwt";
 import { redis } from "../db/redis-source";
 import { CookieConfig } from "../share/options";
+import { verifyAccessToken } from "../share/jwt";
+import { UnauthorizedHttpError } from "../share/http-error";
 
 export class AccountController {
   static async register(req: Request, res: Response): Promise<any> {
@@ -59,5 +61,33 @@ export class AccountController {
 
   static async autoLogin(req: Request, res: Response): Promise<any> {
     return res.status(201).json(true);
+  }
+
+  static async logout(req: Request, res: Response): Promise<any> {
+    try {
+      const tokenPayload = verifyAccessToken(
+        req.cookies.access_token || req.headers.authorization?.split(" ")[1]
+      );
+
+      if (
+        !tokenPayload ||
+        typeof tokenPayload === "string" ||
+        !tokenPayload.id
+      ) {
+        throw new UnauthorizedHttpError("Unauthorized token");
+      }
+
+      await redis.del(`refresh:${tokenPayload.id}`);
+      return res
+        .clearCookie("access_token", CookieConfig as any)
+        .status(201)
+        .json(true);
+    } catch (err: any) {
+      if (err instanceof HttpError) {
+        return res.status(err.getStatus()).json({ error: err.message });
+      } else {
+        return res.status(500).json({ error: err.message });
+      }
+    }
   }
 }
