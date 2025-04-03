@@ -17,6 +17,14 @@ export class AccountController {
         id: newAccount.id,
       });
 
+      const refreshToken = createRefreshToken({
+        id: newAccount.id,
+      });
+
+      await redis.set(`refresh:${newAccount.id}`, refreshToken, {
+        EX: 60 * 60 * 24 * 7,
+      });
+
       return res
         .cookie("access_token", accessToken, CookieConfig as any)
         .status(201)
