@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { Repository } from "typeorm";
 import { Account } from "../entities/Account";
@@ -50,6 +51,19 @@ export class AccountService {
 
     if (!compare) throw new NotFountHttpError("not found account");
 
+    return exist;
+  }
+
+  static async deleteAccount(user: number) {
+    if (!user) throw Error("empty user.");
+
+    const exist = await this.repo.findOneBy({
+      id: user,
+    });
+
+    if (!exist) throw new Error("not found user data");
+
+    await this.repo.delete({ id: exist.id });
     return exist;
   }
 }

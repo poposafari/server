@@ -90,4 +90,17 @@ export class AccountController {
       }
     }
   }
+
+  static async deleteAccount(req: Request, res: Response): Promise<any> {
+    try {
+      const userData = await AccountService.deleteAccount(res.locals.user.id);
+      return res.status(201).json(userData);
+    } catch (err: any) {
+      if (err instanceof HttpError) {
+        return res.status(err.getStatus()).json({ error: err.message });
+      } else {
+        return res.status(500).json({ error: err.message });
+      }
+    }
+  }
 }
