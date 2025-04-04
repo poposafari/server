@@ -1,4 +1,7 @@
 import { Ingame } from "../entities/Ingame";
+import { ItemSlot } from "../entities/ItemSlot";
+import { PartySlot } from "../entities/PartySlot";
+import { PokeboxBg } from "../entities/PokeboxBg";
 import { AppDataSource } from "../db/data-source";
 import { Repository } from "typeorm";
 import { ConflictHttpError } from "../share/http-error";
@@ -14,6 +17,18 @@ interface RegisterReq {
 export class IngameService {
   private static get repo(): Repository<Ingame> {
     return AppDataSource.getRepository(Ingame);
+  }
+
+  private static get itemSlotRepo(): Repository<ItemSlot> {
+    return AppDataSource.getRepository(ItemSlot);
+  }
+
+  private static get partySlotRepo(): Repository<PartySlot> {
+    return AppDataSource.getRepository(PartySlot);
+  }
+
+  private static get pokeboxBgRepo(): Repository<PokeboxBg> {
+    return AppDataSource.getRepository(PokeboxBg);
   }
 
   static async register(data: RegisterReq, token: string) {
@@ -37,20 +52,42 @@ export class IngameService {
       avatar: getAvatarEnum(data.avatar),
     });
 
+    const itemSlot = this.itemSlotRepo.create({
+      account_id: accountId,
+    });
+
+    const partySlot = this.partySlotRepo.create({
+      account_id: accountId,
+    });
+
+    const pokeboxBg = this.pokeboxBgRepo.create({
+      account_id: accountId,
+    });
+
     await this.repo.save(ingameAccount);
+    await this.itemSlotRepo.save(itemSlot);
+    await this.partySlotRepo.save(partySlot);
+    await this.pokeboxBgRepo.save(pokeboxBg);
+
     return ingameAccount;
   }
 
   static async getUserData(user: number) {
-    if (!user) throw Error("empty user.");
+    if (!user) {
+      throw Error("empty user.");
+    }
 
-    const exist = await this.repo.findOneBy({
-      account_id: user,
-    });
+    const data = await this.repo
+      .createQueryBuilder("ingame")
+      .leftJoinAndSelect("ingame.itemSlot", "itemSlot")
+      .leftJoinAndSelect("ingame.partySlot", "partySlot")
+      .leftJoinAndSelect("ingame.pokeboxBg", "pokeboxBg")
+      .where("ingame.account_id = :user", { user })
+      .getOne();
 
-    if (!exist) return null;
+    if (!data) return null;
 
-    return exist;
+    return data;
   }
 }
 
