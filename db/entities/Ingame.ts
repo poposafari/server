@@ -5,8 +5,12 @@ import {
   Unique,
   ManyToOne,
   JoinColumn,
+  OneToOne,
 } from "typeorm";
 import { Account } from "./Account";
+import { ItemSlot } from "./ItemSlot";
+import { PartySlot } from "./PartySlot";
+import { PokeboxBg } from "./PokeboxBg";
 
 export enum IngameGender {
   BOY = "boy",
@@ -29,9 +33,20 @@ export class Ingame {
   @Column()
   account_id?: number;
 
-  @ManyToOne(() => Account, (account) => account.id, { onDelete: "CASCADE" })
-  @JoinColumn({ name: "account_id" })
-  account?: Account;
+  @OneToOne(() => ItemSlot, (itemSlot) => itemSlot.account, {
+    onDelete: "CASCADE",
+  })
+  itemSlot?: ItemSlot;
+
+  @OneToOne(() => PartySlot, (partySlot) => partySlot.account, {
+    onDelete: "CASCADE",
+  })
+  partySlot?: PartySlot;
+
+  @OneToOne(() => PokeboxBg, (pokeboxBg) => pokeboxBg.account, {
+    onDelete: "CASCADE",
+  })
+  pokeboxBg?: PokeboxBg;
 
   @Column({ type: "char", length: 3 })
   location?: string;

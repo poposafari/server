@@ -3,6 +3,9 @@ import * as dotenv from "dotenv";
 
 import { Account } from "../entities/Account";
 import { Ingame } from "../entities/Ingame";
+import { ItemSlot } from "../entities/ItemSlot";
+import { PartySlot } from "../entities/PartySlot";
+import { PokeboxBg } from "../entities/PokeboxBg";
 
 dotenv.config();
 
@@ -15,7 +18,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_0_USERNAME,
   password: process.env.DB_0_PASSWORD,
   database: process.env.DB_0_NAME,
-  entities: [Account, Ingame],
+  entities: [Account, Ingame, ItemSlot, PartySlot, PokeboxBg],
   synchronize: true,
   logging: true,
 });

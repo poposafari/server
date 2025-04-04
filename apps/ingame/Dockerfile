@@ -8,6 +8,10 @@ COPY ../../.env ./
 COPY ../../wait-for-it.sh ./wait-for-it.sh
 COPY ../../db/entities/Account.ts ./ingame/src/entities/Account.ts
 COPY ../../db/entities/Ingame.ts ./ingame/src/entities/Ingame.ts
+COPY ../../db/entities/ItemSlot.ts ./ingame/src/entities/ItemSlot.ts
+COPY ../../db/entities/PartySlot.ts ./ingame/src/entities/PartySlot.ts
+COPY ../../db/entities/PokeboxBg.ts ./ingame/src/entities/PokeboxBg.ts
+
 COPY ../../share/ ./ingame/src/share
 
 RUN chmod +x ./wait-for-it.sh
