@@ -33,6 +33,9 @@ export class Ingame {
   @Column()
   account_id?: number;
 
+  @OneToOne(() => Account, (account) => account.id, { onDelete: "CASCADE" })
+  account?: Account;
+
   @OneToOne(() => ItemSlot, (itemSlot) => itemSlot.account, {
     onDelete: "CASCADE",
   })

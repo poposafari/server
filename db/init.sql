@@ -3,6 +3,7 @@ CREATE SCHEMA IF NOT EXISTS db0;
 CREATE TYPE ingame_gender AS ENUM ('boy', 'girl');
 CREATE TYPE ingame_avatar AS ENUM ('1', '2', '3', '4');
 CREATE TYPE backgrounds AS ENUM ('0','1', '2', '3', '4', '5', '6', '7', '8', '9', '10','11', '12', '13', '14', '15');
+CREATE TYPE item_type AS ENUM ('pokeball','key','berry','etc');
 
 CREATE TABLE db0.account (
     -- 사용자를 식별하기 위한 값.
@@ -23,17 +24,17 @@ CREATE TABLE db0.account (
     CONSTRAINT uq_provider UNIQUE (provider, provider_id)
 );
 
--- 테이블 생성
 CREATE TABLE db0.ingame (
-  id SERIAL PRIMARY KEY,
-  account_id INTEGER REFERENCES db0.account(id) ON DELETE CASCADE,
+  account_id INTEGER NOT NULL,
   location CHAR(3) NOT NULL,
   x INTEGER NOT NULL,
   y INTEGER NOT NULL,
   gender ingame_gender NOT NULL,
   avatar ingame_avatar NOT NULL,
   money INTEGER NOT NULL,
-  nickname VARCHAR(10) UNIQUE
+  nickname VARCHAR(10) UNIQUE,
+  PRIMARY KEY (account_id),
+  FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE
 );
 
 CREATE TABLE db0.party_slot(
@@ -83,4 +84,13 @@ CREATE TABLE db0.pokebox_bg(
   box16 backgrounds NOT NULL DEFAULT '0',
   box17 backgrounds NOT NULL DEFAULT '0',
   box18 backgrounds NOT NULL DEFAULT '0'
+);
+
+CREATE TABLE db0.bag(
+  account_id INTEGER NOT NULL,
+  item CHAR(3) NOT NULL,
+  category item_type NOT NULL,
+  stock INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (account_id,item),
+  FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE
 );
