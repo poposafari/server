@@ -14,6 +14,10 @@ export interface Item {
   stock: number;
 }
 
+export interface ItemSel {
+  category: ItemType;
+}
+
 export class BagService {
   static data: { item: string; type: ItemType }[] = [];
 
@@ -49,5 +53,28 @@ export class BagService {
       });
       await this.repo.save(newItem);
     }
+  }
+
+  public static async useItem(user: number, item: Item): Promise<void> {
+    const exist = await this.repo.findOne({
+      where: { account_id: user, item: item.item },
+    });
+
+    if (!exist) {
+      throw new Error(`Item not found in bag: ${item.item}`);
+    }
+
+    if (exist.stock < item.stock) {
+      throw new Error(`Not enough stock for item: ${item.item}`);
+    }
+
+    if (exist.stock - item.stock === 0) {
+      await this.repo.delete(exist);
+      return;
+    }
+
+    exist.stock -= item.stock;
+
+    await this.repo.save(exist);
   }
 }
