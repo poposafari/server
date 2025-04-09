@@ -76,6 +76,21 @@ services:
     networks:
       - poposerver
 
+  bag:
+    container_name: bag
+    build:
+      context: .
+      dockerfile: apps/bag/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${SERVICE_BAG_PORT}:${SERVICE_BAG_PORT}"
+    depends_on:
+      - db0
+      - redis
+    networks:
+      - poposerver
+
 networks:
   poposerver:
     driver: bridge
