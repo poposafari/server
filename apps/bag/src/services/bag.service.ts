@@ -77,4 +77,15 @@ export class BagService {
 
     await this.repo.save(exist);
   }
+
+  public static async getItems(user: number, item: ItemSel): Promise<Item[]> {
+    const bag = await this.repo.find({
+      where: { account_id: user, category: item.category },
+    });
+
+    return bag.map((item) => ({
+      item: item.item,
+      stock: item.stock,
+    }));
+  }
 }
