@@ -4,9 +4,9 @@ import { AppDataSource } from "../db/data-source";
 
 enum ItemType {
   POKEBALL = "pokeball",
-  KEY = "key",
-  BERRY = "berry",
   ETC = "etc",
+  BERRY = "berry",
+  KEY = "key",
 }
 
 export interface Item {
@@ -79,6 +79,8 @@ export class BagService {
   }
 
   public static async getItems(user: number, item: ItemSel): Promise<Item[]> {
+    console.log(user, item);
+
     const bag = await this.repo.find({
       where: { account_id: user, category: item.category },
     });
