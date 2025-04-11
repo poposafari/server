@@ -14,6 +14,18 @@ interface RegisterReq {
   nickname: string;
 }
 
+interface ItemSlotData {
+  slot1: string;
+  slot2: string;
+  slot3: string;
+  slot4: string;
+  slot5: string;
+  slot6: string;
+  slot7: string;
+  slot8: string;
+  slot9: string;
+}
+
 export class IngameService {
   private static get repo(): Repository<Ingame> {
     return AppDataSource.getRepository(Ingame);
@@ -88,6 +100,30 @@ export class IngameService {
     if (!data) return null;
 
     return data;
+  }
+
+  static async updateItemSlot(user: number, itemSlot: ItemSlotData) {
+    if (!user) {
+      throw Error("empty user.");
+    }
+
+    const exist = await this.itemSlotRepo.findOneBy({
+      account_id: user,
+    });
+
+    if (!exist) throw new Error("not found item slot data");
+
+    await this.itemSlotRepo.update(exist.account_id, {
+      slot1: itemSlot.slot1,
+      slot2: itemSlot.slot2,
+      slot3: itemSlot.slot3,
+      slot4: itemSlot.slot4,
+      slot5: itemSlot.slot5,
+      slot6: itemSlot.slot6,
+      slot7: itemSlot.slot7,
+      slot8: itemSlot.slot8,
+      slot9: itemSlot.slot9,
+    });
   }
 }
 
