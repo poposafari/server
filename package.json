@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:account": "ts-node ./account/main.ts",
     "start:ingame": "ts-node ./ingame/main.ts",
-    "start:bag": "ts-node ./bag/main.ts"
+    "start:bag": "ts-node ./bag/main.ts",
+    "start:ticket-cron": "ts-node ./ticket-cron/main.ts"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "node-cron": "^3.0.3",
     "pg": "^8.14.1",
     "redis": "^4.7.0",
     "reflect-metadata": "^0.2.2",
@@ -35,6 +37,7 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.13.11",
+    "@types/node-cron": "^3.0.11",
     "tsconfig-paths": "^4.2.0"
   }
 }

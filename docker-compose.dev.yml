@@ -91,6 +91,21 @@ services:
     networks:
       - poposerver
 
+  ticket-cron:
+    container_name: ticket-cron
+    build:
+      context: .
+      dockerfile: apps/ticket-cron/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${CRON_TICKET}:${CRON_TICKET}"
+    depends_on:
+      - db0
+      - redis
+    networks:
+      - poposerver
+
 networks:
   poposerver:
     driver: bridge

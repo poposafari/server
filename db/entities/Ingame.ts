@@ -3,9 +3,8 @@ import {
   PrimaryGeneratedColumn,
   Column,
   Unique,
-  ManyToOne,
-  JoinColumn,
   OneToOne,
+  Check,
 } from "typeorm";
 import { Account } from "./Account";
 import { ItemSlot } from "./ItemSlot";
@@ -26,6 +25,7 @@ export enum IngameAvatar {
 
 @Entity({ schema: "db0", name: "ingame" })
 @Unique(["nickname"])
+@Check(`"available_ticket" >= 0 AND "available_ticket" <= 8`)
 export class Ingame {
   @PrimaryGeneratedColumn()
   id?: number;
@@ -77,4 +77,7 @@ export class Ingame {
 
   @Column()
   money?: number;
+
+  @Column({ type: "int", default: 8 })
+  available_ticket!: number;
 }

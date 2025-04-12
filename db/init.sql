@@ -33,6 +33,7 @@ CREATE TABLE db0.ingame (
   avatar ingame_avatar NOT NULL,
   money INTEGER NOT NULL,
   nickname VARCHAR(10) UNIQUE,
+  available_ticket INTEGER NOT NULL DEFAULT 8 (available_ticket >= 0 AND available_ticket <= 8),
   PRIMARY KEY (account_id),
   FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE
 );
