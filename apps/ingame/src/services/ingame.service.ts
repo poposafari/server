@@ -1,9 +1,10 @@
+import { Repository } from "typeorm";
+import axios from "axios";
 import { Ingame } from "../entities/Ingame";
 import { ItemSlot } from "../entities/ItemSlot";
 import { PartySlot } from "../entities/PartySlot";
 import { PokeboxBg } from "../entities/PokeboxBg";
 import { AppDataSource } from "../db/data-source";
-import { Repository } from "typeorm";
 import { ConflictHttpError } from "../share/http-error";
 import { verifyAccessToken } from "../share/jwt";
 import { IngameAvatar, IngameGender } from "../entities/Ingame";
@@ -25,6 +26,15 @@ interface ItemSlotData {
   slot8: string;
   slot9: string;
 }
+
+const BagService = axios.create({
+  baseURL: "http://bag:9912",
+  timeout: 5000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+});
 
 export class IngameService {
   private static get repo(): Repository<Ingame> {
@@ -124,6 +134,70 @@ export class IngameService {
       slot8: itemSlot.slot8,
       slot9: itemSlot.slot9,
     });
+  }
+
+  static async getAvailableTicket(user: number) {
+    if (!user) {
+      throw Error("empty user.");
+    }
+
+    const exist = await this.repo.findOneBy({
+      account_id: user,
+    });
+
+    if (!exist) throw new Error("not found item slot data");
+
+    return exist.available_ticket;
+  }
+
+  static async receiveAvailableTicket(user: number, token: string) {
+    if (!user) {
+      throw Error("empty user.");
+    }
+
+    if (!token) {
+      throw Error("empty token");
+    }
+
+    const queryRunner = AppDataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const exist = await this.repo.findOneBy({
+        account_id: user,
+      });
+
+      if (!exist) throw new Error("not found item slot data");
+
+      const ticket = exist.available_ticket;
+
+      await queryRunner.manager.update(
+        Ingame,
+        { account_id: user },
+        { available_ticket: 0 }
+      );
+
+      await BagService.post(
+        `/bag/add`,
+        {
+          item: "030",
+          stock: ticket,
+        },
+        {
+          headers: {
+            Cookie: `access_token=${token}`,
+          },
+        }
+      );
+
+      await queryRunner.commitTransaction();
+    } catch (err: any) {
+      await queryRunner.rollbackTransaction();
+      throw Error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
 

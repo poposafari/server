@@ -47,4 +47,38 @@ export class IngameController {
       }
     }
   }
+
+  static async getAvailableTicket(req: Request, res: Response): Promise<any> {
+    try {
+      const availableTicket = await IngameService.getAvailableTicket(
+        res.locals.user.id
+      );
+      return res.status(201).json(availableTicket);
+    } catch (err: any) {
+      if (err instanceof HttpError) {
+        return res.status(err.getStatus()).json({ error: err.message });
+      } else {
+        return res.status(500).json({ error: err.message });
+      }
+    }
+  }
+
+  static async receiveAvailableTicket(
+    req: Request,
+    res: Response
+  ): Promise<any> {
+    try {
+      const availableTicket = await IngameService.receiveAvailableTicket(
+        res.locals.user.id,
+        res.locals.token.id
+      );
+      return res.status(201).json(availableTicket);
+    } catch (err: any) {
+      if (err instanceof HttpError) {
+        return res.status(err.getStatus()).json({ error: err.message });
+      } else {
+        return res.status(500).json({ error: err.message });
+      }
+    }
+  }
 }
