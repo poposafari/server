@@ -4,10 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:account": "ts-node ./account/main.ts",
-    "start:ingame": "ts-node ./ingame/main.ts",
-    "start:bag": "ts-node ./bag/main.ts",
-    "start:ticket-cron": "ts-node ./ticket-cron/main.ts"
+    "start:api": "ts-node ./api/main.ts"
   },
   "keywords": [],
   "author": "",

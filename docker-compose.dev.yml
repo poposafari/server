@@ -10,8 +10,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/certs:/etc/nginx/certs
     depends_on:
-      - account
-      - ingame
+      - api
     networks:
       - poposerver
 
@@ -46,60 +45,15 @@ services:
     networks:
       - poposerver
 
-  account:
-    container_name: account
+  api:
+    container_name: api
     build:
       context: .
-      dockerfile: apps/account/Dockerfile
+      dockerfile: apps/api/Dockerfile
     env_file:
       - .env
     ports:
-      - "${SERVICE_ACCOUNT_PORT}:${SERVICE_ACCOUNT_PORT}"
-    depends_on:
-      - db0
-      - redis
-    networks:
-      - poposerver
-
-  ingame:
-    container_name: ingame
-    build:
-      context: .
-      dockerfile: apps/ingame/Dockerfile
-    env_file:
-      - .env
-    ports:
-      - "${SERVICE_INGAME_PORT}:${SERVICE_INGAME_PORT}"
-    depends_on:
-      - db0
-      - redis
-    networks:
-      - poposerver
-
-  bag:
-    container_name: bag
-    build:
-      context: .
-      dockerfile: apps/bag/Dockerfile
-    env_file:
-      - .env
-    ports:
-      - "${SERVICE_BAG_PORT}:${SERVICE_BAG_PORT}"
-    depends_on:
-      - db0
-      - redis
-    networks:
-      - poposerver
-
-  ticket-cron:
-    container_name: ticket-cron
-    build:
-      context: .
-      dockerfile: apps/ticket-cron/Dockerfile
-    env_file:
-      - .env
-    ports:
-      - "${CRON_TICKET}:${CRON_TICKET}"
+      - "${SERVICE_API_PORT}:${SERVICE_API_PORT}"
     depends_on:
       - db0
       - redis
