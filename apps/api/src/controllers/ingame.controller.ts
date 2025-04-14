@@ -69,8 +69,7 @@ export class IngameController {
   ): Promise<any> {
     try {
       const availableTicket = await IngameService.receiveAvailableTicket(
-        res.locals.user.id,
-        res.locals.token.id
+        res.locals.user.id
       );
       return res.status(201).json(availableTicket);
     } catch (err: any) {

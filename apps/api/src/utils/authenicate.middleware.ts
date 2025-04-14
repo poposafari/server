@@ -20,7 +20,6 @@ export const authenticate = async (
   try {
     const payload = verifyAccessToken(token) as any;
     res.locals.user = payload;
-    res.locals.token = token;
     return next();
   } catch (err) {
     try {
@@ -40,7 +39,6 @@ export const authenticate = async (
       const newAccessToken = createAccessToken({ id: payload.id });
       res.cookie("access_token", newAccessToken, CookieConfig as any);
       res.locals.user = payload;
-      res.locals.token = token;
 
       return next();
     } catch (err: any) {

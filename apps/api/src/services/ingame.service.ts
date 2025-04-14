@@ -125,13 +125,9 @@ export class IngameService {
     return exist.available_ticket;
   }
 
-  static async receiveAvailableTicket(user: number, token: string) {
+  static async receiveAvailableTicket(user: number) {
     if (!user) {
       throw Error("empty user.");
-    }
-
-    if (!token) {
-      throw Error("empty token");
     }
 
     const queryRunner = AppDataSource.createQueryRunner();
