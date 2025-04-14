@@ -1,22 +1,8 @@
 import { Repository } from "typeorm";
 import { Bag } from "../entities/Bag";
 import { AppDataSource } from "../data-source";
-
-enum ItemType {
-  POKEBALL = "pokeball",
-  ETC = "etc",
-  BERRY = "berry",
-  KEY = "key",
-}
-
-export interface Item {
-  item: string;
-  stock: number;
-}
-
-export interface ItemSel {
-  category: ItemType;
-}
+import { ItemType } from "../enums";
+import { Item, ItemSel } from "../interfaces";
 
 export class BagService {
   static data: { item: string; type: ItemType }[] = [];

@@ -10,18 +10,7 @@ import { Account } from "./Account";
 import { ItemSlot } from "./ItemSlot";
 import { PartySlot } from "./PartySlot";
 import { PokeboxBg } from "./PokeboxBg";
-
-export enum IngameGender {
-  BOY = "boy",
-  GIRL = "girl",
-}
-
-export enum IngameAvatar {
-  ONE = "1",
-  TWO = "2",
-  THREE = "3",
-  FOUR = "4",
-}
+import { IngameAvatar, IngameGender } from "../enums";
 
 @Entity({ schema: "db0", name: "ingame" })
 @Unique(["nickname"])

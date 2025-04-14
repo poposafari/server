@@ -1,13 +1,6 @@
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from "typeorm";
 import { Account } from "./Account";
-// import { ItemType } from "../../services/bag.service";
-
-export enum ItemType {
-  POKEBALL = "pokeball",
-  KEY = "key",
-  BERRY = "berry",
-  ETC = "etc",
-}
+import { ItemType } from "../enums";
 
 @Entity({ schema: "db0", name: "bag" })
 export class Bag {

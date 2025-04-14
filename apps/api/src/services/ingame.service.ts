@@ -7,26 +7,9 @@ import { PokeboxBg } from "../entities/PokeboxBg";
 import { AppDataSource } from "../data-source";
 import { ConflictHttpError } from "../utils/http-error";
 import { verifyAccessToken } from "../utils/jwt";
-import { IngameAvatar, IngameGender } from "../entities/Ingame";
 import { BagService } from "./bag.service";
-
-interface RegisterReq {
-  gender: "boy" | "girl";
-  avatar: "1" | "2" | "3" | "4";
-  nickname: string;
-}
-
-interface ItemSlotData {
-  slot1: string;
-  slot2: string;
-  slot3: string;
-  slot4: string;
-  slot5: string;
-  slot6: string;
-  slot7: string;
-  slot8: string;
-  slot9: string;
-}
+import { IngameAvatar, IngameGender } from "../enums";
+import { ItemSlotData, RegisterReq } from "../interfaces";
 
 export class IngameService {
   private static get repo(): Repository<Ingame> {
