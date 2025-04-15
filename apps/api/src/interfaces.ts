@@ -1,4 +1,4 @@
-import { ItemType } from "./enums";
+import { Backgrounds, ItemType } from "./enums";
 
 export interface LoginData {
   username: string;
@@ -30,4 +30,26 @@ export interface ItemSlotData {
   slot7: string;
   slot8: string;
   slot9: string;
+}
+
+export interface PokeboxBgReq {
+  box0: Backgrounds;
+  box1: Backgrounds;
+  box2: Backgrounds;
+  box3: Backgrounds;
+  box4: Backgrounds;
+  box5: Backgrounds;
+  box6: Backgrounds;
+  box7: Backgrounds;
+  box8: Backgrounds;
+  box9: Backgrounds;
+  box10: Backgrounds;
+  box11: Backgrounds;
+  box12: Backgrounds;
+  box13: Backgrounds;
+  box14: Backgrounds;
+  box15: Backgrounds;
+  box16: Backgrounds;
+  box17: Backgrounds;
+  box18: Backgrounds;
 }

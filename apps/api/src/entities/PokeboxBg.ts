@@ -14,7 +14,7 @@ export class PokeboxBg {
   id?: number;
 
   @Column()
-  account_id?: number;
+  account_id!: number;
 
   @ManyToOne(() => Account, (account) => account.id, { onDelete: "CASCADE" })
   @JoinColumn({ name: "account_id" })

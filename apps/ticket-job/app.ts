@@ -28,7 +28,7 @@ async function boot() {
     await pgClient.connect();
     console.log("postgresql connected...");
 
-    cron.schedule(TEST, () => {
+    cron.schedule(EXPRESSION, () => {
       console.log("running ticket-job...");
       updateTickets(MAX_AVAILABLE_TICKET);
     });

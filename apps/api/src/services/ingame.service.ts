@@ -9,7 +9,7 @@ import { ConflictHttpError } from "../utils/http-error";
 import { verifyAccessToken } from "../utils/jwt";
 import { BagService } from "./bag.service";
 import { IngameAvatar, IngameGender } from "../enums";
-import { ItemSlotData, RegisterReq } from "../interfaces";
+import { ItemSlotData, PokeboxBgReq, RegisterReq } from "../interfaces";
 
 export class IngameService {
   private static get repo(): Repository<Ingame> {
@@ -158,6 +158,40 @@ export class IngameService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  static async updatePokeboxBg(user: number, data: PokeboxBgReq) {
+    if (!user) {
+      throw Error("empty user.");
+    }
+
+    const exist = await this.pokeboxBgRepo.findOneBy({
+      account_id: user,
+    });
+
+    if (!exist) throw new Error("not found pokeboxBg data");
+
+    await this.pokeboxBgRepo.update(exist.account_id, {
+      box0: data.box0,
+      box1: data.box1,
+      box2: data.box2,
+      box3: data.box3,
+      box4: data.box4,
+      box5: data.box5,
+      box6: data.box6,
+      box7: data.box7,
+      box8: data.box8,
+      box9: data.box9,
+      box10: data.box10,
+      box11: data.box11,
+      box12: data.box12,
+      box13: data.box13,
+      box14: data.box14,
+      box15: data.box15,
+      box16: data.box16,
+      box17: data.box17,
+      box18: data.box18,
+    });
   }
 }
 

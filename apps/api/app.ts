@@ -8,6 +8,7 @@ import ingameRouter from "./src/routes/ingame.route";
 import itemSlotRouter from "./src/routes/itemslot.route";
 import ticketRouter from "./src/routes/ticket.route";
 import bagRouter from "./src/routes/bag.route";
+import pokeboxRouter from "./src/routes/pokebox.route";
 
 const app = express();
 
@@ -22,5 +23,6 @@ app.use("/api/ingame", ingameRouter);
 app.use("/api/itemslot", itemSlotRouter);
 app.use("/api/ticket", ticketRouter);
 app.use("/api/bag", bagRouter);
+app.use("/api/pokebox", pokeboxRouter);
 
 export default app;

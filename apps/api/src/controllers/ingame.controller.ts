@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { HttpError } from "../utils/http-error";
 import { IngameService } from "../services/ingame.service";
+import { PokeboxBgReq } from "../interfaces";
 
 export class IngameController {
   static async register(req: Request, res: Response): Promise<any> {
@@ -72,6 +73,22 @@ export class IngameController {
         res.locals.user.id
       );
       return res.status(201).json(availableTicket);
+    } catch (err: any) {
+      if (err instanceof HttpError) {
+        return res.status(err.getStatus()).json({ error: err.message });
+      } else {
+        return res.status(500).json({ error: err.message });
+      }
+    }
+  }
+
+  static async updatePokeboxBg(req: Request, res: Response): Promise<any> {
+    try {
+      const pokeboxBg = await IngameService.updatePokeboxBg(
+        res.locals.user.id,
+        req.body
+      );
+      return res.status(201).json(pokeboxBg);
     } catch (err: any) {
       if (err instanceof HttpError) {
         return res.status(err.getStatus()).json({ error: err.message });
