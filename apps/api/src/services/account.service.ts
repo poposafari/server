@@ -3,11 +3,7 @@ import { Repository } from "typeorm";
 import { Account } from "../entities/Account";
 import { AppDataSource } from "../data-source";
 import { ConflictHttpError, NotFountHttpError } from "../utils/http-error";
-
-interface LoginData {
-  username: string;
-  password: string;
-}
+import { LoginData } from "../interfaces";
 
 const saltOrRounds = 10;
 

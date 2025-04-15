@@ -1,0 +1,25 @@
+{
+  "name": "ticket-job",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:ticket-job": "ts-node ./app.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "node-cron": "^3.0.3",
+    "pg": "^8.14.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.11",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.11.13",
+    "tsconfig-paths": "^4.2.0"
+  }
+}

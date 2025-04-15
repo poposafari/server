@@ -60,6 +60,20 @@ services:
     networks:
       - poposerver
 
+  ticket-job:
+    container_name: ticket-job
+    build:
+      context: .
+      dockerfile: apps/ticket-job/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${JOB_TICKET_PORT}:${JOB_TICKET_PORT}"
+    depends_on:
+      - db0
+    networks:
+      - poposerver
+
 networks:
   poposerver:
     driver: bridge
