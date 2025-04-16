@@ -38,3 +38,14 @@ export enum Backgrounds {
   SEVENTEEN = "17",
   EIGHTEEN = "18",
 }
+
+export enum PokemonGender {
+  MALE = "male",
+  FEMALE = "female",
+  NONE = "none",
+}
+
+export enum PokemonSkill {
+  SURF = "surf",
+  DARK_EYES = "dark_eyes",
+}
