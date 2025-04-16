@@ -5,7 +5,7 @@ CREATE TYPE ingame_avatar AS ENUM ('1', '2', '3', '4');
 CREATE TYPE backgrounds AS ENUM ('0','1', '2', '3', '4', '5', '6', '7', '8', '9', '10','11', '12', '13', '14', '15');
 CREATE TYPE item_type AS ENUM ('pokeball','key','berry','etc');
 CREATE TYPE pokemon_gender AS ENUM ('male', 'female', 'none');
-CREATE TYPE pokemon_skill AS ENUM ('surf', 'dark_eyes');
+CREATE TYPE pokemon_skill AS ENUM ('none','surf', 'dark_eyes');
 
 CREATE TABLE db0.account (
     -- 사용자를 식별하기 위한 값.

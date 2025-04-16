@@ -1,4 +1,4 @@
-import { Backgrounds, ItemType } from "./enums";
+import { Backgrounds, ItemType, PokemonGender, PokemonSkill } from "./enums";
 
 export interface LoginData {
   username: string;
@@ -52,4 +52,14 @@ export interface PokeboxBgReq {
   box16: Backgrounds;
   box17: Backgrounds;
   box18: Backgrounds;
+}
+
+export interface MyPokemonReq {
+  pokedex: string;
+  gender: PokemonGender;
+  shiny: boolean;
+  form: number;
+  skill: PokemonSkill;
+  location: string;
+  capture_ball: string;
 }
