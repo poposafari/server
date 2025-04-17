@@ -2,7 +2,7 @@ import { Repository } from "typeorm";
 import { Ingame } from "../entities/Ingame";
 import { AppDataSource } from "../data-source";
 import { Pokebox } from "../entities/Pokebox";
-import { MyPokemonReq } from "../interfaces";
+import { MyPokemonReq, PokeboxSelectReq } from "../interfaces";
 import { Backgrounds, PokemonSkill } from "../enums";
 
 export class PokeboxService {
@@ -63,5 +63,20 @@ export class PokeboxService {
 
       await this.pokeboxRepo.save(newPokemon);
     }
+  }
+
+  static async getPokebox(user: number, search: PokeboxSelectReq) {
+    if (!user) throw Error("empty user.");
+
+    const pokebox = await this.pokeboxRepo.find({
+      where: {
+        account_id: user,
+        box: search.box,
+      },
+    });
+
+    if (!pokebox) throw new Error("not found pokebox data");
+
+    return pokebox;
   }
 }

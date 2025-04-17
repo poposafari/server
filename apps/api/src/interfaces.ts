@@ -63,3 +63,7 @@ export interface MyPokemonReq {
   location: string;
   capture_ball: string;
 }
+
+export interface PokeboxSelectReq {
+  box?: Backgrounds;
+}

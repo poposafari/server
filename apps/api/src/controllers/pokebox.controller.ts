@@ -19,4 +19,21 @@ export class PokeboxController {
       }
     }
   }
+
+  static async getPokebox(req: Request, res: Response): Promise<any> {
+    try {
+      const pokeboxes = await PokeboxService.getPokebox(
+        res.locals.user.id,
+        req.body
+      );
+
+      return res.status(201).json(pokeboxes);
+    } catch (err: any) {
+      if (err instanceof HttpError) {
+        return res.status(err.getStatus()).json({ error: err.message });
+      } else {
+        return res.status(500).json({ error: err.message });
+      }
+    }
+  }
 }

@@ -7,5 +7,6 @@ const pokeboxRouter = Router();
 
 pokeboxRouter.post("/bg", authenticate, IngameController.updatePokeboxBg);
 pokeboxRouter.post("/add", authenticate, PokeboxController.addPokemon);
+pokeboxRouter.post("/get", authenticate, PokeboxController.getPokebox);
 
 export default pokeboxRouter;
