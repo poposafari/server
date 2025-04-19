@@ -77,6 +77,17 @@ export class PokeboxService {
 
     if (!pokebox) throw new Error("not found pokebox data");
 
-    return pokebox;
+    return pokebox.map((data) => ({
+      pokedex: data.pokedex,
+      gender: data.gender,
+      shiny: data.shiny,
+      form: data.form,
+      count: data.count,
+      skill: data.skill,
+      captureDate: data.capture_date,
+      captureBall: data.capture_ball,
+      captureLocation: data.capture_location,
+      nickname: data.nickname,
+    }));
   }
 }
