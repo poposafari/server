@@ -67,3 +67,9 @@ export interface MyPokemonReq {
 export interface PokeboxSelectReq {
   box?: Backgrounds;
 }
+
+export interface MovePokemonBoxReq {
+  pokedex: string;
+  gender: PokemonGender;
+  to: Backgrounds;
+}

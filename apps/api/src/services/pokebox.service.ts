@@ -2,7 +2,11 @@ import { Repository } from "typeorm";
 import { Ingame } from "../entities/Ingame";
 import { AppDataSource } from "../data-source";
 import { Pokebox } from "../entities/Pokebox";
-import { MyPokemonReq, PokeboxSelectReq } from "../interfaces";
+import {
+  MyPokemonReq,
+  PokeboxSelectReq,
+  MovePokemonBoxReq,
+} from "../interfaces";
 import { Backgrounds, PokemonSkill } from "../enums";
 
 export class PokeboxService {
@@ -89,5 +93,24 @@ export class PokeboxService {
       captureLocation: data.capture_location,
       nickname: data.nickname,
     }));
+  }
+
+  static async moveBox(user: number, info: MovePokemonBoxReq) {
+    if (!user) throw Error("empty user.");
+
+    const pokemon = await this.pokeboxRepo.findOneBy({
+      account_id: user,
+      pokedex: info.pokedex,
+      gender: info.gender,
+    });
+
+    if (!pokemon) throw Error("not found pokemon");
+
+    await this.pokeboxRepo.update(
+      { account_id: user, pokedex: info.pokedex, gender: info.gender },
+      {
+        box: info.to,
+      }
+    );
   }
 }

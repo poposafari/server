@@ -36,4 +36,17 @@ export class PokeboxController {
       }
     }
   }
+
+  static async moveBox(req: Request, res: Response): Promise<any> {
+    try {
+      const ret = await PokeboxService.moveBox(res.locals.user.id, req.body);
+      return res.status(201).json(ret);
+    } catch (err: any) {
+      if (err instanceof HttpError) {
+        return res.status(err.getStatus()).json({ error: err.message });
+      } else {
+        return res.status(500).json({ error: err.message });
+      }
+    }
+  }
 }
