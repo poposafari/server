@@ -36,57 +36,16 @@ CREATE TABLE db0.ingame (
   money INTEGER NOT NULL,
   nickname VARCHAR(10) UNIQUE,
   available_ticket INTEGER NOT NULL DEFAULT 8 CHECK (available_ticket >= 0 AND available_ticket <= 8),
+  boxes backgrounds[] NOT NULL DEFAULT ARRAY[
+    '0','0','0','0','0','0','0','0','0','0', 
+    '0','0','0','0','0','0','0','0','0','0',
+    '0','0','0','0','0','0','0','0','0','0',
+    '0','0','0'
+  ]::backgrounds[] CHECK (array_length(boxes, 1) = 33),
+  party TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[] CHECK (array_length(party, 1) <= 6),
+  itemslot CHAR(3)[] NOT NULL DEFAULT ARRAY[]::CHAR(3)[] CHECK (array_length(itemslot, 1) <= 9),
   PRIMARY KEY (account_id),
   FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE
-);
-
-CREATE TABLE db0.party_slot(
-  id SERIAL PRIMARY KEY,
-  account_id INTEGER REFERENCES db0.account(id) ON DELETE CASCADE,
-  slot1 CHAR(3) NOT NULL DEFAULT '000',
-  slot2 CHAR(3) NOT NULL DEFAULT '000',
-  slot3 CHAR(3) NOT NULL DEFAULT '000',
-  slot4 CHAR(3) NOT NULL DEFAULT '000',
-  slot5 CHAR(3) NOT NULL DEFAULT '000',
-  slot6 CHAR(3) NOT NULL DEFAULT '000'
-);
-
-CREATE TABLE db0.item_slot(
-  id SERIAL PRIMARY KEY,
-  account_id INTEGER REFERENCES db0.account(id) ON DELETE CASCADE,
-  slot1 CHAR(3) NULL,
-  slot2 CHAR(3) NULL,
-  slot3 CHAR(3) NULL,
-  slot4 CHAR(3) NULL,
-  slot5 CHAR(3) NULL,
-  slot6 CHAR(3) NULL,
-  slot7 CHAR(3) NULL,
-  slot8 CHAR(3) NULL,
-  slot9 CHAR(3) NULL
-);
-
-CREATE TABLE db0.pokebox_bg(
-  id SERIAL PRIMARY KEY,
-  account_id INTEGER REFERENCES db0.account(id) ON DELETE CASCADE,
-  box0 backgrounds NOT NULL DEFAULT '0',
-  box1 backgrounds NOT NULL DEFAULT '0',
-  box2 backgrounds NOT NULL DEFAULT '0',
-  box3 backgrounds NOT NULL DEFAULT '0',
-  box4 backgrounds NOT NULL DEFAULT '0',
-  box5 backgrounds NOT NULL DEFAULT '0',
-  box6 backgrounds NOT NULL DEFAULT '0',
-  box7 backgrounds NOT NULL DEFAULT '0',
-  box8 backgrounds NOT NULL DEFAULT '0',
-  box9 backgrounds NOT NULL DEFAULT '0',
-  box10 backgrounds NOT NULL DEFAULT '0',
-  box11 backgrounds NOT NULL DEFAULT '0',
-  box12 backgrounds NOT NULL DEFAULT '0',
-  box13 backgrounds NOT NULL DEFAULT '0',
-  box14 backgrounds NOT NULL DEFAULT '0',
-  box15 backgrounds NOT NULL DEFAULT '0',
-  box16 backgrounds NOT NULL DEFAULT '0',
-  box17 backgrounds NOT NULL DEFAULT '0',
-  box18 backgrounds NOT NULL DEFAULT '0'
 );
 
 CREATE TABLE db0.bag(

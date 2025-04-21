@@ -34,9 +34,6 @@ export enum Backgrounds {
   THIRTEEN = "13",
   FOURTEEN = "14",
   FIFTEEN = "15",
-  SIXTEEN = "16",
-  SEVENTEEN = "17",
-  EIGHTEEN = "18",
 }
 
 export enum PokemonGender {
