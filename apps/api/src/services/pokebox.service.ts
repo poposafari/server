@@ -7,7 +7,7 @@ import {
   PokeboxSelectReq,
   MovePokemonBoxReq,
 } from "../interfaces";
-import { Backgrounds, PokemonSkill } from "../enums";
+import { PokemonGender, PokemonSkill } from "../enums";
 
 export class PokeboxService {
   private static get ingameRepo(): Repository<Ingame> {
@@ -60,7 +60,7 @@ export class PokeboxService {
         shiny: pokemon.shiny,
         form: pokemon.form,
         skill: pokemon.skill === "none" ? [] : [pokemon.skill],
-        box: Backgrounds.ZERO,
+        box: 0, //TODO: 수정해야함.
         capture_location: pokemon.location,
         capture_ball: pokemon.capture_ball,
       });
@@ -101,7 +101,7 @@ export class PokeboxService {
     const pokemon = await this.pokeboxRepo.findOneBy({
       account_id: user,
       pokedex: info.pokedex,
-      gender: info.gender,
+      gender: info.gender as PokemonGender,
     });
 
     if (!pokemon) throw Error("not found pokemon");
@@ -112,5 +112,6 @@ export class PokeboxService {
         box: info.to,
       }
     );
+    return await this.getPokebox(user, { box: info.from });
   }
 }

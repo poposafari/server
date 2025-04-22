@@ -20,38 +20,12 @@ export interface RegisterReq {
   nickname: string;
 }
 
-export interface ItemSlotData {
-  slot1: string;
-  slot2: string;
-  slot3: string;
-  slot4: string;
-  slot5: string;
-  slot6: string;
-  slot7: string;
-  slot8: string;
-  slot9: string;
+export interface SlotReq {
+  data: (string | null)[];
 }
 
-export interface PokeboxBgReq {
-  box0: Backgrounds;
-  box1: Backgrounds;
-  box2: Backgrounds;
-  box3: Backgrounds;
-  box4: Backgrounds;
-  box5: Backgrounds;
-  box6: Backgrounds;
-  box7: Backgrounds;
-  box8: Backgrounds;
-  box9: Backgrounds;
-  box10: Backgrounds;
-  box11: Backgrounds;
-  box12: Backgrounds;
-  box13: Backgrounds;
-  box14: Backgrounds;
-  box15: Backgrounds;
-  box16: Backgrounds;
-  box17: Backgrounds;
-  box18: Backgrounds;
+export interface BoxBgReq {
+  data: Backgrounds[];
 }
 
 export interface MyPokemonReq {
@@ -65,11 +39,12 @@ export interface MyPokemonReq {
 }
 
 export interface PokeboxSelectReq {
-  box?: Backgrounds;
+  box?: number;
 }
 
 export interface MovePokemonBoxReq {
   pokedex: string;
   gender: PokemonGender;
-  to: Backgrounds;
+  from: number;
+  to: number;
 }

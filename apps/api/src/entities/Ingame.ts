@@ -22,7 +22,7 @@ export class Ingame {
 
   @OneToOne(() => Account, { onDelete: "CASCADE" })
   @JoinColumn({ name: "account_id" })
-  account?: Account;
+  account!: Account;
 
   @Column({ type: "char", length: 3 })
   location!: string;
@@ -64,13 +64,15 @@ export class Ingame {
   @Column({
     type: "text",
     array: true,
+    nullable: true,
   })
-  party!: string[];
+  party!: (string | null)[];
 
   @Column({
     type: "char",
     length: 3,
     array: true,
+    nullable: true,
   })
-  itemslot!: string[];
+  itemslot!: (string | null)[];
 }

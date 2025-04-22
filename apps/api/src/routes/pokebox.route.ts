@@ -5,7 +5,6 @@ import { PokeboxController } from "../controllers/pokebox.controller";
 
 const pokeboxRouter = Router();
 
-pokeboxRouter.post("/bg", authenticate, IngameController.updatePokeboxBg);
 pokeboxRouter.post("/add", authenticate, PokeboxController.addPokemon);
 pokeboxRouter.post("/get", authenticate, PokeboxController.getPokebox);
 pokeboxRouter.post("/move", authenticate, PokeboxController.moveBox);

@@ -6,7 +6,7 @@ import { ConflictHttpError } from "../utils/http-error";
 import { verifyAccessToken } from "../utils/jwt";
 import { BagService } from "./bag.service";
 import { Backgrounds, IngameAvatar, IngameGender } from "../enums";
-import { ItemSlotData, PokeboxBgReq, RegisterReq } from "../interfaces";
+import { BoxBgReq, RegisterReq, SlotReq } from "../interfaces";
 
 export class IngameService {
   private static get repo(): Repository<Ingame> {
@@ -33,8 +33,8 @@ export class IngameService {
       gender: getGenderEnum(data.gender),
       avatar: getAvatarEnum(data.avatar),
       boxes: setDefaultBoxes(),
-      party: ["000", "000", "000", "000", "000", "000"],
-      itemslot: ["000", "000", "000", "000", "000", "000", "000", "000", "000"],
+      party: [null, null, null, null, null, null],
+      itemslot: [null, null, null, null, null, null, null, null, null],
     });
 
     await this.repo.save(ingameAccount);
@@ -67,25 +67,32 @@ export class IngameService {
     };
   }
 
-  static async updateItemSlot(user: number, itemSlot: ItemSlotData) {
-    // if (!user) {
-    //   throw Error("empty user.");
-    // }
-    // const exist = await this.itemSlotRepo.findOneBy({
-    //   account_id: user,
-    // });
-    // if (!exist) throw new Error("not found item slot data");
-    // await this.itemSlotRepo.update(exist.account_id, {
-    //   slot1: itemSlot.slot1,
-    //   slot2: itemSlot.slot2,
-    //   slot3: itemSlot.slot3,
-    //   slot4: itemSlot.slot4,
-    //   slot5: itemSlot.slot5,
-    //   slot6: itemSlot.slot6,
-    //   slot7: itemSlot.slot7,
-    //   slot8: itemSlot.slot8,
-    //   slot9: itemSlot.slot9,
-    // });
+  static async updateItemSlot(user: number, itemSlot: SlotReq) {
+    if (!user) {
+      throw Error("empty user.");
+    }
+    const exist = await this.repo.findOneBy({
+      account_id: user,
+    });
+    if (!exist) throw new Error("not found item slot data");
+
+    await this.repo.update(exist.account_id, {
+      itemslot: itemSlot.data,
+    });
+  }
+
+  static async updateParty(user: number, party: SlotReq) {
+    if (!user) {
+      throw Error("empty user.");
+    }
+    const exist = await this.repo.findOneBy({
+      account_id: user,
+    });
+    if (!exist) throw new Error("not found item slot data");
+
+    await this.repo.update(exist.account_id, {
+      party: party.data,
+    });
   }
 
   static async getAvailableTicket(user: number) {
@@ -137,36 +144,17 @@ export class IngameService {
     }
   }
 
-  static async updatePokeboxBg(user: number, data: PokeboxBgReq) {
-    //   if (!user) {
-    //     throw Error("empty user.");
-    //   }
-    //   const exist = await this.pokeboxBgRepo.findOneBy({
-    //     account_id: user,
-    //   });
-    //   if (!exist) throw new Error("not found pokeboxBg data");
-    //   await this.pokeboxBgRepo.update(exist.account_id, {
-    //     box0: data.box0,
-    //     box1: data.box1,
-    //     box2: data.box2,
-    //     box3: data.box3,
-    //     box4: data.box4,
-    //     box5: data.box5,
-    //     box6: data.box6,
-    //     box7: data.box7,
-    //     box8: data.box8,
-    //     box9: data.box9,
-    //     box10: data.box10,
-    //     box11: data.box11,
-    //     box12: data.box12,
-    //     box13: data.box13,
-    //     box14: data.box14,
-    //     box15: data.box15,
-    //     box16: data.box16,
-    //     box17: data.box17,
-    //     box18: data.box18,
-    //   });
-    // }
+  static async updatePokeboxBg(user: number, backgrounds: BoxBgReq) {
+    if (!user) {
+      throw Error("empty user.");
+    }
+    const exist = await this.repo.findOneBy({
+      account_id: user,
+    });
+    if (!exist) throw new Error("not found pokeboxBg data");
+    await this.repo.update(exist.account_id, {
+      boxes: backgrounds.data,
+    });
   }
 }
 

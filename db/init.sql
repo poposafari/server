@@ -62,7 +62,7 @@ CREATE TABLE db0.pokebox(
   pokedex CHAR(4) NOT NULL DEFAULT '0000',
   gender pokemon_gender NOT NULL DEFAULT 'none',
   count INTEGER NOT NULL DEFAULT 1,
-  box backgrounds NOT NULL,
+  box INTEGER NOT NULL DEFAULT 0 CHECK (box >=0 AND box <=32),
   shiny BOOLEAN NOT NULL DEFAULT FALSE,
   form INTEGER NOT NULL DEFAULT 0,
   skill pokemon_skill[] NOT NULL,
