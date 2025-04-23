@@ -44,7 +44,7 @@ export class PokeboxService {
       await this.pokeboxRepo.update(
         { account_id: user, pokedex: pokemon.pokedex, gender: pokemon.gender },
         {
-          shiny: pokemon.shiny,
+          shiny: exist.shiny ? true : pokemon.shiny,
           form: pokemon.form,
           count: exist.count + 1,
           skill: newSkill,
