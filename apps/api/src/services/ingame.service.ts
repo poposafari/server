@@ -33,7 +33,7 @@ export class IngameService {
       gender: getGenderEnum(data.gender),
       avatar: getAvatarEnum(data.avatar),
       boxes: setDefaultBoxes(),
-      party: [null, null, null, null, null, null],
+      party: [],
       itemslot: [null, null, null, null, null, null, null, null, null],
     });
 
