@@ -2,11 +2,7 @@ import { Repository } from "typeorm";
 import { Ingame } from "../entities/Ingame";
 import { AppDataSource } from "../data-source";
 import { Pokebox } from "../entities/Pokebox";
-import {
-  MyPokemonReq,
-  PokeboxSelectReq,
-  MovePokemonBoxReq,
-} from "../interfaces";
+import { MyPokemonReq, PokeboxSelectReq, MovePokemonReq } from "../interfaces";
 import { PokemonGender, PokemonSkill } from "../enums";
 
 export class PokeboxService {
@@ -95,7 +91,7 @@ export class PokeboxService {
     }));
   }
 
-  static async moveBox(user: number, info: MovePokemonBoxReq) {
+  static async moveBox(user: number, info: MovePokemonReq) {
     if (!user) throw Error("empty user.");
 
     const pokemon = await this.pokeboxRepo.findOneBy({

@@ -42,7 +42,7 @@ export interface PokeboxSelectReq {
   box?: number;
 }
 
-export interface MovePokemonBoxReq {
+export interface MovePokemonReq {
   pokedex: string;
   gender: PokemonGender;
   from: number;
