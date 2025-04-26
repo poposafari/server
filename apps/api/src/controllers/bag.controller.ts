@@ -28,4 +28,13 @@ export class BagController {
       return res.status(500).json({ error: err.message });
     }
   }
+
+  static async getAllItems(req:Request, res:Response): Promise<any> {
+    try {
+      const ret = await BagService.getAllItems(res.locals.user.id);
+      return res.status(200).json(ret);
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message });
+    }
+  }
 }

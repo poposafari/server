@@ -52,7 +52,7 @@ CREATE TABLE db0.bag(
   account_id INTEGER NOT NULL,
   item CHAR(3) NOT NULL,
   category item_type NOT NULL,
-  stock INTEGER NOT NULL DEFAULT 0,
+  stock INTEGER NOT NULL DEFAULT 0 CHECK(stock >= 0 AND stock <=999),
   PRIMARY KEY (account_id,item),
   FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE
 );

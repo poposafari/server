@@ -45,5 +45,5 @@ export enum PokemonGender {
 export enum PokemonSkill {
   NONE = "none",
   SURF = "surf",
-  DARK_EYES = "dark_eyes",
+  DARK_EYES = "darkeyes",
 }

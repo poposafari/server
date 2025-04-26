@@ -1,8 +1,16 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from "typeorm";
+import {
+  Entity,
+  PrimaryColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  Check,
+} from "typeorm";
 import { Account } from "./Account";
 import { ItemType } from "../enums";
 
 @Entity({ schema: "db0", name: "bag" })
+@Check(`"stock" >= 0 AND "stock" <= 999`)
 export class Bag {
   @PrimaryColumn()
   account_id!: number;
