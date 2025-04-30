@@ -9,6 +9,7 @@ import slotRouter from "./src/routes/slot.route";
 import ticketRouter from "./src/routes/ticket.route";
 import bagRouter from "./src/routes/bag.route";
 import pokeboxRouter from "./src/routes/pokebox.route";
+import safariRouter from "./src/routes/safari.route";
 
 const app = express();
 
@@ -24,5 +25,6 @@ app.use("/api/slot", slotRouter);
 app.use("/api/ticket", ticketRouter);
 app.use("/api/bag", bagRouter);
 app.use("/api/pokebox", pokeboxRouter);
+app.use("/api/safari", safariRouter);
 
 export default app;

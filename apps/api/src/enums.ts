@@ -47,3 +47,8 @@ export enum PokemonSkill {
   SURF = "surf",
   DARK_EYES = "darkeyes",
 }
+
+export enum OverworldType {
+  PLAZA = "plaza",
+  SAFARI = "safari",
+}

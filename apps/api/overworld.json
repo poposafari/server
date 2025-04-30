@@ -1,0 +1,74 @@
+[
+  {
+    "comment": "테스트 플라자",
+    "type": "plaza",
+    "key": "000",
+    "cost": 0,
+    "x": 0,
+    "y": 0,
+    "spawn": []
+  },
+  {
+    "comment": "메인 광장",
+    "type": "plaza",
+    "key": "001",
+    "cost": 0,
+    "x": 0,
+    "y": 0,
+    "spawn": []
+  },
+  {
+    "comment": "프렌들리 숍",
+    "type": "plaza",
+    "key": "002",
+    "cost": 0,
+    "x": 0,
+    "y": 0,
+    "spawn": []
+  },
+  {
+    "comment": "우체국",
+    "type": "plaza",
+    "key": "003",
+    "cost": 0,
+    "x": 0,
+    "y": 0,
+    "spawn": []
+  },
+  {
+    "comment": "테스트 사파리",
+    "type": "safari",
+    "key": "011",
+    "cost": 0,
+    "x": 0,
+    "y": 0,
+    "spawn": []
+  },
+  {
+    "comment": "숲",
+    "type": "safari",
+    "key": "012",
+    "cost": 1,
+    "x": 0,
+    "y": 0,
+    "spawn": []
+  },
+  {
+    "comment": "동굴",
+    "type": "safari",
+    "key": "013",
+    "cost": 3,
+    "x": 0,
+    "y": 0,
+    "spawn": []
+  },
+  {
+    "comment": "해변",
+    "type": "safari",
+    "key": "014",
+    "cost": 1,
+    "x": 0,
+    "y": 0,
+    "spawn": []
+  }
+]

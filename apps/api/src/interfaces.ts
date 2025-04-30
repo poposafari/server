@@ -48,3 +48,7 @@ export interface MovePokemonReq {
   from: number;
   to: number;
 }
+
+export interface UseTicketReq {
+  overworld: string;
+}

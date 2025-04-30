@@ -6,6 +6,7 @@ import "reflect-metadata";
 import { AppDataSource } from "./src/data-source";
 import { redis } from "./src/redis-source";
 import { BagService } from "./src/services/bag.service";
+import { SafariService } from "./src/services/safari.service";
 
 dotenv.config();
 
@@ -22,6 +23,9 @@ async function boot() {
     await loadItem();
     console.log("item data loaded");
 
+    await loadOverworld();
+    console.log("Overworld data loaded");
+
     app.listen(PORT, () => {
       console.log(`api is running on port ${PORT}`);
     });
@@ -36,6 +40,13 @@ async function loadItem(): Promise<void> {
   const rawData = fs.readFileSync(filePath, "utf-8");
   BagService.data = JSON.parse(rawData);
   console.log("Item data loaded into memory.");
+}
+
+async function loadOverworld(): Promise<void> {
+  const filePath = path.resolve(__dirname, "./overworld.json");
+  const rawData = fs.readFileSync(filePath, "utf-8");
+  SafariService.data = JSON.parse(rawData);
+  console.log("Overworld data loaded into memory.");
 }
 
 boot();
