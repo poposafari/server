@@ -26,6 +26,9 @@ async function boot() {
     await loadOverworld();
     console.log("Overworld data loaded");
 
+    await loadPokemon();
+    console.log("Pokemon data loaded");
+
     app.listen(PORT, () => {
       console.log(`api is running on port ${PORT}`);
     });
@@ -45,8 +48,15 @@ async function loadItem(): Promise<void> {
 async function loadOverworld(): Promise<void> {
   const filePath = path.resolve(__dirname, "./overworld.json");
   const rawData = fs.readFileSync(filePath, "utf-8");
-  SafariService.data = JSON.parse(rawData);
+  SafariService.overworlds = JSON.parse(rawData);
   console.log("Overworld data loaded into memory.");
+}
+
+async function loadPokemon(): Promise<void> {
+  const filePath = path.resolve(__dirname, "./pokemon.json");
+  const rawData = fs.readFileSync(filePath, "utf-8");
+  SafariService.pokemons = JSON.parse(rawData);
+  console.log("Pokemon data loaded into memory.");
 }
 
 boot();

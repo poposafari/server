@@ -1,0 +1,2116 @@
+{
+  "0001": {
+    "comment": "이상해씨",
+    "nextEvol": {
+      "next": "0002",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "poison"
+  },
+  "0002": {
+    "comment": "이상해풀",
+    "nextEvol": {
+      "next": "0003",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "poison"
+  },
+  "0003": {
+    "comment": "이상해꽃",
+    "nextEvol": {
+      "next": "0004",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "poison"
+  },
+  "0004": {
+    "comment": "파이리",
+    "nextEvol": {
+      "next": "0005",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": null
+  },
+  "0005": {
+    "comment": "리자드",
+    "nextEvol": {
+      "next": "0006",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": null
+  },
+  "0006": {
+    "comment": "리자몽",
+    "nextEvol": {
+      "next": "0007",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": "flying"
+  },
+  "0007": {
+    "comment": "꼬부기",
+    "nextEvol": {
+      "next": "0008",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0008": {
+    "comment": "어니부기",
+    "nextEvol": {
+      "next": "0009",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0009": {
+    "comment": "거북왕",
+    "nextEvol": {
+      "next": "0010",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0010": {
+    "comment": "캐터피",
+    "nextEvol": {
+      "next": "0011",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": null
+  },
+  "0011": {
+    "comment": "단데기",
+    "nextEvol": {
+      "next": "0012",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": null
+  },
+  "0012": {
+    "comment": "버터플",
+    "nextEvol": {
+      "next": "0013",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": "flying"
+  },
+  "0013": {
+    "comment": "뿔충이",
+    "nextEvol": {
+      "next": "0014",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": "poison"
+  },
+  "0014": {
+    "comment": "딱충이",
+    "nextEvol": {
+      "next": "0015",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": "poison"
+  },
+  "0015": {
+    "comment": "독침붕",
+    "nextEvol": {
+      "next": "0016",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": "poison"
+  },
+  "0016": {
+    "comment": "구구",
+    "nextEvol": {
+      "next": "0017",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": "flying"
+  },
+  "0017": {
+    "comment": "피죤",
+    "nextEvol": {
+      "next": "0018",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": "flying"
+  },
+  "0018": {
+    "comment": "피죤투",
+    "nextEvol": {
+      "next": "0019",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": "flying"
+  },
+  "0019": {
+    "comment": "꼬렛",
+    "nextEvol": {
+      "next": "0020",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0020": {
+    "comment": "레트라",
+    "nextEvol": {
+      "next": "0021",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0021": {
+    "comment": "깨비참",
+    "nextEvol": {
+      "next": "0022",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": "flying"
+  },
+  "0022": {
+    "comment": "깨비드릴조",
+    "nextEvol": {
+      "next": "0023",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": "flying"
+  },
+  "0023": {
+    "comment": "아보",
+    "nextEvol": {
+      "next": "0024",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": null
+  },
+  "0024": {
+    "comment": "아보크",
+    "nextEvol": {
+      "next": "0025",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": null
+  },
+  "0025": {
+    "comment": "피카츄",
+    "nextEvol": {
+      "next": "0026",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "electric",
+    "type2": null
+  },
+  "0026": {
+    "comment": "라이츄",
+    "nextEvol": {
+      "next": "0027",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "electric",
+    "type2": null
+  },
+  "0027": {
+    "comment": "모래두지",
+    "nextEvol": {
+      "next": "0028",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ground",
+    "type2": null
+  },
+  "0028": {
+    "comment": "고지",
+    "nextEvol": {
+      "next": "0029",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ground",
+    "type2": null
+  },
+  "0029": {
+    "comment": "니드런♀",
+    "nextEvol": {
+      "next": "0030",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": null
+  },
+  "0030": {
+    "comment": "니드리나",
+    "nextEvol": {
+      "next": "0031",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": null
+  },
+  "0031": {
+    "comment": "니드퀸",
+    "nextEvol": {
+      "next": "0032",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": "ground"
+  },
+  "0032": {
+    "comment": "니드런♂",
+    "nextEvol": {
+      "next": "0033",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": null
+  },
+  "0033": {
+    "comment": "니드리노",
+    "nextEvol": {
+      "next": "0034",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": null
+  },
+  "0034": {
+    "comment": "니드킹",
+    "nextEvol": {
+      "next": "0035",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": "ground"
+  },
+  "0035": {
+    "comment": "삐삐",
+    "nextEvol": {
+      "next": "0036",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fairy",
+    "type2": null
+  },
+  "0036": {
+    "comment": "픽시",
+    "nextEvol": {
+      "next": "0037",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fairy",
+    "type2": null
+  },
+  "0037": {
+    "comment": "식스테일",
+    "nextEvol": {
+      "next": "0038",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": null
+  },
+  "0038": {
+    "comment": "나인테일",
+    "nextEvol": {
+      "next": "0039",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": null
+  },
+  "0039": {
+    "comment": "푸린",
+    "nextEvol": {
+      "next": "0040",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": "fairy"
+  },
+  "0040": {
+    "comment": "푸크린",
+    "nextEvol": {
+      "next": "0041",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": "fairy"
+  },
+  "0041": {
+    "comment": "주뱃",
+    "nextEvol": {
+      "next": "0042",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": "flying"
+  },
+  "0042": {
+    "comment": "골뱃",
+    "nextEvol": {
+      "next": "0043",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": "flying"
+  },
+  "0043": {
+    "comment": "뚜벅쵸",
+    "nextEvol": {
+      "next": "0044",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "poison"
+  },
+  "0044": {
+    "comment": "냄새꼬",
+    "nextEvol": {
+      "next": "0045",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "poison"
+  },
+  "0045": {
+    "comment": "라플레시아",
+    "nextEvol": {
+      "next": "0046",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "poison"
+  },
+  "0046": {
+    "comment": "파라스",
+    "nextEvol": {
+      "next": "0047",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": "grass"
+  },
+  "0047": {
+    "comment": "파라섹트",
+    "nextEvol": {
+      "next": "0048",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": "grass"
+  },
+  "0048": {
+    "comment": "콘팡",
+    "nextEvol": {
+      "next": "0049",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": "poison"
+  },
+  "0049": {
+    "comment": "도나리",
+    "nextEvol": {
+      "next": "0050",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": "poison"
+  },
+  "0050": {
+    "comment": "디그다",
+    "nextEvol": {
+      "next": "0051",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ground",
+    "type2": null
+  },
+  "0051": {
+    "comment": "닥트리오",
+    "nextEvol": {
+      "next": "0052",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ground",
+    "type2": null
+  },
+  "0052": {
+    "comment": "나옹",
+    "nextEvol": {
+      "next": "0053",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0053": {
+    "comment": "페르시온",
+    "nextEvol": {
+      "next": "0054",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0054": {
+    "comment": "고라파덕",
+    "nextEvol": {
+      "next": "0055",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0055": {
+    "comment": "골덕",
+    "nextEvol": {
+      "next": "0056",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0056": {
+    "comment": "망키",
+    "nextEvol": {
+      "next": "0057",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fighting",
+    "type2": null
+  },
+  "0057": {
+    "comment": "성원숭",
+    "nextEvol": {
+      "next": "0058",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fighting",
+    "type2": null
+  },
+  "0058": {
+    "comment": "가디",
+    "nextEvol": {
+      "next": "0059",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": null
+  },
+  "0059": {
+    "comment": "윈디",
+    "nextEvol": {
+      "next": "0060",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": null
+  },
+  "0060": {
+    "comment": "발챙이",
+    "nextEvol": {
+      "next": "0061",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0061": {
+    "comment": "수륙챙이",
+    "nextEvol": {
+      "next": "0062",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0062": {
+    "comment": "강챙이",
+    "nextEvol": {
+      "next": "0063",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": "fighting"
+  },
+  "0063": {
+    "comment": "캐이시",
+    "nextEvol": {
+      "next": "0064",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "psychic",
+    "type2": null
+  },
+  "0064": {
+    "comment": "윤겔라",
+    "nextEvol": {
+      "next": "0065",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "psychic",
+    "type2": null
+  },
+  "0065": {
+    "comment": "후딘",
+    "nextEvol": {
+      "next": "0066",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "psychic",
+    "type2": null
+  },
+  "0066": {
+    "comment": "알통몬",
+    "nextEvol": {
+      "next": "0067",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fighting",
+    "type2": null
+  },
+  "0067": {
+    "comment": "근육몬",
+    "nextEvol": {
+      "next": "0068",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fighting",
+    "type2": null
+  },
+  "0068": {
+    "comment": "괴력몬",
+    "nextEvol": {
+      "next": "0069",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fighting",
+    "type2": null
+  },
+  "0069": {
+    "comment": "모다피",
+    "nextEvol": {
+      "next": "0070",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "poison"
+  },
+  "0070": {
+    "comment": "우츠동",
+    "nextEvol": {
+      "next": "0071",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "poison"
+  },
+  "0071": {
+    "comment": "우츠보트",
+    "nextEvol": {
+      "next": "0072",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "poison"
+  },
+  "0072": {
+    "comment": "왕눈해",
+    "nextEvol": {
+      "next": "0073",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": "poison"
+  },
+  "0073": {
+    "comment": "독파리",
+    "nextEvol": {
+      "next": "0074",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": "poison"
+  },
+  "0074": {
+    "comment": "꼬마돌",
+    "nextEvol": {
+      "next": "0075",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "rock",
+    "type2": "ground"
+  },
+  "0075": {
+    "comment": "데구리",
+    "nextEvol": {
+      "next": "0076",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "rock",
+    "type2": "ground"
+  },
+  "0076": {
+    "comment": "딱구리",
+    "nextEvol": {
+      "next": "0077",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "rock",
+    "type2": "ground"
+  },
+  "0077": {
+    "comment": "포니타",
+    "nextEvol": {
+      "next": "0078",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": null
+  },
+  "0078": {
+    "comment": "날쌩마",
+    "nextEvol": {
+      "next": "0079",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": null
+  },
+  "0079": {
+    "comment": "야돈",
+    "nextEvol": {
+      "next": "0080",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": "psychic"
+  },
+  "0080": {
+    "comment": "야도란",
+    "nextEvol": {
+      "next": "0081",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": "psychic"
+  },
+  "0081": {
+    "comment": "코일",
+    "nextEvol": {
+      "next": "0082",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "electric",
+    "type2": "steel"
+  },
+  "0082": {
+    "comment": "레어코일",
+    "nextEvol": {
+      "next": "0083",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "electric",
+    "type2": "steel"
+  },
+  "0083": {
+    "comment": "파오리",
+    "nextEvol": {
+      "next": "0084",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": "flying"
+  },
+  "0084": {
+    "comment": "두두",
+    "nextEvol": {
+      "next": "0085",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": "flying"
+  },
+  "0085": {
+    "comment": "두트리오",
+    "nextEvol": {
+      "next": "0086",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": "flying"
+  },
+  "0086": {
+    "comment": "쥬쥬",
+    "nextEvol": {
+      "next": "0087",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0087": {
+    "comment": "쥬레곤",
+    "nextEvol": {
+      "next": "0088",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": "ice"
+  },
+  "0088": {
+    "comment": "질퍽이",
+    "nextEvol": {
+      "next": "0089",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": null
+  },
+  "0089": {
+    "comment": "질뻐기",
+    "nextEvol": {
+      "next": "0090",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": null
+  },
+  "0090": {
+    "comment": "셀러",
+    "nextEvol": {
+      "next": "0091",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0091": {
+    "comment": "파르셀",
+    "nextEvol": {
+      "next": "0092",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": "ice"
+  },
+  "0092": {
+    "comment": "고오스",
+    "nextEvol": {
+      "next": "0093",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ghost",
+    "type2": "poison"
+  },
+  "0093": {
+    "comment": "고우스트",
+    "nextEvol": {
+      "next": "0094",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ghost",
+    "type2": "poison"
+  },
+  "0094": {
+    "comment": "팬텀",
+    "nextEvol": {
+      "next": "0095",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ghost",
+    "type2": "poison"
+  },
+  "0095": {
+    "comment": "롱스톤",
+    "nextEvol": {
+      "next": "0096",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "rock",
+    "type2": "ground"
+  },
+  "0096": {
+    "comment": "슬리프",
+    "nextEvol": {
+      "next": "0097",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "psychic",
+    "type2": null
+  },
+  "0097": {
+    "comment": "슬리퍼",
+    "nextEvol": {
+      "next": "0098",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "psychic",
+    "type2": null
+  },
+  "0098": {
+    "comment": "크랩",
+    "nextEvol": {
+      "next": "0099",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0099": {
+    "comment": "킹크랩",
+    "nextEvol": {
+      "next": "0100",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0100": {
+    "comment": "찌리리공",
+    "nextEvol": {
+      "next": "0101",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "electric",
+    "type2": null
+  },
+  "0101": {
+    "comment": "붐볼",
+    "nextEvol": {
+      "next": "0102",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "electric",
+    "type2": null
+  },
+  "0102": {
+    "comment": "아라리",
+    "nextEvol": {
+      "next": "0103",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "psychic"
+  },
+  "0103": {
+    "comment": "나시",
+    "nextEvol": {
+      "next": "0104",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": "psychic"
+  },
+  "0104": {
+    "comment": "탕구리",
+    "nextEvol": {
+      "next": "0105",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ground",
+    "type2": null
+  },
+  "0105": {
+    "comment": "텅구리",
+    "nextEvol": {
+      "next": "0106",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ground",
+    "type2": null
+  },
+  "0106": {
+    "comment": "시라소몬",
+    "nextEvol": {
+      "next": "0107",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fighting",
+    "type2": null
+  },
+  "0107": {
+    "comment": "홍수몬",
+    "nextEvol": {
+      "next": "0108",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fighting",
+    "type2": null
+  },
+  "0108": {
+    "comment": "내루미",
+    "nextEvol": {
+      "next": "0109",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0109": {
+    "comment": "또가스",
+    "nextEvol": {
+      "next": "0110",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": null
+  },
+  "0110": {
+    "comment": "또도가스",
+    "nextEvol": {
+      "next": "0111",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "poison",
+    "type2": null
+  },
+  "0111": {
+    "comment": "뿔카노",
+    "nextEvol": {
+      "next": "0112",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ground",
+    "type2": "rock"
+  },
+  "0112": {
+    "comment": "코뿌리",
+    "nextEvol": {
+      "next": "0113",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ground",
+    "type2": "rock"
+  },
+  "0113": {
+    "comment": "럭키",
+    "nextEvol": {
+      "next": "0114",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0114": {
+    "comment": "덩쿠리",
+    "nextEvol": {
+      "next": "0115",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "grass",
+    "type2": null
+  },
+  "0115": {
+    "comment": "캥카",
+    "nextEvol": {
+      "next": "0116",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0116": {
+    "comment": "쏘드라",
+    "nextEvol": {
+      "next": "0117",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0117": {
+    "comment": "시드라",
+    "nextEvol": {
+      "next": "0118",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0118": {
+    "comment": "콘치",
+    "nextEvol": {
+      "next": "0119",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0119": {
+    "comment": "왕콘치",
+    "nextEvol": {
+      "next": "0120",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0120": {
+    "comment": "별가사리",
+    "nextEvol": {
+      "next": "0121",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0121": {
+    "comment": "아쿠스타",
+    "nextEvol": {
+      "next": "0122",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": "psychic"
+  },
+  "0122": {
+    "comment": "마임맨",
+    "nextEvol": {
+      "next": "0123",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "psychic",
+    "type2": "fairy"
+  },
+  "0123": {
+    "comment": "스라크",
+    "nextEvol": {
+      "next": "0124",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": "flying"
+  },
+  "0124": {
+    "comment": "루주라",
+    "nextEvol": {
+      "next": "0125",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ice",
+    "type2": "psychic"
+  },
+  "0125": {
+    "comment": "에레브",
+    "nextEvol": {
+      "next": "0126",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "electric",
+    "type2": null
+  },
+  "0126": {
+    "comment": "마그마",
+    "nextEvol": {
+      "next": "0127",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": null
+  },
+  "0127": {
+    "comment": "쁘사이저",
+    "nextEvol": {
+      "next": "0128",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "bug",
+    "type2": null
+  },
+  "0128": {
+    "comment": "켄타로스",
+    "nextEvol": {
+      "next": "0129",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0129": {
+    "comment": "잉어킹",
+    "nextEvol": {
+      "next": "0130",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0130": {
+    "comment": "갸라도스",
+    "nextEvol": {
+      "next": "0131",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": "flying"
+  },
+  "0131": {
+    "comment": "라프라스",
+    "nextEvol": {
+      "next": "0132",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": "ice"
+  },
+  "0132": {
+    "comment": "메타몽",
+    "nextEvol": {
+      "next": "0133",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0133": {
+    "comment": "이브이",
+    "nextEvol": {
+      "next": "0134",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0134": {
+    "comment": "샤미드",
+    "nextEvol": {
+      "next": "0135",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "water",
+    "type2": null
+  },
+  "0135": {
+    "comment": "쥬피썬더",
+    "nextEvol": {
+      "next": "0136",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "electric",
+    "type2": null
+  },
+  "0136": {
+    "comment": "부스터",
+    "nextEvol": {
+      "next": "0137",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": null
+  },
+  "0137": {
+    "comment": "폴리곤",
+    "nextEvol": {
+      "next": "0138",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0138": {
+    "comment": "암나이트",
+    "nextEvol": {
+      "next": "0139",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "rock",
+    "type2": "water"
+  },
+  "0139": {
+    "comment": "암스타",
+    "nextEvol": {
+      "next": "0140",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "rock",
+    "type2": "water"
+  },
+  "0140": {
+    "comment": "투구",
+    "nextEvol": {
+      "next": "0141",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "rock",
+    "type2": "water"
+  },
+  "0141": {
+    "comment": "투구푸스",
+    "nextEvol": {
+      "next": "0142",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "rock",
+    "type2": "water"
+  },
+  "0142": {
+    "comment": "프테라",
+    "nextEvol": {
+      "next": "0143",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "rock",
+    "type2": "flying"
+  },
+  "0143": {
+    "comment": "잠만보",
+    "nextEvol": {
+      "next": "0144",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "normal",
+    "type2": null
+  },
+  "0144": {
+    "comment": "프리져",
+    "nextEvol": {
+      "next": "0145",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "ice",
+    "type2": "flying"
+  },
+  "0145": {
+    "comment": "썬더",
+    "nextEvol": {
+      "next": "0146",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "electric",
+    "type2": "flying"
+  },
+  "0146": {
+    "comment": "파이어",
+    "nextEvol": {
+      "next": "0147",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "fire",
+    "type2": "flying"
+  },
+  "0147": {
+    "comment": "미뇽",
+    "nextEvol": {
+      "next": "0148",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "dragon",
+    "type2": null
+  },
+  "0148": {
+    "comment": "신뇽",
+    "nextEvol": {
+      "next": "0149",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "dragon",
+    "type2": null
+  },
+  "0149": {
+    "comment": "망나뇽",
+    "nextEvol": {
+      "next": "0150",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "dragon",
+    "type2": "flying"
+  },
+  "0150": {
+    "comment": "뮤츠",
+    "nextEvol": {
+      "next": "0151",
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "psychic",
+    "type2": null
+  },
+  "0151": {
+    "comment": "뮤",
+    "nextEvol": {
+      "next": null,
+      "cost": 0
+    },
+    "rate": {
+      "spawn": 100,
+      "capture": 100
+    },
+    "rank": "common",
+    "type1": "psychic",
+    "type2": null
+  }
+}

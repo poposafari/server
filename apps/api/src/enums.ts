@@ -52,3 +52,32 @@ export enum OverworldType {
   PLAZA = "plaza",
   SAFARI = "safari",
 }
+
+export const enum Type {
+  NONE = "none",
+  FIRE = "fire",
+  WATER = "water",
+  ELECTRIC = "electric",
+  GRASS = "grass",
+  ICE = "ice",
+  FIGHT = "fight",
+  POISON = "poison",
+  GROUND = "ground",
+  FLYING = "flying",
+  PSYCHIC = "psychic",
+  BUG = "bug",
+  ROCK = "rock",
+  GHOST = "ghost",
+  DRAGON = "dragon",
+  DARK = "dark",
+  STEEL = "steel",
+  FAIRY = "fairy",
+  NORMAL = "normal",
+}
+
+export const enum Rarity {
+  COMMON = "common",
+  RARE = "rare",
+  LEGENDARY = "legendary",
+  MYTHICAL = "mythical",
+}
