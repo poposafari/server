@@ -1,14 +1,6 @@
-import {
-  Entity,
-  PrimaryColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  Index,
-  Check,
-} from "typeorm";
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn, Index, Check } from "typeorm";
 import { Account } from "./Account";
-import { Backgrounds, PokemonGender, PokemonSkill } from "../enums";
+import { PokemonGender, PokemonSkill } from "../utils/type";
 
 @Entity({ schema: "db0", name: "pokebox" })
 @Index("idx_account_box", ["account_id", "box"])

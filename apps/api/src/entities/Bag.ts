@@ -1,13 +1,6 @@
-import {
-  Entity,
-  PrimaryColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  Check,
-} from "typeorm";
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn, Check } from "typeorm";
 import { Account } from "./Account";
-import { ItemType } from "../enums";
+import { ItemType } from "../utils/type";
 
 @Entity({ schema: "db0", name: "bag" })
 @Check(`"stock" >= 0 AND "stock" <= 999`)

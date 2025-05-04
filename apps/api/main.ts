@@ -3,10 +3,9 @@ import * as fs from "fs";
 import app from "./app";
 import * as dotenv from "dotenv";
 import "reflect-metadata";
-import { AppDataSource } from "./src/data-source";
-import { redis } from "./src/redis-source";
-import { BagService } from "./src/services/bag.service";
-import { SafariService } from "./src/services/safari.service";
+import { AppDataSource, redis } from "./src/data-source";
+import { ItemData, OverworldData, PokemonData } from "./src/store";
+import { readJson } from "./src/utils/methods";
 
 dotenv.config();
 
@@ -39,23 +38,29 @@ async function boot() {
 }
 
 async function loadItem(): Promise<void> {
-  const filePath = path.resolve(__dirname, "./item.json");
-  const rawData = fs.readFileSync(filePath, "utf-8");
-  BagService.data = JSON.parse(rawData);
+  const data = readJson("item");
+
+  Object.keys(ItemData).forEach((k) => delete ItemData[k]);
+  Object.assign(ItemData, data);
+
   console.log("Item data loaded into memory.");
 }
 
 async function loadOverworld(): Promise<void> {
-  const filePath = path.resolve(__dirname, "./overworld.json");
-  const rawData = fs.readFileSync(filePath, "utf-8");
-  SafariService.overworlds = JSON.parse(rawData);
+  const data = readJson("overworld");
+
+  Object.keys(OverworldData).forEach((k) => delete OverworldData[k]);
+  Object.assign(OverworldData, data);
+
   console.log("Overworld data loaded into memory.");
 }
 
 async function loadPokemon(): Promise<void> {
-  const filePath = path.resolve(__dirname, "./pokemon.json");
-  const rawData = fs.readFileSync(filePath, "utf-8");
-  SafariService.pokemons = JSON.parse(rawData);
+  const data = readJson("pokemon");
+
+  Object.keys(PokemonData).forEach((k) => delete PokemonData[k]);
+  Object.assign(PokemonData, data);
+
   console.log("Pokemon data loaded into memory.");
 }
 

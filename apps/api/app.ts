@@ -3,13 +3,8 @@ import cors from "cors";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import accountRouter from "./src/routes/account.route";
-import ingameRouter from "./src/routes/ingame.route";
-import slotRouter from "./src/routes/slot.route";
-import ticketRouter from "./src/routes/ticket.route";
-import bagRouter from "./src/routes/bag.route";
-import pokeboxRouter from "./src/routes/pokebox.route";
-import safariRouter from "./src/routes/safari.route";
+import { HttpError } from "./src/utils/http-error";
+import routes from "./src/routes";
 
 const app = express();
 
@@ -19,12 +14,21 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use("/api/account", accountRouter);
-app.use("/api/ingame", ingameRouter);
-app.use("/api/slot", slotRouter);
-app.use("/api/ticket", ticketRouter);
-app.use("/api/bag", bagRouter);
-app.use("/api/pokebox", pokeboxRouter);
-app.use("/api/safari", safariRouter);
+app.use("/api/account", routes.AccountRouter);
+app.use("/api/ingame", routes.IngameRouter);
+app.use("/api/slot", routes.SlotRouter);
+app.use("/api/ticket", routes.TicketRouter);
+app.use("/api/bag", routes.BagRouter);
+app.use("/api/pokebox", routes.PokeboxRouter);
+app.use("/api/safari", routes.SafariRouter);
+
+app.use((err: any, req: any, res: any, next: any) => {
+  if (err instanceof HttpError) {
+    return res.status(err.status).json(err.toJson());
+  }
+
+  console.error("Server Error!", err);
+  return res.status(500).json({ error: "Internal Server Error" });
+});
 
 export default app;

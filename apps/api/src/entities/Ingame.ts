@@ -1,14 +1,6 @@
-import {
-  Entity,
-  PrimaryColumn,
-  Column,
-  Unique,
-  OneToOne,
-  JoinColumn,
-  Check,
-} from "typeorm";
+import { Entity, PrimaryColumn, Column, Unique, OneToOne, JoinColumn, Check } from "typeorm";
 import { Account } from "./Account";
-import { IngameAvatar, IngameGender, Backgrounds } from "../enums";
+import { Backgrounds, IngameAvatar, IngameGender } from "../utils/type";
 
 @Entity({ schema: "db0", name: "ingame" })
 @Unique(["nickname"])
