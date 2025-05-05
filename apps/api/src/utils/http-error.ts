@@ -1,3 +1,5 @@
+import { HttpErrorCode } from "./type";
+
 export class HttpError extends Error {
   constructor(public msg: string, public status: number, public code: string, public detail?: any) {
     super(msg);
@@ -16,42 +18,42 @@ export class HttpError extends Error {
 
 export class DuplicateAccountHttpError extends HttpError {
   constructor(msg = "Already exist account") {
-    super(msg, 409, "ALREADY_EXIST_ACCOUNT", null);
+    super(msg, 409, HttpErrorCode.ALREADY_EXIST_ACCOUNT, null);
   }
 }
 
 export class DuplicateUserNicknameHttpError extends HttpError {
   constructor(msg = "Already exist ingame nickname") {
-    super(msg, 409, "ALREADY_EXIST_NICKNAME", null);
+    super(msg, 409, HttpErrorCode.ALREADY_EXIST_NICKNAME, null);
   }
 }
 
 export class NotFoundAccountHttpError extends HttpError {
   constructor(msg = "Not found account") {
-    super(msg, 404, "NOT_FOUND_ACCOUNT", null);
+    super(msg, 404, HttpErrorCode.NOT_FOUND_ACCOUNT, null);
   }
 }
 
 export class NotFoundUserHttpError extends HttpError {
   constructor(msg = "Not found ingame user") {
-    super(msg, 404, "NOT_FOUND_USER", null);
+    super(msg, 404, HttpErrorCode.NOT_FOUND_USER, null);
   }
 }
 
 export class InvalidTokenHttpError extends HttpError {
   constructor(msg = "Invalid token") {
-    super(msg, 401, "INVALID_TOKEN", null);
+    super(msg, 401, HttpErrorCode.INVALID_TOKEN, null);
   }
 }
 
 export class SessionExpiredHttpError extends HttpError {
   constructor(msg = "Session expired") {
-    super(msg, 440, "SESSION_EXPIRED");
+    super(msg, 440, HttpErrorCode.SESSION_EXPIRED);
   }
 }
 
 export class InvalidRefreshTokenHttpError extends HttpError {
   constructor(msg = "Refresh token is invalid or expired") {
-    super(msg, 401, "INVALID_REFRESH_TOKEN", null);
+    super(msg, 401, HttpErrorCode.INVALID_REFRESH_TOKEN, null);
   }
 }
