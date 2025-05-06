@@ -28,6 +28,12 @@ export class DuplicateUserNicknameHttpError extends HttpError {
   }
 }
 
+export class LoginFailHttpError extends HttpError {
+  constructor(msg = "login fail") {
+    super(msg, 404, HttpErrorCode.LOGIN_FAIL, null);
+  }
+}
+
 export class NotFoundAccountHttpError extends HttpError {
   constructor(msg = "Not found account") {
     super(msg, 404, HttpErrorCode.NOT_FOUND_ACCOUNT, null);
@@ -37,6 +43,12 @@ export class NotFoundAccountHttpError extends HttpError {
 export class NotFoundUserHttpError extends HttpError {
   constructor(msg = "Not found ingame user") {
     super(msg, 404, HttpErrorCode.NOT_FOUND_USER, null);
+  }
+}
+
+export class NotFoundToken extends HttpError {
+  constructor(msg = "Not found token") {
+    super(msg, 401, HttpErrorCode.NOT_FOUND_TOKEN, null);
   }
 }
 

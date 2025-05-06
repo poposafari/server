@@ -4,6 +4,7 @@ import { EntityManager } from "typeorm";
 import {
   DuplicateAccountHttpError,
   DuplicateUserNicknameHttpError,
+  LoginFailHttpError,
   NotFoundAccountHttpError,
 } from "./utils/http-error";
 import { Ingame } from "./entities/Ingame";
@@ -63,7 +64,7 @@ export const login = async (data: AccountReq) => {
     username: data.username,
   });
 
-  if (!exist) throw new NotFoundAccountHttpError();
+  if (!exist) throw new LoginFailHttpError();
   if (exist.password && (await bcrypt.compare(data.password, exist.password))) return exist;
 
   return null;

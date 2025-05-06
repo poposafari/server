@@ -20,7 +20,7 @@ import {
   useItem,
   useTicket,
 } from "./services";
-import { NotFoundAccountHttpError } from "./utils/http-error";
+import { LoginFailHttpError } from "./utils/http-error";
 import { createTokens, gameSuccess } from "./utils/methods";
 import { WrapController } from "./utils/wrap-controller";
 import { CookieConfig } from "./utils/options";
@@ -40,7 +40,7 @@ class AccountController {
   static async login(req: Request, res: Response): Promise<any> {
     const account = await login(req.body);
 
-    if (!account || !account.id) throw new NotFoundAccountHttpError();
+    if (!account || !account.id) throw new LoginFailHttpError();
 
     const accessToken = createTokens(account.id);
     console.log(accessToken);
@@ -52,7 +52,7 @@ class AccountController {
   }
 
   static async autoLogin(req: Request, res: Response): Promise<any> {
-    return res.status(200).json(gameSuccess(null));
+    return res.status(200).json(gameSuccess(res.locals.ingame));
   }
 
   static async logout(req: Request, res: Response): Promise<any> {
@@ -65,7 +65,11 @@ class AccountController {
 
   static async removeAccount(req: Request, res: Response): Promise<any> {
     const ret = await removeAccount(res.locals.user.id);
-    return res.status(200).json(ret);
+    await redis.del(`refresh:${res.locals.user.id}`);
+    return res
+      .clearCookie("access_token", CookieConfig as any)
+      .status(200)
+      .json(ret);
   }
 }
 

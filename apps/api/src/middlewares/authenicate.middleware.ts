@@ -2,14 +2,19 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { createAccessToken, verifyAccessToken, verifyRefreshToken } from "../utils/jwt";
 import { CookieConfig } from "../utils/options";
-import { InvalidRefreshTokenHttpError, InvalidTokenHttpError, SessionExpiredHttpError } from "../utils/http-error";
+import {
+  InvalidRefreshTokenHttpError,
+  InvalidTokenHttpError,
+  NotFoundToken,
+  SessionExpiredHttpError,
+} from "../utils/http-error";
 import { redis } from "../data-source";
 
 export const Authenticate = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies.access_token || req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    return next(new InvalidTokenHttpError());
+    return next(new NotFoundToken());
   }
 
   try {

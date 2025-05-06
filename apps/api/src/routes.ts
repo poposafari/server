@@ -8,7 +8,7 @@ const AccountRouter = Router();
 console.log(Controllers.Account);
 AccountRouter.post("/register", Controllers.Account.register);
 AccountRouter.post("/login", Controllers.Account.login);
-AccountRouter.get("/logout", Controllers.Account.logout);
+AccountRouter.get("/logout", Authenticate, Controllers.Account.logout);
 AccountRouter.get("/delete", Authenticate, Usercheck, Controllers.Account.removeAccount);
 AccountRouter.get("/auto-login", Authenticate, Usercheck, Controllers.Account.autoLogin);
 
@@ -25,7 +25,7 @@ TicketRouter.get("/receive", Authenticate, Usercheck, Controllers.Ingame.receive
 
 //Ingame
 const IngameRouter = Router();
-IngameRouter.post("/register", Authenticate, Usercheck, Controllers.Ingame.register);
+IngameRouter.post("/register", Authenticate, Controllers.Ingame.register);
 IngameRouter.get("/userdata", Authenticate, Usercheck, Controllers.Ingame.getUserData);
 
 //Bag
