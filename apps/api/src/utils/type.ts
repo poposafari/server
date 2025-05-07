@@ -2,6 +2,7 @@ export const MAX_BOX_SIZE = 33;
 export const SaltOrRounds = 10;
 export const MAX_STOCK = 999;
 export const MAX_BUY = 99;
+export const MAX_GROUNDITEM = 10;
 
 export type GameLogicRes<T = any> = { success: true; data: T } | { success: false; reason: GameLogicErrorCode };
 
@@ -207,8 +208,22 @@ export interface WildPokemon {
 }
 
 export interface Item {
-  item: string;
+  comment: string;
   type: ItemType;
   price: number;
   purchasable: boolean;
+  spawnable: boolean;
+  rate: number;
+  maxground: number;
 }
+
+export type SpawnableItem = {
+  item: string;
+  rate: number;
+  maxground: number;
+};
+
+export type GroundItem = {
+  item: string;
+  stock: number;
+};

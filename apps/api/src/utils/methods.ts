@@ -2,16 +2,18 @@ import path from "path";
 import "reflect-metadata";
 import * as fs from "fs";
 import { redis } from "../data-source";
-import { PokemonData } from "../store";
+import { ItemData, PokemonData, SpawnableItemTable } from "../store";
 import { createAccessToken, createRefreshToken } from "./jwt";
 import {
   Backgrounds,
   GameLogicErrorCode,
   GameLogicRes,
+  GroundItem,
   IngameAvatar,
   IngameGender,
   MAX_BOX_SIZE,
   PokemonGender,
+  SpawnableItem,
   WildPokemon,
 } from "./type";
 
@@ -96,6 +98,44 @@ export const getWildSpawnTable = (spawns: string[], count: number) => {
       acc += pokemon.rate;
       if (random < acc) {
         ret.push(pokemon.pokedex);
+        break;
+      }
+    }
+  }
+
+  return ret;
+};
+
+export const getSpawnableItemTable = (): SpawnableItem[] => {
+  const result: SpawnableItem[] = [];
+
+  for (const key in ItemData) {
+    const item = ItemData[key];
+    if (item.spawnable) {
+      result.push({
+        item: key,
+        rate: item.rate,
+        maxground: item.maxground,
+      });
+    }
+  }
+
+  return result;
+};
+
+export const getGroundItems = (count: number): GroundItem[] => {
+  const ret: GroundItem[] = [];
+  const totalRate = SpawnableItemTable.reduce((sum, item) => sum + item.rate, 0);
+
+  for (let i = 0; i < count; i++) {
+    const rand = Math.floor(Math.random() * totalRate);
+    let acc = 0;
+
+    for (const item of SpawnableItemTable) {
+      acc += item.rate;
+      if (rand <= acc) {
+        const stock = Math.floor(Math.random() * item.maxground) + 1;
+        ret.push({ item: item.item, stock });
         break;
       }
     }

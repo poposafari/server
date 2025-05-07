@@ -4,8 +4,8 @@ import app from "./app";
 import * as dotenv from "dotenv";
 import "reflect-metadata";
 import { AppDataSource, redis } from "./src/data-source";
-import { ItemData, OverworldData, PokemonData } from "./src/store";
-import { readJson } from "./src/utils/methods";
+import { ItemData, OverworldData, PokemonData, SpawnableItemTable } from "./src/store";
+import { getSpawnableItemTable, readJson } from "./src/utils/methods";
 
 dotenv.config();
 
@@ -28,6 +28,9 @@ async function boot() {
     await loadPokemon();
     console.log("Pokemon data loaded");
 
+    loadSpawnableItem();
+    console.log("Spawnable Item data loaded");
+
     app.listen(PORT, () => {
       console.log(`api is running on port ${PORT}`);
     });
@@ -44,6 +47,15 @@ async function loadItem(): Promise<void> {
   Object.assign(ItemData, data);
 
   console.log("Item data loaded into memory.");
+}
+
+function loadSpawnableItem(): void {
+  const data = getSpawnableItemTable();
+
+  SpawnableItemTable.length = 0;
+  SpawnableItemTable.push(...data);
+
+  console.log("Spawnable Item data loaded into memory.");
 }
 
 async function loadOverworld(): Promise<void> {

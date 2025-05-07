@@ -1,6 +1,7 @@
-import { Item, Overworld, Pokemon } from "./utils/type";
+import { Item, Overworld, Pokemon, SpawnableItem } from "./utils/type";
 
 export const ItemData: Record<string, Item> = {};
+export const SpawnableItemTable: SpawnableItem[] = [];
 
 export const OverworldData: Record<string, Overworld> = {};
 export const PokemonData: Record<string, Pokemon> = {};

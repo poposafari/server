@@ -1,30 +1,254 @@
 {
-  "000": { "item": "000", "type": "etc", "price": 10, "purchasable": false },
-  "001": { "item": "001", "type": "pokeball", "price": 0, "purchasable": false },
-  "002": { "item": "002", "type": "pokeball", "price": 10, "purchasable": true },
-  "003": { "item": "003", "type": "pokeball", "price": 15, "purchasable": true },
-  "004": { "item": "004", "type": "pokeball", "price": 20, "purchasable": true },
-  "011": { "item": "011", "type": "berry", "price": 30, "purchasable": true },
-  "012": { "item": "012", "type": "berry", "price": 30, "purchasable": true },
-  "013": { "item": "013", "type": "berry", "price": 30, "purchasable": true },
-  "014": { "item": "014", "type": "berry", "price": 30, "purchasable": true },
-  "015": { "item": "015", "type": "berry", "price": 30, "purchasable": true },
-  "016": { "item": "016", "type": "berry", "price": 30, "purchasable": true },
-  "017": { "item": "017", "type": "berry", "price": 30, "purchasable": true },
-  "018": { "item": "018", "type": "berry", "price": 30, "purchasable": true },
-  "019": { "item": "019", "type": "berry", "price": 30, "purchasable": true },
-  "020": { "item": "020", "type": "berry", "price": 30, "purchasable": true },
-  "021": { "item": "021", "type": "berry", "price": 30, "purchasable": true },
-  "022": { "item": "022", "type": "berry", "price": 30, "purchasable": true },
-  "023": { "item": "023", "type": "berry", "price": 30, "purchasable": true },
-  "024": { "item": "024", "type": "berry", "price": 30, "purchasable": true },
-  "025": { "item": "025", "type": "berry", "price": 30, "purchasable": true },
-  "026": { "item": "026", "type": "berry", "price": 30, "purchasable": true },
-  "027": { "item": "027", "type": "berry", "price": 30, "purchasable": true },
-  "028": { "item": "028", "type": "berry", "price": 30, "purchasable": true },
-  "029": { "item": "029", "type": "berry", "price": 30, "purchasable": true },
-  "030": { "item": "030", "type": "etc", "price": 100, "purchasable": true },
-  "032": { "item": "032", "type": "etc", "price": 0, "purchasable": false },
-  "033": { "item": "033", "type": "etc", "price": 0, "purchasable": false },
-  "046": { "item": "046", "type": "key", "price": 0, "purchasable": false }
+  "000": {
+    "comment": "더미",
+    "type": "etc",
+    "price": 10,
+    "purchasable": false,
+    "spawnable": false,
+    "rate": 10,
+    "maxground": 5
+  },
+  "001": {
+    "comment": "마스터볼",
+    "type": "pokeball",
+    "price": 0,
+    "purchasable": false,
+    "spawnable": false,
+    "rate": 10,
+    "maxground": 5
+  },
+  "002": {
+    "comment": "몬스터볼",
+    "type": "pokeball",
+    "price": 10,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "003": {
+    "comment": "수퍼볼",
+    "type": "pokeball",
+    "price": 15,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "004": {
+    "comment": "하이퍼볼",
+    "type": "pokeball",
+    "price": 20,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "011": {
+    "comment": "오카열매(불)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "012": {
+    "comment": "꼬시개열매(물)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "013": {
+    "comment": "초나열매(전기)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "014": {
+    "comment": "린드열매(풀)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "015": {
+    "comment": "플카열매(얼음)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "016": {
+    "comment": "로플열매(격투)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "017": {
+    "comment": "으름열매(독)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "018": {
+    "comment": "슈캐열매(땅)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "019": {
+    "comment": "바코열매(비행)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "020": {
+    "comment": "야파열매(에스퍼)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "021": {
+    "comment": "리체열매(벌레)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "022": {
+    "comment": "루미열매(바위)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "023": {
+    "comment": "수불열매(고스트)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "024": {
+    "comment": "하반열매(드래곤)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "025": {
+    "comment": "마코열매(악)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "026": {
+    "comment": "바리비열매(강철)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "027": {
+    "comment": "로셀열매(페어리)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "028": {
+    "comment": "카리열매(노말)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "029": {
+    "comment": "의문열매(all)",
+    "type": "berry",
+    "price": 30,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "030": {
+    "comment": "사파리 티켓",
+    "type": "etc",
+    "price": 100,
+    "purchasable": true,
+    "spawnable": true,
+    "rate": 10,
+    "maxground": 5
+  },
+  "032": {
+    "comment": "TM: 파도타기",
+    "type": "etc",
+    "price": 0,
+    "purchasable": false,
+    "spawnable": false,
+    "rate": 10,
+    "maxground": 1
+  },
+  "033": {
+    "comment": "TM: 검은눈빛",
+    "type": "etc",
+    "price": 0,
+    "purchasable": false,
+    "spawnable": false,
+    "rate": 10,
+    "maxground": 1
+  },
+  "046": {
+    "comment": "자전거",
+    "type": "key",
+    "price": 0,
+    "purchasable": false,
+    "spawnable": false,
+    "rate": 0,
+    "maxground": 0
+  }
 }

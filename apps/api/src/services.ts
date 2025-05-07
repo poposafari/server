@@ -32,12 +32,15 @@ import {
   GameLogicErrorCode,
   MoveToOverworldReq,
   WildPokemon,
+  GroundItem,
+  MAX_GROUNDITEM,
 } from "./utils/type";
 import {
   gameFail,
   gameSuccess,
   getAvatarEnum,
   getGenderEnum,
+  getGroundItems,
   getWildPokemons,
   getWildSpawnTable,
   setDefaultBoxes,
@@ -405,9 +408,9 @@ export const useTicket = async (ingame: Ingame, data: UseTicketReq) => {
 };
 
 export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) => {
-  let result: { pokemons: WildPokemon[]; item: any[] } = {
+  let result: { pokemons: WildPokemon[]; items: GroundItem[] } = {
     pokemons: [],
-    item: [],
+    items: [],
   };
 
   await AppDataSource.manager.transaction(async (manager) => {
@@ -415,7 +418,10 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
 
     if (overworld.type === OverworldType.SAFARI) {
       const pokedexs = getWildSpawnTable(overworld.spawn, overworld.spawnCount);
+      const groundItems = getGroundItems(Math.floor(Math.random() * MAX_GROUNDITEM));
+
       result.pokemons = getWildPokemons(pokedexs);
+      result.items = groundItems;
     }
 
     await manager.update(
