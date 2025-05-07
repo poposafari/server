@@ -5,7 +5,6 @@ import { Usercheck } from "./middlewares/usercheck.middleware";
 
 //Account
 const AccountRouter = Router();
-console.log(Controllers.Account);
 AccountRouter.post("/register", Controllers.Account.register);
 AccountRouter.post("/login", Controllers.Account.login);
 AccountRouter.get("/logout", Authenticate, Controllers.Account.logout);
@@ -42,8 +41,9 @@ PokeboxRouter.post("/add", Authenticate, Usercheck, Controllers.Pokebox.addPokem
 PokeboxRouter.post("/get", Authenticate, Usercheck, Controllers.Pokebox.getPokebox);
 PokeboxRouter.post("/move", Authenticate, Usercheck, Controllers.Pokebox.movePokemon);
 
-//Safari
-const SafariRouter = Router();
-SafariRouter.post("/ticket", Authenticate, Usercheck, Controllers.Safari.useTicket);
+//Overworld
+const OverworldRouter = Router();
+OverworldRouter.post("/ticket", Authenticate, Usercheck, Controllers.Overworld.useTicket);
+OverworldRouter.post("/move", Authenticate, Usercheck, Controllers.Overworld.moveToOverworld);
 
-export default { AccountRouter, SlotRouter, IngameRouter, BagRouter, PokeboxRouter, TicketRouter, SafariRouter };
+export default { AccountRouter, SlotRouter, IngameRouter, BagRouter, PokeboxRouter, TicketRouter, OverworldRouter };

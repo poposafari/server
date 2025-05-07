@@ -172,7 +172,6 @@ export interface MoveToOverworldReq {
 export interface Overworld {
   comment: string;
   type: OverworldType;
-  key: string;
   cost: number;
   x: number;
   y: number;

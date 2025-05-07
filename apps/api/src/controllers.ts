@@ -10,6 +10,7 @@ import {
   getPokebox,
   login,
   movePokemon,
+  moveToOverworld,
   receiveAvailableTicket,
   registerAccount,
   registerIngame,
@@ -154,9 +155,14 @@ class PokeboxController {
   }
 }
 
-class SafariController {
+class OverworldController {
   static async useTicket(req: Request, res: Response): Promise<any> {
     const ret = await useTicket(res.locals.ingame, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async moveToOverworld(req: Request, res: Response): Promise<any> {
+    const ret = await moveToOverworld(res.locals.ingame, req.body);
     return res.status(200).json(ret);
   }
 }
@@ -166,5 +172,5 @@ export const Controllers = {
   Ingame: WrapController(IngameController),
   Bag: WrapController(BagController),
   Pokebox: WrapController(PokeboxController),
-  Safari: WrapController(SafariController),
+  Overworld: WrapController(OverworldController),
 };

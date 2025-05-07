@@ -20,7 +20,7 @@ app.use("/api/slot", routes.SlotRouter);
 app.use("/api/ticket", routes.TicketRouter);
 app.use("/api/bag", routes.BagRouter);
 app.use("/api/pokebox", routes.PokeboxRouter);
-app.use("/api/safari", routes.SafariRouter);
+app.use("/api/overworld", routes.OverworldRouter);
 
 app.use((err: any, req: any, res: any, next: any) => {
   if (err instanceof HttpError) {

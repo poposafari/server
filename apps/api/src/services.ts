@@ -30,6 +30,8 @@ import {
   SlotReq,
   UseTicketReq,
   GameLogicErrorCode,
+  MoveToOverworldReq,
+  WildPokemon,
 } from "./utils/type";
 import {
   gameFail,
@@ -378,35 +380,50 @@ export const movePokemon = async (ingame: Ingame, info: MovePokemonReq) => {
 };
 
 export const useTicket = async (ingame: Ingame, data: UseTicketReq) => {
+  const bagRepo = Repo.bag;
+  const overworld = getOverworldData(data.overworld);
+  const bag = await bagRepo.findOne({
+    where: { account_id: ingame.account_id, item: "030" },
+  });
+
+  if (!bag) return gameFail(GameLogicErrorCode.NOT_ENOUGH_TICKET);
+
+  const newStock = bag.stock - overworld.cost;
+
+  if (newStock < 0) {
+    return gameFail(GameLogicErrorCode.NOT_ENOUGH_TICKET);
+  } else {
+    bag.stock = newStock;
+    await useItem(ingame, { item: "030", stock: overworld.cost });
+  }
+
+  return gameSuccess({
+    item: "030",
+    category: ItemType.ETC,
+    stock: bag.stock,
+  });
+};
+
+export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) => {
+  let result: { pokemons: WildPokemon[]; item: any[] } = {
+    pokemons: [],
+    item: [],
+  };
+
   await AppDataSource.manager.transaction(async (manager) => {
     const overworld = getOverworldData(data.overworld);
-    const bag = await manager.findOne(Bag, {
-      where: { account_id: ingame.account_id, item: "030" },
-    });
-    let result: any;
 
-    if (!bag) return gameFail(GameLogicErrorCode.NOT_ENOUGH_TICKET);
-
-    const newStock = bag.stock - overworld.cost;
-
-    if (newStock < 0) {
-      return gameFail(GameLogicErrorCode.NOT_ENOUGH_TICKET);
-    } else {
-      bag.stock = newStock;
-      await useItem(ingame, { item: "030", stock: overworld.cost }, manager);
-
-      result = {
-        item: "030",
-        category: ItemType.ETC,
-        stock: bag.stock,
-      };
-
-      if (overworld.type === OverworldType.SAFARI) {
-        const pokedexs = getWildSpawnTable(overworld.spawn, overworld.spawnCount);
-        result["wilds"] = getWildPokemons(pokedexs);
-      }
+    if (overworld.type === OverworldType.SAFARI) {
+      const pokedexs = getWildSpawnTable(overworld.spawn, overworld.spawnCount);
+      result.pokemons = getWildPokemons(pokedexs);
     }
 
-    return gameSuccess(result);
+    await manager.update(
+      Ingame,
+      { account_id: ingame.account_id },
+      { location: data.overworld, x: overworld.x, y: overworld.y }
+    );
   });
+
+  return gameSuccess(result);
 };
