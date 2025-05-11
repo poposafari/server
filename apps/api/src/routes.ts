@@ -31,7 +31,7 @@ IngameRouter.get("/userdata", Authenticate, Usercheck, Controllers.Ingame.getUse
 const BagRouter = Router();
 BagRouter.post("/add", Authenticate, Usercheck, Controllers.Bag.addItem);
 BagRouter.post("/use", Authenticate, Usercheck, Controllers.Bag.useItem);
-BagRouter.post("/all", Authenticate, Usercheck, Controllers.Bag.getItems);
+BagRouter.get("/all", Authenticate, Usercheck, Controllers.Bag.getItems);
 BagRouter.get("/category", Authenticate, Usercheck, Controllers.Bag.getItemByCategory);
 BagRouter.post("/buy", Authenticate, Usercheck, Controllers.Bag.buyItem);
 
