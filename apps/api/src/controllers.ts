@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   addItem,
   addPokemon,
+  autoLogin,
   buyItem,
   getAvailableTicket,
   getIngame,
@@ -53,7 +54,9 @@ class AccountController {
   }
 
   static async autoLogin(req: Request, res: Response): Promise<any> {
-    return res.status(200).json(gameSuccess(res.locals.ingame));
+    const ret = await autoLogin(res.locals.ingame);
+
+    return res.status(200).json(ret);
   }
 
   static async logout(req: Request, res: Response): Promise<any> {

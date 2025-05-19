@@ -75,6 +75,26 @@ export const login = async (data: AccountReq) => {
   return null;
 };
 
+export const autoLogin = async (ingame: Ingame) => {
+  const items = await getItems(ingame);
+
+  const ret = {
+    nickname: ingame.nickname,
+    x: ingame.x,
+    y: ingame.y,
+    location: ingame.location,
+    money: ingame.money,
+    gender: ingame.gender,
+    avatar: ingame.avatar,
+    boxes: ingame.boxes,
+    party: ingame.party,
+    itemslot: ingame.itemslot,
+    items: items,
+  };
+
+  return gameSuccess(ret);
+};
+
 export const removeAccount = async (user: number) => {
   const accountRepo = Repo.account;
 
@@ -118,20 +138,26 @@ export const registerIngame = async (data: RegisterReq, user: number) => {
 };
 
 export const getIngame = async (ingame: Ingame) => {
-  const data = {
-    nickname: ingame.nickname,
-    x: ingame.x,
-    y: ingame.y,
-    location: ingame.location,
-    money: ingame.money,
-    gender: ingame.gender,
-    avatar: ingame.avatar,
-    boxes: ingame.boxes,
-    party: ingame.party,
-    itemslot: ingame.itemslot,
-  };
+  let ret;
 
-  return gameSuccess(data);
+  await AppDataSource.manager.transaction(async (manager) => {
+    const items = await getItems(ingame, manager);
+
+    ret = {
+      nickname: ingame.nickname,
+      x: ingame.x,
+      y: ingame.y,
+      location: ingame.location,
+      money: ingame.money,
+      gender: ingame.gender,
+      avatar: ingame.avatar,
+      boxes: ingame.boxes,
+      party: ingame.party,
+      itemslot: ingame.itemslot,
+      items: items,
+    };
+  });
+  return gameSuccess(ret);
 };
 
 export const updateItemSlot = async (ingame: Ingame, itemSlot: SlotReq) => {
@@ -280,14 +306,16 @@ export const getItemByCategory = async (ingame: Ingame, item: ItemCategoryReq): 
   return gameSuccess(ret);
 };
 
-export const getItems = async (ingame: Ingame): Promise<any> => {
-  const bagRepo = Repo.bag;
+export const getItems = async (ingame: Ingame, manager?: EntityManager): Promise<any> => {
+  const bagRepo = manager ? manager.getRepository(Bag) : Repo.bag;
   const bag = await bagRepo.find({ where: { account_id: ingame.account_id } });
   const ret = bag.map((item) => ({
     item: item.item,
     category: item.category,
     stock: item.stock,
   }));
+
+  if (manager) return ret;
 
   return gameSuccess(ret);
 };
