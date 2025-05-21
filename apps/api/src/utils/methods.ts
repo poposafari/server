@@ -135,7 +135,7 @@ export const getGroundItems = (count: number): GroundItem[] => {
       acc += item.rate;
       if (rand <= acc) {
         const stock = Math.floor(Math.random() * item.maxground) + 1;
-        ret.push({ item: item.item, stock });
+        ret.push({ item: item.item, stock, catch: false });
         break;
       }
     }
@@ -154,6 +154,7 @@ export const getWildPokemons = (pokedexs: string[]): WildPokemon[] => {
       shiny: getShinyRandom(),
       skills: null,
       form: 0,
+      catch: false,
     });
   }
 

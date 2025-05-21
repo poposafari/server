@@ -205,6 +205,7 @@ export interface WildPokemon {
   shiny: boolean;
   skills: PokemonSkill | null;
   form: number;
+  catch: boolean;
 }
 
 export interface Item {
@@ -226,4 +227,5 @@ export type SpawnableItem = {
 export type GroundItem = {
   item: string;
   stock: number;
+  catch: boolean;
 };
