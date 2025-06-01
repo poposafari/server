@@ -12,6 +12,7 @@ import {
   IngameAvatar,
   IngameGender,
   MAX_BOX_SIZE,
+  MAX_PER_BOX,
   PokemonGender,
   SpawnableItem,
   WildPokemon,
@@ -60,6 +61,30 @@ export const setDefaultBoxes = (): Backgrounds[] => {
 
   for (let i = 0; i < MAX_BOX_SIZE; i++) {
     ret.push(Backgrounds.ZERO);
+  }
+
+  return ret;
+};
+
+export const setDefaultBoxesCnt = (): number[] => {
+  let ret: number[] = [];
+
+  for (let i = 0; i < MAX_BOX_SIZE; i++) {
+    ret.push(0);
+  }
+
+  return ret;
+};
+
+export const getNextPokeboxIndex = (ingameBoxesCnt: number[]): number[] => {
+  let ret: number[] = [-1, -1];
+
+  for (let i = 0; i < MAX_BOX_SIZE; i++) {
+    if (ingameBoxesCnt[i] >= 0 && ingameBoxesCnt[i] < MAX_PER_BOX) {
+      ret[0] = i;
+      ret[1] = ingameBoxesCnt[i];
+      break;
+    }
   }
 
   return ret;

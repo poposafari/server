@@ -42,6 +42,12 @@ CREATE TABLE db0.ingame (
     '0','0','0','0','0','0','0','0','0','0',
     '0','0','0'
   ]::backgrounds[] CHECK (array_length(boxes, 1) = 33),
+  boxes_cnt INTEGER[] NOT NULL DEFAULT ARRAY[
+    0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,
+    0,0,0
+  ]:: INTEGER[] CHECK (array_length(boxes_cnt,1) = 33),
   party TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[] CHECK (array_length(party, 1) <= 6),
   itemslot CHAR(3)[] NOT NULL DEFAULT ARRAY[]::CHAR(3)[] CHECK (array_length(itemslot, 1) <= 9),
   PRIMARY KEY (account_id),

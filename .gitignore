@@ -4,3 +4,4 @@ db/data
 nginx
 certbot
 redis-data
+apps/api/src/test

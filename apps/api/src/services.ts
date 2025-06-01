@@ -41,9 +41,11 @@ import {
   getAvatarEnum,
   getGenderEnum,
   getGroundItems,
+  getNextPokeboxIndex,
   getWildPokemons,
   getWildSpawnTable,
   setDefaultBoxes,
+  setDefaultBoxesCnt,
 } from "./utils/methods";
 
 export const registerAccount = async (data: AccountReq) => {
@@ -52,6 +54,8 @@ export const registerAccount = async (data: AccountReq) => {
   const exist = await accountRepo.findOneBy({
     username: data.username,
   });
+
+  console.log(exist);
 
   if (exist) throw new DuplicateAccountHttpError();
 
@@ -111,6 +115,7 @@ export const removeAccount = async (user: number) => {
 
 export const registerIngame = async (data: RegisterReq, user: number) => {
   const ingameRepo = Repo.ingame;
+  let ret;
 
   const exist = await ingameRepo.findOneBy({
     nickname: data.nickname,
@@ -118,7 +123,7 @@ export const registerIngame = async (data: RegisterReq, user: number) => {
 
   if (exist) throw new DuplicateUserNicknameHttpError();
 
-  const ingameAccount = ingameRepo.create({
+  ret = {
     account_id: user,
     x: 10,
     y: 10,
@@ -128,9 +133,12 @@ export const registerIngame = async (data: RegisterReq, user: number) => {
     gender: getGenderEnum(data.gender),
     avatar: getAvatarEnum(data.avatar),
     boxes: setDefaultBoxes(),
+    boxes_cnt: setDefaultBoxesCnt(),
     party: [],
     itemslot: [null, null, null, null, null, null, null, null, null],
-  });
+  };
+
+  const ingameAccount = ingameRepo.create(ret);
 
   await ingameRepo.save(ingameAccount);
 
@@ -200,9 +208,8 @@ export const receiveAvailableTicket = async (ingame: Ingame) => {
 
     await manager.update(Ingame, { account_id: ingame.account_id }, { available_ticket: 0 });
     await addItem(ingame, { item: "030", stock: ticket }, manager);
-
-    return gameSuccess(null);
   });
+  return gameSuccess(null);
 };
 
 export const addItem = async (ingame: Ingame, item: ItemReq, manager?: EntityManager): Promise<any> => {
@@ -239,24 +246,40 @@ export const addItem = async (ingame: Ingame, item: ItemReq, manager?: EntityMan
 };
 
 export const buyItem = async (ingame: Ingame, item: ItemReq) => {
+  let ret;
   await AppDataSource.manager.transaction(async (manager) => {
     const itemData = getItemData(item.item);
 
-    if (!itemData) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-    if (!itemData.purchasable) return gameFail(GameLogicErrorCode.NOT_PURCHASABEE_ITEM);
-    if (item.stock <= 0 || item.stock > MAX_BUY) return gameFail(GameLogicErrorCode.WRONG_REQUEST_STOCK);
+    if (!itemData) {
+      ret = gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
+      return;
+    }
+    if (!itemData.purchasable) {
+      ret = gameFail(GameLogicErrorCode.NOT_PURCHASABEE_ITEM);
+      return;
+    }
+    if (item.stock <= 0 || item.stock > MAX_BUY) {
+      ret = gameFail(GameLogicErrorCode.WRONG_REQUEST_STOCK);
+      return;
+    }
 
     const bag = await manager.findOne(Bag, { where: { account_id: ingame.account_id, item: item.item } });
     const cost = item.stock * itemData.price;
     let result: ItemReq;
 
-    if (cost > ingame.money) return gameFail(GameLogicErrorCode.NOT_ENOUGH_CANDY);
+    if (cost > ingame.money) {
+      ret = gameFail(GameLogicErrorCode.NOT_ENOUGH_CANDY);
+      return;
+    }
 
     ingame.money -= cost;
 
     if (bag) {
       const newStock = bag.stock + item.stock;
-      if (newStock > MAX_STOCK) return gameFail(GameLogicErrorCode.MAX_STOCK);
+      if (newStock > MAX_STOCK) {
+        ret = gameFail(GameLogicErrorCode.MAX_STOCK);
+        return;
+      }
 
       bag.stock = newStock;
       await manager.save(bag);
@@ -266,13 +289,15 @@ export const buyItem = async (ingame: Ingame, item: ItemReq) => {
     }
     await manager.save(ingame);
 
-    return gameSuccess({
+    ret = gameSuccess({
       candy: ingame.money,
       item: result.item,
       category: itemData.type,
       stock: result.stock,
     });
   });
+
+  return ret;
 };
 
 export const useItem = async (ingame: Ingame, item: ItemReq, manager?: EntityManager): Promise<any> => {
@@ -345,22 +370,41 @@ export const addPokemon = async (ingame: Ingame, pokemon: MyPokemonReq) => {
       }
     );
   } else {
-    const newPokemon = pokeboxRepo.create({
-      account_id: ingame.account_id,
-      pokedex: pokemon.pokedex,
-      gender: pokemon.gender,
-      shiny: pokemon.shiny,
-      form: pokemon.form,
-      skill: pokemon.skill === "none" ? [] : [pokemon.skill],
-      box: 0, //TODO: 수정해야함.
-      capture_location: pokemon.location,
-      capture_ball: pokemon.capture_ball,
-    });
+    // console.log(ingame.boxes_cnt);
 
-    await pokeboxRepo.save(newPokemon);
+    const nextPokebox = getNextPokeboxIndex(ingame.boxes_cnt);
+
+    console.log(nextPokebox);
+
+    await AppDataSource.manager.transaction(async (manager) => {
+      const newPokemon = pokeboxRepo.create({
+        account_id: ingame.account_id,
+        pokedex: pokemon.pokedex,
+        gender: pokemon.gender,
+        shiny: pokemon.shiny,
+        form: pokemon.form,
+        skill: pokemon.skill === "none" ? [] : [pokemon.skill],
+        box: nextPokebox[0],
+        capture_location: pokemon.location,
+        capture_ball: pokemon.capture_ball,
+      });
+
+      await updatePokeboxCnt(ingame.account_id, nextPokebox[0], nextPokebox[1] + 1, manager);
+      await pokeboxRepo.save(newPokemon);
+    });
   }
 
   return gameSuccess(null);
+};
+
+export const updatePokeboxCnt = async (account_id: number, idx: number, value: number, manager?: EntityManager) => {
+  const ingameRepo = manager ? manager.getRepository(Ingame) : Repo.ingame;
+
+  await ingameRepo.query(`UPDATE db0.ingame SET boxes_cnt[$1] = $2 WHERE account_id = $3`, [
+    idx + 1,
+    value,
+    account_id,
+  ]);
 };
 
 export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq) => {

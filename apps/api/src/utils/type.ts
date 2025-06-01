@@ -1,4 +1,5 @@
 export const MAX_BOX_SIZE = 33;
+export const MAX_PER_BOX = 63;
 export const SaltOrRounds = 10;
 export const MAX_STOCK = 999;
 export const MAX_BUY = 99;

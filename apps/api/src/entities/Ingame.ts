@@ -6,6 +6,7 @@ import { Backgrounds, IngameAvatar, IngameGender } from "../utils/type";
 @Unique(["nickname"])
 @Check(`"available_ticket" >= 0 AND "available_ticket" <= 8`)
 @Check(`array_length(boxes, 1) = 33`)
+@Check(`array_length(boxes_cnt, 1) = 33`)
 @Check(`array_length(party, 1) <= 6`)
 @Check(`array_length(itemslot, 1) <= 9`)
 export class Ingame {
@@ -52,6 +53,12 @@ export class Ingame {
     array: true,
   })
   boxes!: Backgrounds[];
+
+  @Column({
+    type: "int",
+    array: true,
+  })
+  boxes_cnt!: number[];
 
   @Column({
     type: "text",
