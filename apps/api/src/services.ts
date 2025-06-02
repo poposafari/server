@@ -34,6 +34,7 @@ import {
   WildPokemon,
   GroundItem,
   MAX_GROUNDITEM,
+  MAX_PER_BOX,
 } from "./utils/type";
 import {
   gameFail,
@@ -47,6 +48,7 @@ import {
   setDefaultBoxes,
   setDefaultBoxesCnt,
 } from "./utils/methods";
+import { Pokebox } from "./entities/Pokebox";
 
 export const registerAccount = async (data: AccountReq) => {
   const accountRepo = Repo.account;
@@ -407,8 +409,8 @@ export const updatePokeboxCnt = async (account_id: number, idx: number, value: n
   ]);
 };
 
-export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq) => {
-  const pokeboxRepo = Repo.pokebox;
+export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq, manager?: EntityManager) => {
+  const pokeboxRepo = manager ? manager.getRepository(Pokebox) : Repo.pokebox;
   const pokebox = await pokeboxRepo.find({
     where: {
       account_id: ingame.account_id,
@@ -435,23 +437,38 @@ export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq) => {
 };
 
 export const movePokemon = async (ingame: Ingame, info: MovePokemonReq) => {
-  const pokeboxRepo = Repo.pokebox;
-  const pokemon = pokeboxRepo.findOneBy({
-    account_id: ingame.account_id,
-    pokedex: info.pokedex,
-    gender: info.gender as PokemonGender,
+  let ret;
+
+  await AppDataSource.manager.transaction(async (manager) => {
+    const pokeboxRepo = Repo.pokebox;
+    const pokemon = pokeboxRepo.findOneBy({
+      account_id: ingame.account_id,
+      pokedex: info.pokedex,
+      gender: info.gender as PokemonGender,
+    });
+
+    if (!pokemon) {
+      ret = gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
+      return;
+    }
+    if (ingame.boxes_cnt[info.to] >= MAX_PER_BOX) {
+      ret = gameFail(GameLogicErrorCode.FULL_BOX);
+      return;
+    }
+
+    await updatePokeboxCnt(ingame.account_id, info.from, ingame.boxes_cnt[info.from] - 1, manager);
+    await updatePokeboxCnt(ingame.account_id, info.to, ingame.boxes_cnt[info.to] + 1, manager);
+    await pokeboxRepo.update(
+      { account_id: ingame.account_id, pokedex: info.pokedex, gender: info.gender },
+      {
+        box: info.to,
+      }
+    );
+
+    ret = gameSuccess(await getPokebox(ingame, { box: info.from }, manager));
   });
 
-  if (!pokemon) gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-
-  await pokeboxRepo.update(
-    { account_id: ingame.account_id, pokedex: info.pokedex, gender: info.gender },
-    {
-      box: info.to,
-    }
-  );
-
-  return gameSuccess(await getPokebox(ingame, { box: info.from }));
+  return ret;
 };
 
 export const useTicket = async (ingame: Ingame, data: UseTicketReq) => {

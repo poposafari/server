@@ -100,6 +100,7 @@ export const enum GameLogicErrorCode {
   NOT_ENOUGH_CANDY = "NOT_ENOUGH_CANDY",
   NOT_ENOUGH_STOCK = "NOT_ENOUGH_STOCK",
   NOT_ENOUGH_TICKET = "NOT_ENOUGH_TICKET",
+  FULL_BOX = "FULL_BOX",
 }
 
 export const enum HttpErrorCode {
