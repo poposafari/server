@@ -416,6 +416,9 @@ export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq, manag
       account_id: ingame.account_id,
       box: search.box,
     },
+    order: {
+      update_date: "ASC",
+    },
   });
 
   if (!pokebox) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);

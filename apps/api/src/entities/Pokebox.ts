@@ -42,6 +42,9 @@ export class Pokebox {
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   capture_date!: Date;
 
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  update_date!: Date;
+
   @Column({ type: "char", length: 3, default: "000" })
   capture_location!: string;
 

@@ -73,6 +73,7 @@ CREATE TABLE db0.pokebox(
   form INTEGER NOT NULL DEFAULT 0,
   skill pokemon_skill[] NOT NULL,
   capture_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   capture_location CHAR(3) NOT NULL DEFAULT '000',
   capture_ball CHAR(3) NOT NULL DEFAULT '001',
   in_party BOOLEAN NOT NULL DEFAULT FALSE,
@@ -82,3 +83,18 @@ CREATE TABLE db0.pokebox(
 );
 
 CREATE INDEX idx_account_pokebox ON db0.pokebox (account_id, box);
+
+CREATE OR REPLACE FUNCTION update_pokebox_date()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.box IS DISTINCT FROM OLD.box THEN
+    NEW.update_date = CURRENT_TIMESTAMP;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_update_date
+BEFORE UPDATE ON db0.pokebox
+FOR EACH ROW
+EXECUTE FUNCTION update_pokebox_date();
