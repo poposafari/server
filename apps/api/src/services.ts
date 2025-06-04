@@ -372,8 +372,6 @@ export const addPokemon = async (ingame: Ingame, pokemon: MyPokemonReq) => {
       }
     );
   } else {
-    // console.log(ingame.boxes_cnt);
-
     const nextPokebox = getNextPokeboxIndex(ingame.boxes_cnt);
 
     console.log(nextPokebox);
@@ -500,20 +498,24 @@ export const useTicket = async (ingame: Ingame, data: UseTicketReq) => {
 };
 
 export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) => {
-  let result: { pokemons: WildPokemon[]; items: GroundItem[] } = {
+  const overworld = getOverworldData(data.overworld);
+
+  let result: { pokemons: WildPokemon[]; items: GroundItem[]; entryX: number; entryY: number } = {
     pokemons: [],
     items: [],
+    entryX: 0,
+    entryY: 0,
   };
 
   await AppDataSource.manager.transaction(async (manager) => {
-    const overworld = getOverworldData(data.overworld);
-
     if (overworld.type === OverworldType.SAFARI) {
       const pokedexs = getWildSpawnTable(overworld.spawn, overworld.spawnCount);
       const groundItems = getGroundItems(Math.floor(Math.random() * MAX_GROUNDITEM));
 
       result.pokemons = getWildPokemons(pokedexs);
       result.items = groundItems;
+      result.entryX = overworld.x;
+      result.entryY = overworld.y;
     }
 
     await manager.update(
