@@ -11,7 +11,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0002": {
     "comment": "이상해풀",
@@ -25,7 +26,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0003": {
     "comment": "이상해꽃",
@@ -39,7 +41,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0004": {
     "comment": "파이리",
@@ -53,7 +56,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0005": {
     "comment": "리자드",
@@ -67,7 +71,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0006": {
     "comment": "리자몽",
@@ -81,7 +86,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0007": {
     "comment": "꼬부기",
@@ -95,7 +101,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0008": {
     "comment": "어니부기",
@@ -109,7 +116,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0009": {
     "comment": "거북왕",
@@ -123,7 +131,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0010": {
     "comment": "캐터피",
@@ -137,7 +146,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0011": {
     "comment": "단데기",
@@ -151,7 +161,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0012": {
     "comment": "버터플",
@@ -165,7 +176,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0013": {
     "comment": "뿔충이",
@@ -179,7 +191,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0014": {
     "comment": "딱충이",
@@ -193,7 +206,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0015": {
     "comment": "독침붕",
@@ -207,7 +221,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0016": {
     "comment": "구구",
@@ -221,7 +236,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0017": {
     "comment": "피죤",
@@ -235,7 +251,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0018": {
     "comment": "피죤투",
@@ -249,7 +266,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0019": {
     "comment": "꼬렛",
@@ -263,7 +281,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0020": {
     "comment": "레트라",
@@ -277,7 +296,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0021": {
     "comment": "깨비참",
@@ -291,7 +311,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0022": {
     "comment": "깨비드릴조",
@@ -305,7 +326,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0023": {
     "comment": "아보",
@@ -319,7 +341,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0024": {
     "comment": "아보크",
@@ -333,7 +356,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0025": {
     "comment": "피카츄",
@@ -347,7 +371,8 @@
     },
     "rank": "common",
     "type1": "electric",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0026": {
     "comment": "라이츄",
@@ -361,7 +386,8 @@
     },
     "rank": "common",
     "type1": "electric",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0027": {
     "comment": "모래두지",
@@ -375,7 +401,8 @@
     },
     "rank": "common",
     "type1": "ground",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0028": {
     "comment": "고지",
@@ -389,7 +416,8 @@
     },
     "rank": "common",
     "type1": "ground",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0029": {
     "comment": "니드런♀",
@@ -403,7 +431,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0030": {
     "comment": "니드리나",
@@ -417,7 +446,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0031": {
     "comment": "니드퀸",
@@ -431,7 +461,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": "ground"
+    "type2": "ground",
+    "spawn": ["land"]
   },
   "0032": {
     "comment": "니드런♂",
@@ -445,7 +476,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0033": {
     "comment": "니드리노",
@@ -459,7 +491,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0034": {
     "comment": "니드킹",
@@ -473,7 +506,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": "ground"
+    "type2": "ground",
+    "spawn": ["land"]
   },
   "0035": {
     "comment": "삐삐",
@@ -487,7 +521,8 @@
     },
     "rank": "common",
     "type1": "fairy",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0036": {
     "comment": "픽시",
@@ -501,7 +536,8 @@
     },
     "rank": "common",
     "type1": "fairy",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0037": {
     "comment": "식스테일",
@@ -515,7 +551,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0038": {
     "comment": "나인테일",
@@ -529,7 +566,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0039": {
     "comment": "푸린",
@@ -543,7 +581,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": "fairy"
+    "type2": "fairy",
+    "spawn": ["land"]
   },
   "0040": {
     "comment": "푸크린",
@@ -557,7 +596,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": "fairy"
+    "type2": "fairy",
+    "spawn": ["land"]
   },
   "0041": {
     "comment": "주뱃",
@@ -571,7 +611,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0042": {
     "comment": "골뱃",
@@ -585,7 +626,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0043": {
     "comment": "뚜벅쵸",
@@ -599,7 +641,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0044": {
     "comment": "냄새꼬",
@@ -613,7 +656,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0045": {
     "comment": "라플레시아",
@@ -627,7 +671,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0046": {
     "comment": "파라스",
@@ -641,7 +686,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": "grass"
+    "type2": "grass",
+    "spawn": ["land"]
   },
   "0047": {
     "comment": "파라섹트",
@@ -655,7 +701,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": "grass"
+    "type2": "grass",
+    "spawn": ["land"]
   },
   "0048": {
     "comment": "콘팡",
@@ -669,7 +716,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0049": {
     "comment": "도나리",
@@ -683,7 +731,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0050": {
     "comment": "디그다",
@@ -697,7 +746,8 @@
     },
     "rank": "common",
     "type1": "ground",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0051": {
     "comment": "닥트리오",
@@ -711,7 +761,8 @@
     },
     "rank": "common",
     "type1": "ground",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0052": {
     "comment": "나옹",
@@ -725,7 +776,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0053": {
     "comment": "페르시온",
@@ -739,7 +791,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0054": {
     "comment": "고라파덕",
@@ -753,7 +806,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0055": {
     "comment": "골덕",
@@ -767,7 +821,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0056": {
     "comment": "망키",
@@ -781,7 +836,8 @@
     },
     "rank": "common",
     "type1": "fighting",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0057": {
     "comment": "성원숭",
@@ -795,7 +851,8 @@
     },
     "rank": "common",
     "type1": "fighting",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0058": {
     "comment": "가디",
@@ -809,7 +866,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0059": {
     "comment": "윈디",
@@ -823,7 +881,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0060": {
     "comment": "발챙이",
@@ -837,7 +896,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0061": {
     "comment": "수륙챙이",
@@ -851,7 +911,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0062": {
     "comment": "강챙이",
@@ -865,7 +926,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": "fighting"
+    "type2": "fighting",
+    "spawn": ["land", "water"]
   },
   "0063": {
     "comment": "캐이시",
@@ -879,7 +941,8 @@
     },
     "rank": "common",
     "type1": "psychic",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0064": {
     "comment": "윤겔라",
@@ -893,7 +956,8 @@
     },
     "rank": "common",
     "type1": "psychic",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0065": {
     "comment": "후딘",
@@ -907,7 +971,8 @@
     },
     "rank": "common",
     "type1": "psychic",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0066": {
     "comment": "알통몬",
@@ -921,7 +986,8 @@
     },
     "rank": "common",
     "type1": "fighting",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0067": {
     "comment": "근육몬",
@@ -935,7 +1001,8 @@
     },
     "rank": "common",
     "type1": "fighting",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0068": {
     "comment": "괴력몬",
@@ -949,7 +1016,8 @@
     },
     "rank": "common",
     "type1": "fighting",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0069": {
     "comment": "모다피",
@@ -963,7 +1031,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0070": {
     "comment": "우츠동",
@@ -977,7 +1046,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0071": {
     "comment": "우츠보트",
@@ -991,7 +1061,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0072": {
     "comment": "왕눈해",
@@ -1005,7 +1076,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["water"]
   },
   "0073": {
     "comment": "독파리",
@@ -1019,7 +1091,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["water"]
   },
   "0074": {
     "comment": "꼬마돌",
@@ -1033,7 +1106,8 @@
     },
     "rank": "common",
     "type1": "rock",
-    "type2": "ground"
+    "type2": "ground",
+    "spawn": ["land"]
   },
   "0075": {
     "comment": "데구리",
@@ -1047,7 +1121,8 @@
     },
     "rank": "common",
     "type1": "rock",
-    "type2": "ground"
+    "type2": "ground",
+    "spawn": ["land"]
   },
   "0076": {
     "comment": "딱구리",
@@ -1061,7 +1136,8 @@
     },
     "rank": "common",
     "type1": "rock",
-    "type2": "ground"
+    "type2": "ground",
+    "spawn": ["land"]
   },
   "0077": {
     "comment": "포니타",
@@ -1075,7 +1151,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0078": {
     "comment": "날쌩마",
@@ -1089,7 +1166,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0079": {
     "comment": "야돈",
@@ -1103,7 +1181,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": "psychic"
+    "type2": "psychic",
+    "spawn": ["land", "water"]
   },
   "0080": {
     "comment": "야도란",
@@ -1117,7 +1196,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": "psychic"
+    "type2": "psychic",
+    "spawn": ["land", "water"]
   },
   "0081": {
     "comment": "코일",
@@ -1131,7 +1211,8 @@
     },
     "rank": "common",
     "type1": "electric",
-    "type2": "steel"
+    "type2": "steel",
+    "spawn": ["land"]
   },
   "0082": {
     "comment": "레어코일",
@@ -1145,7 +1226,8 @@
     },
     "rank": "common",
     "type1": "electric",
-    "type2": "steel"
+    "type2": "steel",
+    "spawn": ["land"]
   },
   "0083": {
     "comment": "파오리",
@@ -1159,7 +1241,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0084": {
     "comment": "두두",
@@ -1173,7 +1256,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0085": {
     "comment": "두트리오",
@@ -1187,7 +1271,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0086": {
     "comment": "쥬쥬",
@@ -1201,7 +1286,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0087": {
     "comment": "쥬레곤",
@@ -1215,7 +1301,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": "ice"
+    "type2": "ice",
+    "spawn": ["land", "water"]
   },
   "0088": {
     "comment": "질퍽이",
@@ -1229,7 +1316,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0089": {
     "comment": "질뻐기",
@@ -1243,7 +1331,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0090": {
     "comment": "셀러",
@@ -1257,7 +1346,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["water"]
   },
   "0091": {
     "comment": "파르셀",
@@ -1271,7 +1361,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": "ice"
+    "type2": "ice",
+    "spawn": ["water"]
   },
   "0092": {
     "comment": "고오스",
@@ -1285,7 +1376,8 @@
     },
     "rank": "common",
     "type1": "ghost",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0093": {
     "comment": "고우스트",
@@ -1299,7 +1391,8 @@
     },
     "rank": "common",
     "type1": "ghost",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0094": {
     "comment": "팬텀",
@@ -1313,7 +1406,8 @@
     },
     "rank": "common",
     "type1": "ghost",
-    "type2": "poison"
+    "type2": "poison",
+    "spawn": ["land"]
   },
   "0095": {
     "comment": "롱스톤",
@@ -1327,7 +1421,8 @@
     },
     "rank": "common",
     "type1": "rock",
-    "type2": "ground"
+    "type2": "ground",
+    "spawn": ["land"]
   },
   "0096": {
     "comment": "슬리프",
@@ -1341,7 +1436,8 @@
     },
     "rank": "common",
     "type1": "psychic",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0097": {
     "comment": "슬리퍼",
@@ -1355,7 +1451,8 @@
     },
     "rank": "common",
     "type1": "psychic",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0098": {
     "comment": "크랩",
@@ -1369,7 +1466,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0099": {
     "comment": "킹크랩",
@@ -1383,7 +1481,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0100": {
     "comment": "찌리리공",
@@ -1397,7 +1496,8 @@
     },
     "rank": "common",
     "type1": "electric",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0101": {
     "comment": "붐볼",
@@ -1411,7 +1511,8 @@
     },
     "rank": "common",
     "type1": "electric",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0102": {
     "comment": "아라리",
@@ -1425,7 +1526,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "psychic"
+    "type2": "psychic",
+    "spawn": ["land"]
   },
   "0103": {
     "comment": "나시",
@@ -1439,7 +1541,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": "psychic"
+    "type2": "psychic",
+    "spawn": ["land"]
   },
   "0104": {
     "comment": "탕구리",
@@ -1453,7 +1556,8 @@
     },
     "rank": "common",
     "type1": "ground",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0105": {
     "comment": "텅구리",
@@ -1467,7 +1571,8 @@
     },
     "rank": "common",
     "type1": "ground",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0106": {
     "comment": "시라소몬",
@@ -1481,7 +1586,8 @@
     },
     "rank": "common",
     "type1": "fighting",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0107": {
     "comment": "홍수몬",
@@ -1495,7 +1601,8 @@
     },
     "rank": "common",
     "type1": "fighting",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0108": {
     "comment": "내루미",
@@ -1509,7 +1616,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0109": {
     "comment": "또가스",
@@ -1523,7 +1631,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0110": {
     "comment": "또도가스",
@@ -1537,7 +1646,8 @@
     },
     "rank": "common",
     "type1": "poison",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0111": {
     "comment": "뿔카노",
@@ -1551,7 +1661,8 @@
     },
     "rank": "common",
     "type1": "ground",
-    "type2": "rock"
+    "type2": "rock",
+    "spawn": ["land"]
   },
   "0112": {
     "comment": "코뿌리",
@@ -1565,7 +1676,8 @@
     },
     "rank": "common",
     "type1": "ground",
-    "type2": "rock"
+    "type2": "rock",
+    "spawn": ["land"]
   },
   "0113": {
     "comment": "럭키",
@@ -1579,7 +1691,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0114": {
     "comment": "덩쿠리",
@@ -1593,7 +1706,8 @@
     },
     "rank": "common",
     "type1": "grass",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0115": {
     "comment": "캥카",
@@ -1607,7 +1721,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0116": {
     "comment": "쏘드라",
@@ -1621,7 +1736,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["water"]
   },
   "0117": {
     "comment": "시드라",
@@ -1635,7 +1751,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["water"]
   },
   "0118": {
     "comment": "콘치",
@@ -1649,7 +1766,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["water"]
   },
   "0119": {
     "comment": "왕콘치",
@@ -1663,7 +1781,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["water"]
   },
   "0120": {
     "comment": "별가사리",
@@ -1677,7 +1796,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["water"]
   },
   "0121": {
     "comment": "아쿠스타",
@@ -1691,7 +1811,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": "psychic"
+    "type2": "psychic",
+    "spawn": ["water"]
   },
   "0122": {
     "comment": "마임맨",
@@ -1705,7 +1826,8 @@
     },
     "rank": "common",
     "type1": "psychic",
-    "type2": "fairy"
+    "type2": "fairy",
+    "spawn": ["land"]
   },
   "0123": {
     "comment": "스라크",
@@ -1719,7 +1841,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0124": {
     "comment": "루주라",
@@ -1733,7 +1856,8 @@
     },
     "rank": "common",
     "type1": "ice",
-    "type2": "psychic"
+    "type2": "psychic",
+    "spawn": ["land"]
   },
   "0125": {
     "comment": "에레브",
@@ -1747,7 +1871,8 @@
     },
     "rank": "common",
     "type1": "electric",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0126": {
     "comment": "마그마",
@@ -1761,7 +1886,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0127": {
     "comment": "쁘사이저",
@@ -1775,7 +1901,8 @@
     },
     "rank": "common",
     "type1": "bug",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0128": {
     "comment": "켄타로스",
@@ -1789,7 +1916,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0129": {
     "comment": "잉어킹",
@@ -1803,7 +1931,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["water"]
   },
   "0130": {
     "comment": "갸라도스",
@@ -1817,7 +1946,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["water"]
   },
   "0131": {
     "comment": "라프라스",
@@ -1831,7 +1961,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": "ice"
+    "type2": "ice",
+    "spawn": ["water"]
   },
   "0132": {
     "comment": "메타몽",
@@ -1845,7 +1976,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0133": {
     "comment": "이브이",
@@ -1859,7 +1991,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0134": {
     "comment": "샤미드",
@@ -1873,7 +2006,8 @@
     },
     "rank": "common",
     "type1": "water",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0135": {
     "comment": "쥬피썬더",
@@ -1887,7 +2021,8 @@
     },
     "rank": "common",
     "type1": "electric",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0136": {
     "comment": "부스터",
@@ -1901,7 +2036,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0137": {
     "comment": "폴리곤",
@@ -1915,7 +2051,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0138": {
     "comment": "암나이트",
@@ -1929,7 +2066,8 @@
     },
     "rank": "common",
     "type1": "rock",
-    "type2": "water"
+    "type2": "water",
+    "spawn": ["land"]
   },
   "0139": {
     "comment": "암스타",
@@ -1943,7 +2081,8 @@
     },
     "rank": "common",
     "type1": "rock",
-    "type2": "water"
+    "type2": "water",
+    "spawn": ["land"]
   },
   "0140": {
     "comment": "투구",
@@ -1957,7 +2096,8 @@
     },
     "rank": "common",
     "type1": "rock",
-    "type2": "water"
+    "type2": "water",
+    "spawn": ["land"]
   },
   "0141": {
     "comment": "투구푸스",
@@ -1971,7 +2111,8 @@
     },
     "rank": "common",
     "type1": "rock",
-    "type2": "water"
+    "type2": "water",
+    "spawn": ["land"]
   },
   "0142": {
     "comment": "프테라",
@@ -1985,7 +2126,8 @@
     },
     "rank": "common",
     "type1": "rock",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0143": {
     "comment": "잠만보",
@@ -1999,7 +2141,8 @@
     },
     "rank": "common",
     "type1": "normal",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0144": {
     "comment": "프리져",
@@ -2013,7 +2156,8 @@
     },
     "rank": "common",
     "type1": "ice",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0145": {
     "comment": "썬더",
@@ -2027,7 +2171,8 @@
     },
     "rank": "common",
     "type1": "electric",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0146": {
     "comment": "파이어",
@@ -2041,7 +2186,8 @@
     },
     "rank": "common",
     "type1": "fire",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0147": {
     "comment": "미뇽",
@@ -2055,7 +2201,8 @@
     },
     "rank": "common",
     "type1": "dragon",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0148": {
     "comment": "신뇽",
@@ -2069,7 +2216,8 @@
     },
     "rank": "common",
     "type1": "dragon",
-    "type2": null
+    "type2": null,
+    "spawn": ["land", "water"]
   },
   "0149": {
     "comment": "망나뇽",
@@ -2083,7 +2231,8 @@
     },
     "rank": "common",
     "type1": "dragon",
-    "type2": "flying"
+    "type2": "flying",
+    "spawn": ["land"]
   },
   "0150": {
     "comment": "뮤츠",
@@ -2097,7 +2246,8 @@
     },
     "rank": "common",
     "type1": "psychic",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   },
   "0151": {
     "comment": "뮤",
@@ -2111,6 +2261,7 @@
     },
     "rank": "common",
     "type1": "psychic",
-    "type2": null
+    "type2": null,
+    "spawn": ["land"]
   }
 }

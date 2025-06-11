@@ -5,7 +5,9 @@ export const MAX_STOCK = 999;
 export const MAX_BUY = 99;
 export const MAX_GROUNDITEM = 10;
 
-export type GameLogicRes<T = any> = { success: true; data: T } | { success: false; reason: GameLogicErrorCode };
+export type GameLogicRes<T = any> =
+  | { success: true; data: T }
+  | { success: false; reason: GameLogicErrorCode };
 
 export enum ItemType {
   POKEBALL = "pokeball",
@@ -89,6 +91,11 @@ export const enum Rarity {
   RARE = "rare",
   LEGENDARY = "legendary",
   MYTHICAL = "mythical",
+}
+
+export const enum SPAWN {
+  LAND = "land",
+  WATER = "water",
 }
 
 export const enum GameLogicErrorCode {
@@ -199,6 +206,7 @@ export interface Pokemon {
   rank: Rarity;
   type1: Type;
   type2: Type | null;
+  spawns: SPAWN[];
 }
 
 export interface WildPokemon {
