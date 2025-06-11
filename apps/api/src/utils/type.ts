@@ -216,6 +216,7 @@ export interface WildPokemon {
   skills: PokemonSkill | null;
   form: number;
   catch: boolean;
+  spawns: SPAWN;
 }
 
 export interface Item {

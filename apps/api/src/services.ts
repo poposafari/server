@@ -1,16 +1,11 @@
-import bcrypt from "bcrypt";
-import { Repo } from "./utils/repo";
-import { EntityManager } from "typeorm";
-import {
-  DuplicateAccountHttpError,
-  DuplicateUserNicknameHttpError,
-  LoginFailHttpError,
-  NotFoundAccountHttpError,
-} from "./utils/http-error";
-import { Ingame } from "./entities/Ingame";
-import { AppDataSource, redis } from "./data-source";
-import { Bag } from "./entities/Bag";
-import { getItemData, getOverworldData } from "./store";
+import bcrypt from 'bcrypt';
+import { Repo } from './utils/repo';
+import { EntityManager } from 'typeorm';
+import { DuplicateAccountHttpError, DuplicateUserNicknameHttpError, LoginFailHttpError, NotFoundAccountHttpError } from './utils/http-error';
+import { Ingame } from './entities/Ingame';
+import { AppDataSource, redis } from './data-source';
+import { Bag } from './entities/Bag';
+import { getItemData, getOverworldData } from './store';
 import {
   AccountReq,
   BoxBgReq,
@@ -35,20 +30,9 @@ import {
   GroundItem,
   MAX_GROUNDITEM,
   MAX_PER_BOX,
-} from "./utils/type";
-import {
-  gameFail,
-  gameSuccess,
-  getAvatarEnum,
-  getGenderEnum,
-  getGroundItems,
-  getNextPokeboxIndex,
-  getWildPokemons,
-  getWildSpawnTable,
-  setDefaultBoxes,
-  setDefaultBoxesCnt,
-} from "./utils/methods";
-import { Pokebox } from "./entities/Pokebox";
+} from './utils/type';
+import { gameFail, gameSuccess, getAvatarEnum, getGenderEnum, getGroundItems, getNextPokeboxIndex, getWildPokemons, getWildSpawnTable, setDefaultBoxes, setDefaultBoxesCnt } from './utils/methods';
+import { Pokebox } from './entities/Pokebox';
 
 export const registerAccount = async (data: AccountReq) => {
   const accountRepo = Repo.account;
@@ -129,7 +113,7 @@ export const registerIngame = async (data: RegisterReq, user: number) => {
     account_id: user,
     x: 10,
     y: 10,
-    location: "000",
+    location: '000',
     money: 5000,
     nickname: data.nickname,
     gender: getGenderEnum(data.gender),
@@ -209,7 +193,7 @@ export const receiveAvailableTicket = async (ingame: Ingame) => {
     const ticket = ingame.available_ticket;
 
     await manager.update(Ingame, { account_id: ingame.account_id }, { available_ticket: 0 });
-    await addItem(ingame, { item: "030", stock: ticket }, manager);
+    await addItem(ingame, { item: '030', stock: ticket }, manager);
   });
   return gameSuccess(null);
 };
@@ -369,7 +353,7 @@ export const addPokemon = async (ingame: Ingame, pokemon: MyPokemonReq) => {
         skill: newSkill,
         capture_location: pokemon.location,
         capture_ball: pokemon.capture_ball,
-      }
+      },
     );
   } else {
     const nextPokebox = getNextPokeboxIndex(ingame.boxes_cnt);
@@ -383,7 +367,7 @@ export const addPokemon = async (ingame: Ingame, pokemon: MyPokemonReq) => {
         gender: pokemon.gender,
         shiny: pokemon.shiny,
         form: pokemon.form,
-        skill: pokemon.skill === "none" ? [] : [pokemon.skill],
+        skill: pokemon.skill === 'none' ? [] : [pokemon.skill],
         box: nextPokebox[0],
         capture_location: pokemon.location,
         capture_ball: pokemon.capture_ball,
@@ -400,11 +384,7 @@ export const addPokemon = async (ingame: Ingame, pokemon: MyPokemonReq) => {
 export const updatePokeboxCnt = async (account_id: number, idx: number, value: number, manager?: EntityManager) => {
   const ingameRepo = manager ? manager.getRepository(Ingame) : Repo.ingame;
 
-  await ingameRepo.query(`UPDATE db0.ingame SET boxes_cnt[$1] = $2 WHERE account_id = $3`, [
-    idx + 1,
-    value,
-    account_id,
-  ]);
+  await ingameRepo.query(`UPDATE db0.ingame SET boxes_cnt[$1] = $2 WHERE account_id = $3`, [idx + 1, value, account_id]);
 };
 
 export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq, manager?: EntityManager) => {
@@ -415,7 +395,7 @@ export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq, manag
       box: search.box,
     },
     order: {
-      update_date: "ASC",
+      update_date: 'ASC',
     },
   });
 
@@ -463,7 +443,7 @@ export const movePokemon = async (ingame: Ingame, info: MovePokemonReq) => {
       { account_id: ingame.account_id, pokedex: info.pokedex, gender: info.gender },
       {
         box: info.to,
-      }
+      },
     );
 
     ret = gameSuccess(await getPokebox(ingame, { box: info.from }, manager));
@@ -476,7 +456,7 @@ export const useTicket = async (ingame: Ingame, data: UseTicketReq) => {
   const bagRepo = Repo.bag;
   const overworld = getOverworldData(data.overworld);
   const bag = await bagRepo.findOne({
-    where: { account_id: ingame.account_id, item: "030" },
+    where: { account_id: ingame.account_id, item: '030' },
   });
 
   if (!bag) return gameFail(GameLogicErrorCode.NOT_ENOUGH_TICKET);
@@ -487,11 +467,11 @@ export const useTicket = async (ingame: Ingame, data: UseTicketReq) => {
     return gameFail(GameLogicErrorCode.NOT_ENOUGH_TICKET);
   } else {
     bag.stock = newStock;
-    await useItem(ingame, { item: "030", stock: overworld.cost });
+    await useItem(ingame, { item: '030', stock: overworld.cost });
   }
 
   return gameSuccess({
-    item: "030",
+    item: '030',
     category: ItemType.ETC,
     stock: bag.stock,
   });
@@ -518,11 +498,7 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
       result.entryY = overworld.y;
     }
 
-    await manager.update(
-      Ingame,
-      { account_id: ingame.account_id },
-      { location: data.overworld, x: overworld.x, y: overworld.y }
-    );
+    await manager.update(Ingame, { account_id: ingame.account_id }, { location: data.overworld, x: overworld.x, y: overworld.y });
   });
 
   return gameSuccess(result);

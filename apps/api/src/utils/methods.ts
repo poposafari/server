@@ -14,6 +14,7 @@ import {
   MAX_BOX_SIZE,
   MAX_PER_BOX,
   PokemonGender,
+  SPAWN,
   SpawnableItem,
   WildPokemon,
 } from "./type";
@@ -90,12 +91,25 @@ export const getNextPokeboxIndex = (ingameBoxesCnt: number[]): number[] => {
   return ret;
 };
 
-export const getRandomGender = (): PokemonGender.FEMALE | PokemonGender.MALE => {
+export const getRandomGender = ():
+  | PokemonGender.FEMALE
+  | PokemonGender.MALE => {
   return Math.random() < 0.5 ? PokemonGender.FEMALE : PokemonGender.MALE;
 };
 
 export const getShinyRandom = (): boolean => {
   return Math.random() < 1 / 512;
+};
+
+export const getRandomSpawn = (pokedex: string): SPAWN => {
+  const pokemon = PokemonData[pokedex];
+
+  if (pokemon && Array.isArray(pokemon.spawns) && pokemon.spawns.length > 0) {
+    const randomIndex = Math.floor(Math.random() * pokemon.spawns.length);
+    return pokemon.spawns[randomIndex];
+  }
+
+  return SPAWN.LAND;
 };
 
 export const getWildSpawnTable = (spawns: string[], count: number) => {
@@ -150,7 +164,10 @@ export const getSpawnableItemTable = (): SpawnableItem[] => {
 
 export const getGroundItems = (count: number): GroundItem[] => {
   const ret: GroundItem[] = [];
-  const totalRate = SpawnableItemTable.reduce((sum, item) => sum + item.rate, 0);
+  const totalRate = SpawnableItemTable.reduce(
+    (sum, item) => sum + item.rate,
+    0
+  );
 
   for (let i = 0; i < count; i++) {
     const rand = Math.floor(Math.random() * totalRate);
@@ -180,6 +197,7 @@ export const getWildPokemons = (pokedexs: string[]): WildPokemon[] => {
       skills: null,
       form: 0,
       catch: false,
+      spawns: getRandomSpawn(pokedex),
     });
   }
 
