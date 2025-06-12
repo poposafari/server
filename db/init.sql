@@ -48,7 +48,8 @@ CREATE TABLE db0.ingame (
     0,0,0,0,0,0,0,0,0,0,
     0,0,0
   ]:: INTEGER[] CHECK (array_length(boxes_cnt,1) = 33),
-  party TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[] CHECK (array_length(party, 1) <= 6),
+  pet INTEGER NULL,
+  party INTEGER[] NOT NULL DEFAULT ARRAY[]::INTEGER[] CHECK (array_length(party, 1) <= 6),
   itemslot CHAR(3)[] NOT NULL DEFAULT ARRAY[]::CHAR(3)[] CHECK (array_length(itemslot, 1) <= 9),
   PRIMARY KEY (account_id),
   FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE
@@ -64,6 +65,7 @@ CREATE TABLE db0.bag(
 );
 
 CREATE TABLE db0.pokebox(
+  idx BIGSERIAL PRIMARY KEY,
   account_id INTEGER NOT NULL,
   pokedex CHAR(4) NOT NULL DEFAULT '0000',
   gender pokemon_gender NOT NULL DEFAULT 'none',
@@ -78,8 +80,8 @@ CREATE TABLE db0.pokebox(
   capture_ball CHAR(3) NOT NULL DEFAULT '001',
   in_party BOOLEAN NOT NULL DEFAULT FALSE,
   nickname VARCHAR(10) NULL,
-  PRIMARY KEY (account_id, pokedex, gender),
-	FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE
+	FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE,
+  CONSTRAINT uq_pokebox UNIQUE (account_id, pokedex, gender)
 );
 
 CREATE INDEX idx_account_pokebox ON db0.pokebox (account_id, box);

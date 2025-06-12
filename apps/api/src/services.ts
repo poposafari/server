@@ -30,6 +30,7 @@ import {
   GroundItem,
   MAX_GROUNDITEM,
   MAX_PER_BOX,
+  PartyReq,
 } from './utils/type';
 import { gameFail, gameSuccess, getAvatarEnum, getGenderEnum, getGroundItems, getNextPokeboxIndex, getWildPokemons, getWildSpawnTable, setDefaultBoxes, setDefaultBoxesCnt } from './utils/methods';
 import { Pokebox } from './entities/Pokebox';
@@ -164,7 +165,7 @@ export const updateItemSlot = async (ingame: Ingame, itemSlot: SlotReq) => {
   return gameSuccess(null);
 };
 
-export const updateParty = async (ingame: Ingame, party: SlotReq) => {
+export const updateParty = async (ingame: Ingame, party: PartyReq) => {
   const ingameRepo = Repo.ingame;
 
   await ingameRepo.update(ingame.account_id, {
