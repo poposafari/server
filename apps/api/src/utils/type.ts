@@ -208,7 +208,7 @@ export interface Pokemon {
   rank: Rarity;
   type1: Type;
   type2: Type | null;
-  spawns: SPAWN[];
+  spawn: SPAWN[];
 }
 
 export interface WildPokemon {

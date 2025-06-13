@@ -1,23 +1,10 @@
-import path from "path";
-import "reflect-metadata";
-import * as fs from "fs";
-import { redis } from "../data-source";
-import { ItemData, PokemonData, SpawnableItemTable } from "../store";
-import { createAccessToken, createRefreshToken } from "./jwt";
-import {
-  Backgrounds,
-  GameLogicErrorCode,
-  GameLogicRes,
-  GroundItem,
-  IngameAvatar,
-  IngameGender,
-  MAX_BOX_SIZE,
-  MAX_PER_BOX,
-  PokemonGender,
-  SPAWN,
-  SpawnableItem,
-  WildPokemon,
-} from "./type";
+import path from 'path';
+import 'reflect-metadata';
+import * as fs from 'fs';
+import { redis } from '../data-source';
+import { ItemData, PokemonData, SpawnableItemTable } from '../store';
+import { createAccessToken, createRefreshToken } from './jwt';
+import { Backgrounds, GameLogicErrorCode, GameLogicRes, GroundItem, IngameAvatar, IngameGender, MAX_BOX_SIZE, MAX_PER_BOX, PokemonGender, SPAWN, SpawnableItem, WildPokemon } from './type';
 
 export const gameSuccess = <T>(data: T): GameLogicRes<T> => ({
   success: true,
@@ -47,13 +34,13 @@ export const createTokens = (user: number) => {
 
 export const getAvatarEnum = (value: string): IngameAvatar => {
   const found = Object.values(IngameAvatar).find((v) => v === value);
-  if (!found) throw new Error("Invalid avatar value");
+  if (!found) throw new Error('Invalid avatar value');
   return found as IngameAvatar;
 };
 
 export const getGenderEnum = (value: string): IngameGender => {
   const found = Object.values(IngameGender).find((v) => v === value);
-  if (!found) throw new Error("Invalid gender value");
+  if (!found) throw new Error('Invalid gender value');
   return found as IngameGender;
 };
 
@@ -91,9 +78,7 @@ export const getNextPokeboxIndex = (ingameBoxesCnt: number[]): number[] => {
   return ret;
 };
 
-export const getRandomGender = ():
-  | PokemonGender.FEMALE
-  | PokemonGender.MALE => {
+export const getRandomGender = (): PokemonGender.FEMALE | PokemonGender.MALE => {
   return Math.random() < 0.5 ? PokemonGender.FEMALE : PokemonGender.MALE;
 };
 
@@ -104,9 +89,9 @@ export const getShinyRandom = (): boolean => {
 export const getRandomSpawn = (pokedex: string): SPAWN => {
   const pokemon = PokemonData[pokedex];
 
-  if (pokemon && Array.isArray(pokemon.spawns) && pokemon.spawns.length > 0) {
-    const randomIndex = Math.floor(Math.random() * pokemon.spawns.length);
-    return pokemon.spawns[randomIndex];
+  if (pokemon && Array.isArray(pokemon.spawn) && pokemon.spawn.length > 0) {
+    const randomIndex = Math.floor(Math.random() * pokemon.spawn.length);
+    return pokemon.spawn[randomIndex];
   }
 
   return SPAWN.LAND;
@@ -164,10 +149,7 @@ export const getSpawnableItemTable = (): SpawnableItem[] => {
 
 export const getGroundItems = (count: number): GroundItem[] => {
   const ret: GroundItem[] = [];
-  const totalRate = SpawnableItemTable.reduce(
-    (sum, item) => sum + item.rate,
-    0
-  );
+  const totalRate = SpawnableItemTable.reduce((sum, item) => sum + item.rate, 0);
 
   for (let i = 0; i < count; i++) {
     const rand = Math.floor(Math.random() * totalRate);
@@ -205,9 +187,9 @@ export const getWildPokemons = (pokedexs: string[]): WildPokemon[] => {
 };
 
 export const readJson = (file: string) => {
-  const name = "../../" + file + ".json";
+  const name = '../../' + file + '.json';
   const filePath = path.resolve(__dirname, name);
-  const rawData = fs.readFileSync(filePath, "utf-8");
+  const rawData = fs.readFileSync(filePath, 'utf-8');
 
   return JSON.parse(rawData);
 };
