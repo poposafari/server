@@ -91,7 +91,7 @@ export const enum Rarity {
   MYTHICAL = 'mythical',
 }
 
-export const enum SPAWN {
+export enum SPAWN {
   LAND = 'land',
   WATER = 'water',
 }

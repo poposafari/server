@@ -44,6 +44,12 @@ export const getGenderEnum = (value: string): IngameGender => {
   return found as IngameGender;
 };
 
+export const getSpawnEnum = (value: string): SPAWN => {
+  const found = Object.values(SPAWN).find((v) => v === value);
+  if (!found) throw new Error('Invalid SPAWN');
+  return found as SPAWN;
+};
+
 export const setDefaultBoxes = (): Backgrounds[] => {
   let ret: Backgrounds[] = [];
 

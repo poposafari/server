@@ -86,6 +86,30 @@ CREATE TABLE db0.pokebox(
 
 CREATE INDEX idx_account_pokebox ON db0.pokebox (account_id, box);
 
+CREATE TABLE db0.wild(
+  idx BIGSERIAL PRIMARY KEY,
+  account_id INTEGER NOT NULL,
+  overworld CHAR(3) NOT NULL,
+  pokedex CHAR(4) NOT NULL,
+  gender pokemon_gender NOT NULL,
+  shiny BOOLEAN NOT NULL,
+  skills pokemon_skill NULL,
+  form INTEGER NOT NULL,
+  catch BOOLEAN NOT NULL,
+  spawns VARCHAR(10) NOT NULL,
+  FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE
+);
+
+CREATE TABLE db0.grounditem(
+  idx BIGSERIAL PRIMARY KEY,
+  account_id INTEGER NOT NULL,
+  overworld CHAR(3) NOT NULL,
+  item CHAR(3) NOT NULL,
+  stock INTEGER NOT NULL,
+  catch BOOLEAN NOT NULL,
+  FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE
+);
+
 CREATE OR REPLACE FUNCTION update_pokebox_date()
 RETURNS TRIGGER AS $$
 BEGIN

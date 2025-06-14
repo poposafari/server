@@ -32,8 +32,22 @@ import {
   MAX_PER_BOX,
   PartyReq,
 } from './utils/type';
-import { gameFail, gameSuccess, getAvatarEnum, getGenderEnum, getGroundItems, getNextPokeboxIndex, getWildPokemons, getWildSpawnTable, setDefaultBoxes, setDefaultBoxesCnt } from './utils/methods';
+import {
+  gameFail,
+  gameSuccess,
+  getAvatarEnum,
+  getGenderEnum,
+  getGroundItems,
+  getNextPokeboxIndex,
+  getSpawnEnum,
+  getWildPokemons,
+  getWildSpawnTable,
+  setDefaultBoxes,
+  setDefaultBoxesCnt,
+} from './utils/methods';
 import { Pokebox } from './entities/Pokebox';
+import { Wild } from './entities/Wild';
+import { Grounditem } from './entities/Grounditem';
 
 export const registerAccount = async (data: AccountReq) => {
   const accountRepo = Repo.account;
@@ -484,19 +498,78 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
   let result: { pokemons: WildPokemon[]; items: GroundItem[]; entryX: number; entryY: number } = {
     pokemons: [],
     items: [],
-    entryX: 0,
-    entryY: 0,
+    entryX: overworld.x,
+    entryY: overworld.y,
   };
 
   await AppDataSource.manager.transaction(async (manager) => {
     if (overworld.type === OverworldType.SAFARI) {
+      const existWild = await manager.find(Wild, {
+        where: { account_id: ingame.account_id, overworld: data.overworld },
+      });
+
+      if (existWild.length > 0) {
+        const existGroundItems = await manager.find(Grounditem, {
+          where: { account_id: ingame.account_id, overworld: data.overworld },
+        });
+
+        result.pokemons = existWild.map((pokemon) => ({
+          pokedex: pokemon.pokedex,
+          gender: pokemon.gender,
+          shiny: pokemon.shiny,
+          skills: pokemon.skills,
+          form: pokemon.form,
+          catch: pokemon.catch,
+          spawns: getSpawnEnum(pokemon.spawns),
+        }));
+
+        result.items = existGroundItems.map((item) => ({
+          item: item.item,
+          stock: item.stock,
+          catch: item.catch,
+        }));
+
+        await manager.update(Ingame, { account_id: ingame.account_id }, { location: data.overworld, x: overworld.x, y: overworld.y });
+        return;
+      }
+
       const pokedexs = getWildSpawnTable(overworld.spawn, overworld.spawnCount);
       const groundItems = getGroundItems(Math.floor(Math.random() * MAX_GROUNDITEM));
+      const wildPokemons = getWildPokemons(pokedexs);
 
-      result.pokemons = getWildPokemons(pokedexs);
+      result.pokemons = wildPokemons;
       result.items = groundItems;
       result.entryX = overworld.x;
       result.entryY = overworld.y;
+
+      const wildEntities = wildPokemons.map((pokemon) =>
+        manager.create(Wild, {
+          account_id: ingame.account_id,
+          overworld: data.overworld,
+          pokedex: pokemon.pokedex,
+          gender: pokemon.gender,
+          shiny: pokemon.shiny,
+          skills: pokemon.skills,
+          form: pokemon.form,
+          catch: false,
+          spawns: pokemon.spawns.toString(),
+        }),
+      );
+      await manager.save(wildEntities);
+
+      const grounditemEntities = groundItems.map((item) =>
+        manager.create(Grounditem, {
+          account_id: ingame.account_id,
+          overworld: data.overworld,
+          item: item.item,
+          stock: item.stock,
+          catch: false,
+        }),
+      );
+      await manager.save(grounditemEntities);
+    } else {
+      await manager.delete(Wild, { account_id: ingame.account_id });
+      await manager.delete(Grounditem, { account_id: ingame.account_id });
     }
 
     await manager.update(Ingame, { account_id: ingame.account_id }, { location: data.overworld, x: overworld.x, y: overworld.y });
