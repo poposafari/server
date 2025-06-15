@@ -181,6 +181,10 @@ export interface MoveToOverworldReq {
   overworld: string;
 }
 
+export interface CatchSafariObjectReq {
+  idx: number;
+}
+
 export interface Overworld {
   comment: string;
   type: OverworldType;
@@ -212,6 +216,7 @@ export interface Pokemon {
 }
 
 export interface WildPokemon {
+  idx: number;
   pokedex: string;
   gender: PokemonGender;
   shiny: boolean;
@@ -238,6 +243,7 @@ export type SpawnableItem = {
 };
 
 export type GroundItem = {
+  idx: number;
   item: string;
   stock: number;
   catch: boolean;

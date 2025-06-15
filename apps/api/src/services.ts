@@ -31,6 +31,7 @@ import {
   MAX_GROUNDITEM,
   MAX_PER_BOX,
   PartyReq,
+  CatchSafariObjectReq,
 } from './utils/type';
 import {
   gameFail,
@@ -514,6 +515,7 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
         });
 
         result.pokemons = existWild.map((pokemon) => ({
+          idx: pokemon.idx,
           pokedex: pokemon.pokedex,
           gender: pokemon.gender,
           shiny: pokemon.shiny,
@@ -524,6 +526,7 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
         }));
 
         result.items = existGroundItems.map((item) => ({
+          idx: item.idx,
           item: item.item,
           stock: item.stock,
           catch: item.catch,
@@ -576,4 +579,26 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
   });
 
   return gameSuccess(result);
+};
+
+export const catchGroundItem = async (ingame: Ingame, data: CatchSafariObjectReq) => {
+  const repo = Repo.GrounditemSpawns;
+  const item = await repo.findOneBy({ idx: data.idx });
+  let ret;
+
+  if (!item) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
+
+  await AppDataSource.manager.transaction(async (manager) => {
+    await manager.update(
+      Grounditem,
+      { account_id: ingame.account_id, idx: data.idx },
+      {
+        catch: true,
+      },
+    );
+
+    ret = await addItem(ingame, { item: item.item, stock: item.stock }, manager);
+  });
+
+  return gameSuccess(ret);
 };

@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 import {
   addItem,
   addPokemon,
   autoLogin,
   buyItem,
+  catchGroundItem,
   getAvailableTicket,
   getIngame,
   getItemByCategory,
@@ -21,12 +22,12 @@ import {
   updatePokeboxBg,
   useItem,
   useTicket,
-} from "./services";
-import { LoginFailHttpError } from "./utils/http-error";
-import { createTokens, gameSuccess } from "./utils/methods";
-import { WrapController } from "./utils/wrap-controller";
-import { CookieConfig } from "./utils/options";
-import { redis } from "./data-source";
+} from './services';
+import { LoginFailHttpError } from './utils/http-error';
+import { createTokens, gameSuccess } from './utils/methods';
+import { WrapController } from './utils/wrap-controller';
+import { CookieConfig } from './utils/options';
+import { redis } from './data-source';
 
 class AccountController {
   static async register(req: Request, res: Response): Promise<any> {
@@ -34,7 +35,7 @@ class AccountController {
     const accessToken = createTokens(newAccount.id!);
 
     return res
-      .cookie("access_token", accessToken, CookieConfig as any)
+      .cookie('access_token', accessToken, CookieConfig as any)
       .status(201)
       .json(gameSuccess(null));
   }
@@ -48,7 +49,7 @@ class AccountController {
     console.log(accessToken);
 
     return res
-      .cookie("access_token", accessToken, CookieConfig as any)
+      .cookie('access_token', accessToken, CookieConfig as any)
       .status(200)
       .json(gameSuccess(null));
   }
@@ -62,7 +63,7 @@ class AccountController {
   static async logout(req: Request, res: Response): Promise<any> {
     await redis.del(`refresh:${res.locals.user.id}`);
     return res
-      .clearCookie("access_token", CookieConfig as any)
+      .clearCookie('access_token', CookieConfig as any)
       .status(200)
       .json(gameSuccess(null));
   }
@@ -71,7 +72,7 @@ class AccountController {
     const ret = await removeAccount(res.locals.user.id);
     await redis.del(`refresh:${res.locals.user.id}`);
     return res
-      .clearCookie("access_token", CookieConfig as any)
+      .clearCookie('access_token', CookieConfig as any)
       .status(200)
       .json(ret);
   }
@@ -166,6 +167,11 @@ class OverworldController {
 
   static async moveToOverworld(req: Request, res: Response): Promise<any> {
     const ret = await moveToOverworld(res.locals.ingame, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async catchGroundItem(req: Request, res: Response): Promise<any> {
+    const ret = await catchGroundItem(res.locals.ingame, req.body);
     return res.status(200).json(ret);
   }
 }
