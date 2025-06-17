@@ -82,23 +82,7 @@ export const login = async (data: AccountReq) => {
 };
 
 export const autoLogin = async (ingame: Ingame) => {
-  const items = await getItems(ingame);
-
-  const ret = {
-    nickname: ingame.nickname,
-    x: ingame.x,
-    y: ingame.y,
-    location: ingame.location,
-    money: ingame.money,
-    gender: ingame.gender,
-    avatar: ingame.avatar,
-    boxes: ingame.boxes,
-    party: ingame.party,
-    itemslot: ingame.itemslot,
-    items: items,
-  };
-
-  return gameSuccess(ret);
+  return gameSuccess(true);
 };
 
 export const removeAccount = async (user: number) => {
