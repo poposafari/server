@@ -87,8 +87,8 @@ export const enum Type {
 export const enum Rarity {
   COMMON = 'common',
   RARE = 'rare',
+  EPIC = 'epic',
   LEGENDARY = 'legendary',
-  MYTHICAL = 'mythical',
 }
 
 export enum SPAWN {
@@ -185,6 +185,13 @@ export interface CatchSafariObjectReq {
   idx: number;
 }
 
+export interface CatchPokemonReq {
+  idx: number;
+  ball: string;
+  berry: string | null;
+  parties: number[];
+}
+
 export interface Overworld {
   comment: string;
   type: OverworldType;
@@ -203,6 +210,7 @@ export interface NextEvol {
 export interface Rate {
   spawn: number;
   capture: number;
+  flee: number;
 }
 
 export interface Pokemon {
@@ -220,7 +228,7 @@ export interface WildPokemon {
   pokedex: string;
   gender: PokemonGender;
   shiny: boolean;
-  skills: PokemonSkill | null;
+  skills: PokemonSkill;
   form: number;
   catch: boolean;
   spawns: SPAWN;
@@ -247,4 +255,20 @@ export type GroundItem = {
   item: string;
   stock: number;
   catch: boolean;
+};
+
+export type CatchItem = {
+  rate: number;
+};
+
+export type RewardItem = {
+  item: string;
+  rate: number;
+  min: number;
+  max: number;
+};
+
+export type RewardCandy = {
+  min: number;
+  max: number;
 };

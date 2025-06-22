@@ -30,7 +30,7 @@ export class Wild {
     enum: PokemonSkill,
     nullable: true,
   })
-  skills!: PokemonSkill | null;
+  skills!: PokemonSkill;
 
   @Column({ type: 'int', default: 0 })
   form!: number;

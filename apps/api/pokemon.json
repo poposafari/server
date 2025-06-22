@@ -7,7 +7,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -22,7 +23,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -37,7 +39,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -52,7 +55,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -67,7 +71,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -82,7 +87,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -97,7 +103,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -112,7 +119,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -127,7 +135,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -142,7 +151,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -157,7 +167,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -172,7 +183,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -187,7 +199,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -202,7 +215,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -217,7 +231,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -232,7 +247,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -247,7 +263,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -262,7 +279,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -277,7 +295,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -292,7 +311,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -307,7 +327,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -322,7 +343,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -337,7 +359,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -352,7 +375,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -367,7 +391,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "electric",
@@ -382,7 +407,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "electric",
@@ -397,7 +423,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ground",
@@ -412,7 +439,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ground",
@@ -427,7 +455,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -442,7 +471,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -457,7 +487,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -472,7 +503,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -487,7 +519,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -502,7 +535,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -517,7 +551,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fairy",
@@ -532,7 +567,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fairy",
@@ -547,7 +583,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -562,7 +599,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -577,7 +615,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -592,7 +631,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -607,7 +647,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -622,7 +663,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -637,7 +679,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -652,7 +695,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -667,7 +711,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -682,7 +727,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -697,7 +743,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -712,7 +759,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -727,7 +775,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -742,7 +791,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ground",
@@ -757,7 +807,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ground",
@@ -772,7 +823,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -787,7 +839,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -802,7 +855,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -817,7 +871,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -832,7 +887,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fighting",
@@ -847,7 +903,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fighting",
@@ -862,7 +919,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -877,7 +935,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -892,7 +951,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -907,7 +967,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -922,7 +983,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -937,7 +999,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "psychic",
@@ -952,7 +1015,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "psychic",
@@ -967,7 +1031,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "psychic",
@@ -982,7 +1047,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fighting",
@@ -997,7 +1063,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fighting",
@@ -1012,7 +1079,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fighting",
@@ -1027,7 +1095,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -1042,7 +1111,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -1057,7 +1127,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -1072,7 +1143,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1087,7 +1159,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1102,7 +1175,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "rock",
@@ -1117,7 +1191,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "rock",
@@ -1132,7 +1207,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "rock",
@@ -1147,7 +1223,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -1162,7 +1239,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -1177,7 +1255,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1192,7 +1271,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1207,7 +1287,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "electric",
@@ -1222,7 +1303,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "electric",
@@ -1237,7 +1319,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -1252,7 +1335,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -1267,7 +1351,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -1282,7 +1367,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1297,7 +1383,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1312,7 +1399,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -1327,7 +1415,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -1342,7 +1431,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1357,7 +1447,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1372,7 +1463,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ghost",
@@ -1387,7 +1479,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ghost",
@@ -1402,7 +1495,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ghost",
@@ -1417,7 +1511,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "rock",
@@ -1432,7 +1527,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "psychic",
@@ -1447,7 +1543,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "psychic",
@@ -1462,7 +1559,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1477,7 +1575,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1492,7 +1591,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "electric",
@@ -1507,7 +1607,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "electric",
@@ -1522,7 +1623,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -1537,7 +1639,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -1552,7 +1655,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ground",
@@ -1567,7 +1671,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ground",
@@ -1582,7 +1687,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fighting",
@@ -1597,7 +1703,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fighting",
@@ -1612,7 +1719,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -1627,7 +1735,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -1642,7 +1751,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "poison",
@@ -1657,7 +1767,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ground",
@@ -1672,7 +1783,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ground",
@@ -1687,7 +1799,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -1702,7 +1815,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "grass",
@@ -1717,7 +1831,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -1732,7 +1847,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1747,7 +1863,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1762,7 +1879,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1777,7 +1895,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1792,7 +1911,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1807,7 +1927,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1822,7 +1943,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "psychic",
@@ -1837,7 +1959,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -1852,7 +1975,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ice",
@@ -1867,7 +1991,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "electric",
@@ -1882,7 +2007,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -1897,7 +2023,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "bug",
@@ -1912,7 +2039,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -1927,7 +2055,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1942,7 +2071,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1957,7 +2087,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -1972,7 +2103,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -1987,7 +2119,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -2002,7 +2135,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "water",
@@ -2017,7 +2151,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "electric",
@@ -2032,7 +2167,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -2047,7 +2183,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -2062,7 +2199,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "rock",
@@ -2077,7 +2215,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "rock",
@@ -2092,7 +2231,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "rock",
@@ -2107,7 +2247,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "rock",
@@ -2122,7 +2263,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "rock",
@@ -2137,7 +2279,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "normal",
@@ -2152,7 +2295,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "ice",
@@ -2167,7 +2311,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "electric",
@@ -2182,7 +2327,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "fire",
@@ -2197,7 +2343,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "dragon",
@@ -2212,7 +2359,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "dragon",
@@ -2227,7 +2375,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "dragon",
@@ -2242,7 +2391,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "psychic",
@@ -2257,7 +2407,8 @@
     },
     "rate": {
       "spawn": 100,
-      "capture": 100
+      "capture": 0.5,
+      "flee": 0.1
     },
     "rank": "common",
     "type1": "psychic",

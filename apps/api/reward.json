@@ -1,0 +1,24 @@
+{
+  "common": [
+    { "item": "002", "rate": 10, "min": 1, "max": 2 },
+    { "item": "011", "rate": 5, "min": 1, "max": 2 }
+  ],
+  "rare": [
+    { "item": "002", "rate": 10, "min": 1, "max": 2 },
+    { "item": "003", "rate": 10, "min": 1, "max": 2 },
+    { "item": "004", "rate": 10, "min": 1, "max": 2 },
+    { "item": "011", "rate": 10, "min": 1, "max": 2 }
+  ],
+  "epic": [
+    { "item": "002", "rate": 10, "min": 1, "max": 2 },
+    { "item": "003", "rate": 10, "min": 1, "max": 2 },
+    { "item": "004", "rate": 10, "min": 1, "max": 2 },
+    { "item": "011", "rate": 10, "min": 1, "max": 2 }
+  ],
+  "legendary": [
+    { "item": "002", "rate": 10, "min": 1, "max": 2 },
+    { "item": "003", "rate": 10, "min": 1, "max": 2 },
+    { "item": "004", "rate": 10, "min": 1, "max": 2 },
+    { "item": "011", "rate": 10, "min": 1, "max": 2 }
+  ]
+}

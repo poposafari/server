@@ -2,9 +2,25 @@ import path from 'path';
 import 'reflect-metadata';
 import * as fs from 'fs';
 import { redis } from '../data-source';
-import { ItemData, PokemonData, SpawnableItemTable } from '../store';
+import { getCatchItemData, getRewardCandyData, getRewardData, ItemData, PokemonData, SpawnableItemTable } from '../store';
 import { createAccessToken, createRefreshToken } from './jwt';
-import { Backgrounds, GameLogicErrorCode, GameLogicRes, GroundItem, IngameAvatar, IngameGender, MAX_BOX_SIZE, MAX_PER_BOX, PokemonGender, SPAWN, SpawnableItem, WildPokemon } from './type';
+import {
+  Backgrounds,
+  GameLogicErrorCode,
+  GameLogicRes,
+  GroundItem,
+  IngameAvatar,
+  IngameGender,
+  MAX_BOX_SIZE,
+  MAX_PER_BOX,
+  PokemonGender,
+  PokemonSkill,
+  Rarity,
+  SPAWN,
+  SpawnableItem,
+  Type,
+  WildPokemon,
+} from './type';
 
 export const gameSuccess = <T>(data: T): GameLogicRes<T> => ({
   success: true,
@@ -183,7 +199,7 @@ export const getWildPokemons = (pokedexs: string[]): WildPokemon[] => {
       pokedex: pokedex,
       gender: getRandomGender(),
       shiny: getShinyRandom(),
-      skills: null,
+      skills: PokemonSkill.NONE,
       form: 0,
       catch: false,
       spawns: getRandomSpawn(pokedex),
@@ -193,10 +209,109 @@ export const getWildPokemons = (pokedexs: string[]): WildPokemon[] => {
   return ret;
 };
 
+export const getRandomReward = (rarity: Rarity) => {
+  const rewards = getRewardData(rarity);
+  const totalRate = rewards.reduce((sum, r) => sum + r.rate, 0);
+  const roll = Math.random() * totalRate;
+
+  let acc = 0;
+  for (const reward of rewards) {
+    acc += reward.rate;
+    if (roll <= acc) {
+      const stock = reward.min + Math.floor(Math.random() * (reward.max - reward.min + 1));
+      return { item: reward.item, stock: stock };
+    }
+  }
+};
+
+export const getRandomRewards = (rarity: Rarity) => {
+  const result: { item: string; stock: number }[] = [];
+  const count = Math.floor(Math.random() * 4);
+
+  for (let i = 0; i < count; i++) {
+    const reward = getRandomReward(rarity);
+
+    if (reward) result.push(reward);
+  }
+
+  return result;
+};
+
+export const getRandomCandyReward = (rarity: Rarity) => {
+  const reward = getRewardCandyData(rarity);
+  const candy = reward.min + Math.floor(Math.random() * (reward.max - reward.min + 1));
+
+  return candy;
+};
+
 export const readJson = (file: string) => {
   const name = '../../' + file + '.json';
   const filePath = path.resolve(__dirname, name);
   const rawData = fs.readFileSync(filePath, 'utf-8');
 
   return JSON.parse(rawData);
+};
+
+export const matchTypeWithBerryRate = (berry: string | null, type1: Type, type2: Type | null) => {
+  if (!berry) return 1.0;
+
+  const rate = getCatchItemData(berry).rate;
+
+  switch (berry) {
+    case '011':
+      if ([type1, type2].includes(Type.FIRE)) return rate;
+    case '012':
+      if ([type1, type2].includes(Type.WATER)) return rate;
+    case '013':
+      if ([type1, type2].includes(Type.ELECTRIC)) return rate;
+    case '014':
+      if ([type1, type2].includes(Type.GRASS)) return rate;
+    case '015':
+      if ([type1, type2].includes(Type.ICE)) return rate;
+    case '016':
+      if ([type1, type2].includes(Type.FIGHT)) return rate;
+    case '017':
+      if ([type1, type2].includes(Type.POISON)) return rate;
+    case '018':
+      if ([type1, type2].includes(Type.GROUND)) return rate;
+    case '019':
+      if ([type1, type2].includes(Type.FLYING)) return rate;
+    case '020':
+      if ([type1, type2].includes(Type.PSYCHIC)) return rate;
+    case '021':
+      if ([type1, type2].includes(Type.BUG)) return rate;
+    case '022':
+      if ([type1, type2].includes(Type.ROCK)) return rate;
+    case '023':
+      if ([type1, type2].includes(Type.GHOST)) return rate;
+    case '024':
+      if ([type1, type2].includes(Type.DRAGON)) return rate;
+    case '025':
+      if ([type1, type2].includes(Type.DARK)) return rate;
+    case '026':
+      if ([type1, type2].includes(Type.STEEL)) return rate;
+    case '027':
+      if ([type1, type2].includes(Type.FAIRY)) return rate;
+    case '028':
+      if ([type1, type2].includes(Type.NORMAL)) return rate;
+    case '029':
+      return rate;
+    default:
+      return 1.0;
+  }
+};
+
+export const matchPokemonWithRarityRate = (rank: Rarity) => {
+  let rate = 1.0;
+
+  switch (rank) {
+    case Rarity.RARE:
+      rate = 1.2;
+    case Rarity.EPIC:
+      rate = 1.5;
+    case Rarity.LEGENDARY:
+      rate = 2.0;
+  }
+
+  return rate;
 };

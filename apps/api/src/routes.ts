@@ -46,5 +46,6 @@ const OverworldRouter = Router();
 OverworldRouter.post('/ticket', Authenticate, Usercheck, Controllers.Overworld.useTicket);
 OverworldRouter.post('/move', Authenticate, Usercheck, Controllers.Overworld.moveToOverworld);
 OverworldRouter.post('/catch/item', Authenticate, Usercheck, Controllers.Overworld.catchGroundItem);
+OverworldRouter.post('/catch/pokemon', Authenticate, Usercheck, Controllers.Overworld.catchWildPokemon);
 
 export default { AccountRouter, SlotRouter, IngameRouter, BagRouter, PokeboxRouter, TicketRouter, OverworldRouter };

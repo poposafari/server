@@ -5,7 +5,7 @@ import { DuplicateAccountHttpError, DuplicateUserNicknameHttpError, LoginFailHtt
 import { Ingame } from './entities/Ingame';
 import { AppDataSource, redis } from './data-source';
 import { Bag } from './entities/Bag';
-import { getItemData, getOverworldData } from './store';
+import { getCatchItemData, getItemData, getOverworldData, getPokemonData, PokemonData } from './store';
 import {
   AccountReq,
   BoxBgReq,
@@ -32,6 +32,7 @@ import {
   MAX_PER_BOX,
   PartyReq,
   CatchSafariObjectReq,
+  CatchPokemonReq,
 } from './utils/type';
 import {
   gameFail,
@@ -40,9 +41,13 @@ import {
   getGenderEnum,
   getGroundItems,
   getNextPokeboxIndex,
+  getRandomCandyReward,
+  getRandomRewards,
   getSpawnEnum,
   getWildPokemons,
   getWildSpawnTable,
+  matchPokemonWithRarityRate,
+  matchTypeWithBerryRate,
   setDefaultBoxes,
   setDefaultBoxesCnt,
 } from './utils/methods';
@@ -331,8 +336,8 @@ export const getItems = async (ingame: Ingame, manager?: EntityManager): Promise
   return gameSuccess(ret);
 };
 
-export const addPokemon = async (ingame: Ingame, pokemon: MyPokemonReq) => {
-  const pokeboxRepo = Repo.pokebox;
+export const addPokemon = async (ingame: Ingame, pokemon: MyPokemonReq, manager?: EntityManager) => {
+  const pokeboxRepo = manager ? manager.getRepository(Pokebox) : Repo.pokebox;
   const pokebox = await pokeboxRepo.findOneBy({
     account_id: ingame.account_id,
     pokedex: pokemon.pokedex,
@@ -582,6 +587,86 @@ export const catchGroundItem = async (ingame: Ingame, data: CatchSafariObjectReq
     );
 
     ret = await addItem(ingame, { item: item.item, stock: item.stock }, manager);
+  });
+
+  return gameSuccess(ret);
+};
+
+export const catchWildPokemon = async (ingame: Ingame, data: CatchPokemonReq) => {
+  const repo = Repo.WildSpawns;
+  const pokeboxRepo = Repo.pokebox;
+  const wild = await repo.findOneBy({ idx: data.idx });
+  const pokemonData = getPokemonData(wild!.pokedex);
+
+  let ret;
+
+  if (!wild) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
+
+  await AppDataSource.manager.transaction(async (manager) => {
+    const baseRate = pokemonData.rate.capture;
+    const ballRate = getCatchItemData(data.ball).rate;
+    const berryRate = matchTypeWithBerryRate(data.berry, pokemonData.type1, pokemonData.type2);
+    const pokemonRank = getPokemonData(wild.pokedex).rank;
+
+    let partyScoreSum = 0;
+
+    let partyCnt = 0;
+    for (const idx of data.parties) {
+      const myPokemon = await pokeboxRepo.findOneBy({ idx: idx });
+
+      if (!myPokemon) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
+
+      const shinyRate = myPokemon.shiny ? 2.0 : 1.0;
+      const captureCntRate = myPokemon.count > 1 ? myPokemon.count * 0.01 : 0;
+      const rarityRate = matchPokemonWithRarityRate(getPokemonData(myPokemon.pokedex).rank);
+
+      const score = shinyRate * captureCntRate * rarityRate;
+      partyScoreSum += score;
+      partyCnt++;
+    }
+
+    const partyRate = partyScoreSum / partyCnt || 1;
+    const finalRate = Math.min(baseRate * ballRate * berryRate * partyRate, 0.95);
+    const result = Math.random() <= finalRate;
+
+    if (result) {
+      //포획 성공
+      await addPokemon(ingame, { pokedex: wild.pokedex, gender: wild.gender, shiny: wild.shiny, form: wild.form, skill: wild.skills, location: wild.overworld, capture_ball: data.ball }, manager);
+      await manager.update(
+        Wild,
+        { idx: data.idx },
+        {
+          catch: true,
+        },
+      );
+
+      const candy = getRandomCandyReward(pokemonRank);
+      const rewards = getRandomRewards(pokemonRank);
+      ingame.money += candy;
+
+      await manager.save(ingame);
+
+      ret = {
+        catch: true,
+        candy: candy,
+        reward: rewards,
+      };
+    } else {
+      //포획 실패
+      const fleeResult = Math.random() <= pokemonData.rate.flee;
+
+      if (fleeResult) {
+        ret = {
+          catch: false,
+          flee: true,
+        };
+      } else {
+        ret = {
+          catch: false,
+          flee: false,
+        };
+      }
+    }
   });
 
   return gameSuccess(ret);

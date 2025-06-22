@@ -5,6 +5,7 @@ import {
   autoLogin,
   buyItem,
   catchGroundItem,
+  catchWildPokemon,
   getAvailableTicket,
   getIngame,
   getItemByCategory,
@@ -172,6 +173,11 @@ class OverworldController {
 
   static async catchGroundItem(req: Request, res: Response): Promise<any> {
     const ret = await catchGroundItem(res.locals.ingame, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async catchWildPokemon(req: Request, res: Response): Promise<any> {
+    const ret = await catchWildPokemon(res.locals.ingame, req.body);
     return res.status(200).json(ret);
   }
 }
