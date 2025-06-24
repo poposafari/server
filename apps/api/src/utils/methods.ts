@@ -2,7 +2,7 @@ import path from 'path';
 import 'reflect-metadata';
 import * as fs from 'fs';
 import { redis } from '../data-source';
-import { getCatchItemData, getRewardCandyData, getRewardData, ItemData, PokemonData, SpawnableItemTable } from '../store';
+import { getCatchItemData, getItemData, getRewardCandyData, getRewardData, ItemData, PokemonData, SpawnableItemTable } from '../store';
 import { createAccessToken, createRefreshToken } from './jwt';
 import {
   Backgrounds,
@@ -11,6 +11,8 @@ import {
   GroundItem,
   IngameAvatar,
   IngameGender,
+  ItemCategoryReq,
+  ItemType,
   MAX_BOX_SIZE,
   MAX_PER_BOX,
   PokemonGender,
@@ -219,13 +221,14 @@ export const getRandomReward = (rarity: Rarity) => {
     acc += reward.rate;
     if (roll <= acc) {
       const stock = reward.min + Math.floor(Math.random() * (reward.max - reward.min + 1));
-      return { item: reward.item, stock: stock };
+      const category = getItemData(reward.item).type;
+      return { item: reward.item, stock: stock, category: category };
     }
   }
 };
 
 export const getRandomRewards = (rarity: Rarity) => {
-  const result: { item: string; stock: number }[] = [];
+  const result: { item: string; stock: number; category: ItemType }[] = [];
   const count = Math.floor(Math.random() * 4);
 
   for (let i = 0; i < count; i++) {
