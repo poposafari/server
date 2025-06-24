@@ -47,5 +47,6 @@ OverworldRouter.post('/ticket', Authenticate, Usercheck, Controllers.Overworld.u
 OverworldRouter.post('/move', Authenticate, Usercheck, Controllers.Overworld.moveToOverworld);
 OverworldRouter.post('/catch/item', Authenticate, Usercheck, Controllers.Overworld.catchGroundItem);
 OverworldRouter.post('/catch/pokemon', Authenticate, Usercheck, Controllers.Overworld.catchWildPokemon);
+OverworldRouter.post('/feed/berry', Authenticate, Usercheck, Controllers.Overworld.feedBerry);
 
 export default { AccountRouter, SlotRouter, IngameRouter, BagRouter, PokeboxRouter, TicketRouter, OverworldRouter };

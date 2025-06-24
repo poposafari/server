@@ -192,6 +192,11 @@ export interface CatchPokemonReq {
   parties: number[];
 }
 
+export interface FeedBerryReq {
+  idx: number;
+  berry: string | null;
+}
+
 export interface Overworld {
   comment: string;
   type: OverworldType;

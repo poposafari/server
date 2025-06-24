@@ -41,6 +41,9 @@ export class Wild {
   @Column()
   spawns!: string;
 
+  @Column({ type: 'char', length: 3, nullable: true })
+  eaten_berry!: string | null;
+
   @ManyToOne(() => Account, (account) => account.id, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'account_id' })
   account?: Account;

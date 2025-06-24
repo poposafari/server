@@ -97,6 +97,7 @@ CREATE TABLE db0.wild(
   form INTEGER NOT NULL,
   catch BOOLEAN NOT NULL,
   spawns VARCHAR(10) NOT NULL,
+  eaten_berry CHAR(3) DEFAULT NULL,
   FOREIGN KEY (account_id) REFERENCES db0.account(id) ON DELETE CASCADE
 );
 

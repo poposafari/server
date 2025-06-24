@@ -33,6 +33,7 @@ import {
   PartyReq,
   CatchSafariObjectReq,
   CatchPokemonReq,
+  FeedBerryReq,
 } from './utils/type';
 import {
   gameFail,
@@ -693,6 +694,8 @@ export const catchWildPokemon = async (ingame: Ingame, data: CatchPokemonReq) =>
       //포획 실패
       const fleeResult = Math.random() <= pokemonData.rate.flee;
 
+      if (data.berry) await manager.update(Wild, { idx: data.idx }, { eaten_berry: null });
+
       if (fleeResult) {
         ret = {
           catch: false,
@@ -704,6 +707,25 @@ export const catchWildPokemon = async (ingame: Ingame, data: CatchPokemonReq) =>
           flee: false,
         };
       }
+    }
+  });
+
+  return gameSuccess(ret);
+};
+
+export const feedBerry = async (ingame: Ingame, data: FeedBerryReq, manager?: EntityManager) => {
+  let ret = null;
+  await AppDataSource.manager.transaction(async (manager) => {
+    const itemData = data.berry ? getItemData(data.berry) : null;
+    if (itemData) {
+      ret = await useItem(ingame, { item: data.berry!, stock: 1 }, manager);
+
+      if (ret.success) await manager.update(Wild, { idx: data.idx }, { eaten_berry: data.berry });
+      else return gameFail(ret);
+
+      ret = ret.data;
+
+      console.log(ret);
     }
   });
 

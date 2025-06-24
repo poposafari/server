@@ -6,6 +6,7 @@ import {
   buyItem,
   catchGroundItem,
   catchWildPokemon,
+  feedBerry,
   getAvailableTicket,
   getIngame,
   getItemByCategory,
@@ -178,6 +179,11 @@ class OverworldController {
 
   static async catchWildPokemon(req: Request, res: Response): Promise<any> {
     const ret = await catchWildPokemon(res.locals.ingame, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async feedBerry(req: Request, res: Response): Promise<any> {
+    const ret = await feedBerry(res.locals.ingame, req.body);
     return res.status(200).json(ret);
   }
 }
