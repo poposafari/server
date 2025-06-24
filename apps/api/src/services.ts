@@ -678,6 +678,10 @@ export const catchWildPokemon = async (ingame: Ingame, data: CatchPokemonReq) =>
       const rewards = getRandomRewards(pokemonRank);
       ingame.money += candy;
 
+      for (const reward of rewards) {
+        await addItem(ingame, { item: reward.item, stock: reward.stock }, manager);
+      }
+
       await manager.save(ingame);
 
       ret = {
