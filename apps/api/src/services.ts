@@ -345,9 +345,14 @@ export const addPokemon = async (ingame: Ingame, pokemon: MyPokemonReq, manager?
   });
 
   if (pokebox) {
+    // console.log('1. pokemon.skill : ', pokemon.skill);
+    // console.log('2. pokemon.skill !== PokemonSkill.NONE : ', pokemon.skill !== PokemonSkill.NONE);
+
     const currentSkills = pokebox.skill || [];
     const hasSkill = pokemon.skill !== PokemonSkill.NONE && !currentSkills.includes(pokemon.skill);
     const newSkill = hasSkill ? [...currentSkills, pokemon.skill] : currentSkills;
+
+    // console.log('3. newSkill : ', newSkill);
 
     await pokeboxRepo.update(
       { account_id: ingame.account_id, pokedex: pokemon.pokedex, gender: pokemon.gender },
@@ -559,6 +564,30 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
         }),
       );
       await manager.save(grounditemEntities);
+
+      const wilds = await manager.find(Wild, {
+        where: { account_id: ingame.account_id, overworld: data.overworld },
+      });
+      result.pokemons = wilds.map((pokemon) => ({
+        idx: pokemon.idx,
+        pokedex: pokemon.pokedex,
+        gender: pokemon.gender,
+        shiny: pokemon.shiny,
+        skills: pokemon.skills,
+        form: pokemon.form,
+        catch: pokemon.catch,
+        spawns: getSpawnEnum(pokemon.spawns),
+      }));
+
+      const grounditems = await manager.find(Grounditem, {
+        where: { account_id: ingame.account_id, overworld: data.overworld },
+      });
+      result.items = grounditems.map((item) => ({
+        idx: item.idx,
+        item: item.item,
+        stock: item.stock,
+        catch: item.catch,
+      }));
     } else {
       await manager.delete(Wild, { account_id: ingame.account_id });
       await manager.delete(Grounditem, { account_id: ingame.account_id });
@@ -610,7 +639,6 @@ export const catchWildPokemon = async (ingame: Ingame, data: CatchPokemonReq) =>
 
     let partyScoreSum = 0;
 
-    let partyCnt = 0;
     for (const idx of data.parties) {
       const myPokemon = await pokeboxRepo.findOneBy({ idx: idx });
 
@@ -622,11 +650,17 @@ export const catchWildPokemon = async (ingame: Ingame, data: CatchPokemonReq) =>
 
       const score = shinyRate * captureCntRate * rarityRate;
       partyScoreSum += score;
-      partyCnt++;
     }
 
-    const partyRate = partyScoreSum / partyCnt || 1;
-    const finalRate = Math.min(baseRate * ballRate * berryRate * partyRate, 0.95);
+    const partyRate = partyScoreSum;
+    // const finalRate = Math.min(baseRate * ballRate * berryRate + partyRate, 0.95);
+    const finalRate = Math.min(baseRate * ballRate * berryRate + partyRate, 1.0);
+
+    console.log('finalRate: ' + finalRate);
+
+    if (data.berry) await useItem(ingame, { item: data.berry, stock: 1 }, manager);
+    await useItem(ingame, { item: data.ball, stock: 1 }, manager);
+
     const result = Math.random() <= finalRate;
 
     if (result) {
