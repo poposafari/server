@@ -315,10 +315,12 @@ export const getItemByCategory = async (ingame: Ingame, item: ItemCategoryReq): 
   const bag = await bagRepo.find({
     where: { account_id: ingame.account_id, category: item.category },
   });
-  const ret = bag.map((item) => ({
-    item: item.item,
-    stock: item.stock,
-  }));
+  const ret = bag
+    .map((item) => ({
+      item: item.item,
+      stock: item.stock,
+    }))
+    .sort((a, b) => a.item.localeCompare(b.item));
 
   return gameSuccess(ret);
 };
@@ -326,11 +328,13 @@ export const getItemByCategory = async (ingame: Ingame, item: ItemCategoryReq): 
 export const getItems = async (ingame: Ingame, manager?: EntityManager): Promise<any> => {
   const bagRepo = manager ? manager.getRepository(Bag) : Repo.bag;
   const bag = await bagRepo.find({ where: { account_id: ingame.account_id } });
-  const ret = bag.map((item) => ({
-    item: item.item,
-    category: item.category,
-    stock: item.stock,
-  }));
+  const ret = bag
+    .map((item) => ({
+      item: item.item,
+      category: item.category,
+      stock: item.stock,
+    }))
+    .sort((a, b) => a.item.localeCompare(b.item));
 
   if (manager) return ret;
 
