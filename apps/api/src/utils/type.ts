@@ -236,6 +236,7 @@ export interface WildPokemon {
   skills: PokemonSkill;
   form: number;
   catch: boolean;
+  eaten_berry: string | null;
   spawns: SPAWN;
 }
 

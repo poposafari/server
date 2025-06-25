@@ -521,6 +521,7 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
           skills: pokemon.skills,
           form: pokemon.form,
           catch: pokemon.catch,
+          eaten_berry: pokemon.eaten_berry,
           spawns: getSpawnEnum(pokemon.spawns),
         }));
 
@@ -581,6 +582,7 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
         skills: pokemon.skills,
         form: pokemon.form,
         catch: pokemon.catch,
+        eaten_berry: pokemon.eaten_berry,
         spawns: getSpawnEnum(pokemon.spawns),
       }));
 

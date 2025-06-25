@@ -204,6 +204,7 @@ export const getWildPokemons = (pokedexs: string[]): WildPokemon[] => {
       skills: PokemonSkill.NONE,
       form: 0,
       catch: false,
+      eaten_berry: null,
       spawns: getRandomSpawn(pokedex),
     });
   }
