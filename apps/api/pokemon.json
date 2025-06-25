@@ -8,7 +8,7 @@
     "rate": {
       "spawn": 100,
       "capture": 0.1,
-      "flee": 0.1
+      "flee": 0.9
     },
     "rank": "common",
     "type1": "grass",

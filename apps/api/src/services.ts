@@ -701,6 +701,7 @@ export const catchWildPokemon = async (ingame: Ingame, data: CatchPokemonReq) =>
       if (data.berry) await manager.update(Wild, { idx: data.idx }, { eaten_berry: null });
 
       if (fleeResult) {
+        await manager.update(Wild, { idx: data.idx }, { catch: true });
         ret = {
           catch: false,
           flee: true,
