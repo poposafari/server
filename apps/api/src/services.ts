@@ -416,18 +416,23 @@ export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq, manag
 
   if (!pokebox) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
 
-  const ret = pokebox.map((data) => ({
-    pokedex: data.pokedex,
-    gender: data.gender,
-    shiny: data.shiny,
-    form: data.form,
-    count: data.count,
-    skill: data.skill,
-    captureDate: data.capture_date,
-    captureBall: data.capture_ball,
-    captureLocation: data.capture_location,
-    nickname: data.nickname,
-  }));
+  const ret = pokebox.map((data) => {
+    const rank = getPokemonData(data.pokedex).rank;
+
+    return {
+      pokedex: data.pokedex,
+      gender: data.gender,
+      shiny: data.shiny,
+      form: data.form,
+      count: data.count,
+      skill: data.skill,
+      captureDate: data.capture_date,
+      captureBall: data.capture_ball,
+      captureLocation: data.capture_location,
+      nickname: data.nickname,
+      rank: rank,
+    };
+  });
 
   return gameSuccess(ret);
 };
@@ -513,17 +518,25 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
           where: { account_id: ingame.account_id, overworld: data.overworld },
         });
 
-        result.pokemons = existWild.map((pokemon) => ({
-          idx: pokemon.idx,
-          pokedex: pokemon.pokedex,
-          gender: pokemon.gender,
-          shiny: pokemon.shiny,
-          skills: pokemon.skills,
-          form: pokemon.form,
-          catch: pokemon.catch,
-          eaten_berry: pokemon.eaten_berry,
-          spawns: getSpawnEnum(pokemon.spawns),
-        }));
+        result.pokemons = existWild.map((pokemon) => {
+          const pokemonData = getPokemonData(pokemon.pokedex);
+          const baseRate = pokemonData.rate.capture;
+          const rank = pokemonData.rank;
+
+          return {
+            idx: pokemon.idx,
+            pokedex: pokemon.pokedex,
+            gender: pokemon.gender,
+            shiny: pokemon.shiny,
+            skills: pokemon.skills,
+            form: pokemon.form,
+            catch: pokemon.catch,
+            eaten_berry: pokemon.eaten_berry,
+            baseRate: baseRate,
+            rank: rank,
+            spawns: getSpawnEnum(pokemon.spawns),
+          };
+        });
 
         result.items = existGroundItems.map((item) => ({
           idx: item.idx,
@@ -574,17 +587,26 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
       const wilds = await manager.find(Wild, {
         where: { account_id: ingame.account_id, overworld: data.overworld },
       });
-      result.pokemons = wilds.map((pokemon) => ({
-        idx: pokemon.idx,
-        pokedex: pokemon.pokedex,
-        gender: pokemon.gender,
-        shiny: pokemon.shiny,
-        skills: pokemon.skills,
-        form: pokemon.form,
-        catch: pokemon.catch,
-        eaten_berry: pokemon.eaten_berry,
-        spawns: getSpawnEnum(pokemon.spawns),
-      }));
+
+      result.pokemons = wilds.map((pokemon) => {
+        const pokemonData = getPokemonData(pokemon.pokedex);
+        const baseRate = pokemonData.rate.capture;
+        const rank = pokemonData.rank;
+
+        return {
+          idx: pokemon.idx,
+          pokedex: pokemon.pokedex,
+          gender: pokemon.gender,
+          shiny: pokemon.shiny,
+          skills: pokemon.skills,
+          form: pokemon.form,
+          catch: pokemon.catch,
+          eaten_berry: pokemon.eaten_berry,
+          baseRate: baseRate,
+          rank: rank,
+          spawns: getSpawnEnum(pokemon.spawns),
+        };
+      });
 
       const grounditems = await manager.find(Grounditem, {
         where: { account_id: ingame.account_id, overworld: data.overworld },

@@ -237,6 +237,8 @@ export interface WildPokemon {
   form: number;
   catch: boolean;
   eaten_berry: string | null;
+  baseRate: number;
+  rank: string;
   spawns: SPAWN;
 }
 

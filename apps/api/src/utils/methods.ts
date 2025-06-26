@@ -2,7 +2,7 @@ import path from 'path';
 import 'reflect-metadata';
 import * as fs from 'fs';
 import { redis } from '../data-source';
-import { getCatchItemData, getItemData, getRewardCandyData, getRewardData, ItemData, PokemonData, SpawnableItemTable } from '../store';
+import { getCatchItemData, getItemData, getPokemonData, getRewardCandyData, getRewardData, ItemData, PokemonData, SpawnableItemTable } from '../store';
 import { createAccessToken, createRefreshToken } from './jwt';
 import {
   Backgrounds,
@@ -196,6 +196,10 @@ export const getWildPokemons = (pokedexs: string[]): WildPokemon[] => {
   const ret: WildPokemon[] = [];
 
   for (const pokedex of pokedexs) {
+    const pokemonData = getPokemonData(pokedex);
+    const baseRate = pokemonData.rate.capture;
+    const rank = pokemonData.rank;
+
     ret.push({
       idx: -1,
       pokedex: pokedex,
@@ -205,6 +209,8 @@ export const getWildPokemons = (pokedexs: string[]): WildPokemon[] => {
       form: 0,
       catch: false,
       eaten_berry: null,
+      baseRate: baseRate,
+      rank: rank,
       spawns: getRandomSpawn(pokedex),
     });
   }
