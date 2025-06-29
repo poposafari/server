@@ -690,7 +690,9 @@ export const catchWildPokemon = async (ingame: Ingame, data: CatchPokemonReq) =>
     if (data.berry) await useItem(ingame, { item: data.berry, stock: 1 }, manager);
     await useItem(ingame, { item: data.ball, stock: 1 }, manager);
 
-    const result = Math.random() <= finalRate;
+    let result = Math.random() <= finalRate;
+
+    if (data.ball === '001') result = true;
 
     if (result) {
       //포획 성공
