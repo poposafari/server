@@ -674,7 +674,7 @@ export const catchWildPokemon = async (ingame: Ingame, data: CatchPokemonReq) =>
       if (!myPokemon) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
 
       const shinyRate = myPokemon.shiny ? 2.0 : 1.0;
-      const captureCntRate = myPokemon.count > 1 ? myPokemon.count * 0.01 : 0;
+      const captureCntRate = myPokemon.count > 0 ? myPokemon.count * 0.01 : 0;
       const rarityRate = matchPokemonWithRarityRate(getPokemonData(myPokemon.pokedex).rank);
 
       const score = shinyRate * captureCntRate * rarityRate;
