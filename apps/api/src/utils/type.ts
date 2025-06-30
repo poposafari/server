@@ -106,6 +106,7 @@ export const enum GameLogicErrorCode {
   NOT_ENOUGH_STOCK = 'NOT_ENOUGH_STOCK',
   NOT_ENOUGH_TICKET = 'NOT_ENOUGH_TICKET',
   FULL_BOX = 'FULL_BOX',
+  NO_EVOL = 'NO_EVOL',
 }
 
 export const enum HttpErrorCode {
@@ -197,6 +198,11 @@ export interface FeedBerryReq {
   berry: string | null;
 }
 
+export interface EvolveReq {
+  idx: number;
+  box: number;
+}
+
 export interface Overworld {
   comment: string;
   type: OverworldType;
@@ -208,8 +214,8 @@ export interface Overworld {
 }
 
 export interface NextEvol {
-  next: string;
-  cost: number | 'string';
+  next: string | null;
+  cost: number | string;
 }
 
 export interface Rate {

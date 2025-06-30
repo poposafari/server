@@ -34,6 +34,7 @@ import {
   CatchSafariObjectReq,
   CatchPokemonReq,
   FeedBerryReq,
+  EvolveReq,
 } from './utils/type';
 import {
   gameFail,
@@ -417,7 +418,10 @@ export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq, manag
   if (!pokebox) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
 
   const ret = pokebox.map((data) => {
-    const rank = getPokemonData(data.pokedex).rank;
+    const pokemonData = getPokemonData(data.pokedex);
+
+    const rank = pokemonData.rank;
+    const evol = pokemonData.nextEvol;
 
     return {
       pokedex: data.pokedex,
@@ -431,6 +435,7 @@ export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq, manag
       captureLocation: data.capture_location,
       nickname: data.nickname,
       rank: rank,
+      evol: evol,
     };
   });
 
@@ -761,4 +766,50 @@ export const feedBerry = async (ingame: Ingame, data: FeedBerryReq, manager?: En
   });
 
   return gameSuccess(ret);
+};
+
+export const evolvePokemon = async (ingame: Ingame, data: EvolveReq) => {
+  let ret;
+
+  await AppDataSource.manager.transaction(async (manager) => {
+    const myPokemon = await manager.findOneBy(Pokebox, { account_id: ingame.account_id, idx: data.idx });
+    if (!myPokemon) {
+      ret = gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
+      return;
+    }
+
+    const pokemonData = getPokemonData(myPokemon.pokedex);
+    if (!pokemonData) {
+      ret = gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
+      return;
+    }
+    if (!pokemonData.nextEvol.next) {
+      ret = gameFail(GameLogicErrorCode.NO_EVOL);
+      return;
+    }
+    if (typeof pokemonData.nextEvol.cost === 'number' && ingame.money < pokemonData.nextEvol.cost) {
+      ret = gameFail(GameLogicErrorCode.NOT_ENOUGH_CANDY);
+      return;
+    }
+
+    if (typeof pokemonData.nextEvol.cost === 'number') {
+      ingame.money -= pokemonData.nextEvol.cost;
+      await manager.save(ingame);
+    }
+
+    const otherMyPokemon = await manager.findOneBy(Pokebox, { account_id: ingame.account_id, pokedex: pokemonData.nextEvol.next, gender: myPokemon.gender });
+    if (otherMyPokemon) {
+      const newOtherMyPokemonCount = myPokemon.count + otherMyPokemon.count;
+      await manager.update(Pokebox, { idx: otherMyPokemon.idx }, { count: newOtherMyPokemonCount + 1, shiny: otherMyPokemon.shiny || myPokemon.shiny });
+
+      await manager.delete(Pokebox, { idx: myPokemon.idx });
+      await updatePokeboxCnt(ingame.account_id, data.box, ingame.boxes_cnt[data.box] - 1, manager);
+    } else {
+      await manager.update(Pokebox, { idx: data.idx }, { pokedex: pokemonData.nextEvol.next, count: myPokemon.count + 1 });
+    }
+
+    ret = gameSuccess(await getPokebox(ingame, { box: data.box }, manager));
+  });
+
+  return ret;
 };

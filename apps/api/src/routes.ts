@@ -40,6 +40,7 @@ const PokeboxRouter = Router();
 PokeboxRouter.post('/add', Authenticate, Usercheck, Controllers.Pokebox.addPokemon);
 PokeboxRouter.post('/get', Authenticate, Usercheck, Controllers.Pokebox.getPokebox);
 PokeboxRouter.post('/move', Authenticate, Usercheck, Controllers.Pokebox.movePokemon);
+PokeboxRouter.post('/evol', Authenticate, Usercheck, Controllers.Pokebox.evolvePokemon);
 
 //Overworld
 const OverworldRouter = Router();

@@ -6,6 +6,7 @@ import {
   buyItem,
   catchGroundItem,
   catchWildPokemon,
+  evolvePokemon,
   feedBerry,
   getAvailableTicket,
   getIngame,
@@ -157,6 +158,11 @@ class PokeboxController {
 
   static async movePokemon(req: Request, res: Response): Promise<any> {
     const ret = await movePokemon(res.locals.ingame, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async evolvePokemon(req: Request, res: Response): Promise<any> {
+    const ret = await evolvePokemon(res.locals.ingame, req.body);
     return res.status(200).json(ret);
   }
 }
