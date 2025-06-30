@@ -3,14 +3,14 @@
     "comment": "이상해씨",
     "nextEvol": {
       "next": "0002",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.9
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "grass",
     "type2": "poison",
     "spawn": ["land"]
@@ -19,14 +19,14 @@
     "comment": "이상해풀",
     "nextEvol": {
       "next": "0003",
-      "cost": 0
+      "cost": 200
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "grass",
     "type2": "poison",
     "spawn": ["land"]
@@ -34,7 +34,7 @@
   "0003": {
     "comment": "이상해꽃",
     "nextEvol": {
-      "next": "0004",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -42,7 +42,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "grass",
     "type2": "poison",
     "spawn": ["land"]
@@ -51,14 +51,14 @@
     "comment": "파이리",
     "nextEvol": {
       "next": "0005",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "fire",
     "type2": null,
     "spawn": ["land"]
@@ -67,14 +67,14 @@
     "comment": "리자드",
     "nextEvol": {
       "next": "0006",
-      "cost": 0
+      "cost": 200
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "fire",
     "type2": null,
     "spawn": ["land"]
@@ -82,7 +82,7 @@
   "0006": {
     "comment": "리자몽",
     "nextEvol": {
-      "next": "0007",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -90,7 +90,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "fire",
     "type2": "flying",
     "spawn": ["land"]
@@ -99,14 +99,14 @@
     "comment": "꼬부기",
     "nextEvol": {
       "next": "0008",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "water",
     "type2": null,
     "spawn": ["land", "water"]
@@ -115,14 +115,14 @@
     "comment": "어니부기",
     "nextEvol": {
       "next": "0009",
-      "cost": 0
+      "cost": 200
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "water",
     "type2": null,
     "spawn": ["land", "water"]
@@ -130,7 +130,7 @@
   "0009": {
     "comment": "거북왕",
     "nextEvol": {
-      "next": "0010",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -138,7 +138,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "water",
     "type2": null,
     "spawn": ["land", "water"]
@@ -147,7 +147,7 @@
     "comment": "캐터피",
     "nextEvol": {
       "next": "0011",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -163,14 +163,14 @@
     "comment": "단데기",
     "nextEvol": {
       "next": "0012",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "bug",
     "type2": null,
     "spawn": ["land"]
@@ -178,7 +178,7 @@
   "0012": {
     "comment": "버터플",
     "nextEvol": {
-      "next": "0013",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -186,7 +186,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "bug",
     "type2": "flying",
     "spawn": ["land"]
@@ -195,7 +195,7 @@
     "comment": "뿔충이",
     "nextEvol": {
       "next": "0014",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -211,14 +211,14 @@
     "comment": "딱충이",
     "nextEvol": {
       "next": "0015",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "bug",
     "type2": "poison",
     "spawn": ["land"]
@@ -226,7 +226,7 @@
   "0015": {
     "comment": "독침붕",
     "nextEvol": {
-      "next": "0016",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -234,7 +234,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "bug",
     "type2": "poison",
     "spawn": ["land"]
@@ -243,7 +243,7 @@
     "comment": "구구",
     "nextEvol": {
       "next": "0017",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -259,14 +259,14 @@
     "comment": "피죤",
     "nextEvol": {
       "next": "0018",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "normal",
     "type2": "flying",
     "spawn": ["land"]
@@ -274,7 +274,7 @@
   "0018": {
     "comment": "피죤투",
     "nextEvol": {
-      "next": "0019",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -282,7 +282,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "normal",
     "type2": "flying",
     "spawn": ["land"]
@@ -291,7 +291,7 @@
     "comment": "꼬렛",
     "nextEvol": {
       "next": "0020",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -306,7 +306,7 @@
   "0020": {
     "comment": "레트라",
     "nextEvol": {
-      "next": "0021",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -314,7 +314,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "normal",
     "type2": null,
     "spawn": ["land"]
@@ -323,7 +323,7 @@
     "comment": "깨비참",
     "nextEvol": {
       "next": "0022",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -338,7 +338,7 @@
   "0022": {
     "comment": "깨비드릴조",
     "nextEvol": {
-      "next": "0023",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -346,7 +346,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "normal",
     "type2": "flying",
     "spawn": ["land"]
@@ -355,7 +355,7 @@
     "comment": "아보",
     "nextEvol": {
       "next": "0024",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -370,7 +370,7 @@
   "0024": {
     "comment": "아보크",
     "nextEvol": {
-      "next": "0025",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -378,7 +378,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "poison",
     "type2": null,
     "spawn": ["land"]
@@ -387,14 +387,14 @@
     "comment": "피카츄",
     "nextEvol": {
       "next": "0026",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "electric",
     "type2": null,
     "spawn": ["land"]
@@ -402,7 +402,7 @@
   "0026": {
     "comment": "라이츄",
     "nextEvol": {
-      "next": "0027",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -410,7 +410,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "electric",
     "type2": null,
     "spawn": ["land"]
@@ -419,7 +419,7 @@
     "comment": "모래두지",
     "nextEvol": {
       "next": "0028",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
@@ -434,7 +434,7 @@
   "0028": {
     "comment": "고지",
     "nextEvol": {
-      "next": "0029",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -442,7 +442,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "ground",
     "type2": null,
     "spawn": ["land"]
@@ -451,7 +451,7 @@
     "comment": "니드런♀",
     "nextEvol": {
       "next": "0030",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -467,14 +467,14 @@
     "comment": "니드리나",
     "nextEvol": {
       "next": "0031",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "poison",
     "type2": null,
     "spawn": ["land"]
@@ -482,7 +482,7 @@
   "0031": {
     "comment": "니드퀸",
     "nextEvol": {
-      "next": "0032",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -490,7 +490,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "poison",
     "type2": "ground",
     "spawn": ["land"]
@@ -499,7 +499,7 @@
     "comment": "니드런♂",
     "nextEvol": {
       "next": "0033",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -515,14 +515,14 @@
     "comment": "니드리노",
     "nextEvol": {
       "next": "0034",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "poison",
     "type2": null,
     "spawn": ["land"]
@@ -530,7 +530,7 @@
   "0034": {
     "comment": "니드킹",
     "nextEvol": {
-      "next": "0035",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -538,7 +538,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "poison",
     "type2": "ground",
     "spawn": ["land"]
@@ -547,14 +547,14 @@
     "comment": "삐삐",
     "nextEvol": {
       "next": "0036",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "fairy",
     "type2": null,
     "spawn": ["land"]
@@ -562,7 +562,7 @@
   "0036": {
     "comment": "픽시",
     "nextEvol": {
-      "next": "0037",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -570,7 +570,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "fairy",
     "type2": null,
     "spawn": ["land"]
@@ -579,14 +579,14 @@
     "comment": "식스테일",
     "nextEvol": {
       "next": "0038",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "fire",
     "type2": null,
     "spawn": ["land"]
@@ -594,7 +594,7 @@
   "0038": {
     "comment": "나인테일",
     "nextEvol": {
-      "next": "0039",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -602,7 +602,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "fire",
     "type2": null,
     "spawn": ["land"]
@@ -611,14 +611,14 @@
     "comment": "푸린",
     "nextEvol": {
       "next": "0040",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "normal",
     "type2": "fairy",
     "spawn": ["land"]
@@ -626,7 +626,7 @@
   "0040": {
     "comment": "푸크린",
     "nextEvol": {
-      "next": "0041",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -634,7 +634,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "normal",
     "type2": "fairy",
     "spawn": ["land"]
@@ -643,7 +643,7 @@
     "comment": "주뱃",
     "nextEvol": {
       "next": "0042",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -658,15 +658,15 @@
   "0042": {
     "comment": "골뱃",
     "nextEvol": {
-      "next": "0043",
-      "cost": 0
+      "next": null,
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "poison",
     "type2": "flying",
     "spawn": ["land"]
@@ -675,7 +675,7 @@
     "comment": "뚜벅쵸",
     "nextEvol": {
       "next": "0044",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -691,14 +691,14 @@
     "comment": "냄새꼬",
     "nextEvol": {
       "next": "0045",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "grass",
     "type2": "poison",
     "spawn": ["land"]
@@ -706,7 +706,7 @@
   "0045": {
     "comment": "라플레시아",
     "nextEvol": {
-      "next": "0046",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -714,7 +714,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "grass",
     "type2": "poison",
     "spawn": ["land"]
@@ -723,7 +723,7 @@
     "comment": "파라스",
     "nextEvol": {
       "next": "0047",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -738,7 +738,7 @@
   "0047": {
     "comment": "파라섹트",
     "nextEvol": {
-      "next": "0048",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -746,7 +746,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "bug",
     "type2": "grass",
     "spawn": ["land"]
@@ -755,7 +755,7 @@
     "comment": "콘팡",
     "nextEvol": {
       "next": "0049",
-      "cost": 0
+      "cost": 25
     },
     "rate": {
       "spawn": 100,
@@ -770,15 +770,15 @@
   "0049": {
     "comment": "도나리",
     "nextEvol": {
-      "next": "0050",
-      "cost": 0
+      "next": null,
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "bug",
     "type2": "poison",
     "spawn": ["land"]
@@ -787,7 +787,7 @@
     "comment": "디그다",
     "nextEvol": {
       "next": "0051",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -802,7 +802,7 @@
   "0051": {
     "comment": "닥트리오",
     "nextEvol": {
-      "next": "0052",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -810,7 +810,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "ground",
     "type2": null,
     "spawn": ["land"]
@@ -819,7 +819,7 @@
     "comment": "나옹",
     "nextEvol": {
       "next": "0053",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -834,7 +834,7 @@
   "0053": {
     "comment": "페르시온",
     "nextEvol": {
-      "next": "0054",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -842,7 +842,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "normal",
     "type2": null,
     "spawn": ["land"]
@@ -851,7 +851,7 @@
     "comment": "고라파덕",
     "nextEvol": {
       "next": "0055",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -866,7 +866,7 @@
   "0055": {
     "comment": "골덕",
     "nextEvol": {
-      "next": "0056",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -874,7 +874,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "water",
     "type2": null,
     "spawn": ["land", "water"]
@@ -883,7 +883,7 @@
     "comment": "망키",
     "nextEvol": {
       "next": "0057",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -898,7 +898,7 @@
   "0057": {
     "comment": "성원숭",
     "nextEvol": {
-      "next": "0058",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -906,7 +906,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "fighting",
     "type2": null,
     "spawn": ["land"]
@@ -915,14 +915,14 @@
     "comment": "가디",
     "nextEvol": {
       "next": "0059",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "fire",
     "type2": null,
     "spawn": ["land"]
@@ -930,7 +930,7 @@
   "0059": {
     "comment": "윈디",
     "nextEvol": {
-      "next": "0060",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -938,7 +938,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "fire",
     "type2": null,
     "spawn": ["land"]
@@ -947,7 +947,7 @@
     "comment": "발챙이",
     "nextEvol": {
       "next": "0061",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -963,14 +963,14 @@
     "comment": "수륙챙이",
     "nextEvol": {
       "next": "0062",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "water",
     "type2": null,
     "spawn": ["land", "water"]
@@ -978,7 +978,7 @@
   "0062": {
     "comment": "강챙이",
     "nextEvol": {
-      "next": "0063",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -986,7 +986,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "water",
     "type2": "fighting",
     "spawn": ["land", "water"]
@@ -995,7 +995,7 @@
     "comment": "캐이시",
     "nextEvol": {
       "next": "0064",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1011,14 +1011,14 @@
     "comment": "윤겔라",
     "nextEvol": {
       "next": "0065",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "psychic",
     "type2": null,
     "spawn": ["land"]
@@ -1026,7 +1026,7 @@
   "0065": {
     "comment": "후딘",
     "nextEvol": {
-      "next": "0066",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1034,7 +1034,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "psychic",
     "type2": null,
     "spawn": ["land"]
@@ -1043,7 +1043,7 @@
     "comment": "알통몬",
     "nextEvol": {
       "next": "0067",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1059,14 +1059,14 @@
     "comment": "근육몬",
     "nextEvol": {
       "next": "0068",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "fighting",
     "type2": null,
     "spawn": ["land"]
@@ -1074,7 +1074,7 @@
   "0068": {
     "comment": "괴력몬",
     "nextEvol": {
-      "next": "0069",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1082,7 +1082,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "fighting",
     "type2": null,
     "spawn": ["land"]
@@ -1091,7 +1091,7 @@
     "comment": "모다피",
     "nextEvol": {
       "next": "0070",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1107,14 +1107,14 @@
     "comment": "우츠동",
     "nextEvol": {
       "next": "0071",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "grass",
     "type2": "poison",
     "spawn": ["land"]
@@ -1122,7 +1122,7 @@
   "0071": {
     "comment": "우츠보트",
     "nextEvol": {
-      "next": "0072",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1130,7 +1130,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "grass",
     "type2": "poison",
     "spawn": ["land"]
@@ -1139,7 +1139,7 @@
     "comment": "왕눈해",
     "nextEvol": {
       "next": "0073",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1154,7 +1154,7 @@
   "0073": {
     "comment": "독파리",
     "nextEvol": {
-      "next": "0074",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1162,7 +1162,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "water",
     "type2": "poison",
     "spawn": ["water"]
@@ -1171,7 +1171,7 @@
     "comment": "꼬마돌",
     "nextEvol": {
       "next": "0075",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1187,14 +1187,14 @@
     "comment": "데구리",
     "nextEvol": {
       "next": "0076",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "rock",
     "type2": "ground",
     "spawn": ["land"]
@@ -1202,7 +1202,7 @@
   "0076": {
     "comment": "딱구리",
     "nextEvol": {
-      "next": "0077",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1210,7 +1210,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "rock",
     "type2": "ground",
     "spawn": ["land"]
@@ -1219,14 +1219,14 @@
     "comment": "포니타",
     "nextEvol": {
       "next": "0078",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "fire",
     "type2": null,
     "spawn": ["land"]
@@ -1234,7 +1234,7 @@
   "0078": {
     "comment": "날쌩마",
     "nextEvol": {
-      "next": "0079",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1242,7 +1242,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "fire",
     "type2": null,
     "spawn": ["land"]
@@ -1251,7 +1251,7 @@
     "comment": "야돈",
     "nextEvol": {
       "next": "0080",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1266,15 +1266,15 @@
   "0080": {
     "comment": "야도란",
     "nextEvol": {
-      "next": "0081",
-      "cost": 0
+      "next": null,
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "water",
     "type2": "psychic",
     "spawn": ["land", "water"]
@@ -1283,7 +1283,7 @@
     "comment": "코일",
     "nextEvol": {
       "next": "0082",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1298,7 +1298,7 @@
   "0082": {
     "comment": "레어코일",
     "nextEvol": {
-      "next": "0083",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1306,7 +1306,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "electric",
     "type2": "steel",
     "spawn": ["land"]
@@ -1314,7 +1314,7 @@
   "0083": {
     "comment": "파오리",
     "nextEvol": {
-      "next": "0084",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1331,7 +1331,7 @@
     "comment": "두두",
     "nextEvol": {
       "next": "0085",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1346,7 +1346,7 @@
   "0085": {
     "comment": "두트리오",
     "nextEvol": {
-      "next": "0086",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1354,7 +1354,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "normal",
     "type2": "flying",
     "spawn": ["land"]
@@ -1363,7 +1363,7 @@
     "comment": "쥬쥬",
     "nextEvol": {
       "next": "0087",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1378,7 +1378,7 @@
   "0087": {
     "comment": "쥬레곤",
     "nextEvol": {
-      "next": "0088",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1386,7 +1386,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "water",
     "type2": "ice",
     "spawn": ["land", "water"]
@@ -1395,7 +1395,7 @@
     "comment": "질퍽이",
     "nextEvol": {
       "next": "0089",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1410,7 +1410,7 @@
   "0089": {
     "comment": "질뻐기",
     "nextEvol": {
-      "next": "0090",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1418,7 +1418,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "poison",
     "type2": null,
     "spawn": ["land"]
@@ -1427,7 +1427,7 @@
     "comment": "셀러",
     "nextEvol": {
       "next": "0091",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
@@ -1442,7 +1442,7 @@
   "0091": {
     "comment": "파르셀",
     "nextEvol": {
-      "next": "0092",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1450,7 +1450,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "water",
     "type2": "ice",
     "spawn": ["water"]
@@ -1459,7 +1459,7 @@
     "comment": "고오스",
     "nextEvol": {
       "next": "0093",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1475,14 +1475,14 @@
     "comment": "고우스트",
     "nextEvol": {
       "next": "0094",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "ghost",
     "type2": "poison",
     "spawn": ["land"]
@@ -1490,7 +1490,7 @@
   "0094": {
     "comment": "팬텀",
     "nextEvol": {
-      "next": "0095",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1498,7 +1498,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "ghost",
     "type2": "poison",
     "spawn": ["land"]
@@ -1506,7 +1506,7 @@
   "0095": {
     "comment": "롱스톤",
     "nextEvol": {
-      "next": "0096",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1514,7 +1514,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "rock",
     "type2": "ground",
     "spawn": ["land"]
@@ -1523,7 +1523,7 @@
     "comment": "슬리프",
     "nextEvol": {
       "next": "0097",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1538,7 +1538,7 @@
   "0097": {
     "comment": "슬리퍼",
     "nextEvol": {
-      "next": "0098",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1546,7 +1546,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "psychic",
     "type2": null,
     "spawn": ["land"]
@@ -1555,7 +1555,7 @@
     "comment": "크랩",
     "nextEvol": {
       "next": "0099",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1570,7 +1570,7 @@
   "0099": {
     "comment": "킹크랩",
     "nextEvol": {
-      "next": "0100",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1578,7 +1578,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "water",
     "type2": null,
     "spawn": ["land", "water"]
@@ -1587,7 +1587,7 @@
     "comment": "찌리리공",
     "nextEvol": {
       "next": "0101",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1602,7 +1602,7 @@
   "0101": {
     "comment": "붐볼",
     "nextEvol": {
-      "next": "0102",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1610,7 +1610,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "electric",
     "type2": null,
     "spawn": ["land"]
@@ -1619,7 +1619,7 @@
     "comment": "아라리",
     "nextEvol": {
       "next": "0103",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
@@ -1634,7 +1634,7 @@
   "0103": {
     "comment": "나시",
     "nextEvol": {
-      "next": "0104",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1642,7 +1642,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "grass",
     "type2": "psychic",
     "spawn": ["land"]
@@ -1651,7 +1651,7 @@
     "comment": "탕구리",
     "nextEvol": {
       "next": "0105",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
@@ -1666,7 +1666,7 @@
   "0105": {
     "comment": "텅구리",
     "nextEvol": {
-      "next": "0106",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1674,7 +1674,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "ground",
     "type2": null,
     "spawn": ["land"]
@@ -1682,7 +1682,7 @@
   "0106": {
     "comment": "시라소몬",
     "nextEvol": {
-      "next": "0107",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1690,7 +1690,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "fighting",
     "type2": null,
     "spawn": ["land"]
@@ -1698,7 +1698,7 @@
   "0107": {
     "comment": "홍수몬",
     "nextEvol": {
-      "next": "0108",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1706,7 +1706,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "fighting",
     "type2": null,
     "spawn": ["land"]
@@ -1714,7 +1714,7 @@
   "0108": {
     "comment": "내루미",
     "nextEvol": {
-      "next": "0109",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1731,7 +1731,7 @@
     "comment": "또가스",
     "nextEvol": {
       "next": "0110",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1746,7 +1746,7 @@
   "0110": {
     "comment": "또도가스",
     "nextEvol": {
-      "next": "0111",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1754,7 +1754,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "poison",
     "type2": null,
     "spawn": ["land"]
@@ -1763,14 +1763,14 @@
     "comment": "뿔카노",
     "nextEvol": {
       "next": "0112",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "ground",
     "type2": "rock",
     "spawn": ["land"]
@@ -1778,7 +1778,7 @@
   "0112": {
     "comment": "코뿌리",
     "nextEvol": {
-      "next": "0113",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1786,7 +1786,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "ground",
     "type2": "rock",
     "spawn": ["land"]
@@ -1794,7 +1794,7 @@
   "0113": {
     "comment": "럭키",
     "nextEvol": {
-      "next": "0114",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1802,7 +1802,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "normal",
     "type2": null,
     "spawn": ["land"]
@@ -1810,7 +1810,7 @@
   "0114": {
     "comment": "덩쿠리",
     "nextEvol": {
-      "next": "0115",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1826,7 +1826,7 @@
   "0115": {
     "comment": "캥카",
     "nextEvol": {
-      "next": "0116",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1834,7 +1834,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "normal",
     "type2": null,
     "spawn": ["land"]
@@ -1843,7 +1843,7 @@
     "comment": "쏘드라",
     "nextEvol": {
       "next": "0117",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
@@ -1858,7 +1858,7 @@
   "0117": {
     "comment": "시드라",
     "nextEvol": {
-      "next": "0118",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1866,7 +1866,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "water",
     "type2": null,
     "spawn": ["water"]
@@ -1875,7 +1875,7 @@
     "comment": "콘치",
     "nextEvol": {
       "next": "0119",
-      "cost": 0
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
@@ -1890,7 +1890,7 @@
   "0119": {
     "comment": "왕콘치",
     "nextEvol": {
-      "next": "0120",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1898,7 +1898,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "water",
     "type2": null,
     "spawn": ["water"]
@@ -1907,7 +1907,7 @@
     "comment": "별가사리",
     "nextEvol": {
       "next": "0121",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
@@ -1922,7 +1922,7 @@
   "0121": {
     "comment": "아쿠스타",
     "nextEvol": {
-      "next": "0122",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1930,7 +1930,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "water",
     "type2": "psychic",
     "spawn": ["water"]
@@ -1938,7 +1938,7 @@
   "0122": {
     "comment": "마임맨",
     "nextEvol": {
-      "next": "0123",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1946,7 +1946,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "psychic",
     "type2": "fairy",
     "spawn": ["land"]
@@ -1954,7 +1954,7 @@
   "0123": {
     "comment": "스라크",
     "nextEvol": {
-      "next": "0124",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1962,7 +1962,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "bug",
     "type2": "flying",
     "spawn": ["land"]
@@ -1970,7 +1970,7 @@
   "0124": {
     "comment": "루주라",
     "nextEvol": {
-      "next": "0125",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1978,7 +1978,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "ice",
     "type2": "psychic",
     "spawn": ["land"]
@@ -1986,7 +1986,7 @@
   "0125": {
     "comment": "에레브",
     "nextEvol": {
-      "next": "0126",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -1994,7 +1994,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "electric",
     "type2": null,
     "spawn": ["land"]
@@ -2002,7 +2002,7 @@
   "0126": {
     "comment": "마그마",
     "nextEvol": {
-      "next": "0127",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2010,7 +2010,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "fire",
     "type2": null,
     "spawn": ["land"]
@@ -2018,7 +2018,7 @@
   "0127": {
     "comment": "쁘사이저",
     "nextEvol": {
-      "next": "0128",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2026,7 +2026,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "bug",
     "type2": null,
     "spawn": ["land"]
@@ -2034,7 +2034,7 @@
   "0128": {
     "comment": "켄타로스",
     "nextEvol": {
-      "next": "0129",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2042,7 +2042,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "normal",
     "type2": null,
     "spawn": ["land"]
@@ -2051,7 +2051,7 @@
     "comment": "잉어킹",
     "nextEvol": {
       "next": "0130",
-      "cost": 0
+      "cost": 200
     },
     "rate": {
       "spawn": 100,
@@ -2066,7 +2066,7 @@
   "0130": {
     "comment": "갸라도스",
     "nextEvol": {
-      "next": "0131",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2074,7 +2074,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "water",
     "type2": "flying",
     "spawn": ["water"]
@@ -2082,7 +2082,7 @@
   "0131": {
     "comment": "라프라스",
     "nextEvol": {
-      "next": "0132",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2090,7 +2090,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "water",
     "type2": "ice",
     "spawn": ["water"]
@@ -2098,7 +2098,7 @@
   "0132": {
     "comment": "메타몽",
     "nextEvol": {
-      "next": "0133",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2106,7 +2106,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "normal",
     "type2": null,
     "spawn": ["land"]
@@ -2114,15 +2114,15 @@
   "0133": {
     "comment": "이브이",
     "nextEvol": {
-      "next": "0134",
-      "cost": 0
+      "next": "random",
+      "cost": 50
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "normal",
     "type2": null,
     "spawn": ["land"]
@@ -2130,7 +2130,7 @@
   "0134": {
     "comment": "샤미드",
     "nextEvol": {
-      "next": "0135",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2138,7 +2138,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "water",
     "type2": null,
     "spawn": ["land", "water"]
@@ -2146,7 +2146,7 @@
   "0135": {
     "comment": "쥬피썬더",
     "nextEvol": {
-      "next": "0136",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2154,7 +2154,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "electric",
     "type2": null,
     "spawn": ["land"]
@@ -2162,7 +2162,7 @@
   "0136": {
     "comment": "부스터",
     "nextEvol": {
-      "next": "0137",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2170,7 +2170,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "fire",
     "type2": null,
     "spawn": ["land"]
@@ -2178,7 +2178,7 @@
   "0137": {
     "comment": "폴리곤",
     "nextEvol": {
-      "next": "0138",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2186,7 +2186,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "normal",
     "type2": null,
     "spawn": ["land"]
@@ -2195,14 +2195,14 @@
     "comment": "암나이트",
     "nextEvol": {
       "next": "0139",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "rock",
     "type2": "water",
     "spawn": ["land"]
@@ -2210,7 +2210,7 @@
   "0139": {
     "comment": "암스타",
     "nextEvol": {
-      "next": "0140",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2218,7 +2218,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "rock",
     "type2": "water",
     "spawn": ["land"]
@@ -2227,14 +2227,14 @@
     "comment": "투구",
     "nextEvol": {
       "next": "0141",
-      "cost": 0
+      "cost": 75
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "rock",
     "type2": "water",
     "spawn": ["land"]
@@ -2242,7 +2242,7 @@
   "0141": {
     "comment": "투구푸스",
     "nextEvol": {
-      "next": "0142",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2250,7 +2250,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "rock",
     "type2": "water",
     "spawn": ["land"]
@@ -2258,7 +2258,7 @@
   "0142": {
     "comment": "프테라",
     "nextEvol": {
-      "next": "0143",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2266,7 +2266,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "rock",
     "type2": "flying",
     "spawn": ["land"]
@@ -2274,7 +2274,7 @@
   "0143": {
     "comment": "잠만보",
     "nextEvol": {
-      "next": "0144",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2282,7 +2282,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "normal",
     "type2": null,
     "spawn": ["land"]
@@ -2290,7 +2290,7 @@
   "0144": {
     "comment": "프리져",
     "nextEvol": {
-      "next": "0145",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2298,7 +2298,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "legendary",
     "type1": "ice",
     "type2": "flying",
     "spawn": ["land"]
@@ -2306,7 +2306,7 @@
   "0145": {
     "comment": "썬더",
     "nextEvol": {
-      "next": "0146",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2314,7 +2314,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "legendary",
     "type1": "electric",
     "type2": "flying",
     "spawn": ["land"]
@@ -2322,7 +2322,7 @@
   "0146": {
     "comment": "파이어",
     "nextEvol": {
-      "next": "0147",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2330,7 +2330,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "legendary",
     "type1": "fire",
     "type2": "flying",
     "spawn": ["land"]
@@ -2339,14 +2339,14 @@
     "comment": "미뇽",
     "nextEvol": {
       "next": "0148",
-      "cost": 0
+      "cost": 100
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "dragon",
     "type2": null,
     "spawn": ["land", "water"]
@@ -2355,14 +2355,14 @@
     "comment": "신뇽",
     "nextEvol": {
       "next": "0149",
-      "cost": 0
+      "cost": 200
     },
     "rate": {
       "spawn": 100,
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "rare",
     "type1": "dragon",
     "type2": null,
     "spawn": ["land", "water"]
@@ -2370,7 +2370,7 @@
   "0149": {
     "comment": "망나뇽",
     "nextEvol": {
-      "next": "0150",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2378,7 +2378,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "epic",
     "type1": "dragon",
     "type2": "flying",
     "spawn": ["land"]
@@ -2386,7 +2386,7 @@
   "0150": {
     "comment": "뮤츠",
     "nextEvol": {
-      "next": "0151",
+      "next": null,
       "cost": 0
     },
     "rate": {
@@ -2394,7 +2394,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "legendary",
     "type1": "psychic",
     "type2": null,
     "spawn": ["land"]
@@ -2410,7 +2410,7 @@
       "capture": 0.1,
       "flee": 0.1
     },
-    "rank": "common",
+    "rank": "legendary",
     "type1": "psychic",
     "type2": null,
     "spawn": ["land"]
