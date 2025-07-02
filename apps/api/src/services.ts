@@ -424,6 +424,7 @@ export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq, manag
     const evol = pokemonData.nextEvol;
 
     return {
+      idx: data.idx,
       pokedex: data.pokedex,
       gender: data.gender,
       shiny: data.shiny,
@@ -808,7 +809,10 @@ export const evolvePokemon = async (ingame: Ingame, data: EvolveReq) => {
       await manager.update(Pokebox, { idx: data.idx }, { pokedex: pokemonData.nextEvol.next, count: myPokemon.count + 1 });
     }
 
-    ret = gameSuccess(await getPokebox(ingame, { box: data.box }, manager));
+    const boxInfo = await getPokebox(ingame, { box: data.box }, manager);
+
+    if (boxInfo.success) ret = gameSuccess(boxInfo.data);
+    else ret = gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
   });
 
   return ret;
