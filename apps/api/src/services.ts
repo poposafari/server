@@ -5,7 +5,7 @@ import { DuplicateAccountHttpError, DuplicateUserNicknameHttpError, LoginFailHtt
 import { Ingame } from './entities/Ingame';
 import { AppDataSource, redis } from './data-source';
 import { Bag } from './entities/Bag';
-import { getCatchItemData, getItemData, getOverworldData, getPokemonData, PokemonData } from './store';
+import { getCatchItemData, getEnterData, getExitData, getItemData, getOverworldData, getPokemonData, PokemonData } from './store';
 import {
   AccountReq,
   BoxBgReq,
@@ -35,6 +35,8 @@ import {
   CatchPokemonReq,
   FeedBerryReq,
   EvolveReq,
+  WarpReq,
+  GameLogicRes,
 } from './utils/type';
 import {
   gameFail,
@@ -503,14 +505,17 @@ export const useTicket = async (ingame: Ingame, data: UseTicketReq) => {
   });
 };
 
-export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) => {
+export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq, wrapResult: boolean = true) => {
   const overworld = getOverworldData(data.overworld);
+  let posX = data.x ? data.x : ingame.x;
+  let posY = data.y ? data.y : ingame.y;
 
-  let result: { pokemons: WildPokemon[]; items: GroundItem[]; entryX: number; entryY: number } = {
+  let result: { pokemons: WildPokemon[]; items: GroundItem[]; overworld: string; entryX: number; entryY: number } = {
     pokemons: [],
     items: [],
-    entryX: overworld.x,
-    entryY: overworld.y,
+    overworld: data.overworld,
+    entryX: posX,
+    entryY: posY,
   };
 
   await AppDataSource.manager.transaction(async (manager) => {
@@ -551,7 +556,7 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
           catch: item.catch,
         }));
 
-        await manager.update(Ingame, { account_id: ingame.account_id }, { location: data.overworld, x: overworld.x, y: overworld.y });
+        await manager.update(Ingame, { account_id: ingame.account_id }, { location: data.overworld, x: posX, y: posY });
         return;
       }
 
@@ -561,8 +566,8 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
 
       result.pokemons = wildPokemons;
       result.items = groundItems;
-      result.entryX = overworld.x;
-      result.entryY = overworld.y;
+      result.entryX = posX;
+      result.entryY = posY;
 
       const wildEntities = wildPokemons.map((pokemon) =>
         manager.create(Wild, {
@@ -628,10 +633,14 @@ export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq) 
       await manager.delete(Grounditem, { account_id: ingame.account_id });
     }
 
-    await manager.update(Ingame, { account_id: ingame.account_id }, { location: data.overworld, x: overworld.x, y: overworld.y });
+    await manager.update(Ingame, { account_id: ingame.account_id }, { location: data.overworld, x: posX, y: posY });
   });
 
-  return gameSuccess(result);
+  if (wrapResult) {
+    return gameSuccess(result);
+  }
+
+  return result;
 };
 
 export const catchGroundItem = async (ingame: Ingame, data: CatchSafariObjectReq) => {
@@ -816,4 +825,38 @@ export const evolvePokemon = async (ingame: Ingame, data: EvolveReq) => {
   });
 
   return ret;
+};
+
+export const enterToOverworld = async (ingame: Ingame, data: WarpReq) => {
+  const enterData = getEnterData(data.idx);
+  if (!enterData) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
+
+  const result = await moveToOverworld(
+    ingame,
+    {
+      overworld: enterData.overworld,
+      x: enterData.x,
+      y: enterData.y,
+    },
+    false,
+  );
+
+  return gameSuccess(result);
+};
+
+export const exitToOverworld = async (ingame: Ingame, data: WarpReq) => {
+  const exitData = getExitData(data.idx);
+  if (!exitData) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
+
+  const result = await moveToOverworld(
+    ingame,
+    {
+      overworld: exitData.overworld,
+      x: exitData.x,
+      y: exitData.y,
+    },
+    false,
+  );
+
+  return gameSuccess(result);
 };

@@ -180,6 +180,12 @@ export interface UseTicketReq {
 
 export interface MoveToOverworldReq {
   overworld: string;
+  x: number;
+  y: number;
+}
+
+export interface WarpReq {
+  idx: string;
 }
 
 export interface CatchSafariObjectReq {
@@ -207,10 +213,14 @@ export interface Overworld {
   comment: string;
   type: OverworldType;
   cost: number;
-  x: number;
-  y: number;
   spawnCount: number;
   spawn: string[];
+}
+
+export interface EnterOrExit {
+  overworld: string;
+  x: number;
+  y: number;
 }
 
 export interface NextEvol {

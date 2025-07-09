@@ -46,6 +46,8 @@ PokeboxRouter.post('/evol', Authenticate, Usercheck, Controllers.Pokebox.evolveP
 const OverworldRouter = Router();
 OverworldRouter.post('/ticket', Authenticate, Usercheck, Controllers.Overworld.useTicket);
 OverworldRouter.post('/move', Authenticate, Usercheck, Controllers.Overworld.moveToOverworld);
+OverworldRouter.post('/enter', Authenticate, Usercheck, Controllers.Overworld.enterToOverworld);
+OverworldRouter.post('/exit', Authenticate, Usercheck, Controllers.Overworld.exitToOverworld);
 OverworldRouter.post('/catch/item', Authenticate, Usercheck, Controllers.Overworld.catchGroundItem);
 OverworldRouter.post('/catch/pokemon', Authenticate, Usercheck, Controllers.Overworld.catchWildPokemon);
 OverworldRouter.post('/feed/berry', Authenticate, Usercheck, Controllers.Overworld.feedBerry);

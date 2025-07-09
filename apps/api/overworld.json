@@ -3,8 +3,6 @@
     "comment": "테스트(플라자)",
     "type": "plaza",
     "cost": 0,
-    "x": 0,
-    "y": 0,
     "spawnCount": 0,
     "spawn": []
   },
@@ -12,8 +10,6 @@
     "comment": "메인 타운",
     "type": "plaza",
     "cost": 0,
-    "x": 0,
-    "y": 0,
     "spawnCount": 0,
     "spawn": []
   },
@@ -21,8 +17,6 @@
     "comment": "우체국",
     "type": "plaza",
     "cost": 0,
-    "x": 0,
-    "y": 0,
     "spawnCount": 0,
     "spawn": []
   },
@@ -30,8 +24,6 @@
     "comment": "프렌들리 숍",
     "type": "plaza",
     "cost": 0,
-    "x": 0,
-    "y": 0,
     "spawnCount": 0,
     "spawn": []
   },
@@ -39,8 +31,6 @@
     "comment": "테스트(사파리)",
     "type": "safari",
     "cost": 0,
-    "x": 10,
-    "y": 3,
     "spawnCount": 10,
     "spawn": ["0001", "0002", "0003", "0004", "0005", "0006", "0008", "0009", "0010", "0011", "0012", "0013", "0130", "0131"]
   },
@@ -48,8 +38,6 @@
     "comment": "숲",
     "type": "safari",
     "cost": 1,
-    "x": 0,
-    "y": 0,
     "spawnCount": 40,
     "spawn": [
       "0001",

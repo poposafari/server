@@ -6,7 +6,9 @@ import {
   buyItem,
   catchGroundItem,
   catchWildPokemon,
+  enterToOverworld,
   evolvePokemon,
+  exitToOverworld,
   feedBerry,
   getAvailableTicket,
   getIngame,
@@ -175,6 +177,16 @@ class OverworldController {
 
   static async moveToOverworld(req: Request, res: Response): Promise<any> {
     const ret = await moveToOverworld(res.locals.ingame, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async enterToOverworld(req: Request, res: Response): Promise<any> {
+    const ret = await enterToOverworld(res.locals.ingame, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async exitToOverworld(req: Request, res: Response): Promise<any> {
+    const ret = await exitToOverworld(res.locals.ingame, req.body);
     return res.status(200).json(ret);
   }
 
