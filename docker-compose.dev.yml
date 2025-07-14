@@ -1,12 +1,12 @@
-version: "3.9"
+version: '3.9'
 
 services:
   nginx:
     image: nginx:latest
     container_name: nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./certbot/www:/var/www/certbot
@@ -36,7 +36,7 @@ services:
       - ./db/data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "${DB_0_PORT}:5432"
+      - '${DB_0_PORT}:5432'
     networks:
       - poposerver
 
@@ -47,7 +47,7 @@ services:
     env_file:
       - .env
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - ./redis-data:/data
     networks:
@@ -61,7 +61,7 @@ services:
     env_file:
       - .env
     ports:
-      - "${SERVICE_API_PORT}:${SERVICE_API_PORT}"
+      - '${SERVICE_API_PORT}:${SERVICE_API_PORT}'
     depends_on:
       - db0
       - redis
@@ -76,9 +76,22 @@ services:
     env_file:
       - .env
     ports:
-      - "${JOB_TICKET_PORT}:${JOB_TICKET_PORT}"
+      - '${JOB_TICKET_PORT}:${JOB_TICKET_PORT}'
     depends_on:
       - db0
+    networks:
+      - poposerver
+
+  socket:
+    container_name: socket
+    build:
+      context: .
+      dockerfile: apps/socket/Dockerfile
+    depends_on:
+      - redis
+      - db0
+    ports:
+      - '3001:3001'
     networks:
       - poposerver
 

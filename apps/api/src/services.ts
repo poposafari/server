@@ -147,6 +147,7 @@ export const getIngame = async (ingame: Ingame) => {
     const items = await getItems(ingame, manager);
 
     ret = {
+      account_id: ingame.account_id,
       nickname: ingame.nickname,
       x: ingame.x,
       y: ingame.y,

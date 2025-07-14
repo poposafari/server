@@ -1,10 +1,10 @@
-import cron from "node-cron";
-import { pgClient } from "./db";
+import cron from 'node-cron';
+import { pgClient } from './db';
 
 const MAX_AVAILABLE_TICKET = 4;
 
-const EXPRESSION = "0 0,6,12,18 * * *";
-const TEST = "* * * * *";
+const EXPRESSION = '0 0,6,12,18 * * *';
+const TEST = '* * * * *';
 
 async function updateTickets(max: number) {
   try {
@@ -14,26 +14,26 @@ async function updateTickets(max: number) {
       SET available_ticket = available_ticket + 1
       WHERE available_ticket < $1
     `,
-      [max]
+      [max],
     );
 
     console.log(`ticket-job success`);
   } catch (err) {
-    console.error("ticket-job failed:", err);
+    console.error('ticket-job failed:', err);
   }
 }
 
 async function boot() {
   try {
     await pgClient.connect();
-    console.log("postgresql connected...");
+    console.log('postgresql connected...');
 
     cron.schedule(EXPRESSION, () => {
-      console.log("running ticket-job...");
+      console.log('running ticket-job...');
       updateTickets(MAX_AVAILABLE_TICKET);
     });
   } catch (err) {
-    console.error("connection failed:", err);
+    console.error('connection failed:', err);
   }
 }
 
