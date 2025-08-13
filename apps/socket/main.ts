@@ -4,6 +4,15 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { setAuth } from './auth';
 
+export interface EnterOrExit {
+  overworld: string;
+  x: number;
+  y: number;
+}
+
+export const EnterData: Record<string, EnterOrExit> = {};
+export const ExitData: Record<string, EnterOrExit> = {};
+
 async function boot() {
   try {
     await pgClient.connect();
