@@ -22,9 +22,9 @@ services:
   #     - ./certbot/www:/var/www/certbot
   #     - ./certbot/conf:/etc/letsencrypt
 
-  db0:
+  db:
     image: postgres:15
-    container_name: db0
+    container_name: db
     restart: always
     env_file:
       - .env
@@ -63,7 +63,7 @@ services:
     ports:
       - '${SERVICE_API_PORT}:${SERVICE_API_PORT}'
     depends_on:
-      - db0
+      - db
       - redis
     networks:
       - poposerver
@@ -78,7 +78,7 @@ services:
     ports:
       - '${JOB_TICKET_PORT}:${JOB_TICKET_PORT}'
     depends_on:
-      - db0
+      - db
     networks:
       - poposerver
 
@@ -89,7 +89,7 @@ services:
       dockerfile: apps/socket/Dockerfile
     depends_on:
       - redis
-      - db0
+      - db
     ports:
       - '3001:3001'
     networks:

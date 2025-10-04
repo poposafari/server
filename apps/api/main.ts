@@ -1,12 +1,10 @@
-import path from 'path';
-import * as fs from 'fs';
 import app from './app';
 import * as dotenv from 'dotenv';
 import 'reflect-metadata';
 import { AppDataSource, redis } from './src/data-source';
-import { CatchData, EnterData, ExitData, ItemData, OverworldData, PokemonData, RewardCandyData, RewardData, SpawnableItemTable } from './src/store';
 import { getSpawnableItemTable, readJson } from './src/utils/methods';
-import { Rarity } from './src/utils/type';
+import { CatchData, ItemData, OverworldData, PokemonData, RewardCandyData, RewardData, SpawnableItemTable } from './src/shared/data';
+import { Rarity } from './src/shared/enums';
 
 dotenv.config();
 
@@ -25,9 +23,6 @@ async function boot() {
 
     await loadOverworld();
     console.log('Overworld data loaded');
-
-    await loadEnterExitPoints();
-    console.log('Enter,Exit data loaded');
 
     await loadPokemon();
     console.log('Pokemon data loaded');
@@ -78,21 +73,6 @@ async function loadOverworld(): Promise<void> {
   Object.assign(OverworldData, data);
 
   console.log('Overworld data loaded into memory.');
-}
-
-async function loadEnterExitPoints(): Promise<void> {
-  const enterPoints = readJson('enter');
-  const exitPoints = readJson('exit');
-
-  Object.keys(EnterData).forEach((k) => delete EnterData[k]);
-  Object.assign(EnterData, enterPoints);
-
-  console.log('Enter data loaded into memory.');
-
-  Object.keys(ExitData).forEach((k) => delete ExitData[k]);
-  Object.assign(ExitData, exitPoints);
-
-  console.log('Exit data loaded into memory.');
 }
 
 async function loadPokemon(): Promise<void> {

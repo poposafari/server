@@ -1,207 +1,168 @@
 import { Request, Response } from 'express';
-import {
-  addItem,
-  addPokemon,
-  autoLogin,
-  buyItem,
-  catchGroundItem,
-  catchWildPokemon,
-  enterToOverworld,
-  evolvePokemon,
-  exitToOverworld,
-  feedBerry,
-  getAvailableTicket,
-  getIngame,
-  getItemByCategory,
-  getItems,
-  getPokebox,
-  login,
-  movePokemon,
-  moveToOverworld,
-  receiveAvailableTicket,
-  registerAccount,
-  registerIngame,
-  removeAccount,
-  updateItemSlot,
-  updateParty,
-  updatePokeboxBg,
-  useItem,
-  useTicket,
-} from './services';
-import { LoginFailHttpError } from './utils/http-error';
+import { LoginFailHttpError, NotFoundToken } from './utils/http-error';
 import { createTokens, gameSuccess } from './utils/methods';
 import { WrapController } from './utils/wrap-controller';
 import { CookieConfig } from './utils/options';
-import { redis } from './data-source';
+import {
+  addIngameItem,
+  addPcPokemon,
+  autoLogin,
+  buyItem,
+  checkRefreshToken,
+  deleteAccount,
+  deleteRestoreAccount,
+  enterSafariZone,
+  evolvePc,
+  getAvailableTicket,
+  getIngame,
+  getIngameItems,
+  getPc,
+  loginLocal,
+  movePc,
+  receiveAvailableTicket,
+  registerIngame,
+  registerLocal,
+  useSafariTicket,
+} from './services';
+import { Account } from './entities/Account';
 
 class AccountController {
-  static async register(req: Request, res: Response): Promise<any> {
-    const newAccount = await registerAccount(req.body);
-    const accessToken = createTokens(newAccount.id!);
+  static async registerLocal(req: Request, res: Response): Promise<any> {
+    const newAccount = await registerLocal(req.body);
+    const accessToken = createTokens(newAccount.id!, 'access');
+    const refreshToken = createTokens(newAccount.id!, 'refresh');
 
-    return res
-      .cookie('access_token', accessToken, CookieConfig as any)
-      .status(201)
-      .json(gameSuccess(null));
+    res.cookie('refresh_token', refreshToken, CookieConfig as any).status(200);
+
+    return res.status(200).json(gameSuccess(accessToken));
   }
 
-  static async login(req: Request, res: Response): Promise<any> {
-    const account = await login(req.body);
+  static async loginLocal(req: Request, res: Response): Promise<any> {
+    let ret;
+    const account = await loginLocal(req.body);
 
     if (!account || !account.id) throw new LoginFailHttpError();
 
-    const accessToken = createTokens(account.id);
-    console.log(accessToken);
+    const accessToken = createTokens(account.id, 'access');
+    const refreshToken = createTokens(account.id, 'refresh');
 
-    return res
-      .cookie('access_token', accessToken, CookieConfig as any)
-      .status(200)
-      .json(gameSuccess(null));
+    res.cookie('refresh_token', refreshToken, CookieConfig as any).status(200);
+
+    ret = {
+      token: accessToken,
+      isDelete: account.isDelete,
+      isDeleteAt: account.isDeleteAt,
+    };
+
+    return res.status(200).json(gameSuccess(ret));
+  }
+
+  static async checkRefreshToken(req: Request, res: Response): Promise<any> {
+    const refreshToken = req.cookies.refresh_token;
+
+    if (!refreshToken) throw new NotFoundToken();
+
+    const newAccessToken = await checkRefreshToken(refreshToken);
+    return res.status(200).json(gameSuccess(newAccessToken));
   }
 
   static async autoLogin(req: Request, res: Response): Promise<any> {
-    const ret = await autoLogin(res.locals.ingame);
+    const account = res.locals.account as Account;
+    const ret = await autoLogin();
 
     return res.status(200).json(ret);
   }
 
   static async logout(req: Request, res: Response): Promise<any> {
-    await redis.del(`refresh:${res.locals.user.id}`);
     return res
-      .clearCookie('access_token', CookieConfig as any)
+      .clearCookie('refresh_token', CookieConfig as any)
       .status(200)
       .json(gameSuccess(null));
   }
 
-  static async removeAccount(req: Request, res: Response): Promise<any> {
-    const ret = await removeAccount(res.locals.user.id);
-    await redis.del(`refresh:${res.locals.user.id}`);
+  static async deleteAccount(req: Request, res: Response): Promise<any> {
+    const ret = await deleteAccount(res.locals.account);
     return res
-      .clearCookie('access_token', CookieConfig as any)
+      .clearCookie('refresh_token', CookieConfig as any)
       .status(200)
       .json(ret);
+  }
+
+  static async deleteRestoreAccount(req: Request, res: Response): Promise<any> {
+    const ret = await deleteRestoreAccount(res.locals.account);
+    return res.status(200).json(ret);
   }
 }
 
 class IngameController {
-  static async register(req: Request, res: Response): Promise<any> {
-    const ret = await registerIngame(req.body, res.locals.user.id);
+  static async getIngame(req: Request, res: Response): Promise<any> {
+    const ret = await getIngame(res.locals.account);
+    return res.status(200).json(gameSuccess(ret));
+  }
+
+  static async registerIngame(req: Request, res: Response): Promise<any> {
+    const ret = await registerIngame(req.body, res.locals.account);
     return res.status(201).json(ret);
   }
 
-  static async getUserData(req: Request, res: Response): Promise<any> {
-    const ret = await getIngame(res.locals.ingame);
-    return res.status(200).json(ret);
-  }
-
-  static async updateItemSlot(req: Request, res: Response): Promise<any> {
-    const ret = await updateItemSlot(res.locals.ingame, req.body);
-    return res.status(200).json(ret);
-  }
-
-  static async updateParty(req: Request, res: Response): Promise<any> {
-    const ret = await updateParty(res.locals.ingame, req.body);
-    return res.status(200).json(ret);
-  }
-
-  static async updatePokeboxBg(req: Request, res: Response): Promise<any> {
-    const ret = await updatePokeboxBg(res.locals.ingame, req.body);
-    return res.status(200).json(ret);
-  }
-
   static async getAvailableTicket(req: Request, res: Response): Promise<any> {
-    const ret = await getAvailableTicket(res.locals.ingame);
+    const ret = await getAvailableTicket(res.locals.account);
     return res.status(200).json(ret);
   }
 
   static async receiveAvailableTicket(req: Request, res: Response): Promise<any> {
-    const ret = await receiveAvailableTicket(res.locals.ingame);
+    const ret = await receiveAvailableTicket(res.locals.account);
     return res.status(200).json(ret);
   }
 }
 
 class BagController {
-  static async addItem(req: Request, res: Response): Promise<any> {
-    const ret = await addItem(res.locals.ingame, req.body);
-    return res.status(201).json(ret);
-  }
-
-  static async useItem(req: Request, res: Response): Promise<any> {
-    const ret = await useItem(res.locals.ingame, req.body);
+  static async addIngameItem(req: Request, res: Response): Promise<any> {
+    const ret = await addIngameItem(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 
-  static async getItemByCategory(req: Request, res: Response): Promise<any> {
-    const ret = await getItemByCategory(res.locals.ingame, req.body);
+  static async getIngameItems(req: Request, res: Response): Promise<any> {
+    const ret = await getIngameItems(res.locals.account);
     return res.status(200).json(ret);
   }
 
-  static async getItems(req: Request, res: Response): Promise<any> {
-    const ret = await getItems(res.locals.ingame);
+  static async buyIngameItem(req: Request, res: Response): Promise<any> {
+    const ret = await buyItem(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 
-  static async buyItem(req: Request, res: Response): Promise<any> {
-    const ret = await buyItem(res.locals.ingame, req.body);
-    return res.status(201).json(ret);
-  }
-}
-
-class PokeboxController {
-  static async addPokemon(req: Request, res: Response): Promise<any> {
-    const ret = await addPokemon(res.locals.ingame, req.body);
-    return res.status(201).json(ret);
-  }
-
-  static async getPokebox(req: Request, res: Response): Promise<any> {
-    const ret = await getPokebox(res.locals.ingame, req.body);
-    return res.status(200).json(ret);
-  }
-
-  static async movePokemon(req: Request, res: Response): Promise<any> {
-    const ret = await movePokemon(res.locals.ingame, req.body);
-    return res.status(200).json(ret);
-  }
-
-  static async evolvePokemon(req: Request, res: Response): Promise<any> {
-    const ret = await evolvePokemon(res.locals.ingame, req.body);
+  static async useSafariTicket(req: Request, res: Response): Promise<any> {
+    const ret = await useSafariTicket(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 }
 
-class OverworldController {
-  static async useTicket(req: Request, res: Response): Promise<any> {
-    const ret = await useTicket(res.locals.ingame, req.body);
+class PcController {
+  static async addPcPokemon(req: Request, res: Response): Promise<any> {
+    const ret = await addPcPokemon(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 
-  static async moveToOverworld(req: Request, res: Response): Promise<any> {
-    const ret = await moveToOverworld(res.locals.ingame, req.body);
+  static async getPc(req: Request, res: Response): Promise<any> {
+    const ret = await getPc(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 
-  static async enterToOverworld(req: Request, res: Response): Promise<any> {
-    const ret = await enterToOverworld(res.locals.ingame, req.body);
+  static async movePc(req: Request, res: Response): Promise<any> {
+    const ret = await movePc(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 
-  static async exitToOverworld(req: Request, res: Response): Promise<any> {
-    const ret = await exitToOverworld(res.locals.ingame, req.body);
+  static async evolvePc(req: Request, res: Response): Promise<any> {
+    const ret = await evolvePc(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
+}
 
-  static async catchGroundItem(req: Request, res: Response): Promise<any> {
-    const ret = await catchGroundItem(res.locals.ingame, req.body);
-    return res.status(200).json(ret);
-  }
-
-  static async catchWildPokemon(req: Request, res: Response): Promise<any> {
-    const ret = await catchWildPokemon(res.locals.ingame, req.body);
-    return res.status(200).json(ret);
-  }
-
-  static async feedBerry(req: Request, res: Response): Promise<any> {
-    const ret = await feedBerry(res.locals.ingame, req.body);
+class SafariController {
+  static async enterSafariZone(req: Request, res: Response): Promise<any> {
+    const ret = await enterSafariZone(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 }
@@ -210,6 +171,6 @@ export const Controllers = {
   Account: WrapController(AccountController),
   Ingame: WrapController(IngameController),
   Bag: WrapController(BagController),
-  Pokebox: WrapController(PokeboxController),
-  Overworld: WrapController(OverworldController),
+  PC: WrapController(PcController),
+  Safari: WrapController(SafariController),
 };

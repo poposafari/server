@@ -10,7 +10,7 @@ async function updateTickets(max: number) {
   try {
     await pgClient.query(
       `
-      UPDATE db0.ingame
+      UPDATE db.ingame
       SET available_ticket = available_ticket + 1
       WHERE available_ticket < $1
     `,

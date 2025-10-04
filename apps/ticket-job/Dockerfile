@@ -10,4 +10,4 @@ RUN chmod +x ./wait-for-it.sh
 
 RUN npm install
 
-CMD ["./wait-for-it.sh", "db0:5432", "--", "npm", "run", "start:ticket-job"]
+CMD ["./wait-for-it.sh", "db:5432", "--", "npm", "run", "start:ticket-job"]

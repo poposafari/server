@@ -1,26 +1,24 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Unique } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToOne, OneToMany } from 'typeorm';
+import { AccountLocal } from './AccountLocal';
+import { AccountSocial } from './AccountSocial';
 
-@Entity({ schema: "db0", name: "account" })
-@Unique(["provider", "provider_id"])
+@Entity({ schema: 'db', name: 'account' })
 export class Account {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id!: number;
 
-  @Column({ type: "varchar", length: 20, nullable: true, unique: true })
-  username?: string;
+  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
+  createdAt!: Date;
 
-  @Column({ type: "varchar", length: 100, nullable: true })
-  password?: string;
+  @Column({ type: 'boolean', default: false, name: 'is_delete' })
+  isDelete!: boolean;
 
-  @Column({ type: "varchar", length: 100, nullable: true })
-  email?: string;
+  @Column({ type: 'timestamptz', name: 'is_delete_at', default: null, nullable: true })
+  isDeleteAt!: Date;
 
-  @Column({ type: "varchar", length: 20, nullable: true })
-  provider?: string;
+  @OneToOne(() => AccountLocal, (local) => local.account)
+  local!: AccountLocal;
 
-  @Column({ type: "varchar", length: 100, nullable: true })
-  provider_id?: string;
-
-  @CreateDateColumn({ type: "timestamp" })
-  created?: Date;
+  @OneToMany(() => AccountSocial, (social) => social.account)
+  socials!: AccountSocial;
 }

@@ -1,55 +1,41 @@
 import { Router } from 'express';
 import { Controllers } from './controllers';
 import { Authenticate } from './middlewares/authenicate.middleware';
-import { Usercheck } from './middlewares/usercheck.middleware';
+import { AuthenticateForAccountRestore } from './middlewares/autologin-authenicate.middleware';
 
 //Account
 const AccountRouter = Router();
-AccountRouter.post('/register', Controllers.Account.register);
-AccountRouter.post('/login', Controllers.Account.login);
-AccountRouter.get('/logout', Authenticate, Controllers.Account.logout);
-AccountRouter.get('/delete', Authenticate, Usercheck, Controllers.Account.removeAccount);
-AccountRouter.get('/auto-login', Authenticate, Usercheck, Controllers.Account.autoLogin);
-
-//Slot
-const SlotRouter = Router();
-SlotRouter.post('/item/update', Authenticate, Usercheck, Controllers.Ingame.updateItemSlot);
-SlotRouter.post('/party/update', Authenticate, Usercheck, Controllers.Ingame.updateParty);
-SlotRouter.post('/bg/update', Authenticate, Usercheck, Controllers.Ingame.updatePokeboxBg);
-
-//Ticket
-const TicketRouter = Router();
-TicketRouter.get('/get', Authenticate, Usercheck, Controllers.Ingame.getAvailableTicket);
-TicketRouter.get('/receive', Authenticate, Usercheck, Controllers.Ingame.receiveAvailableTicket);
+AccountRouter.post('/register', Controllers.Account.registerLocal);
+AccountRouter.post('/login/local', Controllers.Account.loginLocal);
+AccountRouter.get('/auth/refresh', Controllers.Account.checkRefreshToken);
+AccountRouter.get('/login/auto', Authenticate, Controllers.Account.autoLogin);
+AccountRouter.get('/logout', Controllers.Account.logout);
+AccountRouter.get('/delete', Authenticate, Controllers.Account.deleteAccount);
+AccountRouter.get('/delete/restore', AuthenticateForAccountRestore, Controllers.Account.deleteRestoreAccount);
 
 //Ingame
 const IngameRouter = Router();
-IngameRouter.post('/register', Authenticate, Controllers.Ingame.register);
-IngameRouter.get('/userdata', Authenticate, Usercheck, Controllers.Ingame.getUserData);
+IngameRouter.get('/get', Authenticate, Controllers.Ingame.getIngame);
+IngameRouter.post('/register', Authenticate, Controllers.Ingame.registerIngame);
+IngameRouter.get('/ticket/get', Authenticate, Controllers.Ingame.getAvailableTicket);
+IngameRouter.get('/ticket/receive', Authenticate, Controllers.Ingame.receiveAvailableTicket);
 
 //Bag
 const BagRouter = Router();
-BagRouter.post('/add', Authenticate, Usercheck, Controllers.Bag.addItem);
-BagRouter.post('/use', Authenticate, Usercheck, Controllers.Bag.useItem);
-BagRouter.get('/all', Authenticate, Usercheck, Controllers.Bag.getItems);
-BagRouter.get('/category', Authenticate, Usercheck, Controllers.Bag.getItemByCategory);
-BagRouter.post('/buy', Authenticate, Usercheck, Controllers.Bag.buyItem);
+BagRouter.post('/add', Authenticate, Controllers.Bag.addIngameItem);
+BagRouter.get('/get', Authenticate, Controllers.Bag.getIngameItems);
+BagRouter.post('/buy', Authenticate, Controllers.Bag.buyIngameItem);
+BagRouter.post('/ticket/use', Authenticate, Controllers.Bag.useSafariTicket);
 
-//Pokebox
-const PokeboxRouter = Router();
-PokeboxRouter.post('/add', Authenticate, Usercheck, Controllers.Pokebox.addPokemon);
-PokeboxRouter.post('/get', Authenticate, Usercheck, Controllers.Pokebox.getPokebox);
-PokeboxRouter.post('/move', Authenticate, Usercheck, Controllers.Pokebox.movePokemon);
-PokeboxRouter.post('/evol', Authenticate, Usercheck, Controllers.Pokebox.evolvePokemon);
+//PC
+const PcRouter = Router();
+PcRouter.post('/add', Authenticate, Controllers.PC.addPcPokemon);
+PcRouter.post('/get', Authenticate, Controllers.PC.getPc);
+PcRouter.post('/move', Authenticate, Controllers.PC.movePc);
+PcRouter.post('/evol', Authenticate, Controllers.PC.evolvePc);
 
-//Overworld
-const OverworldRouter = Router();
-OverworldRouter.post('/ticket', Authenticate, Usercheck, Controllers.Overworld.useTicket);
-OverworldRouter.post('/move', Authenticate, Usercheck, Controllers.Overworld.moveToOverworld);
-OverworldRouter.post('/enter', Authenticate, Usercheck, Controllers.Overworld.enterToOverworld);
-OverworldRouter.post('/exit', Authenticate, Usercheck, Controllers.Overworld.exitToOverworld);
-OverworldRouter.post('/catch/item', Authenticate, Usercheck, Controllers.Overworld.catchGroundItem);
-OverworldRouter.post('/catch/pokemon', Authenticate, Usercheck, Controllers.Overworld.catchWildPokemon);
-OverworldRouter.post('/feed/berry', Authenticate, Usercheck, Controllers.Overworld.feedBerry);
+//safari
+const SafariRouter = Router();
+SafariRouter.post('/enter', Authenticate, Controllers.Safari.enterSafariZone);
 
-export default { AccountRouter, SlotRouter, IngameRouter, BagRouter, PokeboxRouter, TicketRouter, OverworldRouter };
+export default { AccountRouter, IngameRouter, BagRouter, PcRouter, SafariRouter };

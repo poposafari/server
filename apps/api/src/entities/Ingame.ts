@@ -1,80 +1,75 @@
-import { Entity, PrimaryColumn, Column, Unique, OneToOne, JoinColumn, Check } from 'typeorm';
+import { Check, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { Account } from './Account';
-import { Backgrounds, IngameAvatar, IngameGender } from '../utils/type';
+import { PC } from './PC';
+import { PlayerGender } from '../shared/enums';
 
-@Entity({ schema: 'db0', name: 'ingame' })
-@Unique(['nickname'])
-@Check(`"available_ticket" >= 0 AND "available_ticket" <= 8`)
-@Check(`array_length(boxes, 1) = 33`)
-@Check(`array_length(boxes_cnt, 1) = 33`)
-@Check(`array_length(party, 1) <= 6`)
-@Check(`array_length(itemslot, 1) <= 9`)
+@Entity({ schema: 'db', name: 'ingame' })
+@Check(`"available_ticket" >= 0 AND "available_ticket" <= 4`)
+@Check(`"candy" >= 0 AND "candy" <= 99999999`)
+@Check(`"avatar" >= 1 AND "avatar" <= 4`)
 export class Ingame {
   @PrimaryColumn()
   account_id!: number;
 
-  @OneToOne(() => Account, { onDelete: 'CASCADE' })
+  @OneToOne(() => Account, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'account_id' })
   account!: Account;
 
-  @Column({ type: 'char', length: 3 })
-  location!: string;
-
-  @Column()
-  x!: number;
-
-  @Column()
-  y!: number;
-
-  @Column({
-    type: 'enum',
-    enum: IngameGender,
-  })
-  gender!: IngameGender;
-
-  @Column({
-    type: 'enum',
-    enum: IngameAvatar,
-  })
-  avatar!: IngameAvatar;
-
-  @Column({ type: 'varchar', length: 10, unique: true })
+  @Column({ type: 'varchar', length: 12, unique: true })
   nickname!: string;
 
-  @Column()
-  money!: number;
+  @Column({ type: 'integer', default: 0 })
+  x!: number;
 
-  @Column({ type: 'int', default: 8 })
-  available_ticket!: number;
+  @Column({ type: 'integer', default: 0 })
+  y!: number;
 
-  @Column({
-    type: 'enum',
-    enum: Backgrounds,
-    array: true,
-  })
-  boxes!: Backgrounds[];
+  @Column({ type: 'varchar', length: 3 })
+  location!: string;
 
-  @Column({
-    type: 'int',
-    array: true,
-  })
-  boxes_cnt!: number[];
+  @Column({ type: 'enum', enum: PlayerGender })
+  gender!: PlayerGender;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'integer' })
+  avatar!: number;
+
+  @Column({ type: 'integer', default: 4, name: 'available_ticket' })
+  availableTicket!: number;
+
+  @Column({ type: 'integer', default: 0 })
+  candy!: number;
+
+  @Column({ nullable: true })
   pet!: number | null;
 
-  @Column({
-    type: 'int',
-    array: true,
-    nullable: true,
-  })
-  party!: (number | null)[];
+  @OneToOne(() => PC, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'pet' })
+  pc!: PC;
 
-  @Column({
-    type: 'char',
-    length: 3,
-    array: true,
-    nullable: true,
-  })
-  itemslot!: (string | null)[];
+  @Column({ type: 'integer', array: true, default: () => 'ARRAY[null, null, null, null, null, null]::INTEGER[]' })
+  party!: number[];
+
+  @Column({ type: 'integer', array: true, default: () => 'ARRAY[null, null, null, null, null, null, null, null, null]::INTEGER[]', name: 'slot_item' })
+  slotItem!: number[];
+
+  @Column({ type: 'integer', array: true, default: () => 'ARRAY_FILL(0, ARRAY[33])', name: 'pc_bg' })
+  pcBg!: number[];
+
+  @Column({ type: 'varchar', length: 30, array: true, default: () => `ARRAY_FILL(''::VARCHAR, ARRAY[33])`, name: 'pc_name' })
+  pcName!: string[];
+
+  @Column({ type: 'integer', array: true, default: () => 'ARRAY_FILL(0, ARRAY[33])', name: 'pc_cnt' })
+  pcCnt!: number[];
+
+  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
+  createdAt!: Date;
+
+  @CreateDateColumn({ type: 'timestamptz', name: 'updated_at' })
+  updatedAt!: Date;
+
+  @Column({ type: 'boolean', default: true, name: 'is_starter' })
+  isStarter!: boolean;
+
+  @Column({ type: 'boolean', default: true, name: 'is_tutorial' })
+  isTutorial!: boolean;
 }

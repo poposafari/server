@@ -2,81 +2,66 @@ import path from 'path';
 import 'reflect-metadata';
 import * as fs from 'fs';
 import { redis } from '../data-source';
-import { getCatchItemData, getItemData, getPokemonData, getRewardCandyData, getRewardData, ItemData, PokemonData, SpawnableItemTable } from '../store';
+import { getCatchItemData, getItemData, getPokemonData, getRewardCandyData, getRewardData, ItemData, PokemonData, SpawnableItemTable } from '../shared/data';
 import { createAccessToken, createRefreshToken } from './jwt';
 import {
-  Backgrounds,
-  GameLogicErrorCode,
   GameLogicRes,
   GroundItem,
-  IngameAvatar,
-  IngameGender,
-  ItemCategoryReq,
-  ItemType,
-  MAX_BOX_SIZE,
-  MAX_PER_BOX,
-  PokemonGender,
-  PokemonSkill,
-  Rarity,
-  SPAWN,
   SpawnableItem,
-  Type,
-  WildPokemon,
-} from './type';
+  Wild,
+  // WildPokemon,
+} from '../shared/types';
+import { MAX_BOX_SIZE, MAX_PER_BOX } from '../shared/constants';
+import { PlayerGender, PokemonGender, PokemonSkill, PokemonType, Rarity, WildSpawn } from '../shared/enums';
 
 export const gameSuccess = <T>(data: T): GameLogicRes<T> => ({
-  success: true,
+  result: true,
   data: data,
 });
 
-export const gameFail = (reason: GameLogicErrorCode): GameLogicRes<null> => ({
-  success: false,
-  reason: reason,
-});
+export const createTokens = (user: number, type: 'access' | 'refresh') => {
+  let token = null;
 
-export const createTokens = (user: number) => {
-  const accessToken = createAccessToken({
-    id: user,
-  });
-
-  const refreshToken = createRefreshToken({
-    id: user,
-  });
-
-  redis.set(`refresh:${user}`, refreshToken, {
-    EX: 60 * 60 * 24 * 7,
-  });
-
-  return accessToken;
-};
-
-export const getAvatarEnum = (value: string): IngameAvatar => {
-  const found = Object.values(IngameAvatar).find((v) => v === value);
-  if (!found) throw new Error('Invalid avatar value');
-  return found as IngameAvatar;
-};
-
-export const getGenderEnum = (value: string): IngameGender => {
-  const found = Object.values(IngameGender).find((v) => v === value);
-  if (!found) throw new Error('Invalid gender value');
-  return found as IngameGender;
-};
-
-export const getSpawnEnum = (value: string): SPAWN => {
-  const found = Object.values(SPAWN).find((v) => v === value);
-  if (!found) throw new Error('Invalid SPAWN');
-  return found as SPAWN;
-};
-
-export const setDefaultBoxes = (): Backgrounds[] => {
-  let ret: Backgrounds[] = [];
-
-  for (let i = 0; i < MAX_BOX_SIZE; i++) {
-    ret.push(Backgrounds.ZERO);
+  if (type === 'access') {
+    token = createAccessToken({
+      id: user,
+    });
   }
 
-  return ret;
+  if (type === 'refresh') {
+    token = createRefreshToken({
+      id: user,
+    });
+
+    redis.set(`refresh:${user}`, token, {
+      EX: 60 * 60 * 24 * 7,
+    });
+  }
+
+  return token;
 };
+
+export const getGenderEnum = (value: string): PlayerGender => {
+  const found = Object.values(PlayerGender).find((v) => v === value);
+  if (!found) throw new Error('Invalid gender value');
+  return found as PlayerGender;
+};
+
+// export const getSpawnEnum = (value: string): SPAWN => {
+//   const found = Object.values(SPAWN).find((v) => v === value);
+//   if (!found) throw new Error('Invalid SPAWN');
+//   return found as SPAWN;
+// };
+
+// export const setDefaultBoxes = (): Backgrounds[] => {
+//   let ret: Backgrounds[] = [];
+
+//   for (let i = 0; i < MAX_BOX_SIZE; i++) {
+//     ret.push(Backgrounds.ZERO);
+//   }
+
+//   return ret;
+// };
 
 export const setDefaultBoxesCnt = (): number[] => {
   let ret: number[] = [];
@@ -88,7 +73,7 @@ export const setDefaultBoxesCnt = (): number[] => {
   return ret;
 };
 
-export const getNextPokeboxIndex = (ingameBoxesCnt: number[]): number[] => {
+export const getNextPcBoxNum = (ingameBoxesCnt: number[]): number[] => {
   let ret: number[] = [-1, -1];
 
   for (let i = 0; i < MAX_BOX_SIZE; i++) {
@@ -110,7 +95,7 @@ export const getShinyRandom = (): boolean => {
   return Math.random() < 1 / 512;
 };
 
-export const getRandomSpawn = (pokedex: string): SPAWN => {
+export const getRandomSpawn = (pokedex: string): WildSpawn => {
   const pokemon = PokemonData[pokedex];
 
   if (pokemon && Array.isArray(pokemon.spawn) && pokemon.spawn.length > 0) {
@@ -118,7 +103,7 @@ export const getRandomSpawn = (pokedex: string): SPAWN => {
     return pokemon.spawn[randomIndex];
   }
 
-  return SPAWN.LAND;
+  return WildSpawn.LAND;
 };
 
 export const getWildSpawnTable = (spawns: string[], count: number) => {
@@ -192,8 +177,8 @@ export const getGroundItems = (count: number): GroundItem[] => {
   return ret;
 };
 
-export const getWildPokemons = (pokedexs: string[]): WildPokemon[] => {
-  const ret: WildPokemon[] = [];
+export const getWildPokemons = (pokedexs: string[]): Wild[] => {
+  const ret: Wild[] = [];
 
   for (const pokedex of pokedexs) {
     const pokemonData = getPokemonData(pokedex);
@@ -205,13 +190,15 @@ export const getWildPokemons = (pokedexs: string[]): WildPokemon[] => {
       pokedex: pokedex,
       gender: getRandomGender(),
       shiny: getShinyRandom(),
-      skills: PokemonSkill.NONE,
-      form: 0,
+      skills: [],
+      form: '',
       catch: false,
       eaten_berry: null,
       baseRate: baseRate,
+      type1: pokemonData.type1,
+      type2: pokemonData.type2,
       rank: rank,
-      spawns: getRandomSpawn(pokedex),
+      spawn: getRandomSpawn(pokedex),
     });
   }
 
@@ -234,18 +221,18 @@ export const getRandomReward = (rarity: Rarity) => {
   }
 };
 
-export const getRandomRewards = (rarity: Rarity) => {
-  const result: { item: string; stock: number; category: ItemType }[] = [];
-  const count = Math.floor(Math.random() * 4);
+// export const getRandomRewards = (rarity: Rarity) => {
+//   const result: { item: string; stock: number; category: ItemType }[] = [];
+//   const count = Math.floor(Math.random() * 4);
 
-  for (let i = 0; i < count; i++) {
-    const reward = getRandomReward(rarity);
+//   for (let i = 0; i < count; i++) {
+//     const reward = getRandomReward(rarity);
 
-    if (reward) result.push(reward);
-  }
+//     if (reward) result.push(reward);
+//   }
 
-  return result;
-};
+//   return result;
+// };
 
 export const getRandomCandyReward = (rarity: Rarity) => {
   const reward = getRewardCandyData(rarity);
@@ -262,48 +249,48 @@ export const readJson = (file: string) => {
   return JSON.parse(rawData);
 };
 
-export const matchTypeWithBerryRate = (berry: string | null, type1: Type, type2: Type | null) => {
+export const matchTypeWithBerryRate = (berry: string | null, type1: PokemonType, type2: PokemonType | null) => {
   if (!berry) return 1.0;
 
   const rate = getCatchItemData(berry).rate;
 
   switch (berry) {
     case '011':
-      if ([type1, type2].includes(Type.FIRE)) return rate;
+      if ([type1, type2].includes(PokemonType.FIRE)) return rate;
     case '012':
-      if ([type1, type2].includes(Type.WATER)) return rate;
+      if ([type1, type2].includes(PokemonType.WATER)) return rate;
     case '013':
-      if ([type1, type2].includes(Type.ELECTRIC)) return rate;
+      if ([type1, type2].includes(PokemonType.ELECTRIC)) return rate;
     case '014':
-      if ([type1, type2].includes(Type.GRASS)) return rate;
+      if ([type1, type2].includes(PokemonType.GRASS)) return rate;
     case '015':
-      if ([type1, type2].includes(Type.ICE)) return rate;
+      if ([type1, type2].includes(PokemonType.ICE)) return rate;
     case '016':
-      if ([type1, type2].includes(Type.FIGHT)) return rate;
+      if ([type1, type2].includes(PokemonType.FIGHT)) return rate;
     case '017':
-      if ([type1, type2].includes(Type.POISON)) return rate;
+      if ([type1, type2].includes(PokemonType.POISON)) return rate;
     case '018':
-      if ([type1, type2].includes(Type.GROUND)) return rate;
+      if ([type1, type2].includes(PokemonType.GROUND)) return rate;
     case '019':
-      if ([type1, type2].includes(Type.FLYING)) return rate;
+      if ([type1, type2].includes(PokemonType.FLYING)) return rate;
     case '020':
-      if ([type1, type2].includes(Type.PSYCHIC)) return rate;
+      if ([type1, type2].includes(PokemonType.PSYCHIC)) return rate;
     case '021':
-      if ([type1, type2].includes(Type.BUG)) return rate;
+      if ([type1, type2].includes(PokemonType.BUG)) return rate;
     case '022':
-      if ([type1, type2].includes(Type.ROCK)) return rate;
+      if ([type1, type2].includes(PokemonType.ROCK)) return rate;
     case '023':
-      if ([type1, type2].includes(Type.GHOST)) return rate;
+      if ([type1, type2].includes(PokemonType.GHOST)) return rate;
     case '024':
-      if ([type1, type2].includes(Type.DRAGON)) return rate;
+      if ([type1, type2].includes(PokemonType.DRAGON)) return rate;
     case '025':
-      if ([type1, type2].includes(Type.DARK)) return rate;
+      if ([type1, type2].includes(PokemonType.DARK)) return rate;
     case '026':
-      if ([type1, type2].includes(Type.STEEL)) return rate;
+      if ([type1, type2].includes(PokemonType.STEEL)) return rate;
     case '027':
-      if ([type1, type2].includes(Type.FAIRY)) return rate;
+      if ([type1, type2].includes(PokemonType.FAIRY)) return rate;
     case '028':
-      if ([type1, type2].includes(Type.NORMAL)) return rate;
+      if ([type1, type2].includes(PokemonType.NORMAL)) return rate;
     case '029':
       return rate;
     default:

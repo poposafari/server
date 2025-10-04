@@ -3,7 +3,7 @@ import { verifyAccessToken } from '../utils/jwt';
 import { InvalidAccessTokenHttpError, NotFoundAccessToken, NotFoundAccountHttpError, NotFoundToken } from '../utils/http-error';
 import { Repo } from '../utils/repo';
 
-export const Authenticate = async (req: Request, res: Response, next: NextFunction) => {
+export const AuthenticateForAccountRestore = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers['authorization'];
     const accessToken = authHeader && authHeader.split(' ')[1];
@@ -15,7 +15,7 @@ export const Authenticate = async (req: Request, res: Response, next: NextFuncti
     }
 
     const payload = verifyAccessToken(accessToken) as { id: number };
-    const account = await Repo.account.findOneBy({ id: payload.id, isDelete: false });
+    const account = await Repo.account.findOneBy({ id: payload.id });
 
     if (!account) {
       return next(new NotFoundAccountHttpError());

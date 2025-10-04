@@ -1,6 +1,6 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
-import * as dotenv from "dotenv";
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -9,13 +9,13 @@ const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 
 export const createAccessToken = (payload: object): string => {
   return jwt.sign(payload, ACCESS_TOKEN_SECRET!, {
-    expiresIn: "15m",
+    expiresIn: '15m',
   });
 };
 
 export const createRefreshToken = (payload: object): string => {
   return jwt.sign(payload, REFRESH_TOKEN_SECRET!, {
-    expiresIn: "7d",
+    expiresIn: '7d',
   });
 };
 
