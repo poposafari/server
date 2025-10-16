@@ -4,15 +4,9 @@ import * as fs from 'fs';
 import { redis } from '../data-source';
 import { getCatchItemData, getItemData, getPokemonData, getRewardCandyData, getRewardData, ItemData, PokemonData, SpawnableItemTable } from '../shared/data';
 import { createAccessToken, createRefreshToken } from './jwt';
-import {
-  GameLogicRes,
-  GroundItem,
-  SpawnableItem,
-  Wild,
-  // WildPokemon,
-} from '../shared/types';
+import { BaseGroundItemList, GameLogicRes, GroundItem, SpawnableItem, Wild } from '../shared/types';
 import { MAX_BOX_SIZE, MAX_PER_BOX } from '../shared/constants';
-import { PlayerGender, PokemonGender, PokemonSkill, PokemonType, Rarity, WildSpawn } from '../shared/enums';
+import { ItemCategory, PlayerGender, PokemonGender, PokemonSkill, PokemonType, Rarity, WildSpawn } from '../shared/enums';
 
 export const gameSuccess = <T>(data: T): GameLogicRes<T> => ({
   result: true,
@@ -46,22 +40,6 @@ export const getGenderEnum = (value: string): PlayerGender => {
   if (!found) throw new Error('Invalid gender value');
   return found as PlayerGender;
 };
-
-// export const getSpawnEnum = (value: string): SPAWN => {
-//   const found = Object.values(SPAWN).find((v) => v === value);
-//   if (!found) throw new Error('Invalid SPAWN');
-//   return found as SPAWN;
-// };
-
-// export const setDefaultBoxes = (): Backgrounds[] => {
-//   let ret: Backgrounds[] = [];
-
-//   for (let i = 0; i < MAX_BOX_SIZE; i++) {
-//     ret.push(Backgrounds.ZERO);
-//   }
-
-//   return ret;
-// };
 
 export const setDefaultBoxesCnt = (): number[] => {
   let ret: number[] = [];
@@ -139,39 +117,62 @@ export const getWildSpawnTable = (spawns: string[], count: number) => {
   return ret;
 };
 
-export const getSpawnableItemTable = (): SpawnableItem[] => {
-  const result: SpawnableItem[] = [];
+export const getGroundItemSpawnTable = (spawns: string[], count: number): string[] => {
+  const ret: string[] = [];
+  const target: { item: string; rate: number }[] = [];
+  const expandedSpawns: string[] = [];
 
-  for (const key in ItemData) {
-    const item = ItemData[key];
-    if (item.spawnable) {
-      result.push({
-        item: key,
-        rate: item.rate,
-        maxground: item.maxground,
-      });
+  for (const spawn of spawns) {
+    if (spawn === 'base') {
+      expandedSpawns.push(...BaseGroundItemList);
+    } else {
+      expandedSpawns.push(spawn);
     }
   }
 
-  return result;
-};
+  for (const itemCode of expandedSpawns) {
+    const item = ItemData[itemCode];
+    if (item) {
+      const rate = item.rate ?? 0;
+      if (rate > 0) {
+        target.push({ item: itemCode, rate });
+      }
+    }
+  }
 
-export const getGroundItems = (count: number): GroundItem[] => {
-  const ret: GroundItem[] = [];
-  const totalRate = SpawnableItemTable.reduce((sum, item) => sum + item.rate, 0);
+  const total = target.reduce((sum, item) => sum + item.rate, 0);
+  if (total <= 0) return [];
 
   for (let i = 0; i < count; i++) {
-    const rand = Math.floor(Math.random() * totalRate);
+    const random = Math.random() * total;
     let acc = 0;
 
-    for (const item of SpawnableItemTable) {
+    for (const item of target) {
       acc += item.rate;
-      if (rand <= acc) {
-        const stock = Math.floor(Math.random() * item.maxground) + 1;
-        ret.push({ idx: -1, item: item.item, stock, catch: false });
+      if (random < acc) {
+        ret.push(item.item);
         break;
       }
     }
+  }
+
+  return ret;
+};
+
+export const getGroundItemsFromCodes = (itemCodes: string[]): GroundItem[] => {
+  const ret: GroundItem[] = [];
+
+  for (const itemCode of itemCodes) {
+    const itemData = getItemData(itemCode);
+    const stock = Math.floor(Math.random() * itemData.maxground) + 1;
+
+    ret.push({
+      idx: -1,
+      item: itemCode,
+      stock,
+      catch: false,
+      rank: itemData.rank,
+    });
   }
 
   return ret;
@@ -221,18 +222,54 @@ export const getRandomReward = (rarity: Rarity) => {
   }
 };
 
-// export const getRandomRewards = (rarity: Rarity) => {
-//   const result: { item: string; stock: number; category: ItemType }[] = [];
-//   const count = Math.floor(Math.random() * 4);
+export const getRandomRewards = (rarity: Rarity) => {
+  const result: { item: string; stock: number; category: ItemCategory }[] = [];
 
-//   for (let i = 0; i < count; i++) {
-//     const reward = getRandomReward(rarity);
+  let minCount = 0;
+  let maxCount = 1;
 
-//     if (reward) result.push(reward);
-//   }
+  switch (rarity) {
+    case Rarity.COMMON:
+      minCount = 0;
+      maxCount = 1;
+      break;
+    case Rarity.RARE:
+      minCount = 1;
+      maxCount = 2;
+      break;
+    case Rarity.EPIC:
+      minCount = 2;
+      maxCount = 3;
+      break;
+    case Rarity.LEGENDARY:
+      minCount = 3;
+      maxCount = 5;
+      break;
+  }
 
-//   return result;
-// };
+  const count = minCount + Math.floor(Math.random() * (maxCount - minCount + 1));
+
+  const itemMap = new Map<string, { stock: number; category: ItemCategory }>();
+
+  for (let i = 0; i < count; i++) {
+    const reward = getRandomReward(rarity);
+
+    if (reward) {
+      const existing = itemMap.get(reward.item);
+      if (existing) {
+        existing.stock += reward.stock;
+      } else {
+        itemMap.set(reward.item, { stock: reward.stock, category: reward.category });
+      }
+    }
+  }
+
+  itemMap.forEach((value, item) => {
+    result.push({ item, stock: value.stock, category: value.category });
+  });
+
+  return result;
+};
 
 export const getRandomCandyReward = (rarity: Rarity) => {
   const reward = getRewardCandyData(rarity);
@@ -257,45 +294,64 @@ export const matchTypeWithBerryRate = (berry: string | null, type1: PokemonType,
   switch (berry) {
     case '011':
       if ([type1, type2].includes(PokemonType.FIRE)) return rate;
+      break;
     case '012':
       if ([type1, type2].includes(PokemonType.WATER)) return rate;
+      break;
     case '013':
       if ([type1, type2].includes(PokemonType.ELECTRIC)) return rate;
+      break;
     case '014':
       if ([type1, type2].includes(PokemonType.GRASS)) return rate;
+      break;
     case '015':
       if ([type1, type2].includes(PokemonType.ICE)) return rate;
+      break;
     case '016':
       if ([type1, type2].includes(PokemonType.FIGHT)) return rate;
+      break;
     case '017':
       if ([type1, type2].includes(PokemonType.POISON)) return rate;
+      break;
     case '018':
       if ([type1, type2].includes(PokemonType.GROUND)) return rate;
+      break;
     case '019':
       if ([type1, type2].includes(PokemonType.FLYING)) return rate;
+      break;
     case '020':
       if ([type1, type2].includes(PokemonType.PSYCHIC)) return rate;
+      break;
     case '021':
       if ([type1, type2].includes(PokemonType.BUG)) return rate;
+      break;
     case '022':
       if ([type1, type2].includes(PokemonType.ROCK)) return rate;
+      break;
     case '023':
       if ([type1, type2].includes(PokemonType.GHOST)) return rate;
+      break;
     case '024':
       if ([type1, type2].includes(PokemonType.DRAGON)) return rate;
+      break;
     case '025':
       if ([type1, type2].includes(PokemonType.DARK)) return rate;
+      break;
     case '026':
       if ([type1, type2].includes(PokemonType.STEEL)) return rate;
+      break;
     case '027':
       if ([type1, type2].includes(PokemonType.FAIRY)) return rate;
+      break;
     case '028':
       if ([type1, type2].includes(PokemonType.NORMAL)) return rate;
+      break;
     case '029':
       return rate;
-    default:
-      return 1.0;
+      break;
   }
+
+  return 1.0;
 };
 
 export const matchPokemonWithRarityRate = (rank: Rarity) => {

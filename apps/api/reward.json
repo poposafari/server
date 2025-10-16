@@ -1,24 +1,43 @@
 {
   "common": [
-    { "item": "002", "rate": 10, "min": 1, "max": 2 },
-    { "item": "011", "rate": 5, "min": 1, "max": 2 }
+    { "item": "002", "rate": 50, "min": 1, "max": 3 },
+    { "item": "011", "rate": 20, "min": 1, "max": 2 },
+    { "item": "012", "rate": 20, "min": 1, "max": 2 },
+    { "item": "013", "rate": 10, "min": 1, "max": 1 }
   ],
   "rare": [
-    { "item": "002", "rate": 10, "min": 1, "max": 2 },
-    { "item": "003", "rate": 10, "min": 1, "max": 2 },
-    { "item": "004", "rate": 10, "min": 1, "max": 2 },
-    { "item": "011", "rate": 10, "min": 1, "max": 2 }
+    { "item": "002", "rate": 30, "min": 2, "max": 4 },
+    { "item": "003", "rate": 40, "min": 1, "max": 3 },
+    { "item": "011", "rate": 15, "min": 1, "max": 3 },
+    { "item": "012", "rate": 15, "min": 1, "max": 3 },
+    { "item": "013", "rate": 15, "min": 1, "max": 3 },
+    { "item": "014", "rate": 15, "min": 1, "max": 3 },
+    { "item": "015", "rate": 10, "min": 1, "max": 2 }
   ],
   "epic": [
-    { "item": "002", "rate": 10, "min": 1, "max": 2 },
-    { "item": "003", "rate": 10, "min": 1, "max": 2 },
-    { "item": "004", "rate": 10, "min": 1, "max": 2 },
-    { "item": "011", "rate": 10, "min": 1, "max": 2 }
+    { "item": "002", "rate": 20, "min": 3, "max": 5 },
+    { "item": "003", "rate": 30, "min": 2, "max": 4 },
+    { "item": "004", "rate": 40, "min": 1, "max": 3 },
+    { "item": "011", "rate": 20, "min": 2, "max": 4 },
+    { "item": "012", "rate": 20, "min": 2, "max": 4 },
+    { "item": "013", "rate": 20, "min": 2, "max": 4 },
+    { "item": "014", "rate": 20, "min": 2, "max": 4 },
+    { "item": "015", "rate": 15, "min": 2, "max": 3 },
+    { "item": "016", "rate": 15, "min": 2, "max": 3 }
   ],
   "legendary": [
-    { "item": "002", "rate": 10, "min": 1, "max": 2 },
-    { "item": "003", "rate": 10, "min": 1, "max": 2 },
-    { "item": "004", "rate": 10, "min": 1, "max": 2 },
-    { "item": "011", "rate": 10, "min": 1, "max": 2 }
+    { "item": "003", "rate": 25, "min": 3, "max": 6 },
+    { "item": "004", "rate": 50, "min": 2, "max": 5 },
+    { "item": "001", "rate": 5, "min": 1, "max": 1 },
+    { "item": "011", "rate": 20, "min": 3, "max": 5 },
+    { "item": "012", "rate": 20, "min": 3, "max": 5 },
+    { "item": "013", "rate": 20, "min": 3, "max": 5 },
+    { "item": "014", "rate": 20, "min": 3, "max": 5 },
+    { "item": "015", "rate": 20, "min": 3, "max": 5 },
+    { "item": "016", "rate": 20, "min": 3, "max": 5 },
+    { "item": "017", "rate": 20, "min": 3, "max": 5 },
+    { "item": "018", "rate": 20, "min": 3, "max": 5 },
+    { "item": "019", "rate": 20, "min": 3, "max": 5 },
+    { "item": "020", "rate": 20, "min": 3, "max": 5 }
   ]
 }

@@ -59,3 +59,14 @@ export interface EvolvePcReq {
 export interface EnterSafariZoneReq {
   overworld: string;
 }
+
+export interface CatchWildReq {
+  idx: number;
+  ball: string;
+  berry: string | null;
+  parties: number[];
+}
+
+export interface CatchGroundItemReq {
+  idx: number;
+}

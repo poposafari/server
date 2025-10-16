@@ -2,7 +2,7 @@ import app from './app';
 import * as dotenv from 'dotenv';
 import 'reflect-metadata';
 import { AppDataSource, redis } from './src/data-source';
-import { getSpawnableItemTable, readJson } from './src/utils/methods';
+import { readJson } from './src/utils/methods';
 import { CatchData, ItemData, OverworldData, PokemonData, RewardCandyData, RewardData, SpawnableItemTable } from './src/shared/data';
 import { Rarity } from './src/shared/enums';
 
@@ -26,9 +26,6 @@ async function boot() {
 
     await loadPokemon();
     console.log('Pokemon data loaded');
-
-    await loadSpawnableItem();
-    console.log('Spawnable Item data loaded');
 
     await loadCatchInfo();
     console.log('Catch Info data loaded');
@@ -55,15 +52,6 @@ async function loadItem(): Promise<void> {
   Object.assign(ItemData, data);
 
   console.log('Item data loaded into memory.');
-}
-
-function loadSpawnableItem(): void {
-  const data = getSpawnableItemTable();
-
-  SpawnableItemTable.length = 0;
-  SpawnableItemTable.push(...data);
-
-  console.log('Spawnable Item data loaded into memory.');
 }
 
 async function loadOverworld(): Promise<void> {

@@ -22,16 +22,44 @@ import {
 import { Ingame } from './entities/Ingame';
 import { AppDataSource, redis } from './data-source';
 import { Bag } from './entities/Bag';
-import { getItemData, getOverworldData, getPokemonData } from './shared/data';
-import { createTokens, gameSuccess, getGenderEnum, getGroundItems, getNextPcBoxNum, getWildPokemons, getWildSpawnTable } from './utils/methods';
+import { getCatchItemData, getItemData, getOverworldData, getPokemonData } from './shared/data';
+import {
+  createTokens,
+  gameSuccess,
+  getGenderEnum,
+  getGroundItemsFromCodes,
+  getGroundItemSpawnTable,
+  getNextPcBoxNum,
+  getRandomCandyReward,
+  getRandomReward,
+  getRandomRewards,
+  getWildPokemons,
+  getWildSpawnTable,
+  matchPokemonWithRarityRate,
+  matchTypeWithBerryRate,
+} from './utils/methods';
 import { Account } from './entities/Account';
 import { AccountLocal } from './entities/AccountLocal';
 import { verifyRefreshToken } from './utils/jwt';
 import { PC } from './entities/PC';
 import { IngameOption } from './entities/IngameOption';
-import { AddItemReq, AddPcReq, BuyItemReq, EnterSafariZoneReq, EvolvePcReq, GetPcReq, LoginLocalReq, MovePcReq, RegisterIngameReq, RegisterLocalReq, UseItemReq } from './shared/interfaces';
+import {
+  AddItemReq,
+  AddPcReq,
+  BuyItemReq,
+  CatchGroundItemReq,
+  CatchWildReq,
+  EnterSafariZoneReq,
+  EvolvePcReq,
+  GetPcReq,
+  LoginLocalReq,
+  MovePcReq,
+  RegisterIngameReq,
+  RegisterLocalReq,
+  UseItemReq,
+} from './shared/interfaces';
 import { EVOLVE_BONUS_CNT, MAX_BUY, MAX_GROUNDITEM, MAX_PER_BOX, MAX_STOCK, SaltOrRounds } from './shared/constants';
-import { OverworldType, PokemonSkill } from './shared/enums';
+import { OverworldType, PokemonSkill, Rarity } from './shared/enums';
 import { LastWild } from './entities/LastWild';
 import { LastGroundItem } from './entities/LastGroundItem';
 import { GroundItem, Wild } from './shared/types';
@@ -252,6 +280,7 @@ export const getIngameItems = async (account: Account, manager?: EntityManager):
   const bag = await bagRepo.find({ where: { account: { id: account.id } } });
   const ret = bag
     .map((item) => ({
+      idx: item.idx,
       item: item.item,
       category: item.category,
       stock: item.stock,
@@ -562,20 +591,25 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
         } as Wild;
       });
 
-      result.groundItems = existGroundItems.map(
-        (item) =>
-          ({
-            idx: item.idx,
-            item: item.item,
-            stock: item.stock,
-            catch: item.capture,
-          } as GroundItem),
-      );
+      result.groundItems = existGroundItems.map((item) => {
+        const itemData = getItemData(item.item);
+        const rank = itemData.rank;
+
+        return {
+          idx: item.idx,
+          item: item.item,
+          stock: item.stock,
+          catch: item.capture,
+          rank: rank,
+        } as GroundItem;
+      });
+
       return;
     }
 
-    const pokedexs = getWildSpawnTable(overworldData.spawn, overworldData.spawnCount);
-    const groundItems = getGroundItems(Math.floor(Math.random() * MAX_GROUNDITEM));
+    const pokedexs = getWildSpawnTable(overworldData.wild.spawn, overworldData.wild.count);
+    const itemCodes = getGroundItemSpawnTable(overworldData.groundItem.spawn, overworldData.groundItem.count);
+    const groundItems = getGroundItemsFromCodes(itemCodes);
     const newWilds = getWildPokemons(pokedexs);
 
     const wildEntities = newWilds.map((pokemon) =>
@@ -636,698 +670,174 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
       } as Wild;
     });
 
-    result.groundItems = retGroundItems.map(
-      (item) =>
-        ({
-          idx: item.idx,
-          item: item.item,
-          stock: item.stock,
-          catch: item.capture,
-        } as GroundItem),
-    );
+    result.groundItems = retGroundItems.map((item) => {
+      const itemData = getItemData(item.item);
+      const rank = itemData.rank;
+
+      return {
+        idx: item.idx,
+        item: item.item,
+        stock: item.stock,
+        catch: item.capture,
+        rank: rank,
+      } as GroundItem;
+    });
   });
 
   return gameSuccess(result);
 };
 
-// export const updateItemSlot = async (ingame: Ingame, itemSlot: SlotReq) => {
-//   const ingameRepo = Repo.ingame;
-
-//   await ingameRepo.update(ingame.account_id, {
-//     itemslot: itemSlot.data,
-//   });
-
-//   return gameSuccess(null);
-// };
-
-// export const updateParty = async (ingame: Ingame, party: PartyReq) => {
-//   const ingameRepo = Repo.ingame;
-
-//   await ingameRepo.update(ingame.account_id, {
-//     party: party.data,
-//   });
-
-//   return gameSuccess(null);
-// };
-
-// export const updatePokeboxBg = async (ingame: Ingame, backgrounds: BoxBgReq) => {
-//   const ingameRepo = Repo.ingame;
-
-//   await ingameRepo.update(ingame.account_id, {
-//     boxes: backgrounds.data,
-//   });
-
-//   return gameSuccess(null);
-// };
-
-// export const getAvailableTicket = async (ingame: Ingame) => {
-//   return gameSuccess(ingame.available_ticket);
-// };
-
-// export const receiveAvailableTicket = async (ingame: Ingame) => {
-//   await AppDataSource.manager.transaction(async (manager) => {
-//     const ticket = ingame.available_ticket;
-
-//     await manager.update(Ingame, { account_id: ingame.account_id }, { available_ticket: 0 });
-//     await addItem(ingame, { item: '030', stock: ticket }, manager);
-//   });
-//   return gameSuccess(null);
-// };
-
-// export const addItem = async (ingame: Ingame, item: ItemReq, manager?: EntityManager): Promise<any> => {
-//   const bagRepo = manager ? manager.getRepository(Bag) : Repo.bag;
-//   const itemType = getItemData(item.item)?.type;
-
-//   if (!itemType) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-//   if (item.stock <= 0 || item.stock > MAX_STOCK) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-
-//   const exist = await bagRepo.findOne({
-//     where: { account_id: ingame.account_id, item: item.item },
-//   });
-
-//   if (exist) {
-//     exist.stock += item.stock;
-
-//     if (exist.stock > MAX_STOCK) return gameFail(GameLogicErrorCode.MAX_STOCK);
-
-//     await bagRepo.save(exist);
-
-//     return gameSuccess(exist);
-//   } else {
-//     const newItem = bagRepo.create({
-//       account_id: ingame.account_id,
-//       item: item.item,
-//       category: itemType,
-//       stock: item.stock,
-//     });
-
-//     await bagRepo.save(newItem);
-
-//     return gameSuccess(newItem);
-//   }
-// };
-
-// export const buyItem = async (ingame: Ingame, item: ItemReq) => {
-//   let ret;
-//   await AppDataSource.manager.transaction(async (manager) => {
-//     const itemData = getItemData(item.item);
-
-//     if (!itemData) {
-//       ret = gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-//       return;
-//     }
-//     if (!itemData.purchasable) {
-//       ret = gameFail(GameLogicErrorCode.NOT_PURCHASABEE_ITEM);
-//       return;
-//     }
-//     if (item.stock <= 0 || item.stock > MAX_BUY) {
-//       ret = gameFail(GameLogicErrorCode.WRONG_REQUEST_STOCK);
-//       return;
-//     }
-
-//     const bag = await manager.findOne(Bag, { where: { account_id: ingame.account_id, item: item.item } });
-//     const cost = item.stock * itemData.price;
-//     let result: ItemReq;
-
-//     if (cost > ingame.money) {
-//       ret = gameFail(GameLogicErrorCode.NOT_ENOUGH_CANDY);
-//       return;
-//     }
-
-//     ingame.money -= cost;
-
-//     if (bag) {
-//       const newStock = bag.stock + item.stock;
-//       if (newStock > MAX_STOCK) {
-//         ret = gameFail(GameLogicErrorCode.MAX_STOCK);
-//         return;
-//       }
-
-//       bag.stock = newStock;
-//       await manager.save(bag);
-//       result = bag;
-//     } else {
-//       result = await addItem(ingame, item, manager);
-//     }
-//     await manager.save(ingame);
-
-//     ret = gameSuccess({
-//       candy: ingame.money,
-//       item: result.item,
-//       category: itemData.type,
-//       stock: result.stock,
-//     });
-//   });
-
-//   return ret;
-// };
-
-// export const useItem = async (ingame: Ingame, item: ItemReq, manager?: EntityManager): Promise<any> => {
-//   const bagRepo = manager ? manager.getRepository(Bag) : Repo.bag;
-//   const bag = await bagRepo.findOne({ where: { account_id: ingame.account_id, item: item.item } });
-
-//   if (!bag) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-//   if (bag.stock < item.stock) return gameFail(GameLogicErrorCode.NOT_ENOUGH_STOCK);
-//   if (item.stock <= 0) return gameFail(GameLogicErrorCode.WRONG_REQUEST_STOCK);
-//   if (bag.stock - item.stock <= 0) {
-//     return gameSuccess(await bagRepo.delete(bag));
-//   }
-
-//   bag.stock -= item.stock;
-
-//   await bagRepo.save(bag);
-
-//   return gameSuccess(bag);
-// };
-
-// export const getItemByCategory = async (ingame: Ingame, item: ItemCategoryReq): Promise<any> => {
-//   const bagRepo = Repo.bag;
-//   const bag = await bagRepo.find({
-//     where: { account_id: ingame.account_id, category: item.category },
-//   });
-//   const ret = bag
-//     .map((item) => ({
-//       item: item.item,
-//       stock: item.stock,
-//     }))
-//     .sort((a, b) => a.item.localeCompare(b.item));
-
-//   return gameSuccess(ret);
-// };
-
-// export const addPokemon = async (ingame: Ingame, pokemon: MyPokemonReq, manager?: EntityManager) => {
-//   const pokeboxRepo = manager ? manager.getRepository(Pokebox) : Repo.pokebox;
-//   const pokebox = await pokeboxRepo.findOneBy({
-//     account_id: ingame.account_id,
-//     pokedex: pokemon.pokedex,
-//     gender: pokemon.gender,
-//   });
-
-//   if (pokebox) {
-//     // console.log('1. pokemon.skill : ', pokemon.skill);
-//     // console.log('2. pokemon.skill !== PokemonSkill.NONE : ', pokemon.skill !== PokemonSkill.NONE);
-
-//     const currentSkills = pokebox.skill || [];
-//     const hasSkill = pokemon.skill !== PokemonSkill.NONE && !currentSkills.includes(pokemon.skill);
-//     const newSkill = hasSkill ? [...currentSkills, pokemon.skill] : currentSkills;
-
-//     // console.log('3. newSkill : ', newSkill);
-
-//     await pokeboxRepo.update(
-//       { account_id: ingame.account_id, pokedex: pokemon.pokedex, gender: pokemon.gender },
-//       {
-//         shiny: pokebox.shiny ? true : pokemon.shiny,
-//         form: pokemon.form,
-//         count: pokebox.count + 1,
-//         skill: newSkill,
-//         capture_location: pokemon.location,
-//         capture_ball: pokemon.capture_ball,
-//       },
-//     );
-//   } else {
-//     const nextPokebox = getNextPokeboxIndex(ingame.boxes_cnt);
-
-//     console.log(nextPokebox);
-
-//     await AppDataSource.manager.transaction(async (manager) => {
-//       const newPokemon = pokeboxRepo.create({
-//         account_id: ingame.account_id,
-//         pokedex: pokemon.pokedex,
-//         gender: pokemon.gender,
-//         shiny: pokemon.shiny,
-//         form: pokemon.form,
-//         skill: pokemon.skill === 'none' ? [] : [pokemon.skill],
-//         box: nextPokebox[0],
-//         capture_location: pokemon.location,
-//         capture_ball: pokemon.capture_ball,
-//       });
-
-//       await updatePokeboxCnt(ingame.account_id, nextPokebox[0], nextPokebox[1] + 1, manager);
-//       await pokeboxRepo.save(newPokemon);
-//     });
-//   }
-
-//   return gameSuccess(null);
-// };
-
-// export const updatePokeboxCnt = async (account_id: number, idx: number, value: number, manager?: EntityManager) => {
-//   const ingameRepo = manager ? manager.getRepository(Ingame) : Repo.ingame;
-
-//   await ingameRepo.query(`UPDATE db0.ingame SET boxes_cnt[$1] = $2 WHERE account_id = $3`, [idx + 1, value, account_id]);
-// };
-
-// export const getPokebox = async (ingame: Ingame, search: PokeboxSelectReq, manager?: EntityManager) => {
-//   const pokeboxRepo = manager ? manager.getRepository(Pokebox) : Repo.pokebox;
-//   const pokebox = await pokeboxRepo.find({
-//     where: {
-//       account_id: ingame.account_id,
-//       box: search.box,
-//     },
-//     order: {
-//       update_date: 'ASC',
-//     },
-//   });
-
-//   if (!pokebox) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-
-//   const ret = pokebox.map((data) => {
-//     const pokemonData = getPokemonData(data.pokedex);
-
-//     const rank = pokemonData.rank;
-//     const evol = pokemonData.nextEvol;
-
-//     return {
-//       idx: data.idx,
-//       pokedex: data.pokedex,
-//       gender: data.gender,
-//       shiny: data.shiny,
-//       form: data.form,
-//       count: data.count,
-//       skill: data.skill,
-//       captureDate: data.capture_date,
-//       captureBall: data.capture_ball,
-//       captureLocation: data.capture_location,
-//       nickname: data.nickname,
-//       rank: rank,
-//       evol: evol,
-//     };
-//   });
-
-//   return gameSuccess(ret);
-// };
-
-// export const movePokemon = async (ingame: Ingame, info: MovePokemonReq) => {
-//   let ret;
-
-//   await AppDataSource.manager.transaction(async (manager) => {
-//     const pokeboxRepo = Repo.pokebox;
-//     const pokemon = pokeboxRepo.findOneBy({
-//       account_id: ingame.account_id,
-//       pokedex: info.pokedex,
-//       gender: info.gender as PokemonGender,
-//     });
-
-//     if (!pokemon) {
-//       ret = gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-//       return;
-//     }
-//     if (ingame.boxes_cnt[info.to] >= MAX_PER_BOX) {
-//       ret = gameFail(GameLogicErrorCode.FULL_BOX);
-//       return;
-//     }
-
-//     await updatePokeboxCnt(ingame.account_id, info.from, ingame.boxes_cnt[info.from] - 1, manager);
-//     await updatePokeboxCnt(ingame.account_id, info.to, ingame.boxes_cnt[info.to] + 1, manager);
-//     await pokeboxRepo.update(
-//       { account_id: ingame.account_id, pokedex: info.pokedex, gender: info.gender },
-//       {
-//         box: info.to,
-//       },
-//     );
-
-//     ret = gameSuccess(await getPokebox(ingame, { box: info.from }, manager));
-//   });
-
-//   return ret;
-// };
-
-// export const useTicket = async (ingame: Ingame, data: UseTicketReq) => {
-//   const bagRepo = Repo.bag;
-//   const overworld = getOverworldData(data.overworld);
-//   const bag = await bagRepo.findOne({
-//     where: { account_id: ingame.account_id, item: '030' },
-//   });
-
-//   if (!bag) return gameFail(GameLogicErrorCode.NOT_ENOUGH_TICKET);
-
-//   const newStock = bag.stock - overworld.cost;
-
-//   if (newStock < 0) {
-//     return gameFail(GameLogicErrorCode.NOT_ENOUGH_TICKET);
-//   } else {
-//     bag.stock = newStock;
-//     await useItem(ingame, { item: '030', stock: overworld.cost });
-//   }
-
-//   return gameSuccess({
-//     item: '030',
-//     category: ItemType.ETC,
-//     stock: bag.stock,
-//   });
-// };
-
-// export const moveToOverworld = async (ingame: Ingame, data: MoveToOverworldReq, wrapResult: boolean = true) => {
-//   const overworld = getOverworldData(data.overworld);
-//   let posX = data.x ? data.x : ingame.x;
-//   let posY = data.y ? data.y : ingame.y;
-
-//   let result: { pokemons: WildPokemon[]; items: GroundItem[]; overworld: string; entryX: number; entryY: number } = {
-//     pokemons: [],
-//     items: [],
-//     overworld: data.overworld,
-//     entryX: posX,
-//     entryY: posY,
-//   };
-
-//   await AppDataSource.manager.transaction(async (manager) => {
-//     if (overworld.type === OverworldType.SAFARI) {
-//       const existWild = await manager.find(Wild, {
-//         where: { account_id: ingame.account_id, overworld: data.overworld },
-//       });
-
-//       if (existWild.length > 0) {
-//         const existGroundItems = await manager.find(Grounditem, {
-//           where: { account_id: ingame.account_id, overworld: data.overworld },
-//         });
-
-//         result.pokemons = existWild.map((pokemon) => {
-//           const pokemonData = getPokemonData(pokemon.pokedex);
-//           const baseRate = pokemonData.rate.capture;
-//           const rank = pokemonData.rank;
-
-//           return {
-//             idx: pokemon.idx,
-//             pokedex: pokemon.pokedex,
-//             gender: pokemon.gender,
-//             shiny: pokemon.shiny,
-//             skills: pokemon.skills,
-//             form: pokemon.form,
-//             catch: pokemon.catch,
-//             eaten_berry: pokemon.eaten_berry,
-//             baseRate: baseRate,
-//             rank: rank,
-//             spawns: getSpawnEnum(pokemon.spawns),
-//           };
-//         });
-
-//         result.items = existGroundItems.map((item) => ({
-//           idx: item.idx,
-//           item: item.item,
-//           stock: item.stock,
-//           catch: item.catch,
-//         }));
-
-//         await manager.update(Ingame, { account_id: ingame.account_id }, { location: data.overworld, x: posX, y: posY });
-//         return;
-//       }
-
-//       const pokedexs = getWildSpawnTable(overworld.spawn, overworld.spawnCount);
-//       const groundItems = getGroundItems(Math.floor(Math.random() * MAX_GROUNDITEM));
-//       const wildPokemons = getWildPokemons(pokedexs);
-
-//       result.pokemons = wildPokemons;
-//       result.items = groundItems;
-//       result.entryX = posX;
-//       result.entryY = posY;
-
-//       const wildEntities = wildPokemons.map((pokemon) =>
-//         manager.create(Wild, {
-//           account_id: ingame.account_id,
-//           overworld: data.overworld,
-//           pokedex: pokemon.pokedex,
-//           gender: pokemon.gender,
-//           shiny: pokemon.shiny,
-//           skills: pokemon.skills,
-//           form: pokemon.form,
-//           catch: false,
-//           spawns: pokemon.spawns.toString(),
-//         }),
-//       );
-//       await manager.save(wildEntities);
-
-//       const grounditemEntities = groundItems.map((item) =>
-//         manager.create(Grounditem, {
-//           account_id: ingame.account_id,
-//           overworld: data.overworld,
-//           item: item.item,
-//           stock: item.stock,
-//           catch: false,
-//         }),
-//       );
-//       await manager.save(grounditemEntities);
-
-//       const wilds = await manager.find(Wild, {
-//         where: { account_id: ingame.account_id, overworld: data.overworld },
-//       });
-
-//       result.pokemons = wilds.map((pokemon) => {
-//         const pokemonData = getPokemonData(pokemon.pokedex);
-//         const baseRate = pokemonData.rate.capture;
-//         const rank = pokemonData.rank;
-
-//         return {
-//           idx: pokemon.idx,
-//           pokedex: pokemon.pokedex,
-//           gender: pokemon.gender,
-//           shiny: pokemon.shiny,
-//           skills: pokemon.skills,
-//           form: pokemon.form,
-//           catch: pokemon.catch,
-//           eaten_berry: pokemon.eaten_berry,
-//           baseRate: baseRate,
-//           rank: rank,
-//           spawns: getSpawnEnum(pokemon.spawns),
-//         };
-//       });
-
-//       const grounditems = await manager.find(Grounditem, {
-//         where: { account_id: ingame.account_id, overworld: data.overworld },
-//       });
-//       result.items = grounditems.map((item) => ({
-//         idx: item.idx,
-//         item: item.item,
-//         stock: item.stock,
-//         catch: item.catch,
-//       }));
-//     } else {
-//       await manager.delete(Wild, { account_id: ingame.account_id });
-//       await manager.delete(Grounditem, { account_id: ingame.account_id });
-//     }
-
-//     await manager.update(Ingame, { account_id: ingame.account_id }, { location: data.overworld, x: posX, y: posY });
-//   });
-
-//   if (wrapResult) {
-//     return gameSuccess(result);
-//   }
-
-//   return result;
-// };
-
-// export const catchGroundItem = async (ingame: Ingame, data: CatchSafariObjectReq) => {
-//   const repo = Repo.GrounditemSpawns;
-//   const item = await repo.findOneBy({ idx: data.idx });
-//   let ret;
-
-//   if (!item) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-
-//   await AppDataSource.manager.transaction(async (manager) => {
-//     await manager.update(
-//       Grounditem,
-//       { account_id: ingame.account_id, idx: data.idx },
-//       {
-//         catch: true,
-//       },
-//     );
-
-//     ret = await addItem(ingame, { item: item.item, stock: item.stock }, manager);
-//   });
-
-//   return gameSuccess(ret);
-// };
-
-// export const catchWildPokemon = async (ingame: Ingame, data: CatchPokemonReq) => {
-//   const repo = Repo.WildSpawns;
-//   const pokeboxRepo = Repo.pokebox;
-//   const wild = await repo.findOneBy({ idx: data.idx });
-//   const pokemonData = getPokemonData(wild!.pokedex);
-
-//   let ret;
-
-//   if (!wild) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-
-//   await AppDataSource.manager.transaction(async (manager) => {
-//     const baseRate = pokemonData.rate.capture;
-//     const ballRate = getCatchItemData(data.ball).rate;
-//     const berryRate = matchTypeWithBerryRate(data.berry, pokemonData.type1, pokemonData.type2);
-//     const pokemonRank = getPokemonData(wild.pokedex).rank;
-
-//     let partyScoreSum = 0;
-
-//     for (const idx of data.parties) {
-//       const myPokemon = await pokeboxRepo.findOneBy({ idx: idx });
-
-//       if (!myPokemon) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-
-//       const shinyRate = myPokemon.shiny ? 2.0 : 1.0;
-//       const captureCntRate = myPokemon.count > 0 ? myPokemon.count * 0.01 : 0;
-//       const rarityRate = matchPokemonWithRarityRate(getPokemonData(myPokemon.pokedex).rank);
-
-//       const score = shinyRate * captureCntRate * rarityRate;
-//       partyScoreSum += score;
-//     }
-
-//     const partyRate = partyScoreSum;
-//     // const finalRate = Math.min(baseRate * ballRate * berryRate + partyRate, 0.95);
-//     const finalRate = Math.min(baseRate * ballRate * berryRate + partyRate, 1.0);
-
-//     console.log('finalRate: ' + finalRate);
-
-//     if (data.berry) await useItem(ingame, { item: data.berry, stock: 1 }, manager);
-//     await useItem(ingame, { item: data.ball, stock: 1 }, manager);
-
-//     let result = Math.random() <= finalRate;
-
-//     if (data.ball === '001') result = true;
-
-//     if (result) {
-//       //포획 성공
-//       await addPokemon(ingame, { pokedex: wild.pokedex, gender: wild.gender, shiny: wild.shiny, form: wild.form, skill: wild.skills, location: wild.overworld, capture_ball: data.ball }, manager);
-//       await manager.update(
-//         Wild,
-//         { idx: data.idx },
-//         {
-//           catch: true,
-//         },
-//       );
-
-//       const candy = getRandomCandyReward(pokemonRank);
-//       const rewards = getRandomRewards(pokemonRank);
-//       ingame.money += candy;
-
-//       for (const reward of rewards) {
-//         await addItem(ingame, { item: reward.item, stock: reward.stock }, manager);
-//       }
-
-//       await manager.save(ingame);
-
-//       ret = {
-//         catch: true,
-//         candy: candy,
-//         reward: rewards,
-//       };
-//     } else {
-//       //포획 실패
-//       const fleeResult = Math.random() <= pokemonData.rate.flee;
-
-//       if (data.berry) await manager.update(Wild, { idx: data.idx }, { eaten_berry: null });
-
-//       if (fleeResult) {
-//         await manager.update(Wild, { idx: data.idx }, { catch: true });
-//         ret = {
-//           catch: false,
-//           flee: true,
-//         };
-//       } else {
-//         ret = {
-//           catch: false,
-//           flee: false,
-//         };
-//       }
-//     }
-//   });
-
-//   return gameSuccess(ret);
-// };
-
-// export const feedBerry = async (ingame: Ingame, data: FeedBerryReq, manager?: EntityManager) => {
-//   let ret = null;
-//   await AppDataSource.manager.transaction(async (manager) => {
-//     const itemData = data.berry ? getItemData(data.berry) : null;
-//     if (itemData) {
-//       ret = await useItem(ingame, { item: data.berry!, stock: 1 }, manager);
-
-//       if (ret.success) await manager.update(Wild, { idx: data.idx }, { eaten_berry: data.berry });
-//       else return gameFail(ret);
-
-//       ret = ret.data;
-
-//       console.log(ret);
-//     }
-//   });
-
-//   return gameSuccess(ret);
-// };
-
-// export const evolvePokemon = async (ingame: Ingame, data: EvolveReq) => {
-//   let ret;
-
-//   await AppDataSource.manager.transaction(async (manager) => {
-//     const myPokemon = await manager.findOneBy(Pokebox, { account_id: ingame.account_id, idx: data.idx });
-//     if (!myPokemon) {
-//       ret = gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-//       return;
-//     }
-
-//     const pokemonData = getPokemonData(myPokemon.pokedex);
-//     if (!pokemonData) {
-//       ret = gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-//       return;
-//     }
-//     if (!pokemonData.nextEvol.next) {
-//       ret = gameFail(GameLogicErrorCode.NO_EVOL);
-//       return;
-//     }
-//     if (typeof pokemonData.nextEvol.cost === 'number' && ingame.money < pokemonData.nextEvol.cost) {
-//       ret = gameFail(GameLogicErrorCode.NOT_ENOUGH_CANDY);
-//       return;
-//     }
-
-//     if (typeof pokemonData.nextEvol.cost === 'number') {
-//       ingame.money -= pokemonData.nextEvol.cost;
-//       await manager.save(ingame);
-//     }
-
-//     const otherMyPokemon = await manager.findOneBy(Pokebox, { account_id: ingame.account_id, pokedex: pokemonData.nextEvol.next, gender: myPokemon.gender });
-//     if (otherMyPokemon) {
-//       const newOtherMyPokemonCount = myPokemon.count + otherMyPokemon.count;
-//       await manager.update(Pokebox, { idx: otherMyPokemon.idx }, { count: newOtherMyPokemonCount + 1, shiny: otherMyPokemon.shiny || myPokemon.shiny });
-
-//       await manager.delete(Pokebox, { idx: myPokemon.idx });
-//       await updatePokeboxCnt(ingame.account_id, data.box, ingame.boxes_cnt[data.box] - 1, manager);
-//     } else {
-//       await manager.update(Pokebox, { idx: data.idx }, { pokedex: pokemonData.nextEvol.next, count: myPokemon.count + 1 });
-//     }
-
-//     const boxInfo = await getPokebox(ingame, { box: data.box }, manager);
-
-//     if (boxInfo.result) ret = gameSuccess(boxInfo.data);
-//     else ret = gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-//   });
-
-//   return ret;
-// };
-
-// export const enterToOverworld = async (ingame: Ingame, data: WarpReq) => {
-//   const enterData = getEnterData(data.idx);
-//   if (!enterData) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-
-//   const result = await moveToOverworld(
-//     ingame,
-//     {
-//       overworld: enterData.overworld,
-//       x: enterData.x,
-//       y: enterData.y,
-//     },
-//     false,
-//   );
-
-//   return gameSuccess(result);
-// };
-
-// export const exitToOverworld = async (ingame: Ingame, data: WarpReq) => {
-//   const exitData = getExitData(data.idx);
-//   if (!exitData) return gameFail(GameLogicErrorCode.NOT_FOUND_DATA);
-
-//   const result = await moveToOverworld(
-//     ingame,
-//     {
-//       overworld: exitData.overworld,
-//       x: exitData.x,
-//       y: exitData.y,
-//     },
-//     false,
-//   );
-
-//   return gameSuccess(result);
-// };
+export const exitSafariZone = async (account: Account) => {
+  await AppDataSource.manager.transaction(async (manager) => {
+    await manager.delete(LastWild, { account: { id: account.id } });
+    await manager.delete(LastGroundItem, { account: { id: account.id } });
+  });
+
+  return gameSuccess(null);
+};
+
+export const catchGroundItem = async (account: Account, data: CatchGroundItemReq) => {
+  const groundItem = await Repo.lastGroundItem.findOne({ where: { account: { id: account.id }, idx: data.idx } });
+  if (!groundItem) throw new NotFoundIngameItem();
+  if (groundItem.capture) throw new Error('This item has already been captured or fled');
+
+  const groundItemData = getItemData(groundItem.item);
+  if (!groundItemData) throw new NotFoundIngameItem();
+
+  let ret = null;
+
+  await AppDataSource.manager.transaction(async (manager) => {
+    await manager.update(LastGroundItem, { idx: groundItem.idx }, { capture: true });
+    ret = await addIngameItem(account, { item: groundItem.item, stock: groundItem.stock }, manager);
+  });
+
+  return gameSuccess(ret);
+};
+
+export const catchWild = async (account: Account, data: CatchWildReq) => {
+  const wild = await Repo.lastWild.findOne({ where: { account: { id: account.id }, idx: data.idx } });
+  if (!wild) throw new NotFoundIngamePc();
+  if (wild.capture) throw new Error('This pokemon has already been captured or fled');
+
+  const wildData = getPokemonData(wild.pokedex);
+  if (!wildData) throw new NotFoundPokemonData();
+
+  const ballData = getCatchItemData(data.ball);
+  if (!ballData) throw new NotFoundIngameItem();
+
+  let ret;
+
+  await AppDataSource.manager.transaction(async (manager) => {
+    let partyBonus = 0;
+
+    for (const idx of data.parties) {
+      const party = await manager.findOne(PC, { where: { account: { id: account.id }, idx: idx } });
+      if (!party) throw new NotFoundIngamePc();
+
+      const partyData = getPokemonData(party.pokedex);
+
+      // - 이로치: +3% 보너스
+      // - 포획 횟수: count당 +0.5% (최대 25%)
+      // - RARE(+2%), EPIC(+4%), LEGENDARY(+6%)
+      const shinyBonus = party.shiny ? 0.03 : 0;
+      const countBonus = Math.min(party.count * 0.005, 0.25);
+
+      let rankBonus = 0;
+      switch (partyData.rank) {
+        case Rarity.RARE:
+          rankBonus = 0.02;
+          break;
+        case Rarity.EPIC:
+          rankBonus = 0.04;
+          break;
+        case Rarity.LEGENDARY:
+          rankBonus = 0.06;
+          break;
+        default:
+          rankBonus = 0;
+      }
+
+      partyBonus += shinyBonus + countBonus + rankBonus;
+    }
+
+    const berryRate = matchTypeWithBerryRate(data.berry, wildData.type1, wildData.type2);
+    const baseRate = wildData.rate.capture * ballData.rate * berryRate;
+    const finalRate = Math.min(baseRate + partyBonus, 1.0);
+
+    console.log('Capture calculation:', {
+      baseRate: wildData.rate.capture,
+      ballRate: ballData.rate,
+      berryRate,
+      partyBonus,
+      finalRate,
+    });
+
+    let captureSuccess = Math.random() <= finalRate;
+
+    if (data.ball === '001') captureSuccess = true;
+
+    await useItem(account, { item: data.ball, cost: 1 }, manager);
+
+    if (data.berry) {
+      await useItem(account, { item: data.berry, cost: 1 }, manager);
+    }
+
+    if (captureSuccess) {
+      await manager.update(LastWild, { idx: wild.idx }, { capture: true });
+      await addPcPokemon(
+        account,
+        {
+          pokedex: wild.pokedex,
+          gender: wild.gender,
+          shiny: wild.shiny,
+          form: wild.form || '',
+          skill: wild.skill && wild.skill.length > 0 ? wild.skill[0] : PokemonSkill.NONE,
+          location: wild.location,
+          capture_ball: data.ball,
+        },
+        manager,
+      );
+
+      const rewardCandy = getRandomCandyReward(wildData.rank);
+      const rewardItems = getRandomRewards(wildData.rank);
+      const ingameRepo = manager.getRepository(Ingame);
+      const ingame = await ingameRepo.findOne({ where: { account: { id: account.id } } });
+
+      if (ingame) {
+        await ingameRepo.update({ account: { id: account.id } }, { candy: ingame.candy + rewardCandy });
+      }
+
+      for (const rewardItem of rewardItems) {
+        await addIngameItem(account, { item: rewardItem.item, stock: rewardItem.stock }, manager);
+      }
+
+      ret = {
+        catch: true,
+        rewards: {
+          candy: rewardCandy,
+          items: rewardItems,
+        },
+      };
+    } else {
+      const fleeResult = Math.random() <= wildData.rate.flee;
+
+      if (fleeResult) {
+        await manager.update(LastWild, { idx: wild.idx }, { capture: true });
+
+        ret = {
+          catch: false,
+          flee: true,
+        };
+      } else {
+        ret = {
+          catch: false,
+          flee: false,
+        };
+      }
+    }
+  });
+
+  return gameSuccess(ret);
+};
+
+export const getStarterPokemon = async (account: Account) => {};

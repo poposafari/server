@@ -1,6 +1,33 @@
 import { ItemCategory, OverworldType, PokemonGender, PokemonSkill, PokemonType, Rarity, WildSpawn } from './enums';
 
 export type GameLogicRes<T = any> = { result: true; data: T };
+export type BaseGroundItem = ['001', '002', '003', '004', '011', '012', '013', '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024', '025', '026', '027', '028', '029'];
+
+export const BaseGroundItemList: string[] = [
+  '001',
+  '002',
+  '003',
+  '004',
+  '011',
+  '012',
+  '013',
+  '014',
+  '015',
+  '016',
+  '017',
+  '018',
+  '019',
+  '020',
+  '021',
+  '022',
+  '023',
+  '024',
+  '025',
+  '026',
+  '027',
+  '028',
+  '029',
+];
 
 export type Wild = {
   idx: number;
@@ -23,14 +50,21 @@ export type GroundItem = {
   item: string;
   stock: number;
   catch: boolean;
+  rank: string;
 };
 
 export type Overworld = {
   comment: string;
   type: OverworldType;
   cost: number;
-  spawnCount: number;
-  spawn: string[];
+  wild: {
+    count: number;
+    spawn: string[];
+  };
+  groundItem: {
+    count: number;
+    spawn: string[];
+  };
 };
 
 export type NextEvol = {
@@ -59,9 +93,9 @@ export type Item = {
   type: ItemCategory;
   price: number;
   purchasable: boolean;
-  spawnable: boolean;
   rate: number;
   maxground: number;
+  rank: Rarity;
 };
 
 export type SpawnableItem = {

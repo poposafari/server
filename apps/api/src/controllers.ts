@@ -8,11 +8,14 @@ import {
   addPcPokemon,
   autoLogin,
   buyItem,
+  catchGroundItem,
+  catchWild,
   checkRefreshToken,
   deleteAccount,
   deleteRestoreAccount,
   enterSafariZone,
   evolvePc,
+  exitSafariZone,
   getAvailableTicket,
   getIngame,
   getIngameItems,
@@ -163,6 +166,21 @@ class PcController {
 class SafariController {
   static async enterSafariZone(req: Request, res: Response): Promise<any> {
     const ret = await enterSafariZone(res.locals.account, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async exitSafariZone(req: Request, res: Response): Promise<any> {
+    const ret = await exitSafariZone(res.locals.account);
+    return res.status(200).json(ret);
+  }
+
+  static async catchWild(req: Request, res: Response): Promise<any> {
+    const ret = await catchWild(res.locals.account, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async catchGroundItem(req: Request, res: Response): Promise<any> {
+    const ret = await catchGroundItem(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 }
