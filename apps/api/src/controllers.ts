@@ -9,6 +9,7 @@ import {
   autoLogin,
   buyItem,
   catchGroundItem,
+  catchStarterPokemon,
   catchWild,
   checkRefreshToken,
   deleteAccount,
@@ -181,6 +182,11 @@ class SafariController {
 
   static async catchGroundItem(req: Request, res: Response): Promise<any> {
     const ret = await catchGroundItem(res.locals.account, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async catchStarterPokemon(req: Request, res: Response): Promise<any> {
+    const ret = await catchStarterPokemon(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 }

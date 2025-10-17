@@ -84,7 +84,7 @@ export const getRandomSpawn = (pokedex: string): WildSpawn => {
   return WildSpawn.LAND;
 };
 
-export const getWildSpawnTable = (spawns: string[], count: number) => {
+export const getRandomWildPokedex = (spawns: string[], count: number) => {
   const ret: string[] = [];
   const target: { pokedex: string; rate: number }[] = [];
 
@@ -117,7 +117,15 @@ export const getWildSpawnTable = (spawns: string[], count: number) => {
   return ret;
 };
 
-export const getGroundItemSpawnTable = (spawns: string[], count: number): string[] => {
+export const getWildSpawnTable = (safari: string, spawns: string[], count: number) => {
+  if (safari === 'st') {
+    return spawns;
+  } else {
+    return getRandomWildPokedex(spawns, count);
+  }
+};
+
+export const getRandomGroundItems = (spawns: string[], count: number) => {
   const ret: string[] = [];
   const target: { item: string; rate: number }[] = [];
   const expandedSpawns: string[] = [];
@@ -157,6 +165,14 @@ export const getGroundItemSpawnTable = (spawns: string[], count: number): string
   }
 
   return ret;
+};
+
+export const getGroundItemSpawnTable = (safari: string, spawns: string[], count: number): string[] => {
+  if (safari === 'st') {
+    return spawns;
+  } else {
+    return getRandomGroundItems(spawns, count);
+  }
 };
 
 export const getGroundItemsFromCodes = (itemCodes: string[]): GroundItem[] => {

@@ -48,6 +48,7 @@ import {
   AddPcReq,
   BuyItemReq,
   CatchGroundItemReq,
+  CatchStarterPokemonReq,
   CatchWildReq,
   EnterSafariZoneReq,
   EvolvePcReq,
@@ -607,8 +608,8 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
       return;
     }
 
-    const pokedexs = getWildSpawnTable(overworldData.wild.spawn, overworldData.wild.count);
-    const itemCodes = getGroundItemSpawnTable(overworldData.groundItem.spawn, overworldData.groundItem.count);
+    const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn, overworldData.wild.count);
+    const itemCodes = getGroundItemSpawnTable(data.overworld, overworldData.groundItem.spawn, overworldData.groundItem.count);
     const groundItems = getGroundItemsFromCodes(itemCodes);
     const newWilds = getWildPokemons(pokedexs);
 
@@ -687,11 +688,19 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
   return gameSuccess(result);
 };
 
-export const exitSafariZone = async (account: Account) => {
-  await AppDataSource.manager.transaction(async (manager) => {
-    await manager.delete(LastWild, { account: { id: account.id } });
-    await manager.delete(LastGroundItem, { account: { id: account.id } });
-  });
+export const exitSafariZone = async (account: Account, manager?: EntityManager) => {
+  const executeCleanup = async (entityManager: EntityManager) => {
+    await entityManager.delete(LastWild, { account: { id: account.id } });
+    await entityManager.delete(LastGroundItem, { account: { id: account.id } });
+  };
+
+  if (manager) {
+    // 이미 트랜잭션 내에서 호출된 경우
+    await executeCleanup(manager);
+  } else {
+    // 단독으로 호출된 경우는 트랜젹션을 새롭게 만들도록 한다.
+    await AppDataSource.manager.transaction(executeCleanup);
+  }
 
   return gameSuccess(null);
 };
@@ -840,4 +849,33 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
   return gameSuccess(ret);
 };
 
-export const getStarterPokemon = async (account: Account) => {};
+export const catchStarterPokemon = async (account: Account, data: CatchStarterPokemonReq) => {
+  const pokemon = await Repo.lastWild.findOne({ where: { account: { id: account.id }, idx: data.idx } });
+  if (!pokemon) throw new NotFoundIngamePc();
+  if (pokemon.capture) throw new Error('This pokemon has already been captured or fled');
+
+  const pokemonData = getPokemonData(pokemon.pokedex);
+  if (!pokemonData) throw new NotFoundPokemonData();
+
+  let ret = null;
+
+  await AppDataSource.manager.transaction(async (manager) => {
+    await addPcPokemon(
+      account,
+      {
+        pokedex: pokemon.pokedex,
+        gender: pokemon.gender,
+        shiny: pokemon.shiny,
+        form: pokemon.form || '',
+        skill: pokemon.skill && pokemon.skill.length > 0 ? pokemon.skill[0] : PokemonSkill.NONE,
+        location: pokemon.location,
+        capture_ball: '002',
+      },
+      manager,
+    );
+    await exitSafariZone(account, manager);
+    await manager.update(Ingame, { account: { id: account.id } }, { isStarter: false });
+  });
+
+  return gameSuccess(ret);
+};

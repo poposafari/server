@@ -70,3 +70,7 @@ export interface CatchWildReq {
 export interface CatchGroundItemReq {
   idx: number;
 }
+
+export interface CatchStarterPokemonReq {
+  idx: number;
+}

@@ -38,7 +38,8 @@ PcRouter.post('/evol', Authenticate, Controllers.PC.evolvePc);
 const SafariRouter = Router();
 SafariRouter.post('/enter', Authenticate, Controllers.Safari.enterSafariZone);
 SafariRouter.get('/exit', Authenticate, Controllers.Safari.exitSafariZone);
-SafariRouter.post('/wild/catch', Authenticate, Controllers.Safari.catchWild);
-SafariRouter.post('/grounditem/catch', Authenticate, Controllers.Safari.catchGroundItem);
+SafariRouter.post('/catch/wild', Authenticate, Controllers.Safari.catchWild);
+SafariRouter.post('/catch/grounditem', Authenticate, Controllers.Safari.catchGroundItem);
+SafariRouter.post('/catch/starter', Authenticate, Controllers.Safari.catchStarterPokemon);
 
 export default { AccountRouter, IngameRouter, BagRouter, PcRouter, SafariRouter };
