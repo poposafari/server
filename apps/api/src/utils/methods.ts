@@ -118,7 +118,7 @@ export const getRandomWildPokedex = (spawns: string[], count: number) => {
 };
 
 export const getWildSpawnTable = (safari: string, spawns: string[], count: number) => {
-  if (safari === 'st') {
+  if (safari === 'lab') {
     return spawns;
   } else {
     return getRandomWildPokedex(spawns, count);
@@ -168,7 +168,7 @@ export const getRandomGroundItems = (spawns: string[], count: number) => {
 };
 
 export const getGroundItemSpawnTable = (safari: string, spawns: string[], count: number): string[] => {
-  if (safari === 'st') {
+  if (safari === 'lab') {
     return spawns;
   } else {
     return getRandomGroundItems(spawns, count);

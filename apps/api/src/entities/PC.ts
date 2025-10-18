@@ -38,10 +38,10 @@ export class PC {
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt!: Date;
 
-  @Column({ type: 'varchar', length: 3, nullable: false, name: 'created_location' })
+  @Column({ type: 'varchar', length: 4, nullable: false, name: 'created_location' })
   createdLocation!: string;
 
-  @Column({ type: 'varchar', length: 3, nullable: true, name: 'updated_location' })
+  @Column({ type: 'varchar', length: 4, nullable: true, name: 'updated_location' })
   updatedLocation!: string;
 
   @Column({ type: 'varchar', length: 3, nullable: false, name: 'created_ball' })

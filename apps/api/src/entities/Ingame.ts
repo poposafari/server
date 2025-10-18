@@ -24,7 +24,7 @@ export class Ingame {
   @Column({ type: 'integer', default: 0 })
   y!: number;
 
-  @Column({ type: 'varchar', length: 3 })
+  @Column({ type: 'varchar', length: 4 })
   location!: string;
 
   @Column({ type: 'enum', enum: PlayerGender })

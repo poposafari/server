@@ -40,8 +40,8 @@ CREATE TABLE db.pc (
   skill pokemon_skill[],
   created_at TIMESTAMPTZ NOT NULL DEFAULT (now()),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT (now()),
-  created_location VARCHAR(3) NOT NULL,
-  updated_location VARCHAR(3) NULL,
+  created_location VARCHAR(4) NOT NULL,
+  updated_location VARCHAR(4) NULL,
   created_ball VARCHAR(3) NOT NULL,
   updated_ball VARCHAR(3) NULL,
   nickname VARCHAR(20) DEFAULT ''
@@ -60,7 +60,7 @@ CREATE TABLE db.ingame (
   nickname VARCHAR(20) UNIQUE NOT NULL,
   x INTEGER NOT NULL DEFAULT 0,
   y INTEGER NOT NULL DEFAULT 0,
-  location VARCHAR(3) NOT NULL,
+  location VARCHAR(4) NOT NULL,
   gender ingame_gender NOT NULL,
   avatar INTEGER NOT NULL CHECK(avatar >= 1 AND avatar <= 4),
   available_ticket INTEGER NOT NULL DEFAULT 4 CHECK (available_ticket >= 0 AND available_ticket <= 4),
@@ -88,7 +88,7 @@ CREATE TABLE db.ingame_option (
 CREATE TABLE db.last_wild (
   idx SERIAL PRIMARY KEY,
   account_id INTEGER NOT NULL REFERENCES db.account(id) ON DELETE CASCADE,
-  location VARCHAR(3) NOT NULL,
+  location VARCHAR(4) NOT NULL,
   pokedex VARCHAR(4) NOT NULL,
   gender pokemon_gender NOT NULL,
   shiny BOOLEAN NOT NULL,
@@ -102,7 +102,7 @@ CREATE TABLE db.last_wild (
 CREATE TABLE db.last_grounditem (
   idx SERIAL PRIMARY KEY,
   account_id INTEGER NOT NULL REFERENCES db.account(id) ON DELETE CASCADE,
-  location VARCHAR(3) NOT NULL,
+  location VARCHAR(4) NOT NULL,
   item VARCHAR(3) NOT NULL,
   stock INTEGER NOT NULL,
   capture BOOLEAN NOT NULL

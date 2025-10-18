@@ -59,7 +59,7 @@ import {
   RegisterLocalReq,
   UseItemReq,
 } from './shared/interfaces';
-import { EVOLVE_BONUS_CNT, MAX_BUY, MAX_GROUNDITEM, MAX_PER_BOX, MAX_STOCK, SaltOrRounds } from './shared/constants';
+import { EVOLVE_BONUS_CNT, MAX_BUY, MAX_GROUNDITEM, MAX_PER_BOX, MAX_STOCK, SaltOrRounds, START_LOCATION } from './shared/constants';
 import { OverworldType, PokemonSkill, Rarity } from './shared/enums';
 import { LastWild } from './entities/LastWild';
 import { LastGroundItem } from './entities/LastGroundItem';
@@ -221,7 +221,7 @@ export const registerIngame = async (data: RegisterIngameReq, account: Account) 
       nickname: data.nickname,
       x: 44,
       y: 53,
-      location: '001',
+      location: START_LOCATION,
       gender: getGenderEnum(data.gender),
       avatar: data.avatar,
       candy: 0,

@@ -1,6 +1,6 @@
 {
-  "000": {
-    "comment": "테스트(플라자)",
+  "p001": {
+    "comment": "포포시티",
     "type": "plaza",
     "cost": 0,
     "wild": {
@@ -12,15 +12,8 @@
       "spawn": []
     }
   },
-  "001": {
-    "comment": "메인 타운",
-    "type": "plaza",
-    "cost": 0,
-    "spawnCount": 0,
-    "spawn": []
-  },
-  "002": {
-    "comment": "우체국",
+  "p002": {
+    "comment": "호박사 연구소",
     "type": "plaza",
     "cost": 0,
     "wild": {
@@ -32,7 +25,7 @@
       "spawn": []
     }
   },
-  "003": {
+  "p003": {
     "comment": "프렌들리 숍",
     "type": "plaza",
     "cost": 0,
@@ -45,8 +38,242 @@
       "spawn": []
     }
   },
-  "021": {
-    "comment": "테스트(사파리)",
+  "p004": {
+    "comment": "우체국",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p005": {
+    "comment": "비행정",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p006": {
+    "comment": "자전거 가게",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p007": {
+    "comment": "플라자 007",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p008": {
+    "comment": "플라자 008",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p009": {
+    "comment": "플라자 009",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p010": {
+    "comment": "플라자 010",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p011": {
+    "comment": "플라자 011",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p012": {
+    "comment": "플라자 012",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p013": {
+    "comment": "플라자 013",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p014": {
+    "comment": "플라자 014",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p015": {
+    "comment": "플라자 015",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p016": {
+    "comment": "플라자 016",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p017": {
+    "comment": "플라자 017",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p018": {
+    "comment": "플라자 018",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p019": {
+    "comment": "플라자 019",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "p020": {
+    "comment": "플라자 020",
+    "type": "plaza",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "lab": {
+    "comment": "스타팅 포켓몬",
+    "type": "safari",
+    "cost": 1,
+    "wild": {
+      "count": 0,
+      "spawn": ["0001", "0004", "0007", "0025", "0133"]
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "s000": {
+    "comment": "사파리 테스트 존",
     "type": "safari",
     "cost": 0,
     "wild": {
@@ -58,13 +285,130 @@
       "spawn": ["base"]
     }
   },
-  "st": {
-    "comment": "스타팅 포켓몬",
+  "s001": {
+    "comment": "사파리 001",
     "type": "safari",
-    "cost": 1,
+    "cost": 0,
     "wild": {
       "count": 0,
-      "spawn": ["0001", "0004", "0007", "0025", "0133"]
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "s002": {
+    "comment": "사파리 002",
+    "type": "safari",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "s003": {
+    "comment": "사파리 003",
+    "type": "safari",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "s004": {
+    "comment": "사파리 004",
+    "type": "safari",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "s005": {
+    "comment": "사파리 005",
+    "type": "safari",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "s006": {
+    "comment": "사파리 006",
+    "type": "safari",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "s007": {
+    "comment": "사파리 007",
+    "type": "safari",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "s008": {
+    "comment": "사파리 008",
+    "type": "safari",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "s009": {
+    "comment": "사파리 009",
+    "type": "safari",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
+    },
+    "groundItem": {
+      "count": 0,
+      "spawn": []
+    }
+  },
+  "s010": {
+    "comment": "사파리 010",
+    "type": "safari",
+    "cost": 0,
+    "wild": {
+      "count": 0,
+      "spawn": []
     },
     "groundItem": {
       "count": 0,

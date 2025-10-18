@@ -11,7 +11,7 @@ export class LastWild {
   @JoinColumn({ name: 'account_id' })
   account!: Account;
 
-  @Column({ type: 'varchar', length: 3 })
+  @Column({ type: 'varchar', length: 4 })
   location!: string;
 
   @Column({ type: 'varchar', length: 4 })
