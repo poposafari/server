@@ -850,6 +850,10 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
 };
 
 export const catchStarterPokemon = async (account: Account, data: CatchStarterPokemonReq) => {
+  const ingame = await Repo.ingame.findOne({ where: { account: { id: account.id } } });
+  if (!ingame) throw new Error('User not found');
+  if (!ingame.isStarter) throw new Error('User is not in starter');
+
   const pokemon = await Repo.lastWild.findOne({ where: { account: { id: account.id }, idx: data.idx } });
   if (!pokemon) throw new NotFoundIngamePc();
   if (pokemon.capture) throw new Error('This pokemon has already been captured or fled');
@@ -874,6 +878,13 @@ export const catchStarterPokemon = async (account: Account, data: CatchStarterPo
       manager,
     );
     await exitSafariZone(account, manager);
+    await addIngameItem(account, { item: '002', stock: 30 }, manager);
+    await addIngameItem(account, { item: '003', stock: 10 }, manager);
+    await addIngameItem(account, { item: '004', stock: 5 }, manager);
+    await addIngameItem(account, { item: '011', stock: 3 }, manager);
+    await addIngameItem(account, { item: '012', stock: 3 }, manager);
+    await addIngameItem(account, { item: '014', stock: 3 }, manager);
+    await addIngameItem(account, { item: '029', stock: 3 }, manager);
     await manager.update(Ingame, { account: { id: account.id } }, { isStarter: false });
   });
 
