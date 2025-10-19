@@ -1,25 +1,12 @@
-import { registerEvent } from './app';
-import { pgClient, redis } from './db';
+import { pgClient } from './db';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { setAuth } from './auth';
-
-export interface EnterOrExit {
-  overworld: string;
-  x: number;
-  y: number;
-}
-
-export const EnterData: Record<string, EnterOrExit> = {};
-export const ExitData: Record<string, EnterOrExit> = {};
+import { registerEvent } from './app';
 
 async function boot() {
   try {
     await pgClient.connect();
     console.log('postgresql connected...');
-
-    // await redis.connect();
-    // console.log('redis connected');
 
     const httpServer = createServer();
 
@@ -31,7 +18,6 @@ async function boot() {
       path: '/socket',
     });
 
-    setAuth(io);
     registerEvent(io);
 
     httpServer.listen(3001, () => {
