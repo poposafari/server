@@ -20,7 +20,7 @@ import {
   NotPurchasableIngameItem,
 } from './utils/http-error';
 import { Ingame } from './entities/Ingame';
-import { AppDataSource, redis } from './data-source';
+import { AppDataSource } from './data-source';
 import { Bag } from './entities/Bag';
 import { getCatchItemData, getItemData, getOverworldData, getPokemonData } from './shared/data';
 import {
@@ -118,9 +118,9 @@ export const autoLogin = async () => {
 export const checkRefreshToken = async (refresh: string) => {
   const payload = verifyRefreshToken(refresh) as { id: number };
   const accountId = payload.id;
-  const redisRefresh = await redis.get(`refresh:${accountId}`);
+  // const redisRefresh = await redis.get(`refresh:${accountId}`);
 
-  if (refresh !== redisRefresh) throw new InvalidRefreshTokenHttpError();
+  // if (refresh !== redisRefresh) throw new InvalidRefreshTokenHttpError();
 
   const newAccessToken = createTokens(accountId, 'access');
   return newAccessToken;

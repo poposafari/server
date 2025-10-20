@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { createClient } from 'redis';
+// import { createClient } from 'redis';
 import { Account } from './entities/Account';
 import { Ingame } from './entities/Ingame';
 import { Bag } from './entities/Bag';
@@ -25,6 +25,6 @@ export const AppDataSource = new DataSource({
   logging: true,
 });
 
-export const redis = createClient({
-  url: 'redis://redis:6379',
-});
+// export const redis = createClient({
+//   url: 'redis://redis:6379',
+// });

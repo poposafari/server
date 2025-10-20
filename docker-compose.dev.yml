@@ -40,18 +40,18 @@ services:
     networks:
       - poposerver
 
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    restart: always
-    env_file:
-      - .env
-    ports:
-      - '6379:6379'
-    volumes:
-      - ./redis-data:/data
-    networks:
-      - poposerver
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: redis
+  #   restart: always
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - '6379:6379'
+  #   volumes:
+  #     - ./redis-data:/data
+  #   networks:
+  #     - poposerver
 
   api:
     container_name: api
@@ -64,7 +64,6 @@ services:
       - '${SERVICE_API_PORT}:${SERVICE_API_PORT}'
     depends_on:
       - db
-      - redis
     networks:
       - poposerver
 
@@ -88,7 +87,6 @@ services:
       context: .
       dockerfile: apps/socket/Dockerfile
     depends_on:
-      - redis
       - db
     ports:
       - '3001:3001'

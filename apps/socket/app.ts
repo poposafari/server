@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { parseCookieAndGetPayload, JwtPayload, parseAccessToken } from './auth';
+import { parseAccessToken } from './auth';
 
 type Player = {
   location: string | null;
@@ -7,6 +7,7 @@ type Player = {
   y: number | null;
   nickname: string | null;
   avatar: number | null;
+  facing: 'up' | 'down' | 'left' | 'right';
   pet: Pet | null;
   gender: 'boy' | 'girl' | null;
   option: PlayerOption;
@@ -27,20 +28,7 @@ type PcData = {
 
 type Pet = {
   idx: number;
-  pokedex: string;
-  gender: string;
-  shiny: boolean;
-  form: string;
-  count: number;
-  skill: string[];
-  nickname: string;
-  createdLocation: string;
-  createdAt: Date;
-  createdBall: string;
-  rank: number;
-  evol: string;
-  type_1: string;
-  type_2: string;
+  texture: string | null;
 };
 
 type MoveLocation = {
@@ -54,8 +42,13 @@ type MovementPlayer = {
   x: number;
   y: number;
   direction: 'up' | 'down' | 'left' | 'right';
+  petDirection: 'up' | 'down' | 'left' | 'right';
   movement: 'walk' | 'running' | 'jump' | 'surf' | 'ride';
   pet: Pet | null;
+};
+
+type FacingPlayer = {
+  facing: 'up' | 'down' | 'left' | 'right';
 };
 
 const players = new Map<string, Player>(); //키 값은 socketId로 쓰자.
@@ -73,6 +66,7 @@ export function registerEvent(io: Server) {
       y: null,
       nickname: null,
       avatar: null,
+      facing: 'down',
       pet: null,
       gender: null,
       option: { textSpeed: null, frame: null, backgroundVolume: null, effectVolume: null },
@@ -111,6 +105,16 @@ export function registerEvent(io: Server) {
     socket.on('movement_player', (data: MovementPlayer) => {
       if (!isAuthenticated || !accountId) return;
       movementPlayer(io, socket.id, data);
+    });
+
+    socket.on('facing_player', (data: 'up' | 'down' | 'left' | 'right') => {
+      if (!isAuthenticated || !accountId) return;
+      facingPlayer(io, socket.id, data);
+    });
+
+    socket.on('change_pet', (data: Pet) => {
+      if (!isAuthenticated || !accountId) return;
+      changePet(io, socket.id, data);
     });
 
     socket.on('disconnect', () => {
@@ -262,6 +266,7 @@ const movementPlayer = (io: Server, socketId: string, data: MovementPlayer) => {
     ...player,
     x: data.x,
     y: data.y,
+    facing: data.direction,
   });
 
   if (player.location) {
@@ -272,6 +277,60 @@ const movementPlayer = (io: Server, socketId: string, data: MovementPlayer) => {
           const otherSocket = io.sockets.sockets.get(otherSocketId);
           if (otherSocket) {
             otherSocket.emit('player_movement', {
+              socketId: socketId,
+              data: data,
+            });
+          }
+        }
+      });
+    }
+  }
+};
+
+const facingPlayer = (io: Server, socketId: string, data: 'up' | 'down' | 'left' | 'right') => {
+  const player = players.get(socketId);
+  if (!player) return;
+
+  players.set(socketId, {
+    ...player,
+    facing: data,
+  });
+
+  if (player.location) {
+    const currentRoom = locationRooms.get(player.location);
+    if (currentRoom) {
+      currentRoom.forEach((otherSocketId) => {
+        if (otherSocketId !== socketId) {
+          const otherSocket = io.sockets.sockets.get(otherSocketId);
+          if (otherSocket) {
+            otherSocket.emit('facing_player', {
+              socketId: socketId,
+              data: data,
+            });
+          }
+        }
+      });
+    }
+  }
+};
+
+const changePet = (io: Server, socketId: string, data: Pet) => {
+  const player = players.get(socketId);
+  if (!player) return;
+
+  players.set(socketId, {
+    ...player,
+    pet: { idx: data.idx, texture: data.texture },
+  });
+
+  if (player.location) {
+    const currentRoom = locationRooms.get(player.location);
+    if (currentRoom) {
+      currentRoom.forEach((otherSocketId) => {
+        if (otherSocketId !== socketId) {
+          const otherSocket = io.sockets.sockets.get(otherSocketId);
+          if (otherSocket) {
+            otherSocket.emit('change_pet', {
               socketId: socketId,
               data: data,
             });

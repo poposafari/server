@@ -1,7 +1,6 @@
 import path from 'path';
 import 'reflect-metadata';
 import * as fs from 'fs';
-import { redis } from '../data-source';
 import { getCatchItemData, getItemData, getPokemonData, getRewardCandyData, getRewardData, ItemData, PokemonData, SpawnableItemTable } from '../shared/data';
 import { createAccessToken, createRefreshToken } from './jwt';
 import { BaseGroundItemList, GameLogicRes, GroundItem, SpawnableItem, Wild } from '../shared/types';
@@ -27,9 +26,9 @@ export const createTokens = (user: number, type: 'access' | 'refresh') => {
       id: user,
     });
 
-    redis.set(`refresh:${user}`, token, {
-      EX: 60 * 60 * 24 * 7,
-    });
+    // redis.set(`refresh:${user}`, token, {
+    //   EX: 60 * 60 * 24 * 7,
+    // });
   }
 
   return token;

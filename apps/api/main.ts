@@ -1,7 +1,7 @@
 import app from './app';
 import * as dotenv from 'dotenv';
 import 'reflect-metadata';
-import { AppDataSource, redis } from './src/data-source';
+import { AppDataSource } from './src/data-source';
 import { readJson } from './src/utils/methods';
 import { CatchData, ItemData, OverworldData, PokemonData, RewardCandyData, RewardData, SpawnableItemTable } from './src/shared/data';
 import { Rarity } from './src/shared/enums';
@@ -14,9 +14,6 @@ async function boot() {
   try {
     await AppDataSource.initialize();
     console.log('database connected');
-
-    await redis.connect();
-    console.log('redis connected');
 
     await loadItem();
     console.log('item data loaded');
