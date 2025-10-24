@@ -62,6 +62,11 @@ services:
       - .env
     ports:
       - '${SERVICE_API_PORT}:${SERVICE_API_PORT}'
+    volumes:
+      - ./apps/api:/usr/src/app/api
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=development
     depends_on:
       - db
     networks:
@@ -74,10 +79,15 @@ services:
       dockerfile: apps/ticket-job/Dockerfile
     env_file:
       - .env
-    ports:
-      - '${JOB_TICKET_PORT}:${JOB_TICKET_PORT}'
     depends_on:
       - db
+    ports:
+      - '${JOB_TICKET_PORT}:${JOB_TICKET_PORT}'
+    volumes:
+      - ./apps/ticket-job:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=development
     networks:
       - poposerver
 
@@ -86,10 +96,17 @@ services:
     build:
       context: .
       dockerfile: apps/socket/Dockerfile
+    env_file:
+      - .env
     depends_on:
       - db
     ports:
       - '3001:3001'
+    volumes:
+      - ./apps/socket:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - NODE_ENV=development
     networks:
       - poposerver
 

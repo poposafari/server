@@ -1,12 +1,11 @@
-import { pgClient } from './db';
+import { initializeDatabase } from './db';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { registerEvent } from './app';
 
 async function boot() {
   try {
-    await pgClient.connect();
-    console.log('postgresql connected...');
+    await initializeDatabase();
 
     const httpServer = createServer();
 

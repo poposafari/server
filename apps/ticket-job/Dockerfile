@@ -2,12 +2,14 @@ FROM node:18
 
 WORKDIR /usr/src/app
 
-COPY ./apps/ticket-job ./
 COPY ../../.env ./
 COPY ../../wait-for-it.sh ./wait-for-it.sh
+COPY ../../entrypoint.sh ./entrypoint.sh
 
 RUN chmod +x ./wait-for-it.sh
+RUN chmod +x ./entrypoint.sh
 
+COPY ./apps/ticket-job/package*.json ./
 RUN npm install
 
-CMD ["./wait-for-it.sh", "db:5432", "--", "npm", "run", "start:ticket-job"]
+CMD ["npm", "run", "start:ticket-job"]

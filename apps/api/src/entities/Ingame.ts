@@ -49,7 +49,7 @@ export class Ingame {
   @Column({ type: 'integer', array: true, default: () => 'ARRAY[null, null, null, null, null, null]::INTEGER[]' })
   party!: number[];
 
-  @Column({ type: 'integer', array: true, default: () => 'ARRAY[null, null, null, null, null, null, null, null, null]::INTEGER[]', name: 'slot_item' })
+  @Column({ type: 'integer', array: true, default: () => 'ARRAY[null, null, null, null, null]::INTEGER[]', name: 'slot_item' })
   slotItem!: number[];
 
   @Column({ type: 'integer', array: true, default: () => 'ARRAY_FILL(0, ARRAY[33])', name: 'pc_bg' })
