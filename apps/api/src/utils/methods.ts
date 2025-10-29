@@ -370,16 +370,14 @@ export const matchTypeWithBerryRate = (berry: string | null, type1: PokemonType,
 };
 
 export const matchPokemonWithRarityRate = (rank: Rarity) => {
-  let rate = 1.0;
-
   switch (rank) {
     case Rarity.RARE:
-      rate = 1.2;
+      return 1.2;
     case Rarity.EPIC:
-      rate = 1.5;
+      return 1.5;
     case Rarity.LEGENDARY:
-      rate = 2.0;
+      return 2.0;
+    default:
+      return 1.0;
   }
-
-  return rate;
 };

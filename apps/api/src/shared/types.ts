@@ -1,33 +1,7 @@
 import { ItemCategory, OverworldType, PokemonGender, PokemonSkill, PokemonType, Rarity, WildSpawn } from './enums';
 
 export type GameLogicRes<T = any> = { result: true; data: T };
-export type BaseGroundItem = ['001', '002', '003', '004', '011', '012', '013', '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024', '025', '026', '027', '028', '029'];
-
-export const BaseGroundItemList: string[] = [
-  '001',
-  '002',
-  '003',
-  '004',
-  '011',
-  '012',
-  '013',
-  '014',
-  '015',
-  '016',
-  '017',
-  '018',
-  '019',
-  '020',
-  '021',
-  '022',
-  '023',
-  '024',
-  '025',
-  '026',
-  '027',
-  '028',
-  '029',
-];
+export const BaseGroundItemList: string[] = ['002', '003', '004', '011', '012', '013', '014', '015', '016', '017', '018', '019', '020', '021', '022', '023', '024', '025', '026', '027', '028', '029'];
 
 export type Wild = {
   idx: number;

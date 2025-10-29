@@ -272,8 +272,8 @@
   "046": {
     "comment": "자전거",
     "type": "key",
-    "price": 0,
-    "purchasable": false,
+    "price": 3000,
+    "purchasable": true,
     "spawnable": false,
     "rate": 0,
     "maxground": 0,
