@@ -19,6 +19,17 @@ services:
     networks:
       - poposerver
 
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    networks:
+      - poposerver
+    profiles:
+      - manual
+
   db:
     image: postgres:15
     container_name: db
