@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -e
 
 chmod +x scripts/certbot-init.sh
