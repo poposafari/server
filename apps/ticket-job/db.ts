@@ -1,12 +1,12 @@
-import { Client } from "pg";
-import * as dotenv from "dotenv";
+import { Client } from 'pg';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
 export const pgClient = new Client({
-  host: process.env.DB_0_NAME,
+  host: process.env.DB_NAME,
   port: 5432,
-  user: process.env.DB_0_USERNAME,
-  password: process.env.DB_0_PASSWORD,
-  database: process.env.DB_0_NAME,
+  user: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });

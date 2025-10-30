@@ -14,7 +14,7 @@ async function boot() {
         origin: 'http://localhost:5173',
         credentials: true,
       },
-      path: '/socket',
+      path: '/socket.io',
     });
 
     registerEvent(io);
