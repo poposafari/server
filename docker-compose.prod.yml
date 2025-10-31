@@ -12,7 +12,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./certbot/www:/var/www/certbot
       - ./certbot/conf:/etc/letsencrypt
-      - ./client-build:/usr/share/nginx/html:ro
+      - ./client-build/dist:/usr/share/nginx/html:ro
     depends_on:
       - api
       - socket

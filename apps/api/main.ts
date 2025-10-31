@@ -33,7 +33,7 @@ async function boot() {
     await loadCandyRewardInfo();
     console.log('Reward Candy Info data loaded');
 
-    app.listen(PORT, () => {
+    app.listen(Number(PORT), '0.0.0.0', () => {
       console.log(`api is running on port ${PORT}`);
     });
   } catch (err) {
