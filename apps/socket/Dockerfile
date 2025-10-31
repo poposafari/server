@@ -12,4 +12,7 @@ RUN chmod +x ./entrypoint.sh
 COPY ./apps/socket/package*.json ./
 RUN npm install
 
-CMD ["npm", "run", "start:socket"]
+COPY ./apps/socket/ ./
+RUN npm run build
+
+CMD ["npm", "run", "start"]

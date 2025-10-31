@@ -11,4 +11,7 @@ COPY ./apps/api/package*.json ./
 COPY ./apps/api/tsconfig.json ./
 RUN npm install
 
-CMD ["./wait-for-it.sh", "db:5432", "--", "npm", "run", "start:dev"]
+COPY ./apps/api/ ./
+RUN npm run build
+
+CMD ["./wait-for-it.sh", "db:5432", "--", "npm", "run", "start"]

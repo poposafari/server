@@ -12,4 +12,7 @@ RUN chmod +x ./entrypoint.sh
 COPY ./apps/ticket-job/package*.json ./
 RUN npm install
 
-CMD ["npm", "run", "start:ticket-job"]
+COPY ./apps/ticket-job/ ./
+RUN npm run build
+
+CMD ["npm", "run", "start"]
