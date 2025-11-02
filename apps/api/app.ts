@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import { HttpError } from './src/utils/http-error';
 import routes from './src/routes';
+import DevRouter from './src/dev-routes';
 import './src/passport';
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? [];
@@ -45,6 +46,11 @@ app.use('/api/ingame', routes.IngameRouter);
 app.use('/api/bag', routes.BagRouter);
 app.use('/api/pc', routes.PcRouter);
 app.use('/api/safari', routes.SafariRouter);
+
+if (process.env.NODE_ENV === 'dev') {
+  app.use('/api/dev', DevRouter);
+  console.log('Dev Routes enabled: /api/dev/*');
+}
 
 app.use((err: any, req: any, res: any, next: any) => {
   if (err instanceof HttpError) {

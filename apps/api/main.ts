@@ -1,12 +1,13 @@
-import app from './app';
 import * as dotenv from 'dotenv';
+import * as path from 'path';
+const envPath = path.resolve(__dirname, '../../.env');
+dotenv.config({ path: envPath }); //환경 변수가 존재한다면, 덮어쓰지 않는다.
+import app from './app';
 import 'reflect-metadata';
 import { AppDataSource } from './src/data-source';
 import { readJson } from './src/utils/methods';
 import { CatchData, ItemData, OverworldData, PokemonData, RewardCandyData, RewardData, SpawnableItemTable } from './src/shared/data';
 import { Rarity } from './src/shared/enums';
-
-dotenv.config();
 
 const PORT = process.env.SERVICE_API_PORT;
 

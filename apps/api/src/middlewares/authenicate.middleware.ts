@@ -8,8 +8,6 @@ export const Authenticate = async (req: Request, res: Response, next: NextFuncti
     const authHeader = req.headers['authorization'];
     const accessToken = authHeader && authHeader.split(' ')[1];
 
-    console.log(authHeader, accessToken);
-
     if (!accessToken) {
       return next(new NotFoundAccessToken());
     }

@@ -2,7 +2,7 @@ FROM node:18
 
 WORKDIR /usr/src/app
 
-COPY .env ./
+COPY ../../.env ./
 COPY wait-for-it.sh ./wait-for-it.sh
 
 RUN chmod +x ./wait-for-it.sh

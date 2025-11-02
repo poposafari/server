@@ -1,10 +1,15 @@
+// 최상단에서 .env 로드
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+const envPath = path.resolve(__dirname, '../../.env');
+dotenv.config({ path: envPath });
+
 import cron from 'node-cron';
 import { pgClient } from './db';
 
 const MAX_AVAILABLE_TICKET = 4;
 
 const EXPRESSION = '0 0,6,12,18 * * *';
-const TEST = '* * * * *';
 
 async function updateTickets(max: number) {
   try {

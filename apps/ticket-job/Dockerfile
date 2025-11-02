@@ -15,4 +15,4 @@ RUN npm install
 COPY ./apps/ticket-job/ ./
 RUN npm run build
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:dev"]

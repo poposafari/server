@@ -1,11 +1,12 @@
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
+import * as path from 'path';
 import jwt from 'jsonwebtoken';
-import { Server } from 'socket.io';
 
-dotenv.config();
+const envPath = path.resolve(__dirname, '../../.env');
+dotenv.config({ path: envPath }); //환경 변수가 존재한다면, 덮어쓰지 않는다.
 
-const JwtSecret = process.env.ACCESS_TOKEN_SECRET;
+const JwtSecret = process.env.JWT_ACCESS_SECRET || process.env.ACCESS_TOKEN_SECRET;
 
 export interface JwtPayload {
   id: number;

@@ -1,8 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import { parseAccessToken } from './auth';
 import { DatabaseService } from './service';
-import * as cron from 'node-cron';
-
 export type InitPlayerData = {
   location: string;
   x: number;
@@ -75,25 +73,9 @@ const players = new Map<string, Player>(); //키 값은 socketId로 쓰자.
 const accountSocketMap = new Map<number, string>(); // accountId -> socket.id 매핑용도
 const locationRooms = new Map<string, Set<string>>(); // location -> Set<socketId> 매핑용도
 
-// cron.schedule('*/5 * * * *', async () => {
-//   console.log('Start save Player data every 5 minutes...');
-
-//   for (const [socketId, player] of players.entries()) {
-//     const accountId = Array.from(accountSocketMap.entries()).find(([_, id]) => id === socketId)?.[0];
-
-//     if (accountId && player) {
-//       try {
-//         await DatabaseService.savePlayerData(accountId, player);
-//         console.log(`Success save Player data : accountId=${accountId}, socketId=${socketId}`);
-//       } catch (error) {
-//         console.error(`Fail save Player data : accountId=${accountId}, socketId=${socketId}`, error);
-//       }
-//     }
-//   }
-// });
-
 export function registerEvent(io: Server) {
   io.on('connection', (socket: Socket) => {
+    console.log(`Socket connected: ${socket.id}`);
     let isAuthenticated = false;
     let accountId: number | null = null;
 
@@ -113,9 +95,12 @@ export function registerEvent(io: Server) {
     });
 
     socket.on('authenticate', (token: string) => {
+      console.log(`Authenticate attempt: socketId=${socket.id}`);
       const payload = parseAccessToken(token);
       if (!payload) {
+        console.error(`Invalid token: socketId=${socket.id}`);
         socket.emit('authenticated', { success: false, error: 'Invalid token' });
+        socket.disconnect();
         return;
       }
 
@@ -123,6 +108,7 @@ export function registerEvent(io: Server) {
       isAuthenticated = true;
 
       accountSocketMap.set(accountId, socket.id);
+      console.log(`✅ Authenticated: accountId=${accountId}, socketId=${socket.id}`);
       socket.emit('authenticated', { success: true, error: null });
     });
 
@@ -219,7 +205,8 @@ export function registerEvent(io: Server) {
       updatePlayer(socket.id, { slotItem: newSlotItem });
     });
 
-    socket.on('disconnect', async () => {
+    socket.on('disconnect', async (reason) => {
+      console.log(`Socket disconnected: socketId=${socket.id}, reason=${reason}`);
       const player = players.get(socket.id);
 
       if (player && accountId) {
