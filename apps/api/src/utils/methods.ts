@@ -25,10 +25,6 @@ export const createTokens = (user: number, type: 'access' | 'refresh') => {
     token = createRefreshToken({
       id: user,
     });
-
-    // redis.set(`refresh:${user}`, token, {
-    //   EX: 60 * 60 * 24 * 7,
-    // });
   }
 
   return token;
@@ -191,6 +187,13 @@ export const getGroundItemsFromCodes = (itemCodes: string[]): GroundItem[] => {
   }
 
   return ret;
+};
+
+export const generateDespawnTime = (spawnTime: Date = new Date()): Date => {
+  const minutesToAdd = 10 + Math.floor(Math.random() * 11);
+  const despawnTime = new Date(spawnTime);
+  despawnTime.setMinutes(despawnTime.getMinutes() + minutesToAdd);
+  return despawnTime;
 };
 
 export const getWildPokemons = (pokedexs: string[]): Wild[] => {

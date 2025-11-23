@@ -10,6 +10,13 @@ export interface RegisterIngameReq {
   gender: 'boy' | 'girl';
   avatar: number;
   nickname: string;
+  option: {
+    textSpeed: number;
+    frame: number;
+    backgroundVolume: number;
+    effectVolume: number;
+    tutorial: boolean;
+  };
 }
 
 export interface LoginLocalReq {
@@ -73,4 +80,9 @@ export interface CatchGroundItemReq {
 
 export interface CatchStarterPokemonReq {
   idx: number;
+}
+
+export interface FeedWildEatenBerryReq {
+  idx: number;
+  berry: string;
 }

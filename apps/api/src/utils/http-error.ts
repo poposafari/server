@@ -28,7 +28,7 @@ export class DuplicateUserNicknameHttpError extends HttpError {
 
 export class LoginFailHttpError extends HttpError {
   constructor() {
-    super(404, HttpErrorCode.LOGIN_FAIL);
+    super(404, HttpErrorCode.FAIL_LOGIN);
   }
 }
 

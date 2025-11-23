@@ -5,4 +5,6 @@ export const SaltOrRounds = 10;
 export const MAX_STOCK = 999;
 export const MAX_BUY = 99;
 export const MAX_GROUNDITEM = 10;
-export const START_LOCATION = 'p001';
+export const START_LOCATION = 'p003';
+export const START_X = 4;
+export const START_Y = 11;

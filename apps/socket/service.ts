@@ -27,13 +27,14 @@ export class DatabaseService {
         location = $4,
         gender = $5,
         avatar = $6,
-        pet = $7,
-        party = $8, 
-        slot_item = $9,
-        pc_bg = $10,
-        pc_name = $11,
+        party = $7, 
+        slot_item = $8,
+        pc_bg = $9,
+        pc_name = $10,
+        is_starter_0 = $11,
+        is_starter_1 = $12,
         updated_at = CURRENT_TIMESTAMP
-      WHERE account_id = $12
+      WHERE account_id = $13
     `;
 
     const values = [
@@ -43,11 +44,12 @@ export class DatabaseService {
       player.location,
       player.gender,
       player.avatar,
-      player.pet?.idx || null,
       player.party,
       player.slotItem,
       `{${player.pc.bgs.join(',')}}`,
       `{${player.pc.names.map((name: string) => `"${name}"`).join(',')}}`,
+      player.isStarter0,
+      player.isStarter1,
       accountId,
     ];
 
@@ -61,11 +63,12 @@ export class DatabaseService {
         text_speed = $1,
         frame = $2,
         background_volume = $3,
-        effect_volume = $4
-      WHERE account_id = $5
+        effect_volume = $4,
+        tutorial = $5
+      WHERE account_id = $6
     `;
 
-    const values = [option.textSpeed, option.frame, option.backgroundVolume, option.effectVolume, accountId];
+    const values = [option.textSpeed, option.frame, option.backgroundVolume, option.effectVolume, option.tutorial, accountId];
 
     await pgClient.query(query, values);
   }

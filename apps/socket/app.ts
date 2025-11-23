@@ -1,6 +1,8 @@
 import { Server, Socket } from 'socket.io';
+
 import { parseAccessToken } from './auth';
 import { DatabaseService } from './service';
+
 export type InitPlayerData = {
   location: string;
   x: number;
@@ -12,8 +14,10 @@ export type InitPlayerData = {
   party: (number | null)[];
   slotItem: (number | null)[];
   option: PlayerOption;
-  pcBgs: number[];
-  pcNames: string[];
+  pcBgs?: number[];
+  pcNames?: string[];
+  isStarter0: boolean;
+  isStarter1: boolean;
 };
 
 export type Player = {
@@ -29,6 +33,8 @@ export type Player = {
   gender: 'boy' | 'girl';
   option: PlayerOption;
   pc: PcData;
+  isStarter0: boolean;
+  isStarter1: boolean;
 };
 
 export type PlayerOption = {
@@ -36,6 +42,7 @@ export type PlayerOption = {
   frame: number;
   backgroundVolume: number;
   effectVolume: number;
+  tutorial: boolean;
 };
 
 export type PcData = {
@@ -69,34 +76,23 @@ export type MovementPlayer = {
   pet: Pet | null;
 };
 
-const players = new Map<string, Player>(); //키 값은 socketId로 쓰자.
+const players = new Map<string, Player | null>(); //키 값은 socketId로 쓰자.
 const accountSocketMap = new Map<number, string>(); // accountId -> socket.id 매핑용도
 const locationRooms = new Map<string, Set<string>>(); // location -> Set<socketId> 매핑용도
 
 export function registerEvent(io: Server) {
   io.on('connection', (socket: Socket) => {
     console.log(`Socket connected: ${socket.id}`);
+
     let isAuthenticated = false;
     let accountId: number | null = null;
 
-    players.set(socket.id, {
-      location: '',
-      x: 0,
-      y: 0,
-      nickname: '',
-      avatar: 1,
-      facing: 'down',
-      pet: null,
-      party: [null, null, null, null, null, null],
-      slotItem: [null, null, null, null, null],
-      gender: 'boy',
-      option: { textSpeed: 1, frame: 0, backgroundVolume: 5, effectVolume: 5 },
-      pc: { bgs: initPcBgArrays(), names: initPcNamesArrays(), pokemonNicknames: {} },
-    });
+    players.set(socket.id, null);
 
     socket.on('authenticate', (token: string) => {
       console.log(`Authenticate attempt: socketId=${socket.id}`);
       const payload = parseAccessToken(token);
+
       if (!payload) {
         console.error(`Invalid token: socketId=${socket.id}`);
         socket.emit('authenticated', { success: false, error: 'Invalid token' });
@@ -106,50 +102,63 @@ export function registerEvent(io: Server) {
 
       accountId = payload.id;
       isAuthenticated = true;
-
       accountSocketMap.set(accountId, socket.id);
+
       console.log(`✅ Authenticated: accountId=${accountId}, socketId=${socket.id}`);
       socket.emit('authenticated', { success: true, error: null });
     });
 
     socket.on('init', (data: InitPlayerData) => {
+      console.log('check init 1', data);
+
       if (!isAuthenticated || !accountId) return;
-      initPlayer(accountId, data);
+
+      console.log('check init 2', data);
+
+      const result = initPlayer(io, socket.id, accountId, data);
+
+      if (!result) {
+        socket.emit('init_result', { success: false, error: 'Failed to initialize player' });
+      } else {
+        socket.emit('init_result', { success: true, error: null });
+      }
     });
 
     socket.on('update_player', (data: Player) => {
       if (!isAuthenticated || !accountId) return;
+
       updatePlayer(socket.id, data);
     });
 
     socket.on('move_title', (data: MoveToTitle) => {
       if (!isAuthenticated || !accountId) return;
+
       moveToTitle(io, socket.id, data);
     });
 
     socket.on('enter_location', (data: MoveLocation) => {
       if (!isAuthenticated || !accountId) return;
+
       moveLocation(io, socket.id, data);
     });
 
     socket.on('movement_player', (data: MovementPlayer) => {
       if (!isAuthenticated || !accountId) return;
-      movementPlayer(io, socket.id, data);
-    });
 
-    socket.on('facing_player', (data: 'up' | 'down' | 'left' | 'right') => {
-      if (!isAuthenticated || !accountId) return;
-      facingPlayer(io, socket.id, data);
+      movementPlayer(io, socket.id, data);
     });
 
     socket.on('change_pet', (data: Pet) => {
       if (!isAuthenticated || !accountId) return;
+
       changePet(io, socket.id, data);
     });
 
     socket.on('change_option', (data: PlayerOption) => {
       if (!isAuthenticated || !accountId) return;
+
       const player = players.get(socket.id);
+
       if (!player) return;
 
       updatePlayer(socket.id, { option: data });
@@ -157,61 +166,103 @@ export function registerEvent(io: Server) {
 
     socket.on('change_pc_name', (data: { idx: number; name: string }) => {
       if (!isAuthenticated || !accountId) return;
+
       const player = players.get(socket.id);
+
       if (!player) return;
 
       const newNames = [...player.pc.names];
+
       newNames[data.idx] = data.name;
+
       updatePlayer(socket.id, { pc: { ...player.pc, names: newNames } });
     });
 
     socket.on('change_pc_bg', (data: { idx: number; bg: number }) => {
       if (!isAuthenticated || !accountId) return;
+
       const player = players.get(socket.id);
+
       if (!player) return;
 
       const newBgs = [...player.pc.bgs];
+
       newBgs[data.idx] = data.bg;
+
       updatePlayer(socket.id, { pc: { ...player.pc, bgs: newBgs } });
     });
 
     socket.on('change_pokemon_nickname', (data: { idx: number; nickname: string }) => {
       if (!isAuthenticated || !accountId) return;
+
       const player = players.get(socket.id);
+
       if (!player) return;
 
       const newPokemonNicknames = { ...player.pc.pokemonNicknames };
+
       newPokemonNicknames[data.idx] = data.nickname;
+
       updatePlayer(socket.id, { pc: { ...player.pc, pokemonNicknames: newPokemonNicknames } });
     });
 
     socket.on('change_party', (data: (number | null)[]) => {
       if (!isAuthenticated || !accountId) return;
+
       const player = players.get(socket.id);
+
       if (!player) return;
 
       let newParty = [...player.party];
+
       newParty = data;
+
       updatePlayer(socket.id, { party: newParty });
     });
 
     socket.on('change_slot_item', (data: (number | null)[]) => {
       if (!isAuthenticated || !accountId) return;
+
       const player = players.get(socket.id);
+
       if (!player) return;
 
       let newSlotItem = [...player.slotItem];
+
       newSlotItem = data;
+
       updatePlayer(socket.id, { slotItem: newSlotItem });
+    });
+
+    socket.on('update_is_starter0', () => {
+      if (!isAuthenticated || !accountId) return;
+
+      const player = players.get(socket.id);
+
+      if (!player) return;
+
+      updatePlayer(socket.id, { isStarter0: false });
+    });
+
+    socket.on('update_is_starter1', () => {
+      if (!isAuthenticated || !accountId) return;
+
+      const player = players.get(socket.id);
+
+      if (!player) return;
+
+      updatePlayer(socket.id, { isStarter1: false });
     });
 
     socket.on('disconnect', async (reason) => {
       console.log(`Socket disconnected: socketId=${socket.id}, reason=${reason}`);
+
       const player = players.get(socket.id);
 
       if (player && accountId) {
         try {
           await DatabaseService.savePlayerData(accountId, player);
+
           console.log(`Success save Player data : accountId=${accountId}, socketId=${socket.id}`);
         } catch (error) {
           console.error(`Fail save Player data : accountId=${accountId}, socketId=${socket.id}`, error);
@@ -220,6 +271,7 @@ export function registerEvent(io: Server) {
 
       if (player && player.location) {
         const currentRoom = locationRooms.get(player.location);
+
         if (currentRoom && currentRoom.has(socket.id)) {
           currentRoom.delete(socket.id);
 
@@ -229,6 +281,7 @@ export function registerEvent(io: Server) {
 
           currentRoom.forEach((otherSocketId) => {
             const otherSocket = io.sockets.sockets.get(otherSocketId);
+
             if (otherSocket) {
               otherSocket.emit('exit_player', {
                 socketId: socket.id,
@@ -242,6 +295,7 @@ export function registerEvent(io: Server) {
       if (accountId) {
         accountSocketMap.delete(accountId);
       }
+
       players.delete(socket.id);
     });
   });
@@ -249,43 +303,114 @@ export function registerEvent(io: Server) {
 
 const initPcBgArrays = () => {
   const pcBg = [];
+
   for (let i = 0; i < 33; i++) {
     pcBg.push(0);
   }
+
   return pcBg;
 };
 
 const initPcNamesArrays = () => {
   const pcNames = [];
+
   for (let i = 0; i < 33; i++) {
     pcNames.push('');
   }
+
   return pcNames;
 };
 
-const initPlayer = (accountId: number, data: Partial<Player>) => {
-  const socketId = accountSocketMap.get(accountId);
-  if (!socketId) return;
+const initPlayer = (io: Server, socketId: string, accountId: number, data: InitPlayerData) => {
+  const player: Player = {
+    location: data.location,
+    x: data.x,
+    y: data.y,
+    nickname: data.nickname,
+    gender: data.gender,
+    avatar: data.avatar,
+    pet: data.pet,
+    party: data.party,
+    slotItem: data.slotItem,
+    option: data.option,
+    pc: {
+      bgs: data.pcBgs ?? initPcBgArrays(),
+      names: data.pcNames ?? initPcNamesArrays(),
+      pokemonNicknames: {},
+    },
+    isStarter0: data.isStarter0,
+    isStarter1: data.isStarter1,
+    facing: 'down',
+  };
 
-  const player = players.get(socketId);
-  if (!player) return;
+  players.set(socketId, player);
 
-  players.set(socketId, {
-    ...player,
-    ...data,
+  const room = locationRooms.get(data.location) || new Set<string>();
+  room.add(socketId);
+  locationRooms.set(data.location, room);
+
+  const currentPlayersInRoom: Array<{ socketId: string; player: Player }> = [];
+
+  room.forEach((otherSocketId) => {
+    if (otherSocketId !== socketId) {
+      const otherPlayer = players.get(otherSocketId);
+
+      if (otherPlayer) {
+        currentPlayersInRoom.push({
+          socketId: otherSocketId,
+          player: otherPlayer,
+        });
+      }
+    }
+  });
+
+  const enteringSocket = io.sockets.sockets.get(socketId);
+
+  if (enteringSocket) {
+    enteringSocket.emit('current_players_in_room', {
+      location: data.location,
+      players: currentPlayersInRoom,
+    });
+  }
+
+  room.forEach((otherSocketId) => {
+    if (otherSocketId !== socketId) {
+      const otherSocket = io.sockets.sockets.get(otherSocketId);
+
+      if (otherSocket) {
+        otherSocket.emit('enter_player', {
+          socketId: socketId,
+          player: player,
+        });
+      }
+    }
   });
 
   console.log('init players');
   console.log(players);
+
+  return true;
 };
 
 const updatePlayer = (socketId: string, data: Partial<Player>) => {
   const player = players.get(socketId);
+
   if (!player) return;
+
+  const mergedPc: PcData = data.pc
+    ? {
+        ...player.pc,
+        ...data.pc,
+        bgs: data.pc.bgs ?? player.pc.bgs,
+        names: data.pc.names ?? player.pc.names,
+        pokemonNicknames: data.pc.pokemonNicknames ? { ...player.pc.pokemonNicknames, ...data.pc.pokemonNicknames } : player.pc.pokemonNicknames,
+      }
+    : player.pc;
 
   players.set(socketId, {
     ...player,
     ...data,
+    pc: mergedPc,
   });
 
   console.log(players);
@@ -293,28 +418,34 @@ const updatePlayer = (socketId: string, data: Partial<Player>) => {
 
 const moveToTitle = (io: Server, socketId: string, data: MoveToTitle) => {
   const player = players.get(socketId);
+
   if (!player) return;
+
+  const previousLocation = player.location;
+  const previousPlayer = { ...player };
 
   players.set(socketId, {
     ...player,
     location: data.from,
   });
 
-  if (data.from) {
-    const fromRoom = locationRooms.get(data.from);
+  if (previousLocation) {
+    const fromRoom = locationRooms.get(previousLocation);
+
     if (fromRoom && fromRoom.has(socketId)) {
       fromRoom.delete(socketId);
 
       if (fromRoom.size === 0) {
-        locationRooms.delete(data.from);
+        locationRooms.delete(previousLocation);
       }
 
       fromRoom.forEach((otherSocketId) => {
         const otherSocket = io.sockets.sockets.get(otherSocketId);
+
         if (otherSocket) {
           otherSocket.emit('exit_player', {
             socketId: socketId,
-            player: player,
+            player: previousPlayer,
           });
         }
       });
@@ -326,7 +457,11 @@ const moveToTitle = (io: Server, socketId: string, data: MoveToTitle) => {
 
 const moveLocation = (io: Server, socketId: string, data: MoveLocation) => {
   const player = players.get(socketId);
+
   if (!player) return;
+
+  const previousLocation = player.location;
+  const previousPlayer = { ...player };
 
   players.set(socketId, {
     ...player,
@@ -335,8 +470,9 @@ const moveLocation = (io: Server, socketId: string, data: MoveLocation) => {
     y: data.toY,
   });
 
-  if (data.from && data.from !== null) {
+  if (data.from && data.from !== null && previousLocation === data.from) {
     const fromRoom = locationRooms.get(data.from);
+
     if (fromRoom && fromRoom.has(socketId)) {
       fromRoom.delete(socketId);
 
@@ -346,10 +482,11 @@ const moveLocation = (io: Server, socketId: string, data: MoveLocation) => {
 
       fromRoom.forEach((otherSocketId) => {
         const otherSocket = io.sockets.sockets.get(otherSocketId);
+
         if (otherSocket) {
           otherSocket.emit('exit_player', {
             socketId: socketId,
-            player: player,
+            player: previousPlayer,
           });
         }
       });
@@ -361,9 +498,11 @@ const moveLocation = (io: Server, socketId: string, data: MoveLocation) => {
   locationRooms.set(data.to, toRoom);
 
   const currentPlayersInRoom: Array<{ socketId: string; player: Player }> = [];
+
   toRoom.forEach((otherSocketId) => {
     if (otherSocketId !== socketId) {
       const otherPlayer = players.get(otherSocketId);
+
       if (otherPlayer) {
         currentPlayersInRoom.push({
           socketId: otherSocketId,
@@ -374,6 +513,7 @@ const moveLocation = (io: Server, socketId: string, data: MoveLocation) => {
   });
 
   const enteringSocket = io.sockets.sockets.get(socketId);
+
   if (enteringSocket) {
     enteringSocket.emit('current_players_in_room', {
       location: data.to,
@@ -384,6 +524,7 @@ const moveLocation = (io: Server, socketId: string, data: MoveLocation) => {
   toRoom.forEach((otherSocketId) => {
     if (otherSocketId !== socketId) {
       const otherSocket = io.sockets.sockets.get(otherSocketId);
+
       if (otherSocket) {
         otherSocket.emit('enter_player', {
           socketId: socketId,
@@ -396,7 +537,10 @@ const moveLocation = (io: Server, socketId: string, data: MoveLocation) => {
 
 const movementPlayer = (io: Server, socketId: string, data: MovementPlayer) => {
   const player = players.get(socketId);
+
   if (!player) return;
+
+  const currentLocation = player.location;
 
   players.set(socketId, {
     ...player,
@@ -405,43 +549,23 @@ const movementPlayer = (io: Server, socketId: string, data: MovementPlayer) => {
     facing: data.direction,
   });
 
-  if (player.location) {
-    const currentRoom = locationRooms.get(player.location);
-    if (currentRoom) {
+  if (currentLocation) {
+    const currentRoom = locationRooms.get(currentLocation);
+
+    if (currentRoom && currentRoom.has(socketId)) {
       currentRoom.forEach((otherSocketId) => {
         if (otherSocketId !== socketId) {
           const otherSocket = io.sockets.sockets.get(otherSocketId);
+
           if (otherSocket) {
-            otherSocket.emit('player_movement', {
+            otherSocket.emit('player_position', {
               socketId: socketId,
-              data: data,
-            });
-          }
-        }
-      });
-    }
-  }
-};
-
-const facingPlayer = (io: Server, socketId: string, data: 'up' | 'down' | 'left' | 'right') => {
-  const player = players.get(socketId);
-  if (!player) return;
-
-  players.set(socketId, {
-    ...player,
-    facing: data,
-  });
-
-  if (player.location) {
-    const currentRoom = locationRooms.get(player.location);
-    if (currentRoom) {
-      currentRoom.forEach((otherSocketId) => {
-        if (otherSocketId !== socketId) {
-          const otherSocket = io.sockets.sockets.get(otherSocketId);
-          if (otherSocket) {
-            otherSocket.emit('facing_player', {
-              socketId: socketId,
-              data: data,
+              data: {
+                x: data.x,
+                y: data.y,
+                movement: data.movement,
+                timestamp: Date.now(),
+              },
             });
           }
         }
@@ -452,6 +576,7 @@ const facingPlayer = (io: Server, socketId: string, data: 'up' | 'down' | 'left'
 
 const changePet = (io: Server, socketId: string, data: Pet) => {
   const player = players.get(socketId);
+
   if (!player) return;
 
   players.set(socketId, {
@@ -461,10 +586,12 @@ const changePet = (io: Server, socketId: string, data: Pet) => {
 
   if (player.location) {
     const currentRoom = locationRooms.get(player.location);
+
     if (currentRoom) {
       currentRoom.forEach((otherSocketId) => {
         if (otherSocketId !== socketId) {
           const otherSocket = io.sockets.sockets.get(otherSocketId);
+
           if (otherSocket) {
             otherSocket.emit('change_pet', {
               socketId: socketId,

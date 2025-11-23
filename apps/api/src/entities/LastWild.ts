@@ -37,4 +37,10 @@ export class LastWild {
 
   @Column({ type: 'varchar', length: 3, nullable: true, name: 'eaten_berry' })
   eatenBerry!: string | null;
+
+  @Column({ type: 'timestamptz', name: 'spawn' })
+  spawn!: Date;
+
+  @Column({ type: 'timestamptz', name: 'despawn' })
+  despawn!: Date;
 }

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { LoginFailHttpError, NotFoundToken } from './utils/http-error';
+import { LoginFailHttpError, NotFoundRefreshToken, NotFoundToken } from './utils/http-error';
 import { createTokens, gameSuccess } from './utils/methods';
 import { WrapController } from './utils/wrap-controller';
 import { CookieConfig } from './utils/options';
@@ -17,6 +17,7 @@ import {
   enterSafariZone,
   evolvePc,
   exitSafariZone,
+  feedWildEatenBerry,
   getAvailableTicket,
   getIngame,
   getIngameItems,
@@ -64,7 +65,7 @@ class AccountController {
   static async checkRefreshToken(req: Request, res: Response): Promise<any> {
     const refreshToken = req.cookies.refresh_token;
 
-    if (!refreshToken) throw new NotFoundToken();
+    if (!refreshToken) throw new NotFoundRefreshToken();
 
     const newAccessToken = await checkRefreshToken(refreshToken);
     return res.status(200).json(gameSuccess(newAccessToken));
@@ -187,6 +188,11 @@ class SafariController {
 
   static async catchStarterPokemon(req: Request, res: Response): Promise<any> {
     const ret = await catchStarterPokemon(res.locals.account, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async feedWildEatenBerry(req: Request, res: Response): Promise<any> {
+    const ret = await feedWildEatenBerry(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 }

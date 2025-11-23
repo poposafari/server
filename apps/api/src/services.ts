@@ -26,16 +26,15 @@ import { getCatchItemData, getItemData, getOverworldData, getPokemonData } from 
 import {
   createTokens,
   gameSuccess,
+  generateDespawnTime,
   getGenderEnum,
   getGroundItemsFromCodes,
   getGroundItemSpawnTable,
   getNextPcBoxNum,
   getRandomCandyReward,
-  getRandomReward,
   getRandomRewards,
   getWildPokemons,
   getWildSpawnTable,
-  matchPokemonWithRarityRate,
   matchTypeWithBerryRate,
 } from './utils/methods';
 import { Account } from './entities/Account';
@@ -52,6 +51,7 @@ import {
   CatchWildReq,
   EnterSafariZoneReq,
   EvolvePcReq,
+  FeedWildEatenBerryReq,
   GetPcReq,
   LoginLocalReq,
   MovePcReq,
@@ -59,7 +59,7 @@ import {
   RegisterLocalReq,
   UseItemReq,
 } from './shared/interfaces';
-import { EVOLVE_BONUS_CNT, MAX_BUY, MAX_GROUNDITEM, MAX_PER_BOX, MAX_STOCK, SaltOrRounds, START_LOCATION } from './shared/constants';
+import { EVOLVE_BONUS_CNT, MAX_BUY, MAX_PER_BOX, MAX_STOCK, SaltOrRounds, START_LOCATION, START_X, START_Y } from './shared/constants';
 import { OverworldType, PokemonSkill, Rarity } from './shared/enums';
 import { LastWild } from './entities/LastWild';
 import { LastGroundItem } from './entities/LastGroundItem';
@@ -116,14 +116,14 @@ export const autoLogin = async () => {
 };
 
 export const checkRefreshToken = async (refresh: string) => {
-  const payload = verifyRefreshToken(refresh) as { id: number };
-  const accountId = payload.id;
-  // const redisRefresh = await redis.get(`refresh:${accountId}`);
-
-  // if (refresh !== redisRefresh) throw new InvalidRefreshTokenHttpError();
-
-  const newAccessToken = createTokens(accountId, 'access');
-  return newAccessToken;
+  try {
+    const payload = verifyRefreshToken(refresh) as { id: number };
+    const accountId = payload.id;
+    const newAccessToken = createTokens(accountId, 'access');
+    return newAccessToken;
+  } catch (error) {
+    throw new InvalidRefreshTokenHttpError();
+  }
 };
 
 export const deleteAccount = async (account: Account) => {
@@ -149,26 +149,39 @@ export const getIngame = async (account: Account) => {
 
   await AppDataSource.manager.transaction(async (manager) => {
     const ingame = await manager.findOne(Ingame, { where: { account: { id: account.id } } });
-    let pet = null;
     let party = [];
     let slot_item = [];
 
     if (!ingame) throw new NotFoundIngame();
 
-    if (ingame.pet) pet = await manager.findOne(PC, { where: { account: { id: account.id }, idx: ingame.pet } });
-
     const currentParty = ingame.party;
     for (let i = 0; i < 6; i++) {
       if (currentParty[i]) {
         const target = await manager.findOne(PC, { where: { account: { id: account.id }, idx: currentParty[i] } });
-        party.push(target);
+        if (target) {
+          const pokemonData = getPokemonData(target.pokedex);
+          const rank = pokemonData.rank;
+          const evol = pokemonData.nextEvol;
+          const type1 = pokemonData.type1;
+          const type2 = pokemonData.type2;
+
+          party.push({
+            ...target,
+            rank: rank,
+            evol: evol,
+            type_1: type1,
+            type_2: type2,
+          });
+        } else {
+          party.push(null);
+        }
       } else {
         party.push(null);
       }
     }
 
     const currentItemSlot = ingame.slotItem;
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < 5; i++) {
       if (currentItemSlot[i]) {
         const target = await manager.findOne(Bag, { where: { account: { id: account.id }, idx: currentItemSlot[i] } });
         slot_item.push(target);
@@ -187,13 +200,12 @@ export const getIngame = async (account: Account) => {
       avatar: ingame.avatar,
       party: party,
       slotItem: slot_item,
-      pet: pet,
       createdAt: ingame.createdAt,
       updatedAt: ingame.updatedAt,
       pcBg: ingame.pcBg,
       pcName: ingame.pcName,
-      isStarter: ingame.isStarter,
-      isTutorial: ingame.isTutorial,
+      isStarter0: ingame.isStarter0,
+      isStarter1: ingame.isStarter1,
       candy: ingame.candy,
       x: ingame.x,
       y: ingame.y,
@@ -219,18 +231,22 @@ export const registerIngame = async (data: RegisterIngameReq, account: Account) 
     const newIngame = ingameRepo.create({
       account: account,
       nickname: data.nickname,
-      x: 44,
-      y: 53,
+      x: START_X,
+      y: START_Y,
       location: START_LOCATION,
       gender: getGenderEnum(data.gender),
       avatar: data.avatar,
       candy: 0,
-      pet: null,
     });
     await manager.save(newIngame);
 
     const newOption = optionRepo.create({
       account: account,
+      textSpeed: data.option.textSpeed,
+      frame: data.option.frame,
+      backgroundVolume: data.option.backgroundVolume,
+      effectVolume: data.option.effectVolume,
+      tutorial: data.option.tutorial,
     });
     await manager.save(newOption);
 
@@ -307,7 +323,6 @@ export const buyItem = async (account: Account, data: BuyItemReq): Promise<any> 
     if (!ingame) throw new NotFoundIngame();
 
     const cost = data.stock * itemData.price;
-
     if (cost > ingame.candy) throw new NotEnoughCandy();
 
     const newCandy = ingame.candy - cost;
@@ -388,7 +403,7 @@ export const getPc = async (account: Account, filter: GetPcReq, manager?: Entity
       box: filter.box,
     },
     order: {
-      updatedAt: 'ASC',
+      createdAt: 'ASC',
     },
   });
 
@@ -421,6 +436,39 @@ export const getPc = async (account: Account, filter: GetPcReq, manager?: Entity
   });
 
   return gameSuccess(ret);
+};
+
+export const getPcByIdx = async (account: Account, idx: number, manager?: EntityManager) => {
+  let ret;
+  await AppDataSource.manager.transaction(async (manager) => {
+    const pc = await manager.findOne(PC, { where: { account: { id: account.id }, idx: idx } });
+    if (!pc) throw new NotFoundIngamePc();
+
+    const pokemonData = getPokemonData(pc.pokedex);
+    const rank = pokemonData.rank;
+    const evol = pokemonData.nextEvol;
+    const type1 = pokemonData.type1;
+    const type2 = pokemonData.type2;
+
+    ret = {
+      idx: pc.idx,
+      pokedex: pc.pokedex,
+      gender: pc.gender,
+      shiny: pc.shiny,
+      form: pc.form,
+      count: pc.count,
+      skill: pc.skill,
+      nickname: pc.nickname,
+      createdLocation: pc.createdLocation,
+      createdAt: pc.createdAt,
+      createdBall: pc.createdBall,
+      rank: rank,
+      evol: evol,
+      type_1: type1,
+      type_2: type2,
+    };
+  });
+  return ret;
 };
 
 export const updatePcBoxNum = async (account_id: number, cntIdx: number, value: number, manager: EntityManager) => {
@@ -457,7 +505,9 @@ export const movePc = async (account: Account, data: MovePcReq): Promise<any> =>
 };
 
 export const evolvePc = async (account: Account, data: EvolvePcReq): Promise<any> => {
-  let ret;
+  const boxesToUpdate = new Set<number>();
+  type BoxResult = { box: number; pokemons: any[] };
+  let boxesResult: BoxResult[] = [];
 
   await AppDataSource.manager.transaction(async (manager) => {
     const ingame = await manager.findOne(Ingame, { where: { account: { id: account.id } } });
@@ -467,6 +517,8 @@ export const evolvePc = async (account: Account, data: EvolvePcReq): Promise<any
 
     if (!ingame) throw new NotFoundIngame();
     if (!pokemon) throw new NotFoundIngamePc();
+
+    boxesToUpdate.add(pokemon.box);
 
     const pokemonData = getPokemonData(pokemon.pokedex);
 
@@ -483,6 +535,7 @@ export const evolvePc = async (account: Account, data: EvolvePcReq): Promise<any
     });
 
     if (existPokemon) {
+      boxesToUpdate.add(existPokemon.box);
       const newExistPokemonCnt = existPokemon.count + pokemon.count;
       await manager.update(PC, { idx: existPokemon.idx }, { count: newExistPokemonCnt + EVOLVE_BONUS_CNT });
       await manager.delete(PC, { idx: pokemon.idx });
@@ -491,10 +544,18 @@ export const evolvePc = async (account: Account, data: EvolvePcReq): Promise<any
       await manager.update(PC, { idx: pokemon.idx }, { pokedex: pokemonData.nextEvol.next, count: pokemon.count + EVOLVE_BONUS_CNT });
     }
 
-    ret = await getPc(account, { box: pokemon.box }, manager);
+    const results: BoxResult[] = [];
+    for (const box of boxesToUpdate) {
+      const pcResult = await getPc(account, { box }, manager);
+      results.push({
+        box,
+        pokemons: pcResult.data,
+      });
+    }
+    boxesResult = results;
   });
 
-  return ret;
+  return gameSuccess(boxesResult);
 };
 
 export const getAvailableTicket = async (account: Account, manager?: EntityManager) => {
@@ -564,106 +625,177 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
   if (overworldData.type === OverworldType.PLAZA) return gameSuccess(null);
 
   await AppDataSource.manager.transaction(async (manager) => {
+    const now = new Date();
     const existWilds = await manager.find(LastWild, { where: { account: { id: account.id }, location: data.overworld } });
     const existGroundItems = await manager.find(LastGroundItem, { where: { account: { id: account.id }, location: data.overworld } });
+    const wildsToUpdate: { idx: number; pokemon: ReturnType<typeof getWildPokemons>[0]; spawnTime: Date; despawnTime: Date }[] = [];
 
-    if (existWilds.length > 0 || existGroundItems.length > 0) {
-      result.wilds = existWilds.map((pokemon) => {
-        const pokemonData = getPokemonData(pokemon.pokedex);
-        const baseRate = pokemonData.rate.capture;
-        const rank = pokemonData.rank;
-        const type1 = pokemonData.type1;
-        const type2 = pokemonData.type2;
+    if (existWilds.length > 0) {
+      const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn, overworldData.wild.count);
+      const newWildsPool = getWildPokemons(pokedexs);
 
-        return {
-          idx: pokemon.idx,
+      for (let i = 0; i < existWilds.length; i++) {
+        const existing = existWilds[i];
+        if (existing.despawn <= now) {
+          const newPokemon = newWildsPool[i % newWildsPool.length];
+          const spawnTime = new Date();
+          const despawnTime = generateDespawnTime(spawnTime);
+
+          wildsToUpdate.push({
+            idx: existing.idx,
+            pokemon: newPokemon,
+            spawnTime,
+            despawnTime,
+          });
+        }
+      }
+    } else {
+      const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn, overworldData.wild.count);
+      const newWilds = getWildPokemons(pokedexs);
+
+      for (const pokemon of newWilds) {
+        const spawnTime = new Date();
+        const despawnTime = generateDespawnTime(spawnTime);
+
+        await manager.save(
+          manager.create(LastWild, {
+            account: { id: account.id },
+            location: data.overworld,
+            pokedex: pokemon.pokedex,
+            gender: pokemon.gender,
+            shiny: pokemon.shiny,
+            form: pokemon.form,
+            skill: Array.isArray(pokemon.skills) ? pokemon.skills : [pokemon.skills],
+            capture: false,
+            spawnType: pokemon.spawn,
+            eatenBerry: pokemon.eaten_berry,
+            spawn: spawnTime,
+            despawn: despawnTime,
+          }),
+        );
+      }
+    }
+
+    for (const { idx, pokemon, spawnTime, despawnTime } of wildsToUpdate) {
+      await manager.update(
+        LastWild,
+        { idx },
+        {
           pokedex: pokemon.pokedex,
           gender: pokemon.gender,
           shiny: pokemon.shiny,
-          skills: pokemon.skill,
           form: pokemon.form,
-          catch: pokemon.capture,
-          eaten_berry: pokemon.eatenBerry,
-          baseRate: baseRate,
-          type1: type1,
-          type2: type2,
-          rank: rank,
-          spawn: pokemon.spawnType,
-        } as Wild;
-      });
-
-      result.groundItems = existGroundItems.map((item) => {
-        const itemData = getItemData(item.item);
-        const rank = itemData.rank;
-
-        return {
-          idx: item.idx,
-          item: item.item,
-          stock: item.stock,
-          catch: item.capture,
-          rank: rank,
-        } as GroundItem;
-      });
-
-      return;
+          skill: Array.isArray(pokemon.skills) ? pokemon.skills : [pokemon.skills],
+          spawnType: pokemon.spawn,
+          eatenBerry: pokemon.eaten_berry,
+          capture: false,
+          spawn: spawnTime,
+          despawn: despawnTime,
+        },
+      );
     }
 
-    const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn, overworldData.wild.count);
-    const itemCodes = getGroundItemSpawnTable(data.overworld, overworldData.groundItem.spawn, overworldData.groundItem.count);
-    const groundItems = getGroundItemsFromCodes(itemCodes);
-    const newWilds = getWildPokemons(pokedexs);
-
-    const wildEntities = newWilds.map((pokemon) =>
-      manager.create(LastWild, {
-        account: { id: account.id },
-        location: data.overworld,
-        pokedex: pokemon.pokedex,
-        gender: pokemon.gender,
-        shiny: pokemon.shiny,
-        form: pokemon.form,
-        skill: Array.isArray(pokemon.skills) ? pokemon.skills : [pokemon.skills],
-        capture: false,
-        spawnType: pokemon.spawn,
-        eatenBerry: pokemon.eaten_berry,
-      }),
-    );
-    await manager.save(wildEntities);
-
-    const groundItemEntities = groundItems.map((item) =>
-      manager.create(LastGroundItem, {
-        account: { id: account.id },
-        location: data.overworld,
-        item: item.item,
-        stock: item.stock,
-        capture: false,
-      }),
-    );
-    await manager.save(groundItemEntities);
-
-    const retWilds = await manager.find(LastWild, {
-      where: { account: { id: account.id }, location: data.overworld },
-    });
-    const retGroundItems = await manager.find(LastGroundItem, {
+    const finalWilds = await manager.find(LastWild, {
       where: { account: { id: account.id }, location: data.overworld },
     });
 
-    result.wilds = retWilds.map((pokemon) => {
+    const groundItemsToUpdate: { idx: number; item: ReturnType<typeof getGroundItemsFromCodes>[0]; spawnTime: Date; despawnTime: Date }[] = [];
+
+    if (existGroundItems.length > 0) {
+      const itemCodes = getGroundItemSpawnTable(data.overworld, overworldData.groundItem.spawn, overworldData.groundItem.count);
+      const groundItemsPool = getGroundItemsFromCodes(itemCodes);
+
+      for (let i = 0; i < existGroundItems.length; i++) {
+        const existing = existGroundItems[i];
+        if (existing.despawn <= now) {
+          const newItem = groundItemsPool[i % groundItemsPool.length];
+          const spawnTime = new Date();
+          const despawnTime = generateDespawnTime(spawnTime);
+
+          groundItemsToUpdate.push({
+            idx: existing.idx,
+            item: newItem,
+            spawnTime,
+            despawnTime,
+          });
+        }
+      }
+    } else {
+      const itemCodes = getGroundItemSpawnTable(data.overworld, overworldData.groundItem.spawn, overworldData.groundItem.count);
+      const groundItems = getGroundItemsFromCodes(itemCodes);
+
+      for (const item of groundItems) {
+        const spawnTime = new Date();
+        const despawnTime = generateDespawnTime(spawnTime);
+
+        await manager.save(
+          manager.create(LastGroundItem, {
+            account: { id: account.id },
+            location: data.overworld,
+            item: item.item,
+            stock: item.stock,
+            capture: false,
+            spawn: spawnTime,
+            despawn: despawnTime,
+          }),
+        );
+      }
+    }
+
+    for (const { idx, item, spawnTime, despawnTime } of groundItemsToUpdate) {
+      await manager.update(
+        LastGroundItem,
+        { idx },
+        {
+          item: item.item,
+          stock: item.stock,
+          capture: false,
+          spawn: spawnTime,
+          despawn: despawnTime,
+        },
+      );
+    }
+
+    const finalGroundItems = await manager.find(LastGroundItem, {
+      where: { account: { id: account.id }, location: data.overworld },
+    });
+
+    const captureCountMap = new Map<string, number>();
+    if (finalWilds.length > 0) {
+      const uniqueKeys = new Set(finalWilds.map((p) => `${p.pokedex}_${p.gender}`));
+      const allPcRecords = await manager.find(PC, {
+        where: { account: { id: account.id } },
+      });
+      allPcRecords
+        .filter((pc) => uniqueKeys.has(`${pc.pokedex}_${pc.gender}`))
+        .forEach((pc) => {
+          const key = `${pc.pokedex}_${pc.gender}`;
+          captureCountMap.set(key, pc.count);
+        });
+    }
+
+    result.wilds = finalWilds.map((pokemon) => {
       const pokemonData = getPokemonData(pokemon.pokedex);
       const baseRate = pokemonData.rate.capture;
+      const fleeRate = pokemonData.rate.flee;
       const rank = pokemonData.rank;
       const type1 = pokemonData.type1;
       const type2 = pokemonData.type2;
+
+      const count = captureCountMap.get(`${pokemon.pokedex}_${pokemon.gender}`) ?? 0;
 
       return {
         idx: pokemon.idx,
         pokedex: pokemon.pokedex,
         gender: pokemon.gender,
         shiny: pokemon.shiny,
+        fleeRate: fleeRate,
         skills: pokemon.skill,
         form: pokemon.form,
         catch: pokemon.capture,
         eaten_berry: pokemon.eatenBerry,
         baseRate: baseRate,
+        count: count,
         type1: type1,
         type2: type2,
         rank: rank,
@@ -671,7 +803,7 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
       } as Wild;
     });
 
-    result.groundItems = retGroundItems.map((item) => {
+    result.groundItems = finalGroundItems.map((item) => {
       const itemData = getItemData(item.item);
       const rank = itemData.rank;
 
@@ -695,10 +827,8 @@ export const exitSafariZone = async (account: Account, manager?: EntityManager) 
   };
 
   if (manager) {
-    // 이미 트랜잭션 내에서 호출된 경우
     await executeCleanup(manager);
   } else {
-    // 단독으로 호출된 경우는 트랜젹션을 새롭게 만들도록 한다.
     await AppDataSource.manager.transaction(executeCleanup);
   }
 
@@ -723,6 +853,23 @@ export const catchGroundItem = async (account: Account, data: CatchGroundItemReq
   return gameSuccess(ret);
 };
 
+export const feedWildEatenBerry = async (account: Account, data: FeedWildEatenBerryReq) => {
+  await AppDataSource.manager.transaction(async (manager) => {
+    const bagRepo = manager.getRepository(Bag);
+    const berryItem = await bagRepo.findOne({
+      where: { account: { id: account.id }, item: data.berry },
+    });
+
+    if (!berryItem) throw new NotFoundIngameItem();
+    if (berryItem.category !== 'berry') throw new NotFoundIngameItem();
+
+    await useItem(account, { item: data.berry, cost: 1 }, manager);
+    await manager.update(LastWild, { idx: data.idx }, { eatenBerry: data.berry });
+  });
+
+  return gameSuccess(null);
+};
+
 export const catchWild = async (account: Account, data: CatchWildReq) => {
   const wild = await Repo.lastWild.findOne({ where: { account: { id: account.id }, idx: data.idx } });
   if (!wild) throw new NotFoundIngamePc();
@@ -740,6 +887,8 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
     let partyBonus = 0;
 
     for (const idx of data.parties) {
+      if (!idx) continue;
+
       const party = await manager.findOne(PC, { where: { account: { id: account.id }, idx: idx } });
       if (!party) throw new NotFoundIngamePc();
 
@@ -820,9 +969,24 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
         await addIngameItem(account, { item: rewardItem.item, stock: rewardItem.stock }, manager);
       }
 
+      const pc = await manager.findOne(PC, { where: { account: { id: account.id }, pokedex: wild.pokedex, gender: wild.gender } });
+
+      let pcWithData = null;
+      if (pc) {
+        const pokemonData = getPokemonData(pc.pokedex);
+        pcWithData = {
+          ...pc,
+          rank: pokemonData.rank,
+          evol: pokemonData.nextEvol,
+          type_1: pokemonData.type1,
+          type_2: pokemonData.type2,
+        };
+      }
+
       ret = {
         catch: true,
         rewards: {
+          pc: pcWithData,
           candy: rewardCandy,
           items: rewardItems,
         },
@@ -831,13 +995,15 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
       const fleeResult = Math.random() <= wildData.rate.flee;
 
       if (fleeResult) {
-        await manager.update(LastWild, { idx: wild.idx }, { capture: true });
+        await manager.update(LastWild, { idx: wild.idx }, { capture: true, eatenBerry: null });
 
         ret = {
           catch: false,
           flee: true,
         };
       } else {
+        await manager.update(LastWild, { idx: wild.idx }, { eatenBerry: null });
+
         ret = {
           catch: false,
           flee: false,
@@ -852,7 +1018,7 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
 export const catchStarterPokemon = async (account: Account, data: CatchStarterPokemonReq) => {
   const ingame = await Repo.ingame.findOne({ where: { account: { id: account.id } } });
   if (!ingame) throw new Error('User not found');
-  if (!ingame.isStarter) throw new Error('User is not in starter');
+  if (!ingame.isStarter1) throw new Error('User is not in starter');
 
   const pokemon = await Repo.lastWild.findOne({ where: { account: { id: account.id }, idx: data.idx } });
   if (!pokemon) throw new NotFoundIngamePc();
@@ -885,7 +1051,7 @@ export const catchStarterPokemon = async (account: Account, data: CatchStarterPo
     await addIngameItem(account, { item: '012', stock: 3 }, manager);
     await addIngameItem(account, { item: '014', stock: 3 }, manager);
     await addIngameItem(account, { item: '029', stock: 3 }, manager);
-    await manager.update(Ingame, { account: { id: account.id } }, { isStarter: false });
+    await manager.update(Ingame, { account: { id: account.id } }, { isStarter0: false, isStarter1: false });
   });
 
   return gameSuccess(ret);

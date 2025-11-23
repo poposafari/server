@@ -65,7 +65,6 @@ CREATE TABLE db.ingame (
   avatar INTEGER NOT NULL CHECK(avatar >= 1 AND avatar <= 4),
   available_ticket INTEGER NOT NULL DEFAULT 4 CHECK (available_ticket >= 0 AND available_ticket <= 4),
   candy INTEGER NOT NULL DEFAULT 0 CHECK (candy >= 0 AND candy <=99999999),
-  pet INTEGER REFERENCES db.pc(idx) ON DELETE SET NULL,
   party INTEGER[6] DEFAULT ARRAY[NULL, NULL, NULL, NULL, NULL, NULL]::INTEGER[],
   slot_item INTEGER[5] DEFAULT ARRAY[NULL, NULL, NULL, NULL, NULL]::INTEGER[],
   pc_bg INTEGER[33] DEFAULT ARRAY_FILL(0, ARRAY[33])::INTEGER[],
@@ -73,8 +72,8 @@ CREATE TABLE db.ingame (
   pc_cnt INTEGER[33] DEFAULT ARRAY_FILL(0, ARRAY[33])::INTEGER[],
   created_at TIMESTAMPTZ NOT NULL DEFAULT (now()),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT (now()),
-  is_starter BOOLEAN NOT NULL DEFAULT true,
-  is_tutorial BOOLEAN NOT NULL DEFAULT true
+  is_starter_0 BOOLEAN NOT NULL DEFAULT true,
+  is_starter_1 BOOLEAN NOT NULL DEFAULT true
 );
 
 CREATE TABLE db.ingame_option (
@@ -82,7 +81,8 @@ CREATE TABLE db.ingame_option (
   text_speed INTEGER NOT NULL DEFAULT 1 CHECK(text_speed >=0 AND text_speed <=2),
   frame INTEGER NOT NULL DEFAULT 0 CHECK(frame >=0 AND frame <=10),
   background_volume INTEGER NOT NULL DEFAULT 5 CHECK(background_volume >=0 AND background_volume <=10),
-  effect_volume INTEGER NOT NULL DEFAULT 5 CHECK(effect_volume >=0 AND effect_volume <=10)
+  effect_volume INTEGER NOT NULL DEFAULT 5 CHECK(effect_volume >=0 AND effect_volume <=10),
+  tutorial BOOLEAN NOT NULL DEFAULT true
 );
 
 CREATE TABLE db.last_wild (
@@ -96,7 +96,9 @@ CREATE TABLE db.last_wild (
   skill pokemon_skill[],
   capture BOOLEAN NOT NULL,
   spawn_type wild_spawn_type NOT NULL,
-  eaten_berry VARCHAR(3)
+  eaten_berry VARCHAR(3),
+  spawn TIMESTAMPTZ NOT NULL,
+  despawn TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE db.last_grounditem (
@@ -105,7 +107,9 @@ CREATE TABLE db.last_grounditem (
   location VARCHAR(4) NOT NULL,
   item VARCHAR(3) NOT NULL,
   stock INTEGER NOT NULL,
-  capture BOOLEAN NOT NULL
+  capture BOOLEAN NOT NULL,
+  spawn TIMESTAMPTZ NOT NULL,
+  despawn TIMESTAMPTZ NOT NULL
 );
 
 CREATE OR REPLACE FUNCTION update_pc_date()

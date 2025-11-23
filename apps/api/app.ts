@@ -6,7 +6,6 @@ import cookieParser from 'cookie-parser';
 import { HttpError } from './src/utils/http-error';
 import routes from './src/routes';
 import DevRouter from './src/dev-routes';
-import './src/passport';
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? [];
 const app = express();

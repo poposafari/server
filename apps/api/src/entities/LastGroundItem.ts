@@ -21,4 +21,10 @@ export class LastGroundItem {
 
   @Column({ type: 'boolean' })
   capture!: boolean;
+
+  @Column({ type: 'timestamptz', name: 'spawn' })
+  spawn!: Date;
+
+  @Column({ type: 'timestamptz', name: 'despawn' })
+  despawn!: Date;
 }

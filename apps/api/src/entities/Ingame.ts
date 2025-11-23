@@ -39,11 +39,7 @@ export class Ingame {
   @Column({ type: 'integer', default: 0 })
   candy!: number;
 
-  @Column({ nullable: true })
-  pet!: number | null;
-
   @OneToOne(() => PC, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'pet' })
   pc!: PC;
 
   @Column({ type: 'integer', array: true, default: () => 'ARRAY[null, null, null, null, null, null]::INTEGER[]' })
@@ -67,9 +63,9 @@ export class Ingame {
   @CreateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt!: Date;
 
-  @Column({ type: 'boolean', default: true, name: 'is_starter' })
-  isStarter!: boolean;
+  @Column({ type: 'boolean', default: true, name: 'is_starter_0' })
+  isStarter0!: boolean;
 
-  @Column({ type: 'boolean', default: true, name: 'is_tutorial' })
-  isTutorial!: boolean;
+  @Column({ type: 'boolean', default: true, name: 'is_starter_1' })
+  isStarter1!: boolean;
 }

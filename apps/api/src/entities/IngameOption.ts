@@ -32,4 +32,7 @@ export class IngameOption {
 
   @Column({ type: 'integer', default: 5, name: 'effect_volume' })
   effectVolume!: number;
+
+  @Column({ type: 'boolean', default: true, name: 'tutorial' })
+  tutorial!: boolean;
 }

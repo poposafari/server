@@ -272,7 +272,7 @@
   "046": {
     "comment": "자전거",
     "type": "key",
-    "price": 3000,
+    "price": 0,
     "purchasable": true,
     "spawnable": false,
     "rate": 0,
