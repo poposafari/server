@@ -33,7 +33,11 @@ export type Overworld = {
   cost: number;
   wild: {
     count: number;
-    spawn: string[];
+    spawn: {
+      day: string[];
+      dusk: string[];
+      night: string[];
+    };
   };
   groundItem: {
     count: number;

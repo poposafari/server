@@ -65,6 +65,7 @@ export interface EvolvePcReq {
 
 export interface EnterSafariZoneReq {
   overworld: string;
+  time: 'day' | 'dusk' | 'night';
 }
 
 export interface CatchWildReq {

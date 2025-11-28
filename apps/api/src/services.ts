@@ -631,7 +631,7 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
     const wildsToUpdate: { idx: number; pokemon: ReturnType<typeof getWildPokemons>[0]; spawnTime: Date; despawnTime: Date }[] = [];
 
     if (existWilds.length > 0) {
-      const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn, overworldData.wild.count);
+      const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn[data.time], overworldData.wild.count);
       const newWildsPool = getWildPokemons(pokedexs);
 
       for (let i = 0; i < existWilds.length; i++) {
@@ -650,7 +650,7 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
         }
       }
     } else {
-      const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn, overworldData.wild.count);
+      const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn[data.time], overworldData.wild.count);
       const newWilds = getWildPokemons(pokedexs);
 
       for (const pokemon of newWilds) {
