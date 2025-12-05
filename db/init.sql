@@ -72,6 +72,8 @@ CREATE TABLE db.ingame (
   pc_cnt INTEGER[33] DEFAULT ARRAY_FILL(0, ARRAY[33])::INTEGER[],
   created_at TIMESTAMPTZ NOT NULL DEFAULT (now()),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT (now()),
+  playtime INTEGER NOT NULL DEFAULT 0 CHECK (playtime >= 0 AND playtime <= 2147483647),
+  discovered_locations VARCHAR(4)[] NOT NULL DEFAULT '{}'::VARCHAR(4)[],
   is_starter_0 BOOLEAN NOT NULL DEFAULT true,
   is_starter_1 BOOLEAN NOT NULL DEFAULT true
 );
@@ -83,6 +85,33 @@ CREATE TABLE db.ingame_option (
   background_volume INTEGER NOT NULL DEFAULT 5 CHECK(background_volume >=0 AND background_volume <=10),
   effect_volume INTEGER NOT NULL DEFAULT 5 CHECK(effect_volume >=0 AND effect_volume <=10),
   tutorial BOOLEAN NOT NULL DEFAULT true
+);
+
+CREATE TABLE db.ingame_pokedex (
+  account_id INTEGER PRIMARY KEY REFERENCES db.account(id) ON DELETE CASCADE,
+  gen_1 INTEGER[] NOT NULL DEFAULT '{}'::INTEGER[],
+  gen_2 INTEGER[] NOT NULL DEFAULT '{}'::INTEGER[],
+  gen_3 INTEGER[] NOT NULL DEFAULT '{}'::INTEGER[],
+  gen_4 INTEGER[] NOT NULL DEFAULT '{}'::INTEGER[],
+  gen_5 INTEGER[] NOT NULL DEFAULT '{}'::INTEGER[],
+  gen_6 INTEGER[] NOT NULL DEFAULT '{}'::INTEGER[],
+  gen_7 INTEGER[] NOT NULL DEFAULT '{}'::INTEGER[],
+  gen_8 INTEGER[] NOT NULL DEFAULT '{}'::INTEGER[],
+  gen_9 INTEGER[] NOT NULL DEFAULT '{}'::INTEGER[]
+);
+
+CREATE TABLE db.ingame_costume (
+  account_id INTEGER PRIMARY KEY REFERENCES db.account(id) ON DELETE CASCADE,
+  skin INTEGER NOT NULL DEFAULT 1,
+  eyes INTEGER NOT NULL DEFAULT 1,
+  hair INTEGER NOT NULL DEFAULT 1,
+  top INTEGER NOT NULL DEFAULT 1,
+  bottom INTEGER NOT NULL DEFAULT 1,
+  shoes INTEGER NOT NULL DEFAULT 1,
+  accessory_0 INTEGER NOT NULL DEFAULT 1,
+  accessory_1 INTEGER NOT NULL DEFAULT 1,
+  accessory_2 INTEGER NOT NULL DEFAULT 1,
+  accessory_3 INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE TABLE db.last_wild (

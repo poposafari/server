@@ -9,6 +9,8 @@ import { PC } from './entities/PC';
 import { AccountSocial } from './entities/AccountSocial';
 import { AccountLocal } from './entities/AccountLocal';
 import { IngameOption } from './entities/IngameOption';
+import { IngamePokedex } from './entities/IngamePokedex';
+import { IngameCostume } from './entities/IngameCostume';
 
 dotenv.config();
 
@@ -19,7 +21,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  entities: [Account, AccountLocal, AccountSocial, Ingame, IngameOption, Bag, PC, LastGroundItem, LastWild],
+  entities: [Account, AccountLocal, AccountSocial, Ingame, IngameOption, IngamePokedex, IngameCostume, Bag, PC, LastGroundItem, LastWild],
   synchronize: true,
   logging: true,
 });

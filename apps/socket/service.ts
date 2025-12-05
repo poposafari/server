@@ -1,4 +1,4 @@
-import { PcData, Player, PlayerOption } from 'app';
+import { PcData, Player, PlayerCostume, PlayerOption } from 'app';
 import { pgClient } from './db';
 
 export class DatabaseService {
@@ -9,6 +9,7 @@ export class DatabaseService {
       await this.updateIngameData(accountId, player);
       await this.updateIngameOption(accountId, player.option);
       await this.updatePcData(accountId, player.pc);
+      await this.updateIngameCostume(accountId, player.costume);
 
       await pgClient.query('COMMIT');
     } catch (error) {
@@ -33,8 +34,10 @@ export class DatabaseService {
         pc_name = $10,
         is_starter_0 = $11,
         is_starter_1 = $12,
-        updated_at = CURRENT_TIMESTAMP
-      WHERE account_id = $13
+        updated_at = CURRENT_TIMESTAMP,
+        playtime = $13,
+        discovered_locations = $14
+      WHERE account_id = $15
     `;
 
     const values = [
@@ -50,6 +53,8 @@ export class DatabaseService {
       `{${player.pc.names.map((name: string) => `"${name}"`).join(',')}}`,
       player.isStarter0,
       player.isStarter1,
+      player.playtime,
+      player.discoveredLocations || [],
       accountId,
     ];
 
@@ -87,5 +92,29 @@ export class DatabaseService {
 
       await pgClient.query('UPDATE db.pc SET nickname = $1 WHERE idx = $2 AND account_id = $3', [nickname, idx, accountId]);
     }
+  }
+
+  private static async updateIngameCostume(accountId: number, costume: PlayerCostume) {
+    if (!costume) return;
+
+    const query = `
+      UPDATE db.ingame_costume 
+      SET
+        skin = $1,
+        eyes = $2,
+        hair = $3,
+        top = $4,
+        bottom = $5,
+        shoes = $6,
+        accessory_0 = $7,
+        accessory_1 = $8,
+        accessory_2 = $9,
+        accessory_3 = $10
+      WHERE account_id = $11
+    `;
+
+    const values = [costume.skin, costume.eyes, costume.hair, costume.top, costume.bottom, costume.shoes, costume.accessory0, costume.accessory1, costume.accessory2, costume.accessory3, accountId];
+
+    await pgClient.query(query, values);
   }
 }

@@ -63,6 +63,12 @@ export class Ingame {
   @CreateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt!: Date;
 
+  @Column({ type: 'integer', default: 0, name: 'playtime' })
+  playtime!: number;
+
+  @Column({ type: 'varchar', length: 4, array: true, default: () => 'ARRAY[]::VARCHAR(4)[]', name: 'discovered_locations' })
+  discoveredLocations!: string[];
+
   @Column({ type: 'boolean', default: true, name: 'is_starter_0' })
   isStarter0!: boolean;
 

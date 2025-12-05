@@ -10,6 +10,9 @@ export type InitPlayerData = {
   nickname: string;
   gender: 'boy' | 'girl';
   avatar: number;
+  playtime: number;
+  costume: PlayerCostume;
+  discoveredLocations: string[];
   pet: Pet | null;
   party: (number | null)[];
   slotItem: (number | null)[];
@@ -26,6 +29,9 @@ export type Player = {
   y: number;
   nickname: string;
   avatar: number;
+  playtime: number;
+  costume: PlayerCostume;
+  discoveredLocations: string[];
   facing: 'up' | 'down' | 'left' | 'right';
   pet: Pet | null;
   party: (number | null)[];
@@ -35,6 +41,19 @@ export type Player = {
   pc: PcData;
   isStarter0: boolean;
   isStarter1: boolean;
+};
+
+export type PlayerCostume = {
+  skin: number;
+  eyes: number;
+  hair: number;
+  top: number;
+  bottom: number;
+  shoes: number;
+  accessory0: number;
+  accessory1: number;
+  accessory2: number;
+  accessory3: number;
 };
 
 export type PlayerOption = {
@@ -254,6 +273,16 @@ export function registerEvent(io: Server) {
       updatePlayer(socket.id, { isStarter1: false });
     });
 
+    socket.on('update_playtime', (data: { playtime: number }) => {
+      if (!isAuthenticated || !accountId) return;
+
+      const player = players.get(socket.id);
+
+      if (!player) return;
+
+      updatePlayer(socket.id, { playtime: data.playtime });
+    });
+
     socket.on('disconnect', async (reason) => {
       console.log(`Socket disconnected: socketId=${socket.id}, reason=${reason}`);
 
@@ -329,6 +358,9 @@ const initPlayer = (io: Server, socketId: string, accountId: number, data: InitP
     nickname: data.nickname,
     gender: data.gender,
     avatar: data.avatar,
+    playtime: data.playtime,
+    costume: data.costume,
+    discoveredLocations: data.discoveredLocations,
     pet: data.pet,
     party: data.party,
     slotItem: data.slotItem,

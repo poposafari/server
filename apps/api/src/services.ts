@@ -64,6 +64,8 @@ import { OverworldType, PokemonSkill, Rarity } from './shared/enums';
 import { LastWild } from './entities/LastWild';
 import { LastGroundItem } from './entities/LastGroundItem';
 import { GroundItem, Wild } from './shared/types';
+import { IngameCostume } from './entities/IngameCostume';
+import { IngamePokedex } from './entities/IngamePokedex';
 
 export const registerLocal = async (data: RegisterLocalReq) => {
   const { username, password, email } = data;
@@ -190,8 +192,56 @@ export const getIngame = async (account: Account) => {
       }
     }
 
-    const option = await manager.findOne(IngameOption, { where: { account: { id: account.id } } });
-    const bag = await manager.find(Bag, { where: { account: { id: account.id } } });
+    const optionData = await manager.findOne(IngameOption, { where: { account: { id: account.id } } });
+    const bagData = await manager.find(Bag, { where: { account: { id: account.id } } });
+    const costumeData = await manager.findOne(IngameCostume, { where: { account: { id: account.id } } });
+    const pokedexData = await manager.findOne(IngamePokedex, { where: { account: { id: account.id } } });
+
+    const option = optionData
+      ? {
+          textSpeed: optionData.textSpeed,
+          frame: optionData.frame,
+          backgroundVolume: optionData.backgroundVolume,
+          effectVolume: optionData.effectVolume,
+          tutorial: optionData.tutorial,
+        }
+      : null;
+
+    const bag = bagData.map((item) => ({
+      idx: item.idx,
+      item: item.item,
+      category: item.category,
+      stock: item.stock,
+    }));
+
+    const costume = costumeData
+      ? {
+          skin: costumeData.skin,
+          eyes: costumeData.eyes,
+          hair: costumeData.hair,
+          top: costumeData.top,
+          bottom: costumeData.bottom,
+          shoes: costumeData.shoes,
+          accessory0: costumeData.accessory0,
+          accessory1: costumeData.accessory1,
+          accessory2: costumeData.accessory2,
+          accessory3: costumeData.accessory3,
+        }
+      : null;
+
+    const pokedex = pokedexData
+      ? {
+          gen1: pokedexData.gen1,
+          gen2: pokedexData.gen2,
+          gen3: pokedexData.gen3,
+          gen4: pokedexData.gen4,
+          gen5: pokedexData.gen5,
+          gen6: pokedexData.gen6,
+          gen7: pokedexData.gen7,
+          gen8: pokedexData.gen8,
+          gen9: pokedexData.gen9,
+        }
+      : null;
 
     ret = {
       location: ingame.location,
@@ -201,7 +251,9 @@ export const getIngame = async (account: Account) => {
       party: party,
       slotItem: slot_item,
       createdAt: ingame.createdAt,
-      updatedAt: ingame.updatedAt,
+      playtime: ingame.playtime,
+      discoveredLocations: ingame.discoveredLocations,
+      costume: costume,
       pcBg: ingame.pcBg,
       pcName: ingame.pcName,
       isStarter0: ingame.isStarter0,
@@ -211,6 +263,7 @@ export const getIngame = async (account: Account) => {
       y: ingame.y,
       option: option,
       bag: bag,
+      pokedex: pokedex,
     };
   });
 
@@ -222,6 +275,8 @@ export const registerIngame = async (data: RegisterIngameReq, account: Account) 
   await AppDataSource.manager.transaction(async (manager) => {
     const ingameRepo = manager.getRepository(Ingame);
     const optionRepo = manager.getRepository(IngameOption);
+    const costumeRepo = manager.getRepository(IngameCostume);
+    const pokedexRepo = manager.getRepository(IngamePokedex);
 
     const existingNickname = await ingameRepo.findOneBy({ nickname: data.nickname });
     if (existingNickname) {
@@ -236,6 +291,8 @@ export const registerIngame = async (data: RegisterIngameReq, account: Account) 
       location: START_LOCATION,
       gender: getGenderEnum(data.gender),
       avatar: data.avatar,
+      playtime: 0,
+      discoveredLocations: [],
       candy: 0,
     });
     await manager.save(newIngame);
@@ -250,9 +307,21 @@ export const registerIngame = async (data: RegisterIngameReq, account: Account) 
     });
     await manager.save(newOption);
 
+    const newCostume = costumeRepo.create({
+      account: account,
+    });
+    await manager.save(newCostume);
+
+    const newPokedex = pokedexRepo.create({
+      account: account,
+    });
+    await manager.save(newPokedex);
+
     ret = {
       ...newIngame,
       option: newOption,
+      costume: newCostume,
+      pokedex: newPokedex,
     };
   });
 
@@ -626,27 +695,31 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
 
   await AppDataSource.manager.transaction(async (manager) => {
     const now = new Date();
+    const isLab = data.overworld === 'lab';
     const existWilds = await manager.find(LastWild, { where: { account: { id: account.id }, location: data.overworld } });
     const existGroundItems = await manager.find(LastGroundItem, { where: { account: { id: account.id }, location: data.overworld } });
     const wildsToUpdate: { idx: number; pokemon: ReturnType<typeof getWildPokemons>[0]; spawnTime: Date; despawnTime: Date }[] = [];
 
     if (existWilds.length > 0) {
-      const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn[data.time], overworldData.wild.count);
-      const newWildsPool = getWildPokemons(pokedexs);
+      // 'lab'인 경우 despawn 시간을 고려하지 않고 기존 데이터를 그대로 사용
+      if (!isLab) {
+        const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn[data.time], overworldData.wild.count);
+        const newWildsPool = getWildPokemons(pokedexs);
 
-      for (let i = 0; i < existWilds.length; i++) {
-        const existing = existWilds[i];
-        if (existing.despawn <= now) {
-          const newPokemon = newWildsPool[i % newWildsPool.length];
-          const spawnTime = new Date();
-          const despawnTime = generateDespawnTime(spawnTime);
+        for (let i = 0; i < existWilds.length; i++) {
+          const existing = existWilds[i];
+          if (existing.despawn <= now) {
+            const newPokemon = newWildsPool[i % newWildsPool.length];
+            const spawnTime = new Date();
+            const despawnTime = generateDespawnTime(spawnTime);
 
-          wildsToUpdate.push({
-            idx: existing.idx,
-            pokemon: newPokemon,
-            spawnTime,
-            despawnTime,
-          });
+            wildsToUpdate.push({
+              idx: existing.idx,
+              pokemon: newPokemon,
+              spawnTime,
+              despawnTime,
+            });
+          }
         }
       }
     } else {
