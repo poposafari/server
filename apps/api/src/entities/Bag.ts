@@ -13,7 +13,7 @@ export class Bag {
   @JoinColumn({ name: 'account_id' })
   account!: Account;
 
-  @Column({ type: 'varchar', length: 3 })
+  @Column({ type: 'varchar', length: 50 })
   item!: string;
 
   @Column({ type: 'enum', enum: ItemCategory })

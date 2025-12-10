@@ -10,6 +10,7 @@ import {
   LoginFailHttpError,
   NoMoreEvolve,
   NotEnoughCandy,
+  NotEnoughMoney,
   NotFoundAccountHttpError,
   NotFoundIngame,
   NotFoundIngameItem,
@@ -18,6 +19,7 @@ import {
   NotFoundPokemonData,
   NotFoundSafariTicket,
   NotPurchasableIngameItem,
+  NotSellableIngameItem,
 } from './utils/http-error';
 import { Ingame } from './entities/Ingame';
 import { AppDataSource } from './data-source';
@@ -35,6 +37,7 @@ import {
   getRandomRewards,
   getWildPokemons,
   getWildSpawnTable,
+  matchTypeWithBallRate,
   matchTypeWithBerryRate,
 } from './utils/methods';
 import { Account } from './entities/Account';
@@ -57,6 +60,7 @@ import {
   MovePcReq,
   RegisterIngameReq,
   RegisterLocalReq,
+  SellItemReq,
   UseItemReq,
 } from './shared/interfaces';
 import { EVOLVE_BONUS_CNT, MAX_BUY, MAX_PER_BOX, MAX_STOCK, SaltOrRounds, START_LOCATION, START_X, START_Y } from './shared/constants';
@@ -259,6 +263,7 @@ export const getIngame = async (account: Account) => {
       isStarter0: ingame.isStarter0,
       isStarter1: ingame.isStarter1,
       candy: ingame.candy,
+      money: ingame.money,
       x: ingame.x,
       y: ingame.y,
       option: option,
@@ -378,24 +383,23 @@ export const getIngameItems = async (account: Account, manager?: EntityManager):
   return gameSuccess(ret);
 };
 
-export const buyItem = async (account: Account, data: BuyItemReq): Promise<any> => {
+export const buyItem = async (account: Account, data: SellItemReq): Promise<any> => {
   let ret;
 
   await AppDataSource.manager.transaction(async (manager) => {
     const itemData = getItemData(data.item);
 
     if (!itemData) throw new NotFoundIngameItem();
-    if (!itemData.purchasable) throw new NotPurchasableIngameItem();
+    if (!itemData.sellable) throw new NotSellableIngameItem();
     if (data.stock <= 0 || data.stock > MAX_BUY) throw new IngameItemStockLimitExceeded();
 
     const ingame = await manager.findOne(Ingame, { where: { account: { id: account.id } } });
     if (!ingame) throw new NotFoundIngame();
 
-    const cost = data.stock * itemData.price;
-    if (cost > ingame.candy) throw new NotEnoughCandy();
+    const cost = data.stock * itemData.sellPrice;
 
-    const newCandy = ingame.candy - cost;
-    await manager.update(Ingame, { account: { id: account.id } }, { candy: newCandy });
+    const newMoney = ingame.money + cost;
+    await manager.update(Ingame, { account: { id: account.id } }, { money: newMoney });
     const resultItem = await addIngameItem(account, { item: data.item, stock: data.stock }, manager);
 
     ret = {
@@ -403,7 +407,46 @@ export const buyItem = async (account: Account, data: BuyItemReq): Promise<any> 
       item: resultItem.item,
       category: resultItem.category,
       stock: resultItem.stock,
-      candy: newCandy,
+      money: newMoney,
+    };
+  });
+
+  return ret;
+};
+
+export const sellItem = async (account: Account, data: SellItemReq): Promise<any> => {
+  let ret;
+
+  await AppDataSource.manager.transaction(async (manager) => {
+    const itemData = getItemData(data.item);
+    if (!itemData) throw new NotFoundIngameItem();
+    if (!itemData.sellable) throw new NotSellableIngameItem();
+    if (data.stock <= 0 || data.stock > MAX_BUY) throw new IngameItemStockLimitExceeded();
+
+    const ingame = await manager.findOne(Ingame, { where: { account: { id: account.id } } });
+    if (!ingame) throw new NotFoundIngame();
+
+    const bagRepo = manager.getRepository(Bag);
+    const bagItem = await bagRepo.findOne({ where: { account: { id: account.id }, item: data.item } });
+
+    if (!bagItem || bagItem.stock < data.stock) throw new NotFoundIngameItem();
+
+    const gain = itemData.sellPrice * data.stock;
+    const newMoney = ingame.money + gain;
+    const remainingStock = bagItem.stock - data.stock;
+
+    if (remainingStock > 0) {
+      await bagRepo.update({ idx: bagItem.idx }, { stock: remainingStock });
+    } else {
+      await bagRepo.delete({ idx: bagItem.idx });
+    }
+
+    await manager.update(Ingame, { account: { id: account.id } }, { money: newMoney });
+
+    ret = {
+      item: data.item,
+      stock: remainingStock > 0 ? remainingStock : 0,
+      money: newMoney,
     };
   });
 
@@ -422,6 +465,7 @@ export const addPcPokemon = async (account: Account, pokemon: AddPcReq, manager?
     account: { id: account.id },
     pokedex: pokemon.pokedex,
     gender: pokemon.gender,
+    region: pokemon.region,
   });
 
   if (!ingame) throw new NotFoundIngame();
@@ -432,7 +476,7 @@ export const addPcPokemon = async (account: Account, pokemon: AddPcReq, manager?
     const newSkills = hasSkill ? [...currentSkills, pokemon.skill] : currentSkills;
 
     await pcRepo.update(
-      { account: { id: account.id }, pokedex: pokemon.pokedex, gender: pokemon.gender },
+      { account: { id: account.id }, pokedex: pokemon.pokedex, gender: pokemon.gender, region: pokemon.region },
       {
         shiny: pokemon.shiny,
         form: pokemon.form,
@@ -449,6 +493,7 @@ export const addPcPokemon = async (account: Account, pokemon: AddPcReq, manager?
       account: { id: account.id },
       pokedex: pokemon.pokedex,
       gender: pokemon.gender,
+      region: pokemon.region,
       shiny: pokemon.shiny,
       form: pokemon.form,
       skill: [pokemon.skill],
@@ -600,7 +645,7 @@ export const evolvePc = async (account: Account, data: EvolvePcReq): Promise<any
     }
 
     const existPokemon = await manager.findOne(PC, {
-      where: { account: { id: account.id }, pokedex: pokemonData.nextEvol.next, gender: pokemon.gender },
+      where: { account: { id: account.id }, pokedex: pokemonData.nextEvol.next, gender: pokemon.gender, region: pokemon.region },
     });
 
     if (existPokemon) {
@@ -694,6 +739,32 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
   if (overworldData.type === OverworldType.PLAZA) return gameSuccess(null);
 
   await AppDataSource.manager.transaction(async (manager) => {
+    // 파티 검증 및 포획 횟수 계산
+    let totalCaptureCount = 0;
+
+    if (data.party && data.party.length > 0) {
+      const validatedPCs = [];
+
+      for (const idx of data.party) {
+        if (!idx) continue; // null 체크
+
+        // account_id가 일치하는 PC만 조회
+        const pc = await manager.findOne(PC, {
+          where: { idx: idx, account: { id: account.id } },
+        });
+
+        // 존재하지 않으면 빈 배열 반환
+        if (!pc) {
+          return gameSuccess({ wilds: [], groundItems: [] });
+        }
+
+        validatedPCs.push(pc);
+      }
+
+      // 포획 횟수 총합 계산
+      totalCaptureCount = validatedPCs.reduce((sum, pc) => sum + pc.count, 0);
+    }
+
     const now = new Date();
     const isLab = data.overworld === 'lab';
     const existWilds = await manager.find(LastWild, { where: { account: { id: account.id }, location: data.overworld } });
@@ -703,8 +774,8 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
     if (existWilds.length > 0) {
       // 'lab'인 경우 despawn 시간을 고려하지 않고 기존 데이터를 그대로 사용
       if (!isLab) {
-        const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn[data.time], overworldData.wild.count);
-        const newWildsPool = getWildPokemons(pokedexs);
+        const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn[data.time], overworldData.wild.count, totalCaptureCount);
+        const newWildsPool = getWildPokemons(pokedexs, data.overworld);
 
         for (let i = 0; i < existWilds.length; i++) {
           const existing = existWilds[i];
@@ -723,8 +794,8 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
         }
       }
     } else {
-      const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn[data.time], overworldData.wild.count);
-      const newWilds = getWildPokemons(pokedexs);
+      const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn[data.time], overworldData.wild.count, totalCaptureCount);
+      const newWilds = getWildPokemons(pokedexs, data.overworld);
 
       for (const pokemon of newWilds) {
         const spawnTime = new Date();
@@ -736,6 +807,7 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
             location: data.overworld,
             pokedex: pokemon.pokedex,
             gender: pokemon.gender,
+            region: pokemon.region,
             shiny: pokemon.shiny,
             form: pokemon.form,
             skill: Array.isArray(pokemon.skills) ? pokemon.skills : [pokemon.skills],
@@ -756,6 +828,7 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
         {
           pokedex: pokemon.pokedex,
           gender: pokemon.gender,
+          region: pokemon.region,
           shiny: pokemon.shiny,
           form: pokemon.form,
           skill: Array.isArray(pokemon.skills) ? pokemon.skills : [pokemon.skills],
@@ -835,14 +908,14 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
 
     const captureCountMap = new Map<string, number>();
     if (finalWilds.length > 0) {
-      const uniqueKeys = new Set(finalWilds.map((p) => `${p.pokedex}_${p.gender}`));
+      const uniqueKeys = new Set(finalWilds.map((p) => `${p.pokedex}_${p.gender}_${p.region}`));
       const allPcRecords = await manager.find(PC, {
         where: { account: { id: account.id } },
       });
       allPcRecords
-        .filter((pc) => uniqueKeys.has(`${pc.pokedex}_${pc.gender}`))
+        .filter((pc) => uniqueKeys.has(`${pc.pokedex}_${pc.gender}_${pc.region}`))
         .forEach((pc) => {
-          const key = `${pc.pokedex}_${pc.gender}`;
+          const key = `${pc.pokedex}_${pc.gender}_${pc.region}`;
           captureCountMap.set(key, pc.count);
         });
     }
@@ -855,12 +928,13 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
       const type1 = pokemonData.type1;
       const type2 = pokemonData.type2;
 
-      const count = captureCountMap.get(`${pokemon.pokedex}_${pokemon.gender}`) ?? 0;
+      const count = captureCountMap.get(`${pokemon.pokedex}_${pokemon.gender}_${pokemon.region}`) ?? 0;
 
       return {
         idx: pokemon.idx,
         pokedex: pokemon.pokedex,
         gender: pokemon.gender,
+        region: pokemon.region,
         shiny: pokemon.shiny,
         fleeRate: fleeRate,
         skills: pokemon.skill,
@@ -951,9 +1025,6 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
   const wildData = getPokemonData(wild.pokedex);
   if (!wildData) throw new NotFoundPokemonData();
 
-  const ballData = getCatchItemData(data.ball);
-  if (!ballData) throw new NotFoundIngameItem();
-
   let ret;
 
   await AppDataSource.manager.transaction(async (manager) => {
@@ -967,11 +1038,11 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
 
       const partyData = getPokemonData(party.pokedex);
 
-      // - 이로치: +3% 보너스
-      // - 포획 횟수: count당 +0.5% (최대 25%)
+      // - 이로치: +5% 보너스
+      // - 포획 횟수: count당 +0.1% (최대 100%)
       // - RARE(+2%), EPIC(+4%), LEGENDARY(+6%)
-      const shinyBonus = party.shiny ? 0.03 : 0;
-      const countBonus = Math.min(party.count * 0.005, 0.25);
+      const shinyBonus = party.shiny ? 0.05 : 0;
+      const countBonus = Math.min(party.count * 0.001, 1);
 
       let rankBonus = 0;
       switch (partyData.rank) {
@@ -991,13 +1062,14 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
       partyBonus += shinyBonus + countBonus + rankBonus;
     }
 
+    const ballRate = matchTypeWithBallRate(data.ball);
     const berryRate = matchTypeWithBerryRate(data.berry, wildData.type1, wildData.type2);
-    const baseRate = wildData.rate.capture * ballData.rate * berryRate;
+    const baseRate = wildData.rate.capture * ballRate * berryRate;
     const finalRate = Math.min(baseRate + partyBonus, 1.0);
 
     console.log('Capture calculation:', {
       baseRate: wildData.rate.capture,
-      ballRate: ballData.rate,
+      ballRate: ballRate,
       berryRate,
       partyBonus,
       finalRate,
@@ -1005,7 +1077,7 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
 
     let captureSuccess = Math.random() <= finalRate;
 
-    if (data.ball === '001') captureSuccess = true;
+    if (data.ball === 'master-ball') captureSuccess = true;
 
     await useItem(account, { item: data.ball, cost: 1 }, manager);
 
@@ -1020,6 +1092,7 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
         {
           pokedex: wild.pokedex,
           gender: wild.gender,
+          region: wild.region,
           shiny: wild.shiny,
           form: wild.form || '',
           skill: wild.skill && wild.skill.length > 0 ? wild.skill[0] : PokemonSkill.NONE,
@@ -1042,7 +1115,7 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
         await addIngameItem(account, { item: rewardItem.item, stock: rewardItem.stock }, manager);
       }
 
-      const pc = await manager.findOne(PC, { where: { account: { id: account.id }, pokedex: wild.pokedex, gender: wild.gender } });
+      const pc = await manager.findOne(PC, { where: { account: { id: account.id }, pokedex: wild.pokedex, gender: wild.gender, region: wild.region } });
 
       let pcWithData = null;
       if (pc) {
@@ -1108,22 +1181,23 @@ export const catchStarterPokemon = async (account: Account, data: CatchStarterPo
       {
         pokedex: pokemon.pokedex,
         gender: pokemon.gender,
+        region: pokemon.region,
         shiny: pokemon.shiny,
         form: pokemon.form || '',
         skill: pokemon.skill && pokemon.skill.length > 0 ? pokemon.skill[0] : PokemonSkill.NONE,
         location: pokemon.location,
-        capture_ball: '002',
+        capture_ball: 'poke-ball',
       },
       manager,
     );
     await exitSafariZone(account, manager);
-    await addIngameItem(account, { item: '002', stock: 30 }, manager);
-    await addIngameItem(account, { item: '003', stock: 10 }, manager);
-    await addIngameItem(account, { item: '004', stock: 5 }, manager);
-    await addIngameItem(account, { item: '011', stock: 3 }, manager);
-    await addIngameItem(account, { item: '012', stock: 3 }, manager);
-    await addIngameItem(account, { item: '014', stock: 3 }, manager);
-    await addIngameItem(account, { item: '029', stock: 3 }, manager);
+    await addIngameItem(account, { item: 'poke-ball', stock: 30 }, manager);
+    await addIngameItem(account, { item: 'great-ball', stock: 10 }, manager);
+    await addIngameItem(account, { item: 'ultra-ball', stock: 5 }, manager);
+    await addIngameItem(account, { item: 'occa-berry', stock: 3 }, manager);
+    await addIngameItem(account, { item: 'passho-berry', stock: 3 }, manager);
+    await addIngameItem(account, { item: 'rindo-berry', stock: 3 }, manager);
+    await addIngameItem(account, { item: 'enigma-berry', stock: 3 }, manager);
     await manager.update(Ingame, { account: { id: account.id } }, { isStarter0: false, isStarter1: false });
   });
 

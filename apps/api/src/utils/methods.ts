@@ -60,8 +60,30 @@ export const getNextPcBoxNum = (ingameBoxesCnt: number[]): number[] => {
   return ret;
 };
 
-export const getRandomGender = (): PokemonGender.FEMALE | PokemonGender.MALE => {
-  return Math.random() < 0.5 ? PokemonGender.FEMALE : PokemonGender.MALE;
+export const getRandomGender = (male: number, female: number): PokemonGender.FEMALE | PokemonGender.MALE | PokemonGender.NONE => {
+  // 두 값이 모두 0이면 NONE 반환
+  if (male === 0 && female === 0) {
+    return PokemonGender.NONE;
+  }
+
+  // 확률 합계 계산
+  const total = male + female;
+
+  // 합계가 0이면 NONE 반환 (안전장치)
+  if (total === 0) {
+    return PokemonGender.NONE;
+  }
+
+  // 0~1 사이의 랜덤 값 생성
+  const random = Math.random() * total;
+
+  // male 확률 범위 내에 있으면 MALE 반환
+  if (random < male) {
+    return PokemonGender.MALE;
+  }
+
+  // 그 외에는 FEMALE 반환
+  return PokemonGender.FEMALE;
 };
 
 export const getShinyRandom = (): boolean => {
@@ -79,14 +101,45 @@ export const getRandomSpawn = (pokedex: string): WildSpawn => {
   return WildSpawn.LAND;
 };
 
-export const getRandomWildPokedex = (spawns: string[], count: number) => {
+/**
+ * 포획 횟수 총합에 따른 희귀도별 가중치 계산
+ * @param totalCount 포획 횟수 총합
+ * @param rarity 희귀도
+ * @returns 가중치 (1.0 이상)
+ */
+export const getRarityWeight = (totalCount: number, rarity: Rarity): number => {
+  const baseWeight = 1.0;
+
+  // 포획 횟수를 0~1 범위로 정규화 (최대 500 기준)
+  const normalizedCount = Math.min(totalCount / 500, 1.0);
+
+  // 희귀도별 보너스 계수
+  const rarityMultipliers: Record<Rarity, number> = {
+    [Rarity.COMMON]: 0.0, // 변화 없음
+    [Rarity.RARE]: 0.15, // 최대 15% 증가
+    [Rarity.EPIC]: 0.3, // 최대 30% 증가
+    [Rarity.LEGENDARY]: 0.5, // 최대 50% 증가
+  };
+
+  const bonus = normalizedCount * rarityMultipliers[rarity];
+  return baseWeight + bonus;
+};
+
+export const getRandomWildPokedex = (spawns: string[], count: number, totalCaptureCount: number = 0) => {
   const ret: string[] = [];
   const target: { pokedex: string; rate: number }[] = [];
 
   for (const pokedex of spawns) {
     const pokemon = PokemonData[pokedex];
     if (pokemon) {
-      const rate = pokemon.rate.spawn ?? 0;
+      let rate = pokemon.rate.spawn ?? 0;
+
+      // 포획 횟수가 0보다 크면 희귀도 보너스 가중치 적용
+      if (totalCaptureCount > 0 && rate > 0) {
+        const rarityWeight = getRarityWeight(totalCaptureCount, pokemon.rank);
+        rate = rate * rarityWeight;
+      }
+
       if (rate > 0) {
         target.push({ pokedex, rate });
       }
@@ -112,11 +165,11 @@ export const getRandomWildPokedex = (spawns: string[], count: number) => {
   return ret;
 };
 
-export const getWildSpawnTable = (safari: string, spawns: string[], count: number) => {
+export const getWildSpawnTable = (safari: string, spawns: string[], count: number, totalCaptureCount: number = 0) => {
   if (safari === 'lab') {
     return spawns;
   } else {
-    return getRandomWildPokedex(spawns, count);
+    return getRandomWildPokedex(spawns, count, totalCaptureCount);
   }
 };
 
@@ -196,18 +249,20 @@ export const generateDespawnTime = (spawnTime: Date = new Date()): Date => {
   return despawnTime;
 };
 
-export const getWildPokemons = (pokedexs: string[]): Wild[] => {
+export const getWildPokemons = (pokedexs: string[], region: string = 'kanto'): Wild[] => {
   const ret: Wild[] = [];
 
   for (const pokedex of pokedexs) {
     const pokemonData = getPokemonData(pokedex);
     const baseRate = pokemonData.rate.capture;
     const rank = pokemonData.rank;
+    const maleRate = pokemonData.rate.male ?? 0;
+    const femaleRate = pokemonData.rate.female ?? 0;
 
     ret.push({
       idx: -1,
       pokedex: pokedex,
-      gender: getRandomGender(),
+      gender: getRandomGender(maleRate, femaleRate),
       shiny: getShinyRandom(),
       skills: [],
       form: '',
@@ -218,6 +273,7 @@ export const getWildPokemons = (pokedexs: string[]): Wild[] => {
       type2: pokemonData.type2,
       rank: rank,
       spawn: getRandomSpawn(pokedex),
+      region: region,
     });
   }
 
@@ -304,69 +360,82 @@ export const readJson = (file: string) => {
   return JSON.parse(rawData);
 };
 
+export const matchTypeWithBallRate = (ball: string): number => {
+  switch (ball) {
+    case 'poke-ball':
+      return 1.0;
+    case 'great-ball':
+      return 1.5;
+    case 'ultra-ball':
+      return 2.0;
+    default:
+      return 1.0;
+  }
+};
+
 export const matchTypeWithBerryRate = (berry: string | null, type1: PokemonType, type2: PokemonType | null) => {
   if (!berry) return 1.0;
 
-  const rate = getCatchItemData(berry).rate;
+  const bonusRate = 1.05;
 
   switch (berry) {
-    case '011':
-      if ([type1, type2].includes(PokemonType.FIRE)) return rate;
+    case 'occa-berry':
+      if ([type1, type2].includes(PokemonType.FIRE)) return bonusRate;
       break;
-    case '012':
-      if ([type1, type2].includes(PokemonType.WATER)) return rate;
+    case 'passho-berry':
+      if ([type1, type2].includes(PokemonType.WATER)) return bonusRate;
       break;
-    case '013':
-      if ([type1, type2].includes(PokemonType.ELECTRIC)) return rate;
+    case 'wacan-berry':
+      if ([type1, type2].includes(PokemonType.ELECTRIC)) return bonusRate;
       break;
-    case '014':
-      if ([type1, type2].includes(PokemonType.GRASS)) return rate;
+    case 'rindo-berry':
+      if ([type1, type2].includes(PokemonType.GRASS)) return bonusRate;
       break;
-    case '015':
-      if ([type1, type2].includes(PokemonType.ICE)) return rate;
+    case 'yache-berry':
+      if ([type1, type2].includes(PokemonType.ICE)) return bonusRate;
       break;
-    case '016':
-      if ([type1, type2].includes(PokemonType.FIGHT)) return rate;
+    case 'chople-berry':
+      if ([type1, type2].includes(PokemonType.FIGHT)) return bonusRate;
       break;
-    case '017':
-      if ([type1, type2].includes(PokemonType.POISON)) return rate;
+    case 'kebia-berry':
+      if ([type1, type2].includes(PokemonType.POISON)) return bonusRate;
       break;
-    case '018':
-      if ([type1, type2].includes(PokemonType.GROUND)) return rate;
+    case 'shuca-berry':
+      if ([type1, type2].includes(PokemonType.GROUND)) return bonusRate;
       break;
-    case '019':
-      if ([type1, type2].includes(PokemonType.FLYING)) return rate;
+    case 'coba-berry':
+      if ([type1, type2].includes(PokemonType.FLYING)) return bonusRate;
       break;
-    case '020':
-      if ([type1, type2].includes(PokemonType.PSYCHIC)) return rate;
+    case 'payapa-berry':
+      if ([type1, type2].includes(PokemonType.PSYCHIC)) return bonusRate;
       break;
-    case '021':
-      if ([type1, type2].includes(PokemonType.BUG)) return rate;
+    case 'tanga-berry':
+      if ([type1, type2].includes(PokemonType.BUG)) return bonusRate;
       break;
-    case '022':
-      if ([type1, type2].includes(PokemonType.ROCK)) return rate;
+    case 'charti-berry':
+      if ([type1, type2].includes(PokemonType.ROCK)) return bonusRate;
       break;
-    case '023':
-      if ([type1, type2].includes(PokemonType.GHOST)) return rate;
+    case 'kasib-berry':
+      if ([type1, type2].includes(PokemonType.GHOST)) return bonusRate;
       break;
-    case '024':
-      if ([type1, type2].includes(PokemonType.DRAGON)) return rate;
+    case 'haban-berry':
+      if ([type1, type2].includes(PokemonType.DRAGON)) return bonusRate;
       break;
-    case '025':
-      if ([type1, type2].includes(PokemonType.DARK)) return rate;
+    case 'colbur-berry':
+      if ([type1, type2].includes(PokemonType.DARK)) return bonusRate;
       break;
-    case '026':
-      if ([type1, type2].includes(PokemonType.STEEL)) return rate;
+    case 'babiri-berry':
+      if ([type1, type2].includes(PokemonType.STEEL)) return bonusRate;
       break;
-    case '027':
-      if ([type1, type2].includes(PokemonType.FAIRY)) return rate;
+    case 'roseli-berry':
+      if ([type1, type2].includes(PokemonType.FAIRY)) return bonusRate;
       break;
-    case '028':
-      if ([type1, type2].includes(PokemonType.NORMAL)) return rate;
+    case 'chilan-berry':
+      if ([type1, type2].includes(PokemonType.NORMAL)) return bonusRate;
       break;
-    case '029':
-      return rate;
-      break;
+    case 'enigma-berry':
+      // 의문열매는 모든 타입에 적용
+      return bonusRate;
   }
 
   return 1.0;

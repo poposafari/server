@@ -13,7 +13,7 @@ export class LastGroundItem {
   @Column({ type: 'varchar', length: 4 })
   location!: string;
 
-  @Column({ type: 'varchar', length: 3 })
+  @Column({ type: 'varchar', length: 50 })
   item!: string;
 
   @Column({ type: 'integer' })

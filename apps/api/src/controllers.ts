@@ -27,6 +27,7 @@ import {
   receiveAvailableTicket,
   registerIngame,
   registerLocal,
+  sellItem,
   useSafariTicket,
 } from './services';
 import { Account } from './entities/Account';
@@ -134,6 +135,11 @@ class BagController {
 
   static async buyIngameItem(req: Request, res: Response): Promise<any> {
     const ret = await buyItem(res.locals.account, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async sellIngameItem(req: Request, res: Response): Promise<any> {
+    const ret = await sellItem(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 

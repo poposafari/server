@@ -34,6 +34,11 @@ export interface BuyItemReq {
   stock: number;
 }
 
+export interface SellItemReq {
+  item: string;
+  stock: number;
+}
+
 export interface UseItemReq {
   item: string;
   cost: number;
@@ -47,6 +52,7 @@ export interface AddPcReq {
   skill: PokemonSkill;
   location: string;
   capture_ball: string;
+  region: string;
 }
 
 export interface GetPcReq {
@@ -66,6 +72,7 @@ export interface EvolvePcReq {
 export interface EnterSafariZoneReq {
   overworld: string;
   time: 'day' | 'dusk' | 'night';
+  party: number[];
 }
 
 export interface CatchWildReq {

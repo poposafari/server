@@ -68,6 +68,12 @@ export class NotPurchasableIngameItem extends HttpError {
   }
 }
 
+export class NotSellableIngameItem extends HttpError {
+  constructor() {
+    super(404, HttpErrorCode.NOT_SELLABLE_INGAME_ITEM);
+  }
+}
+
 export class IngamePcIsFull extends HttpError {
   constructor() {
     super(404, HttpErrorCode.INGAME_PC_IS_FULL);
@@ -95,6 +101,12 @@ export class NoMoreEvolve extends HttpError {
 export class NotEnoughCandy extends HttpError {
   constructor() {
     super(404, HttpErrorCode.NOT_ENOUGH_CANDY);
+  }
+}
+
+export class NotEnoughMoney extends HttpError {
+  constructor() {
+    super(404, HttpErrorCode.NOT_ENOUGH_MONEY);
   }
 }
 

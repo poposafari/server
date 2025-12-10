@@ -23,6 +23,12 @@ export class PC {
   @Column({ type: 'integer', default: 1 })
   count!: number;
 
+  @Column({ type: 'integer', default: 0, name: 'friend_ship' })
+  friendShip!: number;
+
+  @Column({ type: 'varchar', length: 10 })
+  region!: string;
+
   @Column({ type: 'boolean' })
   shiny!: boolean;
 
@@ -44,10 +50,10 @@ export class PC {
   @Column({ type: 'varchar', length: 4, nullable: true, name: 'updated_location' })
   updatedLocation!: string;
 
-  @Column({ type: 'varchar', length: 3, nullable: false, name: 'created_ball' })
+  @Column({ type: 'varchar', length: 20, nullable: false, name: 'created_ball' })
   createdBall!: string;
 
-  @Column({ type: 'varchar', length: 3, nullable: true, name: 'updated_ball' })
+  @Column({ type: 'varchar', length: 20, nullable: true, name: 'updated_ball' })
   updatedBall!: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })

@@ -17,6 +17,7 @@ export type Wild = {
   type2: PokemonType | null;
   rank: string;
   spawn: WildSpawn;
+  region: string;
 };
 
 export type GroundItem = {
@@ -54,6 +55,8 @@ export type PokemonRate = {
   spawn: number;
   capture: number;
   flee: number;
+  male: number;
+  female: number;
 };
 
 export type Pokemon = {
@@ -64,13 +67,18 @@ export type Pokemon = {
   type1: PokemonType;
   type2: PokemonType | null;
   spawn: WildSpawn[];
+  skill: PokemonSkill[];
+  ability: string[];
 };
 
 export type Item = {
   comment: string;
   type: ItemCategory;
-  price: number;
+  buyPrice: number;
+  sellPrice: number;
   purchasable: boolean;
+  sellable: boolean;
+  spawnable: boolean;
   rate: number;
   maxground: number;
   rank: Rarity;

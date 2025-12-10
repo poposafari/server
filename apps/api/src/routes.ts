@@ -25,6 +25,7 @@ const BagRouter = Router();
 BagRouter.post('/add', Authenticate, Controllers.Bag.addIngameItem);
 BagRouter.get('/get', Authenticate, Controllers.Bag.getIngameItems);
 BagRouter.post('/buy', Authenticate, Controllers.Bag.buyIngameItem);
+BagRouter.post('/sell', Authenticate, Controllers.Bag.sellIngameItem);
 BagRouter.post('/ticket/use', Authenticate, Controllers.Bag.useSafariTicket);
 
 //PC

@@ -35,8 +35,11 @@ export class LastWild {
   @Column({ type: 'enum', enum: WildSpawn, name: 'spawn_type' })
   spawnType!: WildSpawn;
 
-  @Column({ type: 'varchar', length: 3, nullable: true, name: 'eaten_berry' })
+  @Column({ type: 'varchar', length: 50, nullable: true, name: 'eaten_berry' })
   eatenBerry!: string | null;
+
+  @Column({ type: 'varchar', length: 10 })
+  region!: string;
 
   @Column({ type: 'timestamptz', name: 'spawn' })
   spawn!: Date;

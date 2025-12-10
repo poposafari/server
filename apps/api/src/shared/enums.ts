@@ -17,7 +17,9 @@ export const enum HttpErrorCode {
   NOT_FOUND_POKEMON_DATA = 'NOT_FOUND_POKEMON_DATA',
   NO_MORE_EVOLVE = 'NO_MORE_EVOLVE',
   NOT_ENOUGH_CANDY = 'NOT_ENOUGH_CANDY',
+  NOT_ENOUGH_MONEY = 'NOT_ENOUGH_MONEY',
   NOT_PURCHASABLE_INGAME_ITEM = 'NOT_PURCHASABLE_INGAME_ITEM',
+  NOT_SELLABLE_INGAME_ITEM = 'NOT_SELLABLE_INGAME_ITEM',
   NOT_FOUND_SAFARI_TICKET = 'NOT_FOUND_SAFARI_TICKET',
 }
 
@@ -31,6 +33,7 @@ export enum ItemCategory {
   KEY = 'key',
   BERRY = 'berry',
   ETC = 'etc',
+  TMs_HMs = 'tms_hms',
 }
 
 export enum PlayerGender {
@@ -47,7 +50,15 @@ export enum PokemonGender {
 export enum PokemonSkill {
   NONE = 'none',
   SURF = 'surf',
-  DARK_EYES = 'dark_eyes',
+  MEAN_LOOK = 'mean_look',
+  FLASH = 'flash',
+  DEFOG = 'defog',
+  CUT = 'cut',
+  ROCK_SMASH = 'rock_smash',
+  STRENGTH = 'strength',
+  WATERFALL = 'waterfall',
+  DIVE = 'dive',
+  FLY = 'fly',
 }
 
 export const enum PokemonType {

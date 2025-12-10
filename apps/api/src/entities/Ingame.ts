@@ -1,4 +1,4 @@
-import { Check, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { Check, Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 import { Account } from './Account';
 import { PC } from './PC';
 import { PlayerGender } from '../shared/enums';
@@ -15,7 +15,7 @@ export class Ingame {
   @JoinColumn({ name: 'account_id' })
   account!: Account;
 
-  @Column({ type: 'varchar', length: 12, unique: true })
+  @Column({ type: 'varchar', length: 20, unique: true })
   nickname!: string;
 
   @Column({ type: 'integer', default: 0 })
@@ -39,6 +39,9 @@ export class Ingame {
   @Column({ type: 'integer', default: 0 })
   candy!: number;
 
+  @Column({ type: 'integer', default: 0, name: 'money' })
+  money!: number;
+
   @OneToOne(() => PC, { nullable: true, onDelete: 'SET NULL' })
   pc!: PC;
 
@@ -60,7 +63,7 @@ export class Ingame {
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;
 
-  @CreateDateColumn({ type: 'timestamptz', name: 'updated_at' })
+  @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at' })
   updatedAt!: Date;
 
   @Column({ type: 'integer', default: 0, name: 'playtime' })
