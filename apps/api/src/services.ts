@@ -390,15 +390,16 @@ export const buyItem = async (account: Account, data: SellItemReq): Promise<any>
     const itemData = getItemData(data.item);
 
     if (!itemData) throw new NotFoundIngameItem();
-    if (!itemData.sellable) throw new NotSellableIngameItem();
+    if (!itemData.purchasable) throw new NotPurchasableIngameItem();
     if (data.stock <= 0 || data.stock > MAX_BUY) throw new IngameItemStockLimitExceeded();
 
     const ingame = await manager.findOne(Ingame, { where: { account: { id: account.id } } });
     if (!ingame) throw new NotFoundIngame();
 
-    const cost = data.stock * itemData.sellPrice;
+    const cost = data.stock * itemData.buyPrice;
+    if (cost > ingame.money) throw new NotEnoughMoney();
 
-    const newMoney = ingame.money + cost;
+    const newMoney = ingame.money - cost;
     await manager.update(Ingame, { account: { id: account.id } }, { money: newMoney });
     const resultItem = await addIngameItem(account, { item: data.item, stock: data.stock }, manager);
 
