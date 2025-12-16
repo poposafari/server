@@ -1403,8 +1403,20 @@
     "maxground": 1,
     "rank": "rare"
   },
-  "hm01": {
-    "comment": "HM01:풀배기",
+  "fairy-feather": {
+    "comment": "요정의 깃털",
+    "type": "etc",
+    "buyPrice": 999999999,
+    "sellPrice": 1000,
+    "purchasable": true,
+    "spawnable": true,
+    "sellable": true,
+    "rate": 10,
+    "maxground": 1,
+    "rank": "rare"
+  },
+  "move_cut": {
+    "comment": "풀배기",
     "type": "TMs_HMs",
     "buyPrice": 15000,
     "sellPrice": 1500,
@@ -1415,8 +1427,8 @@
     "maxground": 0,
     "rank": "epic"
   },
-  "hm02": {
-    "comment": "HM02:공중날기",
+  "move_fly": {
+    "comment": "공중날기",
     "type": "TMs_HMs",
     "buyPrice": 15000,
     "sellPrice": 1500,
@@ -1427,8 +1439,8 @@
     "maxground": 0,
     "rank": "epic"
   },
-  "hm03": {
-    "comment": "HM03:파도타기",
+  "move_surf": {
+    "comment": "파도타기",
     "type": "TMs_HMs",
     "buyPrice": 15000,
     "sellPrice": 1500,
@@ -1439,7 +1451,7 @@
     "maxground": 0,
     "rank": "epic"
   },
-  "hm04": {
+  "move_strength": {
     "comment": "HM04:괴력",
     "type": "TMs_HMs",
     "buyPrice": 15000,
@@ -1451,7 +1463,7 @@
     "maxground": 0,
     "rank": "epic"
   },
-  "hm05": {
+  "move_flash": {
     "comment": "HM05:플래시",
     "type": "TMs_HMs",
     "buyPrice": 15000,
@@ -1463,7 +1475,7 @@
     "maxground": 0,
     "rank": "epic"
   },
-  "hm06": {
+  "move_rock-smash": {
     "comment": "HM06:바위깨기",
     "type": "TMs_HMs",
     "buyPrice": 15000,
@@ -1475,7 +1487,7 @@
     "maxground": 0,
     "rank": "epic"
   },
-  "hm07": {
+  "move_waterfall": {
     "comment": "HM07:폭포오르기",
     "type": "TMs_HMs",
     "buyPrice": 15000,
@@ -1487,7 +1499,7 @@
     "maxground": 0,
     "rank": "epic"
   },
-  "hm08": {
+  "move_dive": {
     "comment": "HM08:다이빙",
     "type": "TMs_HMs",
     "buyPrice": 15000,
@@ -1499,8 +1511,116 @@
     "maxground": 0,
     "rank": "epic"
   },
-  "tm-mean-look": {
+  "move_mean-look": {
     "comment": "TM01:검은눈빛",
+    "type": "TMs_HMs",
+    "buyPrice": 15000,
+    "sellPrice": 1500,
+    "purchasable": false,
+    "spawnable": false,
+    "sellable": true,
+    "rate": 0,
+    "maxground": 0,
+    "rank": "epic"
+  },
+  "move_ancient-power": {
+    "comment": "원시의 힘",
+    "type": "TMs_HMs",
+    "buyPrice": 15000,
+    "sellPrice": 1500,
+    "purchasable": false,
+    "spawnable": false,
+    "sellable": true,
+    "rate": 0,
+    "maxground": 0,
+    "rank": "epic"
+  },
+  "move_double-hit": {
+    "comment": "더블어택",
+    "type": "TMs_HMs",
+    "buyPrice": 15000,
+    "sellPrice": 1500,
+    "purchasable": false,
+    "spawnable": false,
+    "sellable": true,
+    "rate": 0,
+    "maxground": 0,
+    "rank": "epic"
+  },
+  "move_dragon-pulse": {
+    "comment": "용의파동",
+    "type": "TMs_HMs",
+    "buyPrice": 15000,
+    "sellPrice": 1500,
+    "purchasable": false,
+    "spawnable": false,
+    "sellable": true,
+    "rate": 0,
+    "maxground": 0,
+    "rank": "epic"
+  },
+  "move_hyper-drill": {
+    "comment": "하이퍼드릴",
+    "type": "TMs_HMs",
+    "buyPrice": 15000,
+    "sellPrice": 1500,
+    "purchasable": false,
+    "spawnable": false,
+    "sellable": true,
+    "rate": 0,
+    "maxground": 0,
+    "rank": "epic"
+  },
+  "move_mimic": {
+    "comment": "흉내내기",
+    "type": "TMs_HMs",
+    "buyPrice": 15000,
+    "sellPrice": 1500,
+    "purchasable": false,
+    "spawnable": false,
+    "sellable": true,
+    "rate": 0,
+    "maxground": 0,
+    "rank": "epic"
+  },
+  "move_rollout": {
+    "comment": "구르기",
+    "type": "TMs_HMs",
+    "buyPrice": 15000,
+    "sellPrice": 1500,
+    "purchasable": false,
+    "spawnable": false,
+    "sellable": true,
+    "rate": 0,
+    "maxground": 0,
+    "rank": "epic"
+  },
+  "move_stomp": {
+    "comment": "짓밟기",
+    "type": "TMs_HMs",
+    "buyPrice": 15000,
+    "sellPrice": 1500,
+    "purchasable": false,
+    "spawnable": false,
+    "sellable": true,
+    "rate": 0,
+    "maxground": 0,
+    "rank": "epic"
+  },
+  "move_taunt": {
+    "comment": "도발",
+    "type": "TMs_HMs",
+    "buyPrice": 15000,
+    "sellPrice": 1500,
+    "purchasable": false,
+    "spawnable": false,
+    "sellable": true,
+    "rate": 0,
+    "maxground": 0,
+    "rank": "epic"
+  },
+  "move_twin-beam": {
+    "comment": "트윈빔",
     "type": "TMs_HMs",
     "buyPrice": 15000,
     "sellPrice": 1500,
@@ -1514,7 +1634,7 @@
   "bicycle": {
     "comment": "자전거",
     "type": "key",
-    "buyPrice": 0,
+    "buyPrice": 999999999,
     "sellPrice": 0,
     "purchasable": true,
     "spawnable": false,
@@ -1768,7 +1888,7 @@
     "type": "key",
     "buyPrice": 999999999,
     "sellPrice": 0,
-    "purchasable": true,
+    "purchasable": false,
     "spawnable": false,
     "sellable": true,
     "rate": 0,
@@ -1786,5 +1906,17 @@
     "rate": 0,
     "maxground": 0,
     "rank": "legendary"
+  },
+  "soothe-bell": {
+    "comment": "평온의 방울",
+    "type": "key",
+    "buyPrice": 999999999,
+    "sellPrice": 0,
+    "purchasable": true,
+    "spawnable": false,
+    "sellable": true,
+    "rate": 0,
+    "maxground": 0,
+    "rank": "epic"
   }
 }

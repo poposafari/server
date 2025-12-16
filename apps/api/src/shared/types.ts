@@ -9,7 +9,6 @@ export type Wild = {
   gender: PokemonGender;
   shiny: boolean;
   skills: PokemonSkill[];
-  form: string;
   catch: boolean;
   eaten_berry: string | null;
   baseRate: number;
@@ -47,8 +46,8 @@ export type Overworld = {
 };
 
 export type NextEvol = {
-  next: string | null;
-  cost: number | string;
+  next: string[];
+  cost: string[];
 };
 
 export type PokemonRate = {
@@ -69,6 +68,7 @@ export type Pokemon = {
   spawn: WildSpawn[];
   skill: PokemonSkill[];
   ability: string[];
+  region: string;
 };
 
 export type Item = {

@@ -48,7 +48,6 @@ export interface AddPcReq {
   pokedex: string;
   gender: PokemonGender;
   shiny: boolean;
-  form: string;
   skill: PokemonSkill;
   location: string;
   capture_ball: string;
@@ -66,7 +65,9 @@ export interface MovePcReq {
 }
 
 export interface EvolvePcReq {
+  idx: number;
   target: number;
+  time: string | Date;
 }
 
 export interface EnterSafariZoneReq {

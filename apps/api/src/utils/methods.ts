@@ -249,7 +249,7 @@ export const generateDespawnTime = (spawnTime: Date = new Date()): Date => {
   return despawnTime;
 };
 
-export const getWildPokemons = (pokedexs: string[], region: string = 'kanto'): Wild[] => {
+export const getWildPokemons = (pokedexs: string[]): Wild[] => {
   const ret: Wild[] = [];
 
   for (const pokedex of pokedexs) {
@@ -259,13 +259,14 @@ export const getWildPokemons = (pokedexs: string[], region: string = 'kanto'): W
     const maleRate = pokemonData.rate.male ?? 0;
     const femaleRate = pokemonData.rate.female ?? 0;
 
+    const region = pokemonData.region || '';
+
     ret.push({
       idx: -1,
       pokedex: pokedex,
       gender: getRandomGender(maleRate, femaleRate),
       shiny: getShinyRandom(),
       skills: [],
-      form: '',
       catch: false,
       eaten_berry: null,
       baseRate: baseRate,
@@ -434,7 +435,6 @@ export const matchTypeWithBerryRate = (berry: string | null, type1: PokemonType,
       if ([type1, type2].includes(PokemonType.NORMAL)) return bonusRate;
       break;
     case 'enigma-berry':
-      // 의문열매는 모든 타입에 적용
       return bonusRate;
   }
 
@@ -451,5 +451,30 @@ export const matchPokemonWithRarityRate = (rank: Rarity) => {
       return 2.0;
     default:
       return 1.0;
+  }
+};
+
+export const checkEvolution = (evolCost: string) => {
+  const split = evolCost.split('+');
+};
+
+/**
+ * - 새벽 (dawn): 4-6시
+ * - 낮 (day): 6-18시
+ * - 해질녘 (dusk): 18-20시
+ * - 밤 (night): 20-4시
+ */
+export const getTimeOfDay = (clientTime: string | Date): string => {
+  const date = typeof clientTime === 'string' ? new Date(clientTime) : clientTime;
+  const hours = date.getHours();
+
+  if (hours >= 4 && hours < 6) {
+    return 'dawn';
+  } else if (hours >= 6 && hours < 18) {
+    return 'day';
+  } else if (hours >= 18 && hours < 20) {
+    return 'dusk';
+  } else {
+    return 'night';
   }
 };

@@ -10,6 +10,7 @@ import {
   LoginFailHttpError,
   NoMoreEvolve,
   NotEnoughCandy,
+  NotEnoughEvolveCondition,
   NotEnoughMoney,
   NotFoundAccountHttpError,
   NotFoundIngame,
@@ -24,7 +25,7 @@ import {
 import { Ingame } from './entities/Ingame';
 import { AppDataSource } from './data-source';
 import { Bag } from './entities/Bag';
-import { getCatchItemData, getItemData, getOverworldData, getPokemonData } from './shared/data';
+import { getItemData, getOverworldData, getPokemonData } from './shared/data';
 import {
   createTokens,
   gameSuccess,
@@ -33,6 +34,7 @@ import {
   getGroundItemsFromCodes,
   getGroundItemSpawnTable,
   getNextPcBoxNum,
+  getTimeOfDay,
   getRandomCandyReward,
   getRandomRewards,
   getWildPokemons,
@@ -48,7 +50,6 @@ import { IngameOption } from './entities/IngameOption';
 import {
   AddItemReq,
   AddPcReq,
-  BuyItemReq,
   CatchGroundItemReq,
   CatchStarterPokemonReq,
   CatchWildReq,
@@ -480,7 +481,6 @@ export const addPcPokemon = async (account: Account, pokemon: AddPcReq, manager?
       { account: { id: account.id }, pokedex: pokemon.pokedex, gender: pokemon.gender, region: pokemon.region },
       {
         shiny: pokemon.shiny,
-        form: pokemon.form,
         count: pc.count + 1,
         skill: newSkills,
         updatedBall: pokemon.capture_ball,
@@ -496,7 +496,6 @@ export const addPcPokemon = async (account: Account, pokemon: AddPcReq, manager?
       gender: pokemon.gender,
       region: pokemon.region,
       shiny: pokemon.shiny,
-      form: pokemon.form,
       skill: [pokemon.skill],
       box: nextBoxNum[0],
       createdBall: pokemon.capture_ball,
@@ -536,15 +535,16 @@ export const getPc = async (account: Account, filter: GetPcReq, manager?: Entity
       pokedex: data.pokedex,
       gender: data.gender,
       shiny: data.shiny,
-      form: data.form,
       count: data.count,
       skill: data.skill,
+      region: data.region,
       nickname: data.nickname,
       createdLocation: data.createdLocation,
       createdAt: data.createdAt,
       createdBall: data.createdBall,
       rank: rank,
       evol: evol,
+      friendShip: data.friendShip,
       type_1: type1,
       type_2: type2,
     };
@@ -570,8 +570,9 @@ export const getPcByIdx = async (account: Account, idx: number, manager?: Entity
       pokedex: pc.pokedex,
       gender: pc.gender,
       shiny: pc.shiny,
-      form: pc.form,
       count: pc.count,
+      friendShip: pc.friendShip,
+      region: pc.region,
       skill: pc.skill,
       nickname: pc.nickname,
       createdLocation: pc.createdLocation,
@@ -627,7 +628,7 @@ export const evolvePc = async (account: Account, data: EvolvePcReq): Promise<any
   await AppDataSource.manager.transaction(async (manager) => {
     const ingame = await manager.findOne(Ingame, { where: { account: { id: account.id } } });
     const pokemon = await manager.findOne(PC, {
-      where: { account: { id: account.id }, idx: data.target },
+      where: { account: { id: account.id }, idx: data.idx },
     });
 
     if (!ingame) throw new NotFoundIngame();
@@ -638,15 +639,68 @@ export const evolvePc = async (account: Account, data: EvolvePcReq): Promise<any
     const pokemonData = getPokemonData(pokemon.pokedex);
 
     if (!pokemonData) throw new NotFoundPokemonData();
-    if (!pokemonData.nextEvol.next) throw new NoMoreEvolve();
-    if (typeof pokemonData.nextEvol.cost === 'number' && ingame.candy < pokemonData.nextEvol.cost) throw new NotEnoughCandy();
-    if (typeof pokemonData.nextEvol.cost === 'number') {
-      ingame.candy -= pokemonData.nextEvol.cost;
+    if (!pokemonData.nextEvol.next.length) throw new NoMoreEvolve();
+
+    const targetEvolCost = pokemonData.nextEvol.cost[data.target];
+    const split = targetEvolCost.split('+');
+
+    let requiredCandy: number = 0;
+    let requiredItem: string = '';
+    const failedConditions: string[] = [];
+
+    for (const condition of split) {
+      if (condition.includes('candy_')) {
+        const costCandy = Number(condition.split('_')[1]);
+        requiredCandy = costCandy;
+        if (ingame.candy < costCandy) {
+          failedConditions.push(`candy: ${ingame.candy}/${costCandy}`);
+        }
+      } else if (condition.includes('friendship_')) {
+        const requiredFriendship = Number(condition.split('_')[1]);
+        if (pokemon.friendShip < requiredFriendship) {
+          failedConditions.push(`friendship: ${pokemon.friendShip}/${requiredFriendship}`);
+        }
+      } else if (condition.includes('time_')) {
+        const requiredTime = condition.split('_')[1];
+        const currentTimeOfDay = getTimeOfDay(data.time);
+        if (currentTimeOfDay !== requiredTime) {
+          failedConditions.push(`time: ${currentTimeOfDay} !== ${requiredTime}`);
+        }
+      } else if (condition === 'female' || condition === 'male') {
+        if (pokemon.gender !== condition) {
+          failedConditions.push(`gender: ${pokemon.gender} !== ${condition}`);
+        }
+      } else {
+        requiredItem = condition;
+      }
+    }
+
+    if (requiredItem) {
+      const bagRepo = manager.getRepository(Bag);
+      const bagItem = await bagRepo.findOne({ where: { account: { id: account.id }, item: requiredItem } });
+      if (!bagItem || bagItem.stock < 1) {
+        failedConditions.push(`item: ${requiredItem} not found or insufficient stock`);
+      }
+    }
+
+    if (failedConditions.length > 0) {
+      throw new NotEnoughEvolveCondition();
+    }
+
+    if (requiredCandy > 0) {
+      ingame.candy -= requiredCandy;
       await manager.update(Ingame, { account: { id: account.id } }, { candy: ingame.candy });
     }
 
+    if (requiredItem) {
+      await useItem(account, { item: requiredItem, cost: 1 }, manager);
+    }
+
+    const nextPokedex = pokemonData.nextEvol.next[data.target];
+    if (!nextPokedex) throw new NotFoundPokemonData();
+
     const existPokemon = await manager.findOne(PC, {
-      where: { account: { id: account.id }, pokedex: pokemonData.nextEvol.next, gender: pokemon.gender, region: pokemon.region },
+      where: { account: { id: account.id }, pokedex: nextPokedex, gender: pokemon.gender, region: pokemon.region },
     });
 
     if (existPokemon) {
@@ -656,7 +710,7 @@ export const evolvePc = async (account: Account, data: EvolvePcReq): Promise<any
       await manager.delete(PC, { idx: pokemon.idx });
       await updatePcBoxNum(account.id, pokemon.box, ingame.pcCnt[pokemon.box] - 1, manager);
     } else {
-      await manager.update(PC, { idx: pokemon.idx }, { pokedex: pokemonData.nextEvol.next, count: pokemon.count + EVOLVE_BONUS_CNT });
+      await manager.update(PC, { idx: pokemon.idx }, { pokedex: nextPokedex, count: pokemon.count + EVOLVE_BONUS_CNT });
     }
 
     const results: BoxResult[] = [];
@@ -740,16 +794,14 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
   if (overworldData.type === OverworldType.PLAZA) return gameSuccess(null);
 
   await AppDataSource.manager.transaction(async (manager) => {
-    // 파티 검증 및 포획 횟수 계산
     let totalCaptureCount = 0;
 
     if (data.party && data.party.length > 0) {
       const validatedPCs = [];
 
       for (const idx of data.party) {
-        if (!idx) continue; // null 체크
+        if (!idx) continue;
 
-        // account_id가 일치하는 PC만 조회
         const pc = await manager.findOne(PC, {
           where: { idx: idx, account: { id: account.id } },
         });
@@ -773,10 +825,9 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
     const wildsToUpdate: { idx: number; pokemon: ReturnType<typeof getWildPokemons>[0]; spawnTime: Date; despawnTime: Date }[] = [];
 
     if (existWilds.length > 0) {
-      // 'lab'인 경우 despawn 시간을 고려하지 않고 기존 데이터를 그대로 사용
       if (!isLab) {
         const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn[data.time], overworldData.wild.count, totalCaptureCount);
-        const newWildsPool = getWildPokemons(pokedexs, data.overworld);
+        const newWildsPool = getWildPokemons(pokedexs);
 
         for (let i = 0; i < existWilds.length; i++) {
           const existing = existWilds[i];
@@ -796,7 +847,7 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
       }
     } else {
       const pokedexs = getWildSpawnTable(data.overworld, overworldData.wild.spawn[data.time], overworldData.wild.count, totalCaptureCount);
-      const newWilds = getWildPokemons(pokedexs, data.overworld);
+      const newWilds = getWildPokemons(pokedexs);
 
       for (const pokemon of newWilds) {
         const spawnTime = new Date();
@@ -810,7 +861,6 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
             gender: pokemon.gender,
             region: pokemon.region,
             shiny: pokemon.shiny,
-            form: pokemon.form,
             skill: Array.isArray(pokemon.skills) ? pokemon.skills : [pokemon.skills],
             capture: false,
             spawnType: pokemon.spawn,
@@ -831,7 +881,6 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
           gender: pokemon.gender,
           region: pokemon.region,
           shiny: pokemon.shiny,
-          form: pokemon.form,
           skill: Array.isArray(pokemon.skills) ? pokemon.skills : [pokemon.skills],
           spawnType: pokemon.spawn,
           eatenBerry: pokemon.eaten_berry,
@@ -939,7 +988,6 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
         shiny: pokemon.shiny,
         fleeRate: fleeRate,
         skills: pokemon.skill,
-        form: pokemon.form,
         catch: pokemon.capture,
         eaten_berry: pokemon.eatenBerry,
         baseRate: baseRate,
@@ -1095,7 +1143,6 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
           gender: wild.gender,
           region: wild.region,
           shiny: wild.shiny,
-          form: wild.form || '',
           skill: wild.skill && wild.skill.length > 0 ? wild.skill[0] : PokemonSkill.NONE,
           location: wild.location,
           capture_ball: data.ball,
@@ -1184,7 +1231,6 @@ export const catchStarterPokemon = async (account: Account, data: CatchStarterPo
         gender: pokemon.gender,
         region: pokemon.region,
         shiny: pokemon.shiny,
-        form: pokemon.form || '',
         skill: pokemon.skill && pokemon.skill.length > 0 ? pokemon.skill[0] : PokemonSkill.NONE,
         location: pokemon.location,
         capture_ball: 'poke-ball',

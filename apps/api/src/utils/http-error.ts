@@ -98,6 +98,12 @@ export class NoMoreEvolve extends HttpError {
   }
 }
 
+export class NotEnoughEvolveCondition extends HttpError {
+  constructor() {
+    super(404, HttpErrorCode.NOT_ENOUGH_EVOLVE_CONDITION);
+  }
+}
+
 export class NotEnoughCandy extends HttpError {
   constructor() {
     super(404, HttpErrorCode.NOT_ENOUGH_CANDY);

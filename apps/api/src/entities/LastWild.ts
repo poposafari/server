@@ -14,7 +14,7 @@ export class LastWild {
   @Column({ type: 'varchar', length: 4 })
   location!: string;
 
-  @Column({ type: 'varchar', length: 4 })
+  @Column({ type: 'varchar', length: 20 })
   pokedex!: string;
 
   @Column({ type: 'enum', enum: PokemonGender })
@@ -22,9 +22,6 @@ export class LastWild {
 
   @Column({ type: 'boolean' })
   shiny!: boolean;
-
-  @Column({ type: 'varchar', length: 10, nullable: true })
-  form!: string;
 
   @Column({ type: 'enum', enum: PokemonSkill, array: true, nullable: true })
   skill!: PokemonSkill[];

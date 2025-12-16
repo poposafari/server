@@ -14,7 +14,7 @@ export class PC {
   @Column({ type: 'integer' })
   box!: number;
 
-  @Column({ type: 'varchar', length: 4 })
+  @Column({ type: 'varchar', length: 20 })
   pokedex!: string;
 
   @Column({ type: 'enum', enum: PokemonGender })
@@ -31,9 +31,6 @@ export class PC {
 
   @Column({ type: 'boolean' })
   shiny!: boolean;
-
-  @Column({ type: 'varchar', length: 10, nullable: true })
-  form!: string;
 
   @Column({ type: 'enum', enum: PokemonSkill, array: true, nullable: true })
   skill!: PokemonSkill[];
