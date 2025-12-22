@@ -34,6 +34,7 @@ export type Overworld = {
   wild: {
     count: number;
     spawn: {
+      dawn: string[];
       day: string[];
       dusk: string[];
       night: string[];
@@ -66,7 +67,7 @@ export type Pokemon = {
   type1: PokemonType;
   type2: PokemonType | null;
   spawn: WildSpawn[];
-  skill: PokemonSkill[];
+  skills: PokemonSkill[];
   ability: string[];
   region: string;
 };

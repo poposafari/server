@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Account } from './Account';
-import { PokemonGender, PokemonSkill } from '../shared/enums';
+import { PokemonGender } from '../shared/enums';
 
 @Entity({ schema: 'db', name: 'pc' })
 export class PC {
@@ -32,8 +32,8 @@ export class PC {
   @Column({ type: 'boolean' })
   shiny!: boolean;
 
-  @Column({ type: 'enum', enum: PokemonSkill, array: true, nullable: true })
-  skill!: PokemonSkill[];
+  @Column({ type: 'varchar', length: 30, array: true, default: () => 'ARRAY[]::VARCHAR(30)[]', nullable: false })
+  skill!: string[];
 
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt!: Date;

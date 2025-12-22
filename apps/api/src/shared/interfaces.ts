@@ -48,7 +48,7 @@ export interface AddPcReq {
   pokedex: string;
   gender: PokemonGender;
   shiny: boolean;
-  skill: PokemonSkill;
+  skill?: PokemonSkill; // optional: skill이 없으면 빈 배열 사용
   location: string;
   capture_ball: string;
   region: string;
@@ -72,7 +72,7 @@ export interface EvolvePcReq {
 
 export interface EnterSafariZoneReq {
   overworld: string;
-  time: 'day' | 'dusk' | 'night';
+  time: 'dawn' | 'day' | 'dusk' | 'night';
   party: number[];
 }
 
@@ -94,4 +94,9 @@ export interface CatchStarterPokemonReq {
 export interface FeedWildEatenBerryReq {
   idx: number;
   berry: string;
+}
+
+export interface LearnSkillPcReq {
+  idx: number;
+  target: number;
 }

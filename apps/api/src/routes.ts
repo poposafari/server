@@ -34,6 +34,7 @@ PcRouter.post('/add', Authenticate, Controllers.PC.addPcPokemon);
 PcRouter.post('/get', Authenticate, Controllers.PC.getPc);
 PcRouter.post('/move', Authenticate, Controllers.PC.movePc);
 PcRouter.post('/evol', Authenticate, Controllers.PC.evolvePc);
+PcRouter.post('/skill', Authenticate, Controllers.PC.learnSkillPc);
 
 //safari
 const SafariRouter = Router();

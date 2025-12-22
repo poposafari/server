@@ -2,9 +2,8 @@ CREATE SCHEMA IF NOT EXISTS db;
 
 CREATE TYPE social_provider_type AS ENUM ('google', 'discord');
 CREATE TYPE ingame_gender AS ENUM ('boy', 'girl');
-CREATE TYPE item_category AS ENUM ('pokeball', 'etc', 'berry', 'key');
+CREATE TYPE item_category AS ENUM ('pokeball', 'etc', 'berry', 'key', 'tms_hms');
 CREATE TYPE pokemon_gender AS ENUM ('none', 'male', 'female');
-CREATE TYPE pokemon_skill AS ENUM ('surf', 'dark_eyes');
 CREATE TYPE wild_spawn_type AS ENUM ('water', 'land');
 
 CREATE TABLE db.account (
@@ -38,7 +37,7 @@ CREATE TABLE db.pc (
   friend_ship INTEGER NOT NULL DEFAULT 0 CHECK (friend_ship >= 0 AND friend_ship <= 255),
   region VARCHAR(10) NOT NULL,
   shiny BOOLEAN NOT NULL,
-  skill pokemon_skill[],
+  skill VARCHAR(30)[] NOT NULL DEFAULT '{}'::VARCHAR(30)[],
   created_at TIMESTAMPTZ NOT NULL DEFAULT (now()),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT (now()),
   created_location VARCHAR(4) NOT NULL,
@@ -124,7 +123,7 @@ CREATE TABLE db.last_wild (
   gender pokemon_gender NOT NULL,
   shiny BOOLEAN NOT NULL,
   region VARCHAR(10) NOT NULL,
-  skill pokemon_skill[],
+  skill VARCHAR(30)[] NOT NULL DEFAULT '{}'::VARCHAR(30)[],
   capture BOOLEAN NOT NULL,
   spawn_type wild_spawn_type NOT NULL,
   eaten_berry VARCHAR(50),

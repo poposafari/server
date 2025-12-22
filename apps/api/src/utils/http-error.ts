@@ -80,6 +80,18 @@ export class IngamePcIsFull extends HttpError {
   }
 }
 
+export class IngamePcSkillIsFull extends HttpError {
+  constructor() {
+    super(404, HttpErrorCode.INGAME_PC_SKILL_IS_FULL);
+  }
+}
+
+export class IngamePcSkillExist extends HttpError {
+  constructor() {
+    super(404, HttpErrorCode.INGAME_PC_SKILL_EXIST);
+  }
+}
+
 export class NotFoundIngamePc extends HttpError {
   constructor() {
     super(404, HttpErrorCode.NOT_FOUND_INGAME_PC);

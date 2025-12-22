@@ -6,6 +6,8 @@ import {
   DuplicateUserNicknameHttpError,
   IngameItemStockLimitExceeded,
   IngamePcIsFull,
+  IngamePcSkillExist,
+  IngamePcSkillIsFull,
   InvalidRefreshTokenHttpError,
   LoginFailHttpError,
   NoMoreEvolve,
@@ -57,6 +59,7 @@ import {
   EvolvePcReq,
   FeedWildEatenBerryReq,
   GetPcReq,
+  LearnSkillPcReq,
   LoginLocalReq,
   MovePcReq,
   RegisterIngameReq,
@@ -64,7 +67,7 @@ import {
   SellItemReq,
   UseItemReq,
 } from './shared/interfaces';
-import { EVOLVE_BONUS_CNT, MAX_BUY, MAX_PER_BOX, MAX_STOCK, SaltOrRounds, START_LOCATION, START_X, START_Y } from './shared/constants';
+import { EVOLVE_BONUS_CNT, MAX_BUY, MAX_PER_BOX, MAX_SKILL, MAX_STOCK, SaltOrRounds, START_LOCATION, START_X, START_Y } from './shared/constants';
 import { OverworldType, PokemonSkill, Rarity } from './shared/enums';
 import { LastWild } from './entities/LastWild';
 import { LastGroundItem } from './entities/LastGroundItem';
@@ -473,16 +476,16 @@ export const addPcPokemon = async (account: Account, pokemon: AddPcReq, manager?
   if (!ingame) throw new NotFoundIngame();
 
   if (pc) {
-    const currentSkills = pc.skill;
-    const hasSkill = pokemon.skill !== PokemonSkill.NONE && !currentSkills.includes(pokemon.skill);
-    const newSkills = hasSkill ? [...currentSkills, pokemon.skill] : currentSkills;
+    const currentSkills = pc.skill || [];
+    const hasSkill = pokemon.skill && !currentSkills.includes(pokemon.skill);
+    const newSkills = hasSkill && pokemon.skill ? [...currentSkills, pokemon.skill] : currentSkills;
 
     await pcRepo.update(
       { account: { id: account.id }, pokedex: pokemon.pokedex, gender: pokemon.gender, region: pokemon.region },
       {
         shiny: pokemon.shiny,
         count: pc.count + 1,
-        skill: newSkills,
+        skill: newSkills || [],
         updatedBall: pokemon.capture_ball,
         updatedLocation: pokemon.location,
       },
@@ -496,7 +499,7 @@ export const addPcPokemon = async (account: Account, pokemon: AddPcReq, manager?
       gender: pokemon.gender,
       region: pokemon.region,
       shiny: pokemon.shiny,
-      skill: [pokemon.skill],
+      skill: pokemon.skill ? [pokemon.skill] : [],
       box: nextBoxNum[0],
       createdBall: pokemon.capture_ball,
       createdLocation: pokemon.location,
@@ -806,7 +809,6 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
           where: { idx: idx, account: { id: account.id } },
         });
 
-        // 존재하지 않으면 빈 배열 반환
         if (!pc) {
           return gameSuccess({ wilds: [], groundItems: [] });
         }
@@ -814,7 +816,6 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
         validatedPCs.push(pc);
       }
 
-      // 포획 횟수 총합 계산
       totalCaptureCount = validatedPCs.reduce((sum, pc) => sum + pc.count, 0);
     }
 
@@ -1143,7 +1144,7 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
           gender: wild.gender,
           region: wild.region,
           shiny: wild.shiny,
-          skill: wild.skill && wild.skill.length > 0 ? wild.skill[0] : PokemonSkill.NONE,
+          skill: wild.skill && wild.skill.length > 0 ? (wild.skill[0] as PokemonSkill) : undefined,
           location: wild.location,
           capture_ball: data.ball,
         },
@@ -1231,7 +1232,7 @@ export const catchStarterPokemon = async (account: Account, data: CatchStarterPo
         gender: pokemon.gender,
         region: pokemon.region,
         shiny: pokemon.shiny,
-        skill: pokemon.skill && pokemon.skill.length > 0 ? pokemon.skill[0] : PokemonSkill.NONE,
+        skill: pokemon.skill && pokemon.skill.length > 0 ? (pokemon.skill[0] as PokemonSkill) : undefined,
         location: pokemon.location,
         capture_ball: 'poke-ball',
       },
@@ -1249,4 +1250,29 @@ export const catchStarterPokemon = async (account: Account, data: CatchStarterPo
   });
 
   return gameSuccess(ret);
+};
+
+export const learnSkillPc = async (account: Account, data: LearnSkillPcReq): Promise<any> => {
+  let ret;
+
+  await AppDataSource.manager.transaction(async (manager) => {
+    const pc = await manager.findOne(PC, { where: { account: { id: account.id }, idx: data.idx } });
+
+    if (!pc) throw new NotFoundIngamePc();
+
+    const pokemonData = getPokemonData(pc.pokedex);
+
+    const targetSkill = pokemonData.skills[data.target];
+
+    if (!targetSkill) throw new NotFoundPokemonData();
+    if (pc.skill.length >= MAX_SKILL) throw new IngamePcSkillIsFull();
+    if (pc.skill.includes(targetSkill)) throw new IngamePcSkillExist();
+
+    await useItem(account, { item: targetSkill, cost: 1 }, manager);
+
+    const currentSkills = pc.skill || [];
+    await manager.update(PC, { idx: data.idx }, { skill: [...currentSkills, targetSkill] });
+  });
+
+  return gameSuccess(null);
 };

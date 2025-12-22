@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Account } from './Account';
-import { PokemonGender, PokemonSkill, WildSpawn } from '../shared/enums';
+import { PokemonGender, WildSpawn } from '../shared/enums';
 
 @Entity({ schema: 'db', name: 'last_wild' })
 export class LastWild {
@@ -23,8 +23,8 @@ export class LastWild {
   @Column({ type: 'boolean' })
   shiny!: boolean;
 
-  @Column({ type: 'enum', enum: PokemonSkill, array: true, nullable: true })
-  skill!: PokemonSkill[];
+  @Column({ type: 'varchar', length: 30, array: true, default: () => 'ARRAY[]::VARCHAR(30)[]', nullable: false })
+  skill!: string[];
 
   @Column({ type: 'boolean' })
   capture!: boolean;

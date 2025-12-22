@@ -22,6 +22,7 @@ import {
   getIngame,
   getIngameItems,
   getPc,
+  learnSkillPc,
   loginLocal,
   movePc,
   receiveAvailableTicket,
@@ -167,6 +168,11 @@ class PcController {
 
   static async evolvePc(req: Request, res: Response): Promise<any> {
     const ret = await evolvePc(res.locals.account, req.body);
+    return res.status(200).json(ret);
+  }
+
+  static async learnSkillPc(req: Request, res: Response): Promise<any> {
+    const ret = await learnSkillPc(res.locals.account, req.body);
     return res.status(200).json(ret);
   }
 }

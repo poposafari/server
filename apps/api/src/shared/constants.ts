@@ -8,3 +8,4 @@ export const MAX_GROUNDITEM = 10;
 export const START_LOCATION = 'p003';
 export const START_X = 4;
 export const START_Y = 11;
+export const MAX_SKILL = 4;
