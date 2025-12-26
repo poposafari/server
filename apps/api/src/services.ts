@@ -11,7 +11,6 @@ import {
   InvalidRefreshTokenHttpError,
   LoginFailHttpError,
   NoMoreEvolve,
-  NotEnoughCandy,
   NotEnoughEvolveCondition,
   NotEnoughMoney,
   NotFoundAccountHttpError,
@@ -1151,6 +1150,9 @@ export const catchWild = async (account: Account, data: CatchWildReq) => {
         manager,
       );
 
+      // 포켓덱스 등록
+      await registerPokedex(account, wild, manager);
+
       const rewardCandy = getRandomCandyReward(wildData.rank);
       const rewardItems = getRandomRewards(wildData.rank);
       const ingameRepo = manager.getRepository(Ingame);
@@ -1238,6 +1240,10 @@ export const catchStarterPokemon = async (account: Account, data: CatchStarterPo
       },
       manager,
     );
+
+    // 포켓덱스 등록
+    await registerPokedex(account, pokemon, manager);
+
     await exitSafariZone(account, manager);
     await addIngameItem(account, { item: 'poke-ball', stock: 30 }, manager);
     await addIngameItem(account, { item: 'great-ball', stock: 10 }, manager);
@@ -1275,4 +1281,43 @@ export const learnSkillPc = async (account: Account, data: LearnSkillPcReq): Pro
   });
 
   return gameSuccess(null);
+};
+
+export const registerPokedex = async (account: Account, wild: LastWild, manager: EntityManager): Promise<void> => {
+  const pokedexRepo = manager.getRepository(IngamePokedex);
+  const pokedexData = await pokedexRepo.findOne({ where: { account: { id: account.id } } });
+
+  if (!pokedexData) {
+    throw new NotFoundIngamePc();
+  }
+
+  const regionFormats = ['hisui', 'alola', 'galar', 'paldea', 'west', 'east'];
+  const hasRegionFormat = wild.region && regionFormats.includes(wild.region.toLowerCase());
+
+  let pokemonDataKey: string;
+  if (hasRegionFormat) {
+    pokemonDataKey = `${wild.pokedex}_${wild.region}`;
+  } else {
+    pokemonDataKey = wild.pokedex;
+  }
+
+  let pokemonData;
+  try {
+    pokemonData = getPokemonData(pokemonDataKey);
+  } catch (error) {
+    throw new NotFoundPokemonData();
+  }
+
+  if (!pokemonData || !pokemonData.generation) {
+    throw new NotFoundPokemonData();
+  }
+
+  const generation = pokemonData.generation;
+  const ownedKey = wild.region && wild.region.trim() !== '' ? `owned_${wild.pokedex}_${wild.region}` : `owned_${wild.pokedex}`;
+  const currentGen = pokedexData[`gen${generation}` as keyof IngamePokedex] as string[];
+
+  if (!currentGen.includes(ownedKey)) {
+    const updatedGen = [...currentGen, ownedKey];
+    await pokedexRepo.update({ account: { id: account.id } }, { [`gen${generation}`]: updatedGen } as any);
+  }
 };

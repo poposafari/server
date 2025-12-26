@@ -13,30 +13,30 @@ export class IngamePokedex {
   @JoinColumn({ name: 'account_id' })
   account!: Account;
 
-  @Column({ type: 'integer', array: true, default: () => 'ARRAY[]::INTEGER[]', name: 'gen_1' })
-  gen1!: number[];
+  @Column({ type: 'varchar', length: 20, array: true, default: () => 'ARRAY[]::VARCHAR(20)[]', name: 'gen_1' })
+  gen1!: string[];
 
-  @Column({ type: 'integer', array: true, default: () => 'ARRAY[]::INTEGER[]', name: 'gen_2' })
-  gen2!: number[];
+  @Column({ type: 'varchar', length: 20, array: true, default: () => 'ARRAY[]::VARCHAR(20)[]', name: 'gen_2' })
+  gen2!: string[];
 
-  @Column({ type: 'integer', array: true, default: () => 'ARRAY[]::INTEGER[]', name: 'gen_3' })
-  gen3!: number[];
+  @Column({ type: 'varchar', length: 20, array: true, default: () => 'ARRAY[]::VARCHAR(20)[]', name: 'gen_3' })
+  gen3!: string[];
 
-  @Column({ type: 'integer', array: true, default: () => 'ARRAY[]::INTEGER[]', name: 'gen_4' })
-  gen4!: number[];
+  @Column({ type: 'varchar', length: 20, array: true, default: () => 'ARRAY[]::VARCHAR(20)[]', name: 'gen_4' })
+  gen4!: string[];
 
-  @Column({ type: 'integer', array: true, default: () => 'ARRAY[]::INTEGER[]', name: 'gen_5' })
-  gen5!: number[];
+  @Column({ type: 'varchar', length: 20, array: true, default: () => 'ARRAY[]::VARCHAR(20)[]', name: 'gen_5' })
+  gen5!: string[];
 
-  @Column({ type: 'integer', array: true, default: () => 'ARRAY[]::INTEGER[]', name: 'gen_6' })
-  gen6!: number[];
+  @Column({ type: 'varchar', length: 20, array: true, default: () => 'ARRAY[]::VARCHAR(20)[]', name: 'gen_6' })
+  gen6!: string[];
 
-  @Column({ type: 'integer', array: true, default: () => 'ARRAY[]::INTEGER[]', name: 'gen_7' })
-  gen7!: number[];
+  @Column({ type: 'varchar', length: 20, array: true, default: () => 'ARRAY[]::VARCHAR(20)[]', name: 'gen_7' })
+  gen7!: string[];
 
-  @Column({ type: 'integer', array: true, default: () => 'ARRAY[]::INTEGER[]', name: 'gen_8' })
-  gen8!: number[];
+  @Column({ type: 'varchar', length: 20, array: true, default: () => 'ARRAY[]::VARCHAR(20)[]', name: 'gen_8' })
+  gen8!: string[];
 
-  @Column({ type: 'integer', array: true, default: () => 'ARRAY[]::INTEGER[]', name: 'gen_9' })
-  gen9!: number[];
+  @Column({ type: 'varchar', length: 20, array: true, default: () => 'ARRAY[]::VARCHAR(20)[]', name: 'gen_9' })
+  gen9!: string[];
 }

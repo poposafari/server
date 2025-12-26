@@ -70,6 +70,7 @@ export type Pokemon = {
   skills: PokemonSkill[];
   ability: string[];
   region: string;
+  generation: string;
 };
 
 export type Item = {
