@@ -996,6 +996,7 @@ export const enterSafariZone = async (account: Account, data: EnterSafariZoneReq
         type2: type2,
         rank: rank,
         spawn: pokemon.spawnType,
+        location: data.overworld,
       } as Wild;
     });
 
