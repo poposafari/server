@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json" /* 1. 루트 설정 상속 */,
+  "compilerOptions": {
+    "outDir": "./dist" /* 2. 빌드 결과물 위치 */,
+    "rootDir": "./src" /* 3. 소스 코드 위치 */,
+
+    /* 라이브러리 필수 설정 */
+    "composite": true /* 4. 프로젝트 참조 기능 활성화 (빌드 최적화) */,
+    "declaration": true /* 5. .d.ts 파일 생성 (다른 패키지가 타입을 알기 위함) */,
+    "declarationMap": true /* 6. .d.ts와 원본 소스 연결 (디버깅 용이) */
+  },
+  "include": ["src/**/*"] /* 컴파일할 대상 */,
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

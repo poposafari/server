@@ -1,6 +1,0 @@
-{
-  "common": { "min": 1, "max": 5 },
-  "rare": { "min": 10, "max": 10 },
-  "epic": { "min": 50, "max": 50 },
-  "legendary": { "min": 100, "max": 100 }
-}

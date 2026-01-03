@@ -1,6 +1,5 @@
 .env
+.env.*
+!.env.dev
 node_modules
-db/data
-certbot
-redis-data
-apps/api/src/test
+legacy
