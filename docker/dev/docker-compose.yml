@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: poposerver_postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - poposerver_network
+
+  redis:
+    image: redis:alpine
+    container_name: poposerver_redis
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes # 데이터 지속성 옵션 ON
+    volumes:
+      - redis_data:/data
+    networks:
+      - poposerver_network
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: poposerver_redis_gui
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - '8081:8081'
+    depends_on:
+      - redis
+    networks:
+      - poposerver_network
+
+volumes:
+  pg_data:
+  redis_data:
+
+networks:
+  poposerver_network:
+    driver: bridge

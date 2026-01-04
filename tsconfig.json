@@ -1,31 +1,19 @@
 {
   "compilerOptions": {
-    /* 기본 언어 및 모듈 설정 */
-    "target": "ES2022" /* 최신 Node.js 버전에 맞춘 타겟 */,
-    "module": "commonjs" /* Node.js 환경이므로 CommonJS 사용 */,
-    "lib": ["ES2022"] /* 사용할 라이브러리 정의 */,
-    "moduleResolution": "node",
-
-    /* TypeORM 필수 설정 (가장 중요) */
-    "experimentalDecorators": true /* 데코레이터 문법 허용 (@Entity 등) */,
-    "emitDecoratorMetadata": true /* 데코레이터 메타데이터 생성 */,
-
-    /* Airbnb 스타일 지향: 엄격한 타입 체크 */
-    "strict": true /* 모든 엄격한 타입 체킹 옵션 활성화 */,
-    "noImplicitAny": true /* any 타입 암시적 사용 금지 */,
-    "strictNullChecks": true /* null/undefined 엄격 관리 */,
-    "strictPropertyInitialization": false /* TypeORM 엔티티 필드 초기화 경고 무시 (Entity 작성 시 필수) */,
-
-    /* 코드 품질 및 호환성 */
-    "esModuleInterop": true /* CommonJS/ESM 호환성 확보 */,
-    "skipLibCheck": true /* 라이브러리 d.ts 파일 검사 생략 (빌드 속도 향상) */,
-    "forceConsistentCasingInFileNames": true /* 파일명 대소문자 일관성 강제 */,
-    "resolveJsonModule": true /* JSON 파일 import 허용 */,
-
-    /* 경로 별칭 (선택 사항, 필요시 설정) */
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020"],
+    "outDir": "./dist",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@poposerver/*": ["packages/*/src"] /* 모노레포 내부 패키지 참조용 */
+      "@poposerver/shared": ["shared/src"],
+      "@poposerver/shared/*": ["shared/src/*"]
     }
   },
   "exclude": ["node_modules", "dist"]
