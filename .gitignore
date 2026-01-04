@@ -3,5 +3,4 @@
 !.env.dev
 node_modules
 legacy
-shared/database
 apps/api

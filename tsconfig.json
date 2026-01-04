@@ -11,9 +11,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
-      "@poposerver/shared": ["shared/src"],
-      "@poposerver/shared/*": ["shared/src/*"]
+      "@poposerver/shared": ["shared/"],
+      "@poposerver/shared/*": ["shared/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

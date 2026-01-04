@@ -13,7 +13,9 @@
     "prepare": "husky install",
     "db:dev": "docker compose -f docker/dev/docker-compose.yml --env-file .env.dev up -d",
     "db:prod": "docker compose -f docker/prod/docker-compose.yml --env-file .env up -d",
-    "db:down": "docker compose -f docker/dev/docker-compose.yml down"
+    "db:down": "docker compose -f docker/dev/docker-compose.yml down",
+    "db:test": "ts-node -r tsconfig-paths/register scripts/test-db-connection.ts",
+    "db:clean": "docker compose -f docker/dev/docker-compose.yml down -v"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -32,7 +34,11 @@
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.1",
     "typescript": "^5.3.2",
-    "csv-parse": "^6.1.0"
+    "csv-parse": "^6.1.0",
+    "zod": "^4.3.4",
+    "typeorm": "^0.3.28",
+    "reflect-metadata": "^0.2.2",
+    "tsconfig-paths": "^4.2.0"
   },
   "engines": {
     "node": ">=18.0.0",
