@@ -4,7 +4,7 @@
   "private": true,
   "description": "poposafari api & database & socket & worker server",
   "scripts": {
-    "dev": "concurrently -n \"API,SOCK,WORK\" -c \"blue,magenta,yellow\" \"pnpm --filter @popo/api dev\" \"pnpm --filter @popo/socket dev\" \"pnpm --filter @popo/worker dev\"",
+    "dev": "concurrently -n \"API,SOCK,WORK\" -c \"blue,magenta,yellow\" \"pnpm --filter @poposerver/api dev\" \"pnpm --filter @poposerver/socket dev\" \"pnpm --filter @poposerver/worker dev\"",
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
     "lint": "eslint . --ext .ts",
@@ -15,7 +15,9 @@
     "db:prod": "docker compose -f docker/prod/docker-compose.yml --env-file .env up -d",
     "db:down": "docker compose -f docker/dev/docker-compose.yml down",
     "db:test": "ts-node -r tsconfig-paths/register scripts/test-db-connection.ts",
-    "db:clean": "docker compose -f docker/dev/docker-compose.yml down -v"
+    "db:clean": "docker compose -f docker/dev/docker-compose.yml down -v",
+    "redis:test": "ts-node -r tsconfig-paths/register scripts/test-redis-connection.ts",
+    "worker:dev": "ts-node -r tsconfig-paths/register apps/worker/main.ts"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -38,7 +40,13 @@
     "zod": "^4.3.4",
     "typeorm": "^0.3.28",
     "reflect-metadata": "^0.2.2",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "ioredis": "^5.8.2",
+    "@types/ioredis": "^4.28.10",
+    "uuid": "^9.0.1",
+    "@types/uuid": "^9.0.7",
+    "node-cron": "^3.0.3",
+    "@types/node-cron": "^3.0.11"
   },
   "engines": {
     "node": ">=18.0.0",

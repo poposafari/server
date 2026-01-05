@@ -1,5 +1,11 @@
 export type MapType = 'plaza' | 'safari';
 
+export enum MapWildState {
+  IDLE = 'IDLE',
+  BATTLE = 'BATTLE',
+  DEAD = 'DEAD',
+}
+
 export interface MapData {
   id: string;
   comment: string;

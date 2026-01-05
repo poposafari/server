@@ -19,6 +19,7 @@ export type PokemonType =
   | 'dark'
   | 'steel'
   | 'fairy';
+export type PokemonGender = 'male' | 'female' | 'none';
 
 export interface PokemonData {
   id: string;

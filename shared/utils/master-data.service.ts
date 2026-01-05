@@ -45,7 +45,7 @@ class MasterDataService {
       return;
     }
 
-    const baseDir = path.join(__dirname, '../static');
+    const baseDir = path.join(__dirname, '../master');
 
     try {
       if (!fs.existsSync(baseDir)) {
@@ -129,12 +129,18 @@ class MasterDataService {
           mapData[camelKey] = value;
         }
       });
+
+      console.log('--- Debug Map Data ---');
+      console.log(mapData);
+      console.log('--- Debug Map Data End ---');
       this.maps.set(mapData.id, mapData as MapData);
     });
   }
 
   private readCsv(filePath: string): any[] {
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    let fileContent = fs.readFileSync(filePath, 'utf-8');
+    fileContent = fileContent.replace(/^\uFEFF/, '');
+
     return parse(fileContent, {
       columns: true,
       skip_empty_lines: true,
