@@ -4,6 +4,7 @@ export enum MapWildState {
   IDLE = 'IDLE',
   BATTLE = 'BATTLE',
   DEAD = 'DEAD',
+  MOVING = 'MOVING',
 }
 
 export interface MapData {

@@ -20,6 +20,9 @@ export interface WildPokemon {
   spawnedAt: number;
   despawnAt: number;
   state: MapWildState;
+  destX?: number;
+  destY?: number;
+  arriveAt?: number;
 }
 
 export interface WildItem {

@@ -129,10 +129,6 @@ class MasterDataService {
           mapData[camelKey] = value;
         }
       });
-
-      console.log('--- Debug Map Data ---');
-      console.log(mapData);
-      console.log('--- Debug Map Data End ---');
       this.maps.set(mapData.id, mapData as MapData);
     });
   }
