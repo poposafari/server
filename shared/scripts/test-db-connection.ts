@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import 'reflect-metadata';
-import { AppDataSource } from '@poposerver/shared';
+import { AppDataSource } from 'shared/database';
 
 async function checkConnection() {
   console.log('[TEST] Checking database connection...');

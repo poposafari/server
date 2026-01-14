@@ -2,5 +2,5 @@
 .env.*
 !.env.dev
 node_modules
-legacy
-apps/api
+legacy*
+apps/worker

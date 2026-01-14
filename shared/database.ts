@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { join } from 'path';
-import { envConfig } from 'shared/utils/env';
+import { envConfig } from '@poposerver/shared/utils';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -14,8 +14,20 @@ export const AppDataSource = new DataSource({
   // 개발 환경일 때만 쿼리 로그 출력
   logging: envConfig.NODE_ENV === 'DEV',
   // 엔티티 파일 경로: 빌드된 후(.js)와 개발 중(.ts) 모두 대응하도록 설정
-  entities: [join(__dirname, '../entities', '*.{ts,js}')],
+  entities: [join(__dirname, './entities', '*.{ts,js}')],
   // 마이그레이션 파일 경로
   migrations: [],
   subscribers: [],
 });
+
+export const connectDB = async (dataSource: DataSource, serviceName: string) => {
+  try {
+    if (!AppDataSource.isInitialized) {
+      await AppDataSource.initialize();
+      console.info(`[INFO] ${serviceName} Database connection initialized successfully.`);
+    }
+  } catch (error) {
+    console.error(`[ERROR] ${serviceName} Error initializing database connection:`, error);
+    throw error;
+  }
+};

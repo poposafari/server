@@ -39,7 +39,7 @@ class MasterDataService {
 
   constructor() {}
 
-  public async load(): Promise<void> {
+  public async load(serviceName: string): Promise<void> {
     if (this.isLoaded) {
       console.warn('[WARN] StaticStorage is already loaded.');
       return;

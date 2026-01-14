@@ -21,10 +21,17 @@ const envSchema = z.object({
   // Redis
   REDIS_HOST: z.string().min(1, 'Redis host is required'),
   REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_PASSWORD: z.string().optional(),
+
+  // API
+  API_PORT: z.coerce.number().default(3000),
 
   // Security
   JWT_ACCESS_SECRET: z.string().min(1, 'JWT access secret is required'),
   JWT_REFRESH_SECRET: z.string().min(1, 'JWT refresh secret is required'),
+
+  // CORS
+  CORS_ORIGIN: z.string().optional(),
 });
 
 const envCheck = envSchema.safeParse(process.env);

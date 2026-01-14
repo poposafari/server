@@ -20,7 +20,7 @@ services:
     container_name: poposerver_redis
     ports:
       - '6379:6379'
-    command: redis-server --appendonly yes # 데이터 지속성 옵션 ON
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
     networks:
