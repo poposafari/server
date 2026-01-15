@@ -3,13 +3,16 @@ import path from 'path';
 import { z } from 'zod';
 
 const isProd = process.env.NODE_ENV === 'PROD';
-const envFile = isProd ? '.env' : '.env.dev';
+const envFile = isProd ? '.env' : process.env.NODE_ENV === 'DEV' ? '.env.dev' : '.env.test';
 
-dotenv.config({ path: path.resolve(__dirname, process.cwd(), envFile) });
+dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 
 const envSchema = z.object({
   // Environment
-  NODE_ENV: z.enum(['DEV', 'PROD', 'TEST']).default('DEV'),
+  NODE_ENV: z
+    .enum(['DEV', 'PROD', 'TEST', 'test'])
+    .transform((val) => (val === 'test' ? 'TEST' : val))
+    .default('DEV'),
 
   // Database
   DB_HOST: z.string().min(1, 'Database host is required'),

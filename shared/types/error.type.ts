@@ -8,6 +8,10 @@ export enum AppErrorCode {
   RT_EXPIRED = 'RT_EXPIRED',
 }
 
+export enum AppErrorMessage {
+  USER_ALREADY_EXISTS = 'User already exists',
+}
+
 export interface AppErrorRes {
   success: false;
   timestamp: string;

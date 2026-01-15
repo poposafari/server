@@ -8,7 +8,7 @@ import { jwtAuthGuard } from 'apps/api/middlewares/jwt.middleware';
 
 const router = Router();
 const authRepository = new AuthRepository(AppDataSource.getRepository(Auth));
-const authService = new AuthService(authRepository);
+const authService = new AuthService(authRepository, AppDataSource);
 const authController = new AuthController(authService);
 
 router.post('/register/local', validate(authLocalSchema), authController.registerLocal);

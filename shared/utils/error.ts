@@ -1,4 +1,4 @@
-import { AppErrorCode } from 'shared/types';
+import { AppErrorCode } from '@poposerver/shared';
 
 export class AppError extends Error {
   public readonly statusCode: number;

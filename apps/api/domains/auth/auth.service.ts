@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import {
   AppError,
   AppErrorCode,
+  AppErrorMessage,
   deleteRefreshTokenInRedis,
   generateAccessToken,
   generateTokenPair,
@@ -10,14 +11,18 @@ import {
   UserAuthProvider,
   verifyRefreshTokenInRedis,
   verifyToken,
-} from 'shared';
+} from '@poposerver/shared';
 import { AuthLocalReq } from './auth.dto';
 import { AuthRepository } from './auth.repository';
+import { DataSource } from 'typeorm';
 
 export class AuthService {
   private readonly SALT_ROUNDS = 10;
 
-  constructor(private readonly authRepository: AuthRepository) {}
+  constructor(
+    private readonly authRepository: AuthRepository,
+    private readonly dataSource: DataSource,
+  ) {}
 
   private async generateAndStoreTokens(authId: string): Promise<TokenPair> {
     const { accessToken, refreshToken } = generateTokenPair(authId);
@@ -37,17 +42,33 @@ export class AuthService {
     );
 
     if (existingAuth) {
-      throw new AppError('User already exists', 409, AppErrorCode.CONFLICT);
+      throw new AppError(AppErrorMessage.USER_ALREADY_EXISTS, 409, AppErrorCode.CONFLICT);
     }
 
-    const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
-    const auth = await this.authRepository.create(UserAuthProvider.LOCAL, username, hashedPassword);
-    const tokenPair = await this.generateAndStoreTokens(auth.id);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    return {
-      accessToken: tokenPair.accessToken,
-      refreshToken: tokenPair.refreshToken,
-    };
+    try {
+      const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
+      const auth = await this.authRepository.create(
+        UserAuthProvider.LOCAL,
+        username,
+        hashedPassword,
+      );
+      const tokenPair = await this.generateAndStoreTokens(auth.id);
+      await queryRunner.commitTransaction();
+
+      return {
+        accessToken: tokenPair.accessToken,
+        refreshToken: tokenPair.refreshToken,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async loginLocal(req: AuthLocalReq): Promise<TokenPair> {

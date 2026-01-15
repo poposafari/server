@@ -1,6 +1,7 @@
 .env
 .env.*
 !.env.dev
+!.env.test
 node_modules
 legacy*
 apps/worker
