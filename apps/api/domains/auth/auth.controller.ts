@@ -7,12 +7,17 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   refreshTokenCookieOptions,
   AppErrorMessage,
+  AuditAction,
 } from '@poposerver/shared';
 import { AuthenticatedRequest } from 'apps/api/middlewares/jwt.middleware';
 import { logger } from '@poposerver/shared/utils/logger';
+import { AuditService } from '../audit/audit.service';
 
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly auditService: AuditService,
+  ) {}
 
   registerLocal = async (
     req: Request<{}, AuthSuccessRes, AuthLocalReq>,
@@ -26,7 +31,9 @@ export class AuthController {
 
       res.cookie(REFRESH_TOKEN_COOKIE_NAME, result.refreshToken, refreshTokenCookieOptions);
 
+      this.auditService.log(result.authId!, AuditAction.REGISTER_LOCAL, req.ip || '');
       logger.info(`Register(local) success: ${JSON.stringify(req.body)}`);
+
       res.status(201).json({ success: true, data: { accessToken: result.accessToken } });
     } catch (error) {
       logger.warn(`Register(local) error: ${JSON.stringify(error)}`);
@@ -46,7 +53,9 @@ export class AuthController {
 
       res.cookie(REFRESH_TOKEN_COOKIE_NAME, result.refreshToken, refreshTokenCookieOptions);
 
+      this.auditService.log(result.authId!, AuditAction.LOGIN_LOCAL, req.ip || '');
       logger.info(`Login(local) success: ${JSON.stringify(req.body)}`);
+
       res.status(200).json({ success: true, data: { accessToken: result.accessToken } });
     } catch (error) {
       logger.warn(`Login(local) error: ${JSON.stringify(error)}`);
@@ -65,7 +74,9 @@ export class AuthController {
       await this.authService.logout(authReq.user.authId);
       res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
 
+      this.auditService.log(authReq.user.authId, AuditAction.LOGOUT, req.ip || '');
       logger.info(`Logout success: ${JSON.stringify(req.body)}`);
+
       res.status(200).json({ success: true, data: null });
     } catch (error) {
       logger.warn(`Logout error: ${JSON.stringify(error)}`);
@@ -84,6 +95,7 @@ export class AuthController {
       await this.authService.softDeleteAuth(authReq.user.authId);
       res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
 
+      this.auditService.log(authReq.user.authId, AuditAction.DELETE_AUTH, req.ip || '');
       logger.info(`DeleteAuth success: ${JSON.stringify(req.body)}`);
       res.status(200).json({ success: true, data: null });
     } catch (error) {

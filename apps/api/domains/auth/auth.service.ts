@@ -60,6 +60,7 @@ export class AuthService {
       await queryRunner.commitTransaction();
 
       return {
+        authId: auth.id,
         accessToken: tokenPair.accessToken,
         refreshToken: tokenPair.refreshToken,
       };
@@ -90,6 +91,7 @@ export class AuthService {
     const tokenPair = await this.generateAndStoreTokens(auth.id);
 
     return {
+      authId: auth.id,
       accessToken: tokenPair.accessToken,
       refreshToken: tokenPair.refreshToken,
     };

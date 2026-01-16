@@ -49,7 +49,4 @@ export class Auth {
 
   //   @OneToMany(() => UserPokedex, (dex) => dex.auth)
   //   pokedex!: UserPokedex[];
-
-  //   @OneToMany(() => AuditLog, (log) => log.auth)
-  //   auditLogs!: AuditLog[];
 }

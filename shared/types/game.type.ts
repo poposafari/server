@@ -1,13 +1,10 @@
 // --- Audit types ---
 export enum AuditAction {
-  LOGIN = 'LOGIN',
+  NONE = 'NONE',
+  REGISTER_LOCAL = 'REGISTER_LOCAL',
+  LOGIN_LOCAL = 'LOGIN_LOCAL',
+  DELETE_AUTH = 'DELETE_AUTH',
   LOGOUT = 'LOGOUT',
-  REGISTER = 'REGISTER',
-  CATCH = 'CATCH',
-  BUY = 'BUY',
-  SELL = 'SELL',
-  USE_ITEM = 'USE_ITEM',
-  GET_ITEM = 'GET_ITEM',
 }
 
 // --- Game Global types ---

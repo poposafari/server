@@ -7,6 +7,7 @@ export interface TokenPayload {
 }
 
 export interface TokenPair {
+  authId?: string;
   accessToken: string;
   refreshToken: string;
 }

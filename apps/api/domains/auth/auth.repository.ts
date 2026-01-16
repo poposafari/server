@@ -2,11 +2,7 @@ import { Auth, UserAuthProvider } from 'shared';
 import { Repository } from 'typeorm';
 
 export class AuthRepository {
-  private authRepository: Repository<Auth>;
-
-  constructor(repository: Repository<Auth>) {
-    this.authRepository = repository;
-  }
+  constructor(private readonly authRepository: Repository<Auth>) {}
 
   async findByProviderAndProviderId(provider: string, providerId: string): Promise<Auth | null> {
     return this.authRepository.findOne({ where: { provider, providerId }, withDeleted: true });
