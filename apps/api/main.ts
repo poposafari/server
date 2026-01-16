@@ -1,5 +1,13 @@
-import { AppDataSource, connectDB, connectRedis, envConfig, MasterData, RedisClient } from 'shared';
+import {
+  AppDataSource,
+  connectDB,
+  connectRedis,
+  envConfig,
+  MasterData,
+  RedisClient,
+} from '@poposerver/shared';
 import app from './app';
+import { logger } from '@poposerver/shared/utils/logger';
 
 async function boot() {
   try {
@@ -8,10 +16,10 @@ async function boot() {
     await MasterData.load('API');
 
     app.listen(envConfig.API_PORT, () => {
-      console.info(`[INFO] API Server is running on port ${envConfig.API_PORT}`);
+      logger.info(`API Server is running on port ${envConfig.API_PORT}`);
     });
   } catch (error) {
-    console.error('[FATAL] Failed to start server:', error);
+    logger.error('[FATAL] Failed to start server:', error);
     process.exit(1);
   }
 }

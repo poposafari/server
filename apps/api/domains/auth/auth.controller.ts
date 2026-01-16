@@ -9,6 +9,7 @@ import {
   AppErrorMessage,
 } from '@poposerver/shared';
 import { AuthenticatedRequest } from 'apps/api/middlewares/jwt.middleware';
+import { logger } from '@poposerver/shared/utils/logger';
 
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -19,13 +20,16 @@ export class AuthController {
     next: NextFunction,
   ): Promise<void> => {
     try {
+      logger.debug(`Register(local) attempt: ${JSON.stringify(req.body)}`);
       const request: AuthLocalReq = req.body;
       const result = await this.authService.registerLocal(request);
 
       res.cookie(REFRESH_TOKEN_COOKIE_NAME, result.refreshToken, refreshTokenCookieOptions);
 
+      logger.info(`Register(local) success: ${JSON.stringify(req.body)}`);
       res.status(201).json({ success: true, data: { accessToken: result.accessToken } });
     } catch (error) {
+      logger.warn(`Register(local) error: ${JSON.stringify(error)}`);
       next(error);
     }
   };
@@ -36,19 +40,23 @@ export class AuthController {
     next: NextFunction,
   ): Promise<void> => {
     try {
+      logger.debug(`Login(local) attempt: ${JSON.stringify(req.body)}`);
       const request: AuthLocalReq = req.body;
       const result = await this.authService.loginLocal(request);
 
       res.cookie(REFRESH_TOKEN_COOKIE_NAME, result.refreshToken, refreshTokenCookieOptions);
 
+      logger.info(`Login(local) success: ${JSON.stringify(req.body)}`);
       res.status(200).json({ success: true, data: { accessToken: result.accessToken } });
     } catch (error) {
+      logger.warn(`Login(local) error: ${JSON.stringify(error)}`);
       next(error);
     }
   };
 
   logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      logger.debug(`Logout attempt: ${JSON.stringify(req.body)}`);
       const authReq = req as AuthenticatedRequest;
       if (!authReq.user?.authId) {
         throw new AppError(AppErrorMessage.UNAUTHORIZED, 401, AppErrorCode.UNAUTHORIZED);
@@ -57,14 +65,17 @@ export class AuthController {
       await this.authService.logout(authReq.user.authId);
       res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
 
+      logger.info(`Logout success: ${JSON.stringify(req.body)}`);
       res.status(200).json({ success: true, data: null });
     } catch (error) {
+      logger.warn(`Logout error: ${JSON.stringify(error)}`);
       next(error);
     }
   };
 
   deleteAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      logger.debug(`DeleteAuth attempt: ${JSON.stringify(req.body)}`);
       const authReq = req as AuthenticatedRequest;
       if (!authReq.user?.authId) {
         throw new AppError(AppErrorMessage.UNAUTHORIZED, 401, AppErrorCode.UNAUTHORIZED);
@@ -73,8 +84,10 @@ export class AuthController {
       await this.authService.softDeleteAuth(authReq.user.authId);
       res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
 
+      logger.info(`DeleteAuth success: ${JSON.stringify(req.body)}`);
       res.status(200).json({ success: true, data: null });
     } catch (error) {
+      logger.warn(`DeleteAuth error: ${JSON.stringify(error)}`);
       next(error);
     }
   };
@@ -85,6 +98,7 @@ export class AuthController {
     next: NextFunction,
   ): Promise<void> => {
     try {
+      logger.debug(`StartRefreshTokenFlow attempt: ${JSON.stringify(req.body)}`);
       const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
       if (!refreshToken) {
         throw new AppError(AppErrorMessage.REFRESH_TOKEN_MISSING, 401, AppErrorCode.UNAUTHORIZED);
@@ -92,8 +106,10 @@ export class AuthController {
 
       const { accessToken } = await this.authService.startRefreshTokenFlow(refreshToken);
 
+      logger.info(`StartRefreshTokenFlow success: ${JSON.stringify(req.body)}`);
       res.status(200).json({ success: true, data: { accessToken } });
     } catch (error) {
+      logger.warn(`StartRefreshTokenFlow error: ${JSON.stringify(error)}`);
       next(error);
     }
   };

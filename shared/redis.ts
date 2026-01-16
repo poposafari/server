@@ -1,5 +1,6 @@
 import Redis, { RedisOptions } from 'ioredis';
 import { envConfig } from './utils';
+import { logger } from './utils/logger';
 
 const redisConfig: RedisOptions = {
   host: envConfig.REDIS_HOST,
@@ -27,9 +28,9 @@ export const connectRedis = async (redisClient: Redis, serviceName: string) => {
     }
 
     await redisClient.connect();
-    console.info(`[INFO] ${serviceName} Redis connection initialized successfully.`);
+    logger.info(`${serviceName} Redis connection initialized successfully.`);
   } catch (error) {
-    console.error(`[ERROR] ${serviceName} Error initializing Redis connection:`, error);
+    logger.error(`${serviceName} Error initializing Redis connection:`, error);
     throw error;
   }
 };

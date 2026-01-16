@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
 import { ItemData, MapData, PokemonData } from 'shared/types';
+import { logger } from './logger';
 
 /**
  * Python 스타일의 리스트 문자열("['a', 'b']")을 JS 배열로 변환
@@ -12,7 +13,7 @@ const parsePythonList = (value: string): string[] => {
     const jsonString = value.replace(/'/g, '"');
     return JSON.parse(jsonString);
   } catch (error) {
-    console.warn(`Failed to parse list string: ${value}`, error);
+    logger.warn(`Failed to parse list string: ${value}`, error);
     return [];
   }
 };
@@ -41,7 +42,7 @@ class MasterDataService {
 
   public async load(serviceName: string): Promise<void> {
     if (this.isLoaded) {
-      console.warn('[WARN] StaticStorage is already loaded.');
+      logger.warn('StaticStorage is already loaded.');
       return;
     }
 
@@ -56,9 +57,9 @@ class MasterDataService {
       this.loadPokemons(path.join(baseDir, 'pokemon.csv'));
       this.loadMaps(path.join(baseDir, 'map.csv'));
       this.isLoaded = true;
-      console.info('[INFO] StaticStorage loaded successfully.');
+      logger.info('StaticStorage loaded successfully.');
     } catch (error) {
-      console.error('[ERROR] Failed to load StaticStorage:', error);
+      logger.error('Failed to load StaticStorage:', error);
       throw error;
     }
   }
