@@ -6,7 +6,8 @@ import {
   AppErrorCode,
   REFRESH_TOKEN_COOKIE_NAME,
   refreshTokenCookieOptions,
-} from 'shared';
+  AppErrorMessage,
+} from '@poposerver/shared';
 import { AuthenticatedRequest } from 'apps/api/middlewares/jwt.middleware';
 
 export class AuthController {
@@ -50,7 +51,7 @@ export class AuthController {
     try {
       const authReq = req as AuthenticatedRequest;
       if (!authReq.user?.authId) {
-        throw new AppError('Unauthorized', 401, AppErrorCode.UNAUTHORIZED);
+        throw new AppError(AppErrorMessage.UNAUTHORIZED, 401, AppErrorCode.UNAUTHORIZED);
       }
 
       await this.authService.logout(authReq.user.authId);
@@ -66,7 +67,7 @@ export class AuthController {
     try {
       const authReq = req as AuthenticatedRequest;
       if (!authReq.user?.authId) {
-        throw new AppError('Unauthorized', 401, AppErrorCode.UNAUTHORIZED);
+        throw new AppError(AppErrorMessage.UNAUTHORIZED, 401, AppErrorCode.UNAUTHORIZED);
       }
 
       await this.authService.softDeleteAuth(authReq.user.authId);
@@ -86,7 +87,7 @@ export class AuthController {
     try {
       const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
       if (!refreshToken) {
-        throw new AppError('Refresh token missing', 401, AppErrorCode.UNAUTHORIZED);
+        throw new AppError(AppErrorMessage.REFRESH_TOKEN_MISSING, 401, AppErrorCode.UNAUTHORIZED);
       }
 
       const { accessToken } = await this.authService.startRefreshTokenFlow(refreshToken);
