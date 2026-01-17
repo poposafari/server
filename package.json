@@ -4,21 +4,23 @@
   "private": true,
   "description": "poposafari api & database & socket & worker server",
   "scripts": {
-    "dev": "concurrently -n \"API,SOCK,WORK\" -c \"blue,magenta,yellow\" \"pnpm --filter @poposerver/api dev\" \"pnpm --filter @poposerver/socket dev\" \"pnpm --filter @poposerver/worker dev\"",
+    "dev": "pnpm test && pnpm start:dev",
+    "start:dev": "concurrently -n \"API,SOCK,WORK\" -c \"blue,magenta,yellow\" \"pnpm --filter @poposerver/api dev\" \"pnpm --filter @poposerver/socket dev\" \"pnpm --filter @poposerver/worker dev\"",
+    "test": "dotenv -e .env.test -- jest",
+    "pretest": "pnpm db:test:up",
+    "posttest": "pnpm db:test:down",
+    "api:dev": "pnpm test && ts-node -r tsconfig-paths/register apps/api/main.ts",
+    "db:dev": "docker compose -f docker/dev/docker-compose.yml --env-file .env.dev up -d",
+    "db:prod": "docker compose -f docker/prod/docker-compose.yml --env-file .env up -d",
+    "db:test:up": "docker compose -f docker/dev/docker-compose.yml --env-file .env.dev up -d postgres-test redis-test",
+    "db:test:down": "docker compose -f docker/dev/docker-compose.yml stop postgres-test redis-test",
+    "db:clean": "docker compose -f docker/dev/docker-compose.yml down -v",
     "build": "pnpm -r run build",
-    "test": "jest",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"**/*.{ts,json,md}\"",
     "clean": "rimraf dist coverage node_modules apps/*/dist libs/*/dist",
     "prepare": "husky install",
-    "db:dev": "docker compose -f docker/dev/docker-compose.yml --env-file .env.dev up -d",
-    "db:prod": "docker compose -f docker/prod/docker-compose.yml --env-file .env up -d",
-    "db:down": "docker compose -f docker/dev/docker-compose.yml down",
-    "db:test": "ts-node -r tsconfig-paths/register scripts/test-db-connection.ts",
-    "db:clean": "docker compose -f docker/dev/docker-compose.yml down -v",
-    "redis:test": "ts-node -r tsconfig-paths/register scripts/test-redis-connection.ts",
-    "worker:dev": "ts-node -r tsconfig-paths/register apps/worker/main.ts",
-    "api:dev": "ts-node -r tsconfig-paths/register apps/api/main.ts"
+    "worker:dev": "ts-node -r tsconfig-paths/register apps/worker/main.ts"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
@@ -71,7 +73,8 @@
     "ts-jest": "^29.4.6",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0",
-    "express-rate-limit": "^8.2.1"
+    "express-rate-limit": "^8.2.1",
+    "dotenv-cli": "^11.0.0"
   },
   "engines": {
     "node": ">=18.0.0",

@@ -15,6 +15,20 @@ services:
     networks:
       - poposerver_network
 
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: poposerver_postgres_test
+    ports:
+      - '8888:5432'
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    tmpfs:
+      - /var/lib/postgresql/data
+    networks:
+      - poposerver_network
+
   redis:
     image: redis:alpine
     container_name: poposerver_redis
@@ -23,6 +37,17 @@ services:
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
+    networks:
+      - poposerver_network
+
+  redis-test:
+    image: redis:alpine
+    container_name: poposerver_redis_test
+    ports:
+      - '8889:6379' # 다른 포트 사용
+    command: redis-server --appendonly no --requirepass ${REDIS_PASSWORD}
+    tmpfs:
+      - /data # 테스트용이므로 메모리에 저장 (빠름)
     networks:
       - poposerver_network
 

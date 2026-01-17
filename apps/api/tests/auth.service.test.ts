@@ -78,6 +78,7 @@ describe('회원가입(로컬) 유닛 테스트', () => {
 
     //Assert(검증)
     expect(result).toEqual({
+      authId: 1,
       accessToken: 'test_access_token',
       refreshToken: 'test_refresh_token',
     });
@@ -211,6 +212,7 @@ describe('로그인(로컬) 유닛 테스트', () => {
 
     //Assert
     expect(result).toEqual({
+      authId: 1,
       accessToken: 'test_access_token',
       refreshToken: 'test_refresh_token',
     });

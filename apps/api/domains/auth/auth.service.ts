@@ -66,6 +66,12 @@ export class AuthService {
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();
+
+      const dbError = error as { code?: string };
+
+      if (dbError.code === '23505') {
+        throw new AppError(AppErrorMessage.USER_ALREADY_EXISTS, 409, AppErrorCode.CONFLICT);
+      }
       throw error;
     } finally {
       await queryRunner.release();

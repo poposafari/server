@@ -2,14 +2,15 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { z } from 'zod';
 
-const isProd = process.env.NODE_ENV === 'PROD';
-const envFile = isProd ? '.env' : '.env.dev';
+const nodeEnv = process.env.NODE_ENV;
+const envFile =
+  nodeEnv === 'PROD' ? '.env' : nodeEnv === 'test' || nodeEnv === 'TEST' ? '.env.test' : '.env.dev';
 
 dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 
 const envSchema = z.object({
   // Environment
-  NODE_ENV: z.enum(['DEV', 'PROD']).default('DEV'),
+  NODE_ENV: z.enum(['DEV', 'PROD', 'test']).default('DEV'),
 
   // Database
   DB_HOST: z.string().min(1, 'Database host is required'),
