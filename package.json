@@ -70,7 +70,8 @@
     "@types/jest": "^29.5.14",
     "ts-jest": "^29.4.6",
     "winston": "^3.19.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "express-rate-limit": "^8.2.1"
   },
   "engines": {
     "node": ">=18.0.0",

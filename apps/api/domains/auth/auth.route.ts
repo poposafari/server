@@ -7,6 +7,7 @@ import { authLocalSchema } from './auth.schema';
 import { jwtAuthGuard } from 'apps/api/middlewares/jwt.middleware';
 import { AuditRepository } from '../audit/audit.repository';
 import { AuditService } from '../audit/audit.service';
+import { authLimiter } from 'apps/api/middlewares';
 
 const router = Router();
 
@@ -19,7 +20,7 @@ const authService = new AuthService(authRepository, AppDataSource);
 const authController = new AuthController(authService, auditService);
 
 router.post('/register/local', validate(authLocalSchema), authController.registerLocal);
-router.post('/login/local', validate(authLocalSchema), authController.loginLocal);
+router.post('/login/local', authLimiter, validate(authLocalSchema), authController.loginLocal);
 router.post('/logout', jwtAuthGuard, authController.logout);
 router.delete('/delete', jwtAuthGuard, authController.deleteAuth);
 router.post('/refresh', authController.startRefreshTokenFlow);

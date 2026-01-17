@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { AppError, AppErrorCode, AppErrorRes, envConfig } from 'shared';
 import apiRouter from './routes';
+import { globalLimiter } from './middlewares';
 
 const app = express();
 
@@ -19,6 +20,8 @@ app.use(morgan(envConfig.NODE_ENV === 'PROD' ? 'combined' : 'dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.use(globalLimiter);
 
 app.use('/health', (req, res) => {
   res.status(200).json({ message: 'Poposafari server is running' });
