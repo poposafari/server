@@ -25,14 +25,14 @@ export class AuthController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      logger.debug(`Register(local) attempt: ${JSON.stringify(req.body)}`);
+      logger.debug(`Register(local) attempt: ${JSON.stringify(req.body.username)}`);
       const request: AuthLocalReq = req.body;
       const result = await this.authService.registerLocal(request);
 
       res.cookie(REFRESH_TOKEN_COOKIE_NAME, result.refreshToken, refreshTokenCookieOptions);
 
       this.auditService.log(result.authId!, AuditAction.REGISTER_LOCAL, req.ip || '');
-      logger.info(`Register(local) success: ${JSON.stringify(req.body)}`);
+      logger.info(`Register(local) success: username=${req.body.username}`);
 
       res.status(201).json({ success: true, data: { accessToken: result.accessToken } });
     } catch (error) {
@@ -54,7 +54,7 @@ export class AuthController {
       res.cookie(REFRESH_TOKEN_COOKIE_NAME, result.refreshToken, refreshTokenCookieOptions);
 
       this.auditService.log(result.authId!, AuditAction.LOGIN_LOCAL, req.ip || '');
-      logger.info(`Login(local) success: ${JSON.stringify(req.body)}`);
+      logger.info(`Login(local) success: username=${req.body.username}`);
 
       res.status(200).json({ success: true, data: { accessToken: result.accessToken } });
     } catch (error) {
@@ -75,7 +75,7 @@ export class AuthController {
       res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
 
       this.auditService.log(authReq.user.authId, AuditAction.LOGOUT, req.ip || '');
-      logger.info(`Logout success: ${JSON.stringify(req.body)}`);
+      logger.info(`Logout success: authId=${authReq.user.authId}`);
 
       res.status(200).json({ success: true, data: null });
     } catch (error) {
@@ -96,7 +96,7 @@ export class AuthController {
       res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
 
       this.auditService.log(authReq.user.authId, AuditAction.DELETE_AUTH, req.ip || '');
-      logger.info(`DeleteAuth success: ${JSON.stringify(req.body)}`);
+      logger.info(`DeleteAuth success: authId=${authReq.user.authId}`);
       res.status(200).json({ success: true, data: null });
     } catch (error) {
       logger.warn(`DeleteAuth error: ${JSON.stringify(error)}`);
@@ -118,7 +118,7 @@ export class AuthController {
 
       const { accessToken } = await this.authService.startRefreshTokenFlow(refreshToken);
 
-      logger.info(`StartRefreshTokenFlow success: ${JSON.stringify(req.body)}`);
+      logger.info(`StartRefreshTokenFlow success`);
       res.status(200).json({ success: true, data: { accessToken } });
     } catch (error) {
       logger.warn(`StartRefreshTokenFlow error: ${JSON.stringify(error)}`);

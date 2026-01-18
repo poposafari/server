@@ -45,19 +45,20 @@ export class AuthService {
       throw new AppError(AppErrorMessage.USER_ALREADY_EXISTS, 409, AppErrorCode.CONFLICT);
     }
 
+    const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS); //CPU를 좀 많이 쓰는 작업임.
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS);
       const auth = await this.authRepository.create(
         UserAuthProvider.LOCAL,
         username,
         hashedPassword,
       );
-      const tokenPair = await this.generateAndStoreTokens(auth.id);
       await queryRunner.commitTransaction();
+
+      const tokenPair = await this.generateAndStoreTokens(auth.id);
 
       return {
         authId: auth.id,
