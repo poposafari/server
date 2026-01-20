@@ -10,6 +10,7 @@ export enum AppErrorCode {
 
 export enum AppErrorMessage {
   USER_ALREADY_EXISTS = 'User already exists',
+  NICKNAME_ALREADY_EXISTS = 'Nickname already exists',
   INVALID_CREDENTIALS = 'Invalid credentials',
   UNAUTHORIZED = 'Unauthorized',
   REFRESH_TOKEN_MISSING = 'Refresh token missing',

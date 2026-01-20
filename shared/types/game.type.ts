@@ -5,6 +5,7 @@ export enum AuditAction {
   LOGIN_LOCAL = 'LOGIN_LOCAL',
   DELETE_AUTH = 'DELETE_AUTH',
   LOGOUT = 'LOGOUT',
+  CREATE_USER = 'CREATE_USER',
 }
 
 // --- Game Global types ---
@@ -103,7 +104,12 @@ export type PokemonType =
   | 'dark'
   | 'steel'
   | 'fairy';
-export type PokemonGender = 'male' | 'female' | 'none';
+
+export enum PokemonGender {
+  NONE = 0,
+  MALE = 1,
+  FEMALE = 2,
+}
 
 export interface PokemonData {
   id: string;
@@ -135,6 +141,20 @@ export enum PokedexStatus {
 }
 
 // --- User types ---
+export const UserStartLocation: UserLocationData = { map: 'p003', x: 10, y: 10 };
+export const UserAvatarParts: (keyof UserAvatarData)[] = [
+  'skin',
+  'eye',
+  'hair',
+  'top',
+  'bottom',
+  'shoes',
+  'etc1',
+  'etc2',
+  'etc3',
+];
+export type UserGender = 'boy' | 'girl';
+
 export interface UserLocationData {
   map: string;
   x: number;
@@ -142,15 +162,15 @@ export interface UserLocationData {
 }
 
 export interface UserAvatarData {
-  skin: number;
-  eye: number;
-  hair: number;
-  top: number;
-  bottom: number;
-  shoes: number;
-  etc_1: number;
-  etc_2: number;
-  etc_3: number;
+  skin: string;
+  eye: string;
+  hair: string;
+  top: string;
+  bottom: string;
+  shoes: string;
+  etc1: string;
+  etc2: string;
+  etc3: string;
 }
 
 export interface UserPcSettingsData {

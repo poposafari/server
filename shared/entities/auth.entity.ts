@@ -5,8 +5,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Index,
-  OneToOne,
-  OneToMany,
 } from 'typeorm';
 
 @Entity('auth_identities')
@@ -30,23 +28,6 @@ export class Auth {
   @DeleteDateColumn({ name: 'deleted_at', nullable: true })
   deletedAt?: Date;
 
-  @Column({ name: 'last_login_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ name: 'last_login_at', type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   lastLoginAt!: Date;
-
-  // --- Relations ---
-
-  //   @OneToOne(() => User, (user) => user.auth, { cascade: true })
-  //   user!: User;
-
-  //   @OneToMany(() => UserPokemon, (pokemon) => pokemon.auth)
-  //   pokemons!: UserPokemon[];
-
-  //   @OneToMany(() => UserBag, (bag) => bag.auth)
-  //   bags!: UserBag[];
-
-  //   @OneToMany(() => UserCostume, (costume) => costume.auth)
-  //   costumes!: UserCostume[];
-
-  //   @OneToMany(() => UserPokedex, (dex) => dex.auth)
-  //   pokedex!: UserPokedex[];
 }

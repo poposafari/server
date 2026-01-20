@@ -14,8 +14,8 @@ export class AuditLog {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ name: 'auth_id', type: 'bigint' })
-  authId!: string;
+  @Column({ name: 'auth_id', type: 'bigint', nullable: true })
+  authId!: string | null;
 
   @Column({ type: 'enum', enum: AuditAction })
   action!: AuditAction;
@@ -29,7 +29,7 @@ export class AuditLog {
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createAt!: Date;
 
-  @ManyToOne(() => Auth, { onDelete: 'CASCADE' }) // 유저 삭제되면 로그도 삭제할지, 남길지 결정 필요 (보통 로그는 남김: NO ACTION or SET NULL)
+  @ManyToOne(() => Auth, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'auth_id' })
-  auth!: Auth;
+  auth!: Auth | null;
 }
