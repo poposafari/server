@@ -42,7 +42,11 @@ export class AuthService {
     );
 
     if (existingAuth) {
-      throw new AppError(AppErrorMessage.USER_ALREADY_EXISTS, 409, AppErrorCode.CONFLICT);
+      throw new AppError(
+        AppErrorMessage.USER_ALREADY_EXISTS,
+        409,
+        AppErrorCode.USER_ALREADY_EXISTS,
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS); //CPU를 좀 많이 쓰는 작업임.
@@ -71,7 +75,11 @@ export class AuthService {
       const dbError = error as { code?: string };
 
       if (dbError.code === '23505') {
-        throw new AppError(AppErrorMessage.USER_ALREADY_EXISTS, 409, AppErrorCode.CONFLICT);
+        throw new AppError(
+          AppErrorMessage.USER_ALREADY_EXISTS,
+          409,
+          AppErrorCode.USER_ALREADY_EXISTS,
+        );
       }
       throw error;
     } finally {
@@ -87,12 +95,12 @@ export class AuthService {
       username,
     );
     if (!auth) {
-      throw new AppError(AppErrorMessage.INVALID_CREDENTIALS, 401, AppErrorCode.UNAUTHORIZED);
+      throw new AppError(AppErrorMessage.FAILED_LOGIN, 401, AppErrorCode.FAILED_LOGIN);
     }
 
     const isPwValid = await bcrypt.compare(password, auth.password || '');
     if (!isPwValid) {
-      throw new AppError(AppErrorMessage.INVALID_CREDENTIALS, 401, AppErrorCode.UNAUTHORIZED);
+      throw new AppError(AppErrorMessage.FAILED_LOGIN, 401, AppErrorCode.FAILED_LOGIN);
     }
 
     const tokenPair = await this.generateAndStoreTokens(auth.id);
@@ -111,11 +119,15 @@ export class AuthService {
   async softDeleteAuth(authId: string): Promise<void> {
     const auth = await this.authRepository.findByIdWithDeleted(authId);
     if (!auth) {
-      throw new AppError(AppErrorMessage.NOT_FOUND, 404, AppErrorCode.NOT_FOUND);
+      throw new AppError(AppErrorMessage.USER_NOT_FOUND, 404, AppErrorCode.USER_NOT_FOUND);
     }
 
     if (auth.deletedAt) {
-      throw new AppError(AppErrorMessage.USER_ALREADY_DELETED, 409, AppErrorCode.CONFLICT);
+      throw new AppError(
+        AppErrorMessage.USER_ALREADY_DELETED,
+        409,
+        AppErrorCode.USER_ALREADY_DELETED,
+      );
     }
 
     await this.authRepository.softDelete(authId);
@@ -125,12 +137,12 @@ export class AuthService {
   async startRefreshTokenFlow(tokenFromCookie: string): Promise<{ accessToken: string }> {
     const payload = verifyToken('refresh', tokenFromCookie);
     if (!payload) {
-      throw new AppError(AppErrorMessage.INVALID_CREDENTIALS, 401, AppErrorCode.UNAUTHORIZED);
+      throw new AppError(AppErrorMessage.RT_MISSING, 401, AppErrorCode.RT_MISSING);
     }
 
     const isMatched = await verifyRefreshTokenInRedis(payload.authId, tokenFromCookie);
     if (!isMatched) {
-      throw new AppError(AppErrorMessage.INVALID_CREDENTIALS, 401, AppErrorCode.UNAUTHORIZED);
+      throw new AppError(AppErrorMessage.RT_MISSING, 401, AppErrorCode.RT_MISSING);
     }
 
     const newAccessToken = generateAccessToken(payload.authId);

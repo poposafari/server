@@ -1,5 +1,5 @@
 import { AuthController } from '../domains/auth/auth.controller';
-import { AppDataSource, Auth, RedisClient } from '@poposerver/shared';
+import { AppDataSource, AppErrorCode, Auth, RedisClient } from '@poposerver/shared';
 import { AuthService } from '../domains/auth/auth.service';
 import { AuthRepository } from '../domains/auth/auth.repository';
 
@@ -43,6 +43,6 @@ describe('registerLocal 동시성 테스트', () => {
     // 실패한 쪽이 409 CONFLICT인지 확인
     const error = (rejected[0] as PromiseRejectedResult).reason;
     expect(error.statusCode).toBe(409);
-    expect(error.code).toBe('CONFLICT');
+    expect(error.code).toBe(AppErrorCode.USER_ALREADY_EXISTS);
   }, 15000);
 });

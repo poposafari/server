@@ -15,19 +15,16 @@ export class UserController {
   createUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const authReq = req as AuthenticatedRequest;
-      if (!authReq.user?.authId) {
-        throw new AppError(AppErrorMessage.UNAUTHORIZED, 401, AppErrorCode.UNAUTHORIZED);
-      }
 
-      logger.debug(`CreateUser attempt: authId=${authReq.user.authId}`);
+      logger.debug(`CreateUser attempt: authId=${authReq.user!.authId}`);
       const request: CreateUserReq = req.body;
-      const result = await this.userService.createUser(authReq.user.authId, request);
+      const result = await this.userService.createUser(authReq.user!.authId, request);
 
-      this.auditService.log(authReq.user.authId, AuditAction.CREATE_USER, req.ip || '');
+      this.auditService.log(authReq.user!.authId, AuditAction.CREATE_USER, req.ip || '');
       logger.info(
-        `CreateUser success: authId=${authReq.user.authId}, nickname=${request.nickname}`,
+        `CreateUser success: authId=${authReq.user!.authId}, nickname=${request.nickname}`,
       );
-      
+
       res.status(201).json({ success: true, data: result });
     } catch (error) {
       logger.warn(`CreateUser error: ${JSON.stringify(error)}`);
@@ -38,14 +35,11 @@ export class UserController {
   getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const authReq = req as AuthenticatedRequest;
-      if (!authReq.user?.authId) {
-        throw new AppError(AppErrorMessage.UNAUTHORIZED, 401, AppErrorCode.UNAUTHORIZED);
-      }
 
-      logger.debug(`GetUser attempt: authId=${authReq.user.authId}`);
-      const result = await this.userService.getUser(authReq.user.authId);
+      logger.debug(`GetUser attempt: authId=${authReq.user!.authId}`);
+      const result = await this.userService.getUser(authReq.user!.authId);
 
-      logger.info(`GetUser success: authId=${authReq.user.authId}`);
+      logger.info(`GetUser success: authId=${authReq.user!.authId}`);
       res.status(200).json({ success: true, data: result });
     } catch (error) {
       logger.warn(`GetUser error: ${JSON.stringify(error)}`);

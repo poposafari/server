@@ -29,7 +29,11 @@ export class UserService {
 
     const existingNickname = await this.userRepository.findByNickname(nickname);
     if (existingNickname) {
-      throw new AppError(AppErrorMessage.USER_ALREADY_EXISTS, 409, AppErrorCode.CONFLICT);
+      throw new AppError(
+        AppErrorMessage.USER_ALREADY_EXISTS,
+        409,
+        AppErrorCode.USER_ALREADY_EXISTS,
+      );
     }
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -73,7 +77,7 @@ export class UserService {
     const user = await this.userRepository.findByAuthId(authId);
 
     if (!user) {
-      throw new AppError(AppErrorMessage.NOT_FOUND, 404, AppErrorCode.NOT_FOUND);
+      throw new AppError(AppErrorMessage.USER_NOT_FOUND, 404, AppErrorCode.USER_NOT_FOUND);
     }
 
     const [allBags, allCostumes, allPokemons] = await Promise.all([

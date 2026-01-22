@@ -1,29 +1,35 @@
 export enum AppErrorCode {
   INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR',
   NOT_FOUND = 'NOT_FOUND',
-  CONFLICT = 'CONFLICT',
-  UNAUTHORIZED = 'UNAUTHORIZED',
-  VALIDATION_ERROR = 'VALIDATION_ERROR',
-  AT_EXPIRED = 'AC_EXPIRED',
-  RT_EXPIRED = 'RT_EXPIRED',
+  DTO_INVALID = 'DTO_INVALID',
+  RT_MISSING = 'RT_MISSING',
+  AT_MISSING = 'AT_MISSING',
+  AT_EXPIRED = 'AT_EXPIRED',
+  USER_ALREADY_EXISTS = 'USER_ALREADY_EXISTS',
+  FAILED_LOGIN = 'FAILED_LOGIN',
+  USER_NOT_FOUND = 'USER_NOT_FOUND',
+  USER_ALREADY_DELETED = 'USER_ALREADY_DELETED',
 }
 
 export enum AppErrorMessage {
-  USER_ALREADY_EXISTS = 'User already exists',
-  NICKNAME_ALREADY_EXISTS = 'Nickname already exists',
-  INVALID_CREDENTIALS = 'Invalid credentials',
-  UNAUTHORIZED = 'Unauthorized',
-  REFRESH_TOKEN_MISSING = 'Refresh token missing',
-  NOT_FOUND = 'Not found',
-  USER_ALREADY_DELETED = 'User already deleted',
+  INTERNAL_SERVER_ERROR = 'Interval Server Error.',
+  NOT_FOUND = 'Not found.',
+  DTO_INVALID = 'Dto Invalidation Error.',
+  RT_MISSING = 'Refresh token missing.',
+  AT_MISSING = 'Access token missing.',
+  AT_EXPIRED = 'Access token expired',
+  USER_ALREADY_EXISTS = 'User already exists.',
+  FAILED_LOGIN = 'Failed login.',
+  USER_NOT_FOUND = 'User not found.',
+  USER_ALREADY_DELETED = 'User already deleted.',
 }
 
 export interface AppErrorRes {
   success: false;
-  timestamp: string;
+  // timestamp: string;
   error: {
     code: AppErrorCode;
-    message: string;
+    message: string | null;
     status: number;
   };
 }

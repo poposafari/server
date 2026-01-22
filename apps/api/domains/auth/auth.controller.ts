@@ -67,15 +67,12 @@ export class AuthController {
     try {
       logger.debug(`Logout attempt: ${JSON.stringify(req.body)}`);
       const authReq = req as AuthenticatedRequest;
-      if (!authReq.user?.authId) {
-        throw new AppError(AppErrorMessage.UNAUTHORIZED, 401, AppErrorCode.UNAUTHORIZED);
-      }
 
-      await this.authService.logout(authReq.user.authId);
+      await this.authService.logout(authReq.user!.authId);
       res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
 
-      this.auditService.log(authReq.user.authId, AuditAction.LOGOUT, req.ip || '');
-      logger.info(`Logout success: authId=${authReq.user.authId}`);
+      this.auditService.log(authReq.user!.authId, AuditAction.LOGOUT, req.ip || '');
+      logger.info(`Logout success: authId=${authReq.user!.authId}`);
 
       res.status(200).json({ success: true, data: null });
     } catch (error) {
@@ -88,15 +85,12 @@ export class AuthController {
     try {
       logger.debug(`DeleteAuth attempt: ${JSON.stringify(req.body)}`);
       const authReq = req as AuthenticatedRequest;
-      if (!authReq.user?.authId) {
-        throw new AppError(AppErrorMessage.UNAUTHORIZED, 401, AppErrorCode.UNAUTHORIZED);
-      }
 
-      await this.authService.softDeleteAuth(authReq.user.authId);
+      await this.authService.softDeleteAuth(authReq.user!.authId);
       res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
 
-      this.auditService.log(authReq.user.authId, AuditAction.DELETE_AUTH, req.ip || '');
-      logger.info(`DeleteAuth success: authId=${authReq.user.authId}`);
+      this.auditService.log(authReq.user!.authId, AuditAction.DELETE_AUTH, req.ip || '');
+      logger.info(`DeleteAuth success: authId=${authReq.user!.authId}`);
       res.status(200).json({ success: true, data: null });
     } catch (error) {
       logger.warn(`DeleteAuth error: ${JSON.stringify(error)}`);
@@ -113,7 +107,7 @@ export class AuthController {
       logger.debug(`StartRefreshTokenFlow attempt: ${JSON.stringify(req.body)}`);
       const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
       if (!refreshToken) {
-        throw new AppError(AppErrorMessage.REFRESH_TOKEN_MISSING, 401, AppErrorCode.UNAUTHORIZED);
+        throw new AppError(AppErrorMessage.RT_MISSING, 401, AppErrorCode.RT_MISSING);
       }
 
       const { accessToken } = await this.authService.startRefreshTokenFlow(refreshToken);

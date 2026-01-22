@@ -15,7 +15,7 @@ export function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): T {
 
       const message = `Validation failed: ${errorMessages.join(', ')}`;
 
-      throw new AppError(message, 400, AppErrorCode.VALIDATION_ERROR as AppErrorCode);
+      throw new AppError(message, 400, AppErrorCode.DTO_INVALID as AppErrorCode);
     }
     throw error;
   }

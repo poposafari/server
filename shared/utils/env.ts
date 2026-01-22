@@ -24,8 +24,9 @@ const envSchema = z.object({
   REDIS_PORT: z.coerce.number().default(6379),
   REDIS_PASSWORD: z.string().optional(),
 
-  // API
-  API_PORT: z.coerce.number().default(3000),
+  // SERVICES
+  API_PORT: z.coerce.number(),
+  SOCKET_PORT: z.coerce.number(),
 
   // Security
   JWT_ACCESS_SECRET: z.string().min(1, 'JWT access secret is required'),

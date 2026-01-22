@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import { AppError, AppErrorCode, AppErrorRes, envConfig } from 'shared';
+import { AppError, AppErrorCode, AppErrorMessage, AppErrorRes, envConfig } from 'shared';
 import apiRouter from './routes';
 import { globalLimiter } from './middlewares';
 
@@ -30,27 +30,27 @@ app.use('/health', (req, res) => {
 app.use('/api', apiRouter);
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const error = new AppError(`${req.method} ${req.url} Not Found`, 404, AppErrorCode.NOT_FOUND);
+  const error = new AppError(AppErrorMessage.NOT_FOUND, 404, AppErrorCode.NOT_FOUND);
   next(error);
 });
 
 app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {
   let statusCode = 500;
   let errorCode = AppErrorCode.INTERNAL_SERVER_ERROR;
-  let message = 'Internal Server Error';
+  let message: string | null = 'Internal Server Error';
 
   if (error instanceof AppError) {
     statusCode = error.statusCode;
     errorCode = error.code;
-    message = error.message;
+    message = envConfig.NODE_ENV === 'DEV' ? error.message : null;
   } else if (error instanceof Error) {
-    message = error.message; // TODO: DEV 환경에서만 보이도록 할까? PROD에서는 보안상 위험할 수도 있는데...
+    message = envConfig.NODE_ENV === 'DEV' ? error.message : null;
     console.error('[UNHANDLED ERROR]', error);
   }
 
   const response: AppErrorRes = {
     success: false,
-    timestamp: new Date().toISOString(),
+    // timestamp: new Date().toISOString(),
     error: {
       code: errorCode,
       message,
