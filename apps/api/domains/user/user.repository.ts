@@ -14,6 +14,10 @@ export class UserRepository {
       where: { authId },
       select: [
         'nickname',
+        'money',
+        'candy',
+        'playTime',
+        'isNewbie',
         'gender',
         'lastAvatar',
         'lastLocation',
