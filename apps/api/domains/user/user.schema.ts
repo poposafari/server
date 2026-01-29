@@ -1,36 +1,51 @@
+import { GLOBAL_NICKNAME_REGEX } from '@poposerver/shared';
 import z from 'zod';
 
-const createCostumePartSchema = (prefix: string) => {
+const MIN_NICKNAME_LENGTH = 1;
+const MAX_NICKNAME_LENGTH = 12;
+const RESERVED_WORDS = [
+  'admin',
+  'null',
+  'undefined',
+];
+
+const createCostumePartSchema = (prefix: string, hasSeparator: boolean = true) => {
+  const separator = hasSeparator ? '_' : '';
+  const regex = new RegExp(`^${prefix}${separator}\\d+$`);
+  const formatExample = hasSeparator ? `${prefix}_0` : `${prefix}0`;
+
   return z
-    .string()
-    .regex(new RegExp(`^${prefix}_\\d+$`), `${prefix} must be in format "${prefix}_number"`)
-    .refine((val) => {
-      const [, number] = val.split('_');
-      return Number(number) >= 0;
-    }, `${prefix} number must be >= 0`);
+  .string()
+  .regex(regex, `Invalid format. Expected format like "${formatExample}"`)
+  .refine((val) => {
+    const numberPart = val.replace(prefix + separator, '');
+    const number = Number(numberPart);
+    return !isNaN(number) && number >= 0;
+  }, `${prefix} number must be >= 0`);
 };
 
 const userAvatarDataSchema = z.object({
   skin: createCostumePartSchema('skin'),
-  eye: createCostumePartSchema('eye'),
   hair: createCostumePartSchema('hair'),
-  top: createCostumePartSchema('top'),
-  bottom: createCostumePartSchema('bottom'),
-  shoes: createCostumePartSchema('shoes'),
-  etc1: createCostumePartSchema('etc1'),
-  etc2: createCostumePartSchema('etc2'),
-  etc3: createCostumePartSchema('etc3'),
+  hairColor: createCostumePartSchema('c', false),
+  outfit: createCostumePartSchema('outfit'),
 });
 
 export const createUserSchema = z.object({
   nickname: z
     .string()
-    .min(1, 'Nickname is required')
-    .max(20, 'Nickname must be at most 20 characters')
+    .trim()
+    .min(MIN_NICKNAME_LENGTH, 'Nickname must be at least 1 character')
+    .max(MAX_NICKNAME_LENGTH, 'Nickname must be at most 12 characters')
     .regex(
-      /^[\p{L}\p{N}]+$/u,
-      'Nickname can only contain letters and numbers (no emojis or special characters)',
-    ),
-  gender: z.enum(['boy', 'girl']),
+      GLOBAL_NICKNAME_REGEX,
+      `Nickname can only contain letters and numbers (no emojis or special characters). Example: ${GLOBAL_NICKNAME_REGEX.source}`,
+    )
+    .refine((val) => {
+      const lowerVal = val.toLowerCase();
+      const isReserved = RESERVED_WORDS.some((word) => lowerVal.includes(word));
+      return !isReserved;
+    }, `Nickname cannot contain reserved words. Reserved words: ${RESERVED_WORDS.join(', ')}`),
+  gender: z.enum(['male', 'female'],),
   costume: userAvatarDataSchema,
 });

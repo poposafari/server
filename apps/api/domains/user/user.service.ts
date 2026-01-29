@@ -26,6 +26,7 @@ export class UserService {
 
   async createUser(authId: string, req: CreateUserReq): Promise<GetUserRes> {
     const { costume, nickname } = req;
+    let retCostume = [];
 
     const existingNickname = await this.userRepository.findByNickname(nickname);
     if (existingNickname) {
@@ -50,11 +51,8 @@ export class UserService {
 
       for (const part of UserAvatarParts) {
         const costumeId = costume[part];
-        const splitPart = costumeId.split('_');
-
-        if (Number(splitPart[1]) > 0) {
-          await this.costumeRepository.create(authId, costumeId, queryRunner.manager);
-        }
+        const newCostume = await this.costumeRepository.create(authId, costumeId, queryRunner.manager);
+        retCostume.push(newCostume.costumeId);
       }
 
       await queryRunner.commitTransaction();
@@ -63,7 +61,7 @@ export class UserService {
         profile: user,
         pc: [],
         bag: {},
-        costume: [],
+        costume: retCostume,
       };
     } catch (error) {
       await queryRunner.rollbackTransaction();

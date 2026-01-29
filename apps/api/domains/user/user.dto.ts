@@ -1,9 +1,9 @@
-import { User, UserAvatarData, UserGender, UserPokemon } from '@poposerver/shared';
+import { User, UserCostumeData, UserGender, UserPokemon } from '@poposerver/shared';
 
 export interface CreateUserReq {
-  costume: UserAvatarData;
   nickname: string;
   gender: UserGender;
+  costume: UserCostumeData;
 }
 
 export interface GetUserRes {

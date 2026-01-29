@@ -1,3 +1,7 @@
+// --- Global System types ---
+export const GLOBAL_NICKNAME_REGEX = /^[\p{L}\p{N}]+$/u;
+
+
 // --- Audit types ---
 export enum AuditAction {
   NONE = 'NONE',
@@ -142,18 +146,8 @@ export enum PokedexStatus {
 
 // --- User types ---
 export const UserStartLocation: UserLocationData = { map: 'p003', x: 10, y: 10 };
-export const UserAvatarParts: (keyof UserAvatarData)[] = [
-  'skin',
-  'eye',
-  'hair',
-  'top',
-  'bottom',
-  'shoes',
-  'etc1',
-  'etc2',
-  'etc3',
-];
-export type UserGender = 'boy' | 'girl';
+export const UserAvatarParts: (keyof UserCostumeData)[] = ['skin', 'hair', 'hairColor', 'outfit'];
+export type UserGender = 'male' | 'female';
 
 export interface UserLocationData {
   map: string;
@@ -161,16 +155,11 @@ export interface UserLocationData {
   y: number;
 }
 
-export interface UserAvatarData {
+export interface UserCostumeData {
   skin: string;
-  eye: string;
   hair: string;
-  top: string;
-  bottom: string;
-  shoes: string;
-  etc1: string;
-  etc2: string;
-  etc3: string;
+  hairColor: string;
+  outfit: string;
 }
 
 export interface UserPcSettingsData {

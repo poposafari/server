@@ -38,7 +38,7 @@ const userService = new UserService(
 
 const userController = new UserController(userService, auditService);
 
-userRoutes.post('/create', validate(createUserSchema), jwtAuthGuard, userController.createUser);
 userRoutes.get('/get', jwtAuthGuard, userController.getUser);
+userRoutes.post('/create', validate(createUserSchema), jwtAuthGuard, userController.createUser);
 
 export default userRoutes;

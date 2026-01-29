@@ -19,7 +19,7 @@ export class UserRepository {
         'playTime',
         'isNewbie',
         'gender',
-        'lastAvatar',
+        'lastCostume',
         'lastLocation',
         'lastParty',
         'lastQuickslot',
@@ -39,7 +39,7 @@ export class UserRepository {
     const { costume, nickname, gender } = data;
     const user = this.userRepository.create({
       authId,
-      lastAvatar: costume,
+      lastCostume: costume,
       nickname,
       gender,
       lastLocation: location,
