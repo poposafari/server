@@ -51,7 +51,11 @@ export class UserService {
 
       for (const part of UserAvatarParts) {
         const costumeId = costume[part];
-        const newCostume = await this.costumeRepository.create(authId, costumeId, queryRunner.manager);
+        const newCostume = await this.costumeRepository.create(
+          authId,
+          costumeId,
+          queryRunner.manager,
+        );
         retCostume.push(newCostume.costumeId);
       }
 
@@ -112,4 +116,6 @@ export class UserService {
       costume: costumeData,
     };
   }
+
+  async catchStartingPokemon(authId: string) {}
 }

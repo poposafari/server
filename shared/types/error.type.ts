@@ -9,6 +9,9 @@ export enum AppErrorCode {
   FAILED_LOGIN = 'FAILED_LOGIN',
   USER_NOT_FOUND = 'USER_NOT_FOUND',
   USER_ALREADY_DELETED = 'USER_ALREADY_DELETED',
+  PC_BOX_FULL = 'PC_BOX_FULL',
+  BAG_QUANTITY_EXCEEDED = 'BAG_QUANTITY_EXCEEDED',
+  NOT_NEWBIE = 'NOT_NEWBIE',
 }
 
 export enum AppErrorMessage {
@@ -22,6 +25,9 @@ export enum AppErrorMessage {
   FAILED_LOGIN = 'Failed login.',
   USER_NOT_FOUND = 'User not found.',
   USER_ALREADY_DELETED = 'User already deleted.',
+  PC_BOX_FULL = 'PC box is full.',
+  BAG_QUANTITY_EXCEEDED = 'Item quantity cannot exceed 999.',
+  NOT_NEWBIE = 'Starter selection is only available for new users.',
 }
 
 export interface AppErrorRes {

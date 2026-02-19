@@ -30,6 +30,18 @@ export class UserRepository {
     });
   }
 
+  async updateIsNewbie(
+    authId: string,
+    isNewbie: boolean,
+    manager?: EntityManager,
+  ): Promise<void> {
+    if (manager) {
+      await manager.getRepository(User).update({ authId }, { isNewbie });
+      return;
+    }
+    await this.userRepository.update({ authId }, { isNewbie });
+  }
+
   async create(
     authId: string,
     data: CreateUserReq,

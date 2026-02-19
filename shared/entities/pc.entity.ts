@@ -7,12 +7,13 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { PokemonGender } from '../types';
+import { PokemonGender, PokemonRegion } from '../types';
 import { Auth } from './auth.entity';
 
 @Entity('user_pokemons')
 @Index('idx_unique_user_pokemon_gender', ['authId', 'pokemonId', 'gender'], { unique: true })
 @Index('idx_perf_user_box', ['authId', 'box'])
+@Index('idx_unique_user_box_slot', ['authId', 'box', 'slot'], { unique: true })
 export class UserPokemon {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: string;
@@ -27,12 +28,38 @@ export class UserPokemon {
   box!: number;
 
   @Column({
+    type: 'int',
+    nullable: false,
+    comment: '박스 내 순서(슬롯). 최대값은 상수로 추후 정의',
+  })
+  slot!: number;
+
+  @Column({
     type: 'enum',
     enum: PokemonGender,
     default: PokemonGender.NONE,
     comment: '0=NONE, 1=MALE, 2=FEMALE',
   })
   gender!: PokemonGender;
+
+  @Column({
+    type: 'enum',
+    enum: PokemonRegion,
+    default: PokemonRegion.NONE,
+    nullable: false,
+    comment: '리전폼 타입',
+  })
+  region!: PokemonRegion;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    comment: '무슨 폼인지(ex.메가진화, 거다이맥스, 스카이폼, 오리진폼 등등)',
+  })
+  form!: string;
+
+  @Column({ type: 'varchar', nullable: true, comment: '지니고 있는 아이템' })
+  held!: string;
 
   @Column({ name: 'catch_count', type: 'int', nullable: false, comment: '포획한 횟수', default: 1 })
   @Check(`"catch_count" >= 1 AND "catch_count" <= 999999999`)

@@ -1,7 +1,5 @@
 // --- Global System types ---
 export const GLOBAL_NICKNAME_REGEX = /^[\p{L}\p{N}]+$/u;
-
-
 // --- Audit types ---
 export enum AuditAction {
   NONE = 'NONE',
@@ -113,6 +111,14 @@ export enum PokemonGender {
   NONE = 0,
   MALE = 1,
   FEMALE = 2,
+}
+
+export enum PokemonRegion {
+  NONE = '',
+  ALOLA = 'alola',
+  GALAR = 'galar',
+  HISUI = 'hisui',
+  PALDEA = 'paldea',
 }
 
 export interface PokemonData {
