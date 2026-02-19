@@ -6,3 +6,4 @@ node_modules
 legacy*
 apps/worker
 grimoire.md
+.cursor
