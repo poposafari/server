@@ -67,8 +67,9 @@ export class AuthController {
     try {
       logger.debug(`Logout attempt: ${JSON.stringify(req.body)}`);
       const authReq = req as AuthenticatedRequest;
+      const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
 
-      await this.authService.logout(authReq.user!.authId);
+      await this.authService.logout(authReq.user!.authId, refreshToken);
       res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
 
       this.auditService.log(authReq.user!.authId, AuditAction.LOGOUT, req.ip || '');

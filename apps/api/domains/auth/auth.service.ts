@@ -6,6 +6,8 @@ import {
   deleteRefreshTokenInRedis,
   generateAccessToken,
   generateTokenPair,
+  getRefreshTokenInRedis,
+  publishSocketKick,
   saveRefreshTokenInRedis,
   TokenPair,
   UserAuthProvider,
@@ -104,6 +106,7 @@ export class AuthService {
     }
 
     const tokenPair = await this.generateAndStoreTokens(auth.id);
+    await publishSocketKick(auth.id);
 
     return {
       authId: auth.id,
@@ -112,8 +115,12 @@ export class AuthService {
     };
   }
 
-  async logout(authId: string): Promise<void> {
-    await deleteRefreshTokenInRedis(authId);
+  async logout(authId: string, refreshTokenFromRequest: string | undefined): Promise<void> {
+    if (!refreshTokenFromRequest) return;
+    const stored = await getRefreshTokenInRedis(authId);
+    if (stored !== null && stored === refreshTokenFromRequest) {
+      await deleteRefreshTokenInRedis(authId);
+    }
   }
 
   async softDeleteAuth(authId: string): Promise<void> {
