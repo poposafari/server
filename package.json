@@ -10,6 +10,7 @@
     "pretest": "pnpm db:test:up",
     "posttest": "pnpm db:test:down",
     "api:dev": "pnpm test && ts-node -r tsconfig-paths/register apps/api/main.ts",
+    "socket:dev": "pnpm test && ts-node -r tsconfig-paths/register apps/socket/main.ts",
     "db:dev": "docker compose -f docker/dev/docker-compose.yml --env-file .env.dev up -d",
     "db:prod": "docker compose -f docker/prod/docker-compose.yml --env-file .env up -d",
     "db:test:up": "docker compose -f docker/dev/docker-compose.yml --env-file .env.dev up -d postgres-test redis-test",

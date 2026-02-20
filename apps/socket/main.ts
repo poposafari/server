@@ -2,10 +2,10 @@ import {
   AppDataSource,
   connectDB,
   connectRedis,
-  envConfig,
   logger,
   MasterData,
   RedisClient,
+  SOCKET_KICK_CHANNEL,
 } from '@poposerver/shared';
 import { SocketApp } from './app';
 
@@ -15,15 +15,29 @@ async function boot() {
     await connectRedis(RedisClient, 'SOCKET');
     await MasterData.load('SOCKET');
 
-    const socketApp = new SocketApp();
+    const socketApp = new SocketApp(RedisClient, AppDataSource);
     socketApp.listen();
+
+    const kickSub = RedisClient.duplicate();
+    await connectRedis(kickSub, 'SOCKET_KICK_SUB');
+    await kickSub.subscribe(SOCKET_KICK_CHANNEL);
+    kickSub.on('message', (channel: string, authId: string) => {
+      if (channel === SOCKET_KICK_CHANNEL) {
+        void socketApp
+          .kickByAuthId(authId)
+          .catch((err) => logger.error('[Socket] kickByAuthId failed:', err));
+      }
+    });
 
     const shutdown = async (signal: string) => {
       logger.info(`[${signal}] Shutting down...`);
       try {
+        await kickSub.quit();
         await socketApp.close();
         await RedisClient.quit();
+
         if (AppDataSource.isInitialized) await AppDataSource.destroy();
+
         logger.info('[Bye] Cleanup finished.');
         process.exit(0);
       } catch (error) {
@@ -34,7 +48,6 @@ async function boot() {
 
     process.on('SIGTERM', () => shutdown('SIGTERM'));
     process.on('SIGINT', () => shutdown('SIGINT'));
-    
   } catch (error) {
     logger.error('[FATAL] Failed to start server:', error);
     process.exit(1);
