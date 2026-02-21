@@ -9,6 +9,9 @@ import { globalLimiter } from './middlewares';
 
 const app = express();
 
+// Behind nginx (and optionally Cloudflare): trust X-Forwarded-For so rate limiter sees real client IP
+app.set('trust proxy', 1);
+
 app.use(helmet());
 app.use(
   cors({
