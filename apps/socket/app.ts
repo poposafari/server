@@ -13,7 +13,7 @@ import {
   addUserToRoom,
   removeUserFromRoom,
   getRoomMemberStates,
-  deleteUserState,
+  persistUserStateFromRedisToDb,
   isValidChangeMapTarget,
   User,
   UserStartLocation,
@@ -345,10 +345,12 @@ export class SocketApp {
       socket.on('disconnect', async (reason) => {
         logger.info(`Client disconnected: ${socket.id} (Reason: ${reason})`);
         const { userId, roomId } = data;
-        if (userId && roomId) {
-          await removeUserFromRoom(roomId, userId);
-          await deleteUserState(userId);
-          this.io.to(roomId).emit('user_left', { userId });
+        if (userId) {
+          await persistUserStateFromRedisToDb(userId, this.dataSource);
+          if (roomId) {
+            await removeUserFromRoom(roomId, userId);
+            this.io.to(roomId).emit('user_left', { userId });
+          }
         }
       });
 
