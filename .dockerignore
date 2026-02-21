@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+logs
+.git
+.env
+.env.*
+*.log
+.cursor
+legacy*
+pnpm-debug.log

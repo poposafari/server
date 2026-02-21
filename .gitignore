@@ -4,5 +4,9 @@
 !.env.test
 node_modules
 legacy*
-grimoire.md
+# docs
 .cursor
+# prod SSL (Cloudflare Origin Certificate)
+docker/prod/nginx/ssl/
+!.env.prod.example
+docs

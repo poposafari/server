@@ -79,7 +79,8 @@
     "supertest": "^7.1.4",
     "@types/supertest": "^6.0.3",
     "axios": "^1.13.4",
-    "seedrandom": "^3.0.5"
+    "seedrandom": "^3.0.5",
+    "artillery": "^2.0.30"
   },
   "engines": {
     "node": ">=18.0.0",
