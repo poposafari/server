@@ -10,3 +10,4 @@ legacy*
 docker/prod/nginx/ssl/
 !.env.prod.example
 docs
+.pnpm-store
