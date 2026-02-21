@@ -4,10 +4,16 @@ import { User } from './entities/user.entity';
 import type { UserLocationData, UserCostumeData } from './types';
 import { logger } from './utils/logger';
 
+export interface PersistUserStateOptions {
+  deleteFromRedis?: boolean;
+}
+
 export async function persistUserStateFromRedisToDb(
   authId: string,
   dataSource: DataSource,
+  options: PersistUserStateOptions = {},
 ): Promise<void> {
+  const { deleteFromRedis = true } = options;
   const state = await getUserState(authId);
   if (!state) return;
 
@@ -15,7 +21,7 @@ export async function persistUserStateFromRedisToDb(
   const user = await userRepo.findOne({ where: { authId } });
   if (!user) {
     logger.warn(`[persistUserState] User not found for authId=${authId}, skipping DB update`);
-    await deleteUserState(authId);
+    if (deleteFromRedis) await deleteUserState(authId);
     return;
   }
 
@@ -50,6 +56,6 @@ export async function persistUserStateFromRedisToDb(
   }
 
   await userRepo.save(user);
-  await deleteUserState(authId);
+  if (deleteFromRedis) await deleteUserState(authId);
   logger.debug(`[persistUserState] Saved state for authId=${authId}`);
 }

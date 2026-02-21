@@ -108,6 +108,37 @@ export async function deleteUserState(authId: string): Promise<void> {
   await RedisClient.del(key);
 }
 
+const USER_STATE_KEY_PREFIX = 'user:';
+const USER_STATE_KEY_SUFFIX = ':state';
+
+export async function getAllUserStateAuthIds(): Promise<string[]> {
+  const authIds: string[] = [];
+  const stream = RedisClient.scanStream({
+    match: `${USER_STATE_KEY_PREFIX}*${USER_STATE_KEY_SUFFIX}`,
+    count: 100,
+  });
+
+  return new Promise((resolve, reject) => {
+    stream.on('data', (keys: string[]) => {
+      for (const key of keys) {
+        if (
+          key.startsWith(USER_STATE_KEY_PREFIX) &&
+          key.endsWith(USER_STATE_KEY_SUFFIX) &&
+          key.length > USER_STATE_KEY_PREFIX.length + USER_STATE_KEY_SUFFIX.length
+        ) {
+          const authId = key.slice(
+            USER_STATE_KEY_PREFIX.length,
+            key.length - USER_STATE_KEY_SUFFIX.length,
+          );
+          authIds.push(authId);
+        }
+      }
+    });
+    stream.on('end', () => resolve(authIds));
+    stream.on('error', reject);
+  });
+}
+
 export async function updateUserStatePosition(
   authId: string,
   updates: { x: string; y: string; lastMoveTime: string },
