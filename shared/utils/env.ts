@@ -31,6 +31,8 @@ const envSchema = z.object({
   // Security
   JWT_ACCESS_SECRET: z.string().min(1, 'JWT access secret is required'),
   JWT_REFRESH_SECRET: z.string().min(1, 'JWT refresh secret is required'),
+  /** PROD에서 전역/인증 레이트 리밋 적용 여부. 스테이징 부하 테스트 시 false로 끌 수 있음. 기본 true */
+  RATE_LIMIT_ENABLED: z.coerce.boolean().default(true),
 
   // CORS
   CORS_ORIGIN: z.string().optional(),

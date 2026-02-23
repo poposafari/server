@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-if (envConfig.NODE_ENV === 'PROD') {
+if (envConfig.RATE_LIMIT_ENABLED) {
   app.use(globalLimiter);
 }
 
