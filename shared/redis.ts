@@ -13,7 +13,7 @@ const redisConfig: RedisOptions = {
   lazyConnect: true,
 
   // 연결이 끊겼을 때 2초(2000ms) 간격으로 재시도.
-  retryStrategy: (times) => {
+  retryStrategy: (times: number) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
   },

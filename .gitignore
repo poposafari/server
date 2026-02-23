@@ -9,5 +9,7 @@ legacy*
 # prod SSL (Cloudflare Origin Certificate)
 docker/prod/nginx/ssl/
 !.env.prod.example
-docs
+# docs
 .pnpm-store
+# Artillery 부하 테스트용 refresh token 목록 (비밀에 해당)
+docs

@@ -15,7 +15,7 @@ export interface TokenPair {
 // CORS_ORIGIN에서 호스트만 추출 (https://poposafari.net → poposafari.net)
 // api/socket 등 서브도메인에서도 쿠키 전송되도록
 const cookieDomain = envConfig.CORS_ORIGIN
-  ? envConfig.CORS_ORIGIN.replace(/^https?:\/\//, '').split('/')[0] ?? undefined
+  ? (envConfig.CORS_ORIGIN.replace(/^https?:\/\//, '').split('/')[0] ?? undefined)
   : undefined;
 
 export const refreshTokenCookieOptions: CookieOptions = {

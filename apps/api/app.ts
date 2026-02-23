@@ -24,7 +24,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.use(globalLimiter);
+if (envConfig.NODE_ENV === 'PROD') {
+  app.use(globalLimiter);
+}
 
 app.use('/health', (req, res) => {
   res.status(200).json({ message: 'Poposafari server is running' });

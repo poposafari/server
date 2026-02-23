@@ -113,7 +113,7 @@ export class SocketApp {
   async close() {
     return new Promise<void>((resolve, reject) => {
       this.io.close(() => {
-        this.httpServer.close((err) => {
+        this.httpServer.close((err: any) => {
           if (err) return reject(err);
           resolve();
         });
