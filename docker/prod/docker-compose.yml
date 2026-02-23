@@ -13,6 +13,12 @@ services:
       - pg_data:/var/lib/postgresql/data
     networks:
       - poposerver_prod
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}']
+      interval: 2s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
     deploy:
       resources:
         limits:
@@ -29,6 +35,12 @@ services:
       - redis_data:/data
     networks:
       - poposerver_prod
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
+      interval: 2s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
     deploy:
       resources:
         limits:
@@ -48,8 +60,10 @@ services:
       DB_HOST: postgres
       REDIS_HOST: redis
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - poposerver_prod
     deploy:
@@ -68,8 +82,10 @@ services:
       DB_HOST: postgres
       REDIS_HOST: redis
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - poposerver_prod
     deploy:
@@ -88,8 +104,10 @@ services:
       DB_HOST: postgres
       REDIS_HOST: redis
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - poposerver_prod
     deploy:
