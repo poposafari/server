@@ -65,7 +65,8 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - poposerver_prod
+      poposerver_prod:
+        ipv4_address: 172.28.0.10
     deploy:
       resources:
         limits:
@@ -87,7 +88,8 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - poposerver_prod
+      poposerver_prod:
+        ipv4_address: 172.28.0.11
     deploy:
       resources:
         limits:
@@ -109,7 +111,8 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - poposerver_prod
+      poposerver_prod:
+        ipv4_address: 172.28.0.12
     deploy:
       resources:
         limits:
@@ -145,3 +148,7 @@ volumes:
 networks:
   poposerver_prod:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/24

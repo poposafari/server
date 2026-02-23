@@ -24,6 +24,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+console.log('[API] RATE_LIMIT_ENABLED =', envConfig.RATE_LIMIT_ENABLED);
+
 if (envConfig.RATE_LIMIT_ENABLED) {
   app.use(globalLimiter);
 }
