@@ -6,7 +6,13 @@ const nodeEnv = process.env.NODE_ENV;
 const envFile =
   nodeEnv === 'PROD' ? '.env' : nodeEnv === 'test' || nodeEnv === 'TEST' ? '.env.test' : '.env.dev';
 
+console.log('[env] BEFORE dotenv', {
+  NODE_ENV: process.env.NODE_ENV,
+  RATE_LIMIT_ENABLED: process.env.RATE_LIMIT_ENABLED,
+  envPath: path.resolve(process.cwd(), envFile),
+});
 dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+console.log('[env] AFTER dotenv', { RATE_LIMIT_ENABLED: process.env.RATE_LIMIT_ENABLED });
 
 const envSchema = z.object({
   // Environment
@@ -40,6 +46,9 @@ const envSchema = z.object({
 
 const envCheck = envSchema.safeParse(process.env);
 
+if (envCheck.success) {
+  console.log('[env] AFTER parse', { RATE_LIMIT_ENABLED: envCheck.data.RATE_LIMIT_ENABLED });
+}
 if (!envCheck.success) {
   console.error('[ERROR] Invalid environment variables:', envCheck.error);
   throw new Error('Invalid environment variables');
