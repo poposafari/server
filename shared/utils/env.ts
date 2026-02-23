@@ -6,13 +6,7 @@ const nodeEnv = process.env.NODE_ENV;
 const envFile =
   nodeEnv === 'PROD' ? '.env' : nodeEnv === 'test' || nodeEnv === 'TEST' ? '.env.test' : '.env.dev';
 
-console.log('[env] BEFORE dotenv', {
-  NODE_ENV: process.env.NODE_ENV,
-  RATE_LIMIT_ENABLED: process.env.RATE_LIMIT_ENABLED,
-  envPath: path.resolve(process.cwd(), envFile),
-});
 dotenv.config({ path: path.resolve(process.cwd(), envFile) });
-console.log('[env] AFTER dotenv', { RATE_LIMIT_ENABLED: process.env.RATE_LIMIT_ENABLED });
 
 const envSchema = z.object({
   // Environment
@@ -37,8 +31,8 @@ const envSchema = z.object({
   // Security
   JWT_ACCESS_SECRET: z.string().min(1, 'JWT access secret is required'),
   JWT_REFRESH_SECRET: z.string().min(1, 'JWT refresh secret is required'),
-  /** PROD에서 전역/인증 레이트 리밋 적용 여부. 스테이징 부하 테스트 시 false로 끌 수 있음. 기본 true */
-  RATE_LIMIT_ENABLED: z.coerce.boolean(),
+  /** PROD에서 전역/인증 레이트 리밋 적용 여부. 스테이징 부하 테스트 시 false로 끌 수 있음. env는 문자열이므로 "true"/"false" 명시 파싱 (z.coerce.boolean은 "false"를 truthy로 true로 만듦) */
+  RATE_LIMIT_ENABLED: z.string().transform((s) => s === 'true' || s === '1'),
 
   // CORS
   CORS_ORIGIN: z.string().optional(),
@@ -46,9 +40,6 @@ const envSchema = z.object({
 
 const envCheck = envSchema.safeParse(process.env);
 
-if (envCheck.success) {
-  console.log('[env] AFTER parse', { RATE_LIMIT_ENABLED: envCheck.data.RATE_LIMIT_ENABLED });
-}
 if (!envCheck.success) {
   console.error('[ERROR] Invalid environment variables:', envCheck.error);
   throw new Error('Invalid environment variables');
