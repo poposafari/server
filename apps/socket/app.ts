@@ -77,13 +77,13 @@ export class SocketApp {
     }
     const payload = verifyToken('refresh', refreshToken);
     if (!payload) {
-      next(new Error('Invalid refresh token'));
+      next(new Error('Invalid refresh token (JWT verification failed)'));
       return;
     }
     verifyRefreshTokenInRedis(payload.authId, refreshToken)
       .then((valid) => {
         if (!valid) {
-          next(new Error('Invalid refresh token'));
+          next(new Error('Invalid refresh token (not in Redis)'));
           return;
         }
         (socket.data as SocketData).authId = payload.authId;
