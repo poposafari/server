@@ -58,9 +58,16 @@ export class SocketApp {
   }
 
   private authMiddleware(socket: Socket, next: (err?: Error) => void) {
-    const token =
+    const authToken =
       (typeof socket.handshake.auth?.token === 'string' && socket.handshake.auth.token) ||
       (Array.isArray(socket.handshake.auth?.token) ? socket.handshake.auth.token[0] : undefined);
+    const queryToken =
+      typeof socket.handshake.query?.token === 'string'
+        ? socket.handshake.query.token
+        : Array.isArray(socket.handshake.query?.token)
+          ? socket.handshake.query.token[0]
+          : undefined;
+    const token = authToken || queryToken;
     if (!token) {
       next(new Error('Missing access token'));
       return;
