@@ -9,7 +9,7 @@
     "test": "dotenv -e .env.test -- jest",
     "pretest": "pnpm db:test:up",
     "posttest": "pnpm db:test:down",
-    "api:dev": "pnpm test && ts-node -r tsconfig-paths/register apps/api/main.ts",
+    "api:dev": "ts-node -r tsconfig-paths/register apps/api/main.ts",
     "socket:dev": "ts-node -r tsconfig-paths/register apps/socket/main.ts",
     "worker:dev": "ts-node -r tsconfig-paths/register apps/worker/main.ts",
     "db:dev": "docker compose -f docker/dev/docker-compose.yml --env-file .env.dev up -d",

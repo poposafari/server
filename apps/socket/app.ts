@@ -3,9 +3,7 @@ import { DataSource } from 'typeorm';
 import {
   envConfig,
   logger,
-  REFRESH_TOKEN_COOKIE_NAME,
   verifyToken,
-  verifyRefreshTokenInRedis,
   getUserState,
   setUserState,
   updateUserStatePosition,
@@ -21,16 +19,6 @@ import {
 import { createServer, Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 
-function parseCookie(cookieHeader: string | undefined, name: string): string | undefined {
-  if (!cookieHeader) return undefined;
-  const parts = cookieHeader.split(';').map((s) => s.trim());
-  for (const part of parts) {
-    const [key, ...v] = part.split('=');
-    if (key?.trim() === name) return v.join('=').trim();
-  }
-  return undefined;
-}
-
 const MOVE_DURATION_MS = 90;
 const MOVE_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
 type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
@@ -38,9 +26,9 @@ type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
 export const MOVE_TYPES = ['walk', 'running', 'ride', 'surf', 'jump'] as const;
 export type MoveType = (typeof MOVE_TYPES)[number];
 
-/** 소켓 연결 시 쿠키 refreshToken으로 채워지고, init 이후 확장되는 데이터 */
+/** 소켓 연결 시 handshake.auth.token(AT)으로 한 번 검증 후 채워지고, init 이후 확장되는 데이터 */
 export interface SocketData {
-  /** handshake 시 쿠키 refreshToken payload에서 추출 */
+  /** handshake 시 access token 검증 후 추출 */
   authId?: string;
   userId?: string;
   roomId?: string;
@@ -70,26 +58,20 @@ export class SocketApp {
   }
 
   private authMiddleware(socket: Socket, next: (err?: Error) => void) {
-    const refreshToken = parseCookie(socket.handshake.headers.cookie, REFRESH_TOKEN_COOKIE_NAME);
-    if (!refreshToken) {
-      next(new Error('Missing refresh token'));
+    const token =
+      (typeof socket.handshake.auth?.token === 'string' && socket.handshake.auth.token) ||
+      (Array.isArray(socket.handshake.auth?.token) ? socket.handshake.auth.token[0] : undefined);
+    if (!token) {
+      next(new Error('Missing access token'));
       return;
     }
-    const payload = verifyToken('refresh', refreshToken);
+    const payload = verifyToken('access', token);
     if (!payload) {
-      next(new Error('Invalid refresh token (JWT verification failed)'));
+      next(new Error('Invalid access token'));
       return;
     }
-    verifyRefreshTokenInRedis(payload.authId, refreshToken)
-      .then((valid) => {
-        if (!valid) {
-          next(new Error('Invalid refresh token (not in Redis)'));
-          return;
-        }
-        (socket.data as SocketData).authId = payload.authId;
-        next();
-      })
-      .catch((err) => next(err));
+    (socket.data as SocketData).authId = payload.authId;
+    next();
   }
 
   listen() {
