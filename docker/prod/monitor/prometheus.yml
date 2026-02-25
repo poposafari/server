@@ -1,6 +1,6 @@
 global:
-  scrape_interval: 2.5s
-  evaluation_interval: 2.5s
+  scrape_interval: 2500ms
+  evaluation_interval: 2500ms
 
 scrape_configs:
   - job_name: 'prometheus'
