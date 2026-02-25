@@ -6,6 +6,7 @@ services:
     image: gcr.io/cadvisor/cadvisor:v0.47.2
     container_name: monitor_cadvisor
     restart: unless-stopped
+    command: ['--housekeeping_interval=2.5s']
     ports:
       - '8080:8080'
     volumes:

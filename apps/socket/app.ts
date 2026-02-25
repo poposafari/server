@@ -19,7 +19,7 @@ import {
 import { createServer, Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 
-const MOVE_DURATION_MS = 90;
+const MOVE_DURATION_MS = 0;
 const MOVE_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
 type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
 
@@ -194,9 +194,12 @@ export class SocketApp {
       });
 
       socket.on('move', async (payload: { direction?: string; moveType?: string } | string) => {
+        console.log('#0 move', payload);
         const userId = data.userId;
         const roomId = data.roomId;
         if (!userId || !roomId) return;
+
+        console.log('#1 move', userId, roomId, payload);
 
         let parsed: { direction?: string; moveType?: string };
         if (typeof payload === 'string') {
@@ -220,9 +223,13 @@ export class SocketApp {
         const state = await getUserState(userId);
         if (!state) return;
 
+        console.log('#2 move', userId, roomId, payload);
+
         const nowMs = Date.now();
         const lastMoveMs = new Date(state.lastMoveTime).getTime();
         if (nowMs - lastMoveMs < MOVE_DURATION_MS) return;
+
+        console.log('#3 move', userId, roomId, payload);
 
         let curX = Number(state.x);
         let curY = Number(state.y);
