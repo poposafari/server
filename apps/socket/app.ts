@@ -193,17 +193,28 @@ export class SocketApp {
         }
       });
 
-      socket.on('move', async (payload: { direction?: string; moveType?: string }) => {
+      socket.on('move', async (payload: { direction?: string; moveType?: string } | string) => {
         const userId = data.userId;
         const roomId = data.roomId;
         if (!userId || !roomId) return;
 
-        const direction = payload?.direction;
+        let parsed: { direction?: string; moveType?: string };
+        if (typeof payload === 'string') {
+          try {
+            parsed = JSON.parse(payload) as { direction?: string; moveType?: string };
+          } catch {
+            return;
+          }
+        } else {
+          parsed = payload ?? {};
+        }
+
+        const direction = parsed?.direction;
         if (!direction || !MOVE_DIRECTIONS.includes(direction as MoveDirection)) return;
 
         const moveType =
-          payload?.moveType && MOVE_TYPES.includes(payload.moveType as MoveType)
-            ? (payload.moveType as MoveType)
+          parsed?.moveType && MOVE_TYPES.includes(parsed.moveType as MoveType)
+            ? (parsed.moveType as MoveType)
             : 'walk';
 
         const state = await getUserState(userId);
