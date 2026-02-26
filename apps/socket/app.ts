@@ -117,6 +117,7 @@ export class SocketApp {
 
       socket.on('init', async () => {
         const authId = data.authId;
+        logger.info(`[Socket] init start: socketId=${socket.id} authId=${authId ?? 'missing'}`);
         if (!authId) {
           socket.emit('init_error', { message: 'Not authenticated' });
           return;
@@ -124,6 +125,7 @@ export class SocketApp {
 
         try {
           const existingState = await getUserState(authId);
+          logger.info(`[Socket] init existingState done: socketId=${socket.id}`);
           if (existingState?.socketId && existingState.socketId !== socket.id) {
             const oldSocket = this.io.sockets.sockets.get(existingState.socketId);
             if (oldSocket) {
@@ -140,7 +142,9 @@ export class SocketApp {
             where: { authId },
             select: ['nickname', 'gender', 'lastLocation', 'lastCostume'],
           });
+          logger.info(`[Socket] init user lookup done: socketId=${socket.id} userFound=${!!user}`);
           if (!user) {
+            logger.warn(`[Socket] init abort: user not found authId=${authId}`);
             socket.emit('init_error', { message: 'User not found' });
             return;
           }
@@ -163,9 +167,11 @@ export class SocketApp {
             createdAt: now,
             lastMoveTime: now,
           });
+          logger.info(`[Socket] init setUserState done: socketId=${socket.id} mapId=${mapId}`);
 
           socket.join(mapId);
           await addUserToRoom(mapId, authId);
+          logger.info(`[Socket] init addUserToRoom done: socketId=${socket.id}`);
 
           const roomStates = await getRoomMemberStates(mapId);
           socket.emit('init_room_state', { users: roomStates });
@@ -183,12 +189,13 @@ export class SocketApp {
           };
           socket.to(mapId).emit('user_joined', userJoinedPayload);
 
+          logger.info(`[Socket] init about to set userId/roomId: socketId=${socket.id}`);
           data.userId = authId;
           data.roomId = mapId;
           socket.emit('init_ok', { userId: authId, nickname, gender, lastLocation });
           logger.info(`[Socket] init success: ${socket.id} userId=${authId}`);
         } catch (error) {
-          logger.error('[Socket] init failed:', error);
+          logger.error(`[Socket] init failed: socketId=${socket.id} authId=${authId}`, error);
           socket.emit('init_error', { message: 'Init failed' });
         }
       });
