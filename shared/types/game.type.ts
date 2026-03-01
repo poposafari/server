@@ -151,7 +151,7 @@ export enum PokedexStatus {
 }
 
 // --- User types ---
-export const UserStartLocation: UserLocationData = { map: 'p003', x: 10, y: 10 };
+export const UserStartLocation: UserLocationData = { map: 'p001', x: 37, y: 32 };
 export const UserAvatarParts: (keyof UserCostumeData)[] = ['skin', 'hair', 'hairColor', 'outfit'];
 export type UserGender = 'male' | 'female';
 
