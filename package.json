@@ -17,7 +17,7 @@
     "db:test:up": "docker compose -f docker/dev/docker-compose.yml --env-file .env.dev up -d postgres-test redis-test",
     "db:test:down": "docker compose -f docker/dev/docker-compose.yml stop postgres-test redis-test",
     "db:clean": "docker compose -f docker/dev/docker-compose.yml down -v",
-    "build": "pnpm -r run build",
+    "build": "tsc && tsc-alias -p tsconfig.json",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"**/*.{ts,json,md}\"",
     "clean": "rimraf dist coverage node_modules apps/*/dist libs/*/dist",
@@ -83,6 +83,7 @@
     "rimraf": "^5.0.5",
     "seedrandom": "^3.0.5",
     "supertest": "^7.1.4",
+    "tsc-alias": "^1.8.10",
     "ts-jest": "^29.4.6"
   },
   "engines": {
