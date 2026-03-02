@@ -58,3 +58,14 @@ echo ""
 echo "Done. Output in $OUT_DIR/"
 echo "  - *-gc.log : GC logs (컨테이너 종료 직전 로그 포함)"
 echo "  - *-app/   : container /app (CPU.*.cpuprofile 포함)"
+echo ""
+
+# Step 4: 맥북으로 전송
+MACBOOK_USER="ihoseob"
+MACBOOK_HOST="172.30.1.30"
+MACBOOK_DEST="/Users/ihoseob/Desktop/seophohoho/workspace/poposafari/test/artillery"
+
+echo "Transferring profile data to MacBook (${MACBOOK_HOST})..."
+rsync -avz --progress "$OUT_DIR/" "${MACBOOK_USER}@${MACBOOK_HOST}:${MACBOOK_DEST}/profile/"
+echo ""
+echo "Transfer complete. MacBook: ${MACBOOK_DEST}/profile/"
