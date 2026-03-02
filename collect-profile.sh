@@ -2,15 +2,15 @@
 # 프로젝트 루트에서 실행. 프로파일 모드로 띄운 컨테이너에서 GC 로그와 /app 내용(CPU.*.cpuprofile 등)을
 # profile/ 디렉터리로 끌어옴.
 # 사용: ./collect-profile.sh
-# 참고: CPU 프로파일은 Node가 종료될 때만 생성됨. 수집 전에 docker stop poposerver_socket 등으로
-#       해당 컨테이너를 먼저 멈춘 뒤 실행하면 .cpuprofile 을 가져올 수 있음.
+# 순서: 컨테이너 중지 → GC 로그 수집 → /app 복사(CPU.*.cpuprofile 포함)
 
-set -e
+set -euo pipefail
 
 COMPOSE_FILE="docker/prod/docker-compose.yml"
 PROFILE_FILE="docker/prod/docker-compose.profile.yml"
 ENV_FILE="docker/prod/.env.prod"
 OUT_DIR="profile"
+SERVICES=(api socket worker)
 
 COMPOSE_CMD="docker compose -f $COMPOSE_FILE -f $PROFILE_FILE --env-file $ENV_FILE"
 
@@ -21,21 +21,40 @@ fi
 
 mkdir -p "$OUT_DIR" "$OUT_DIR/api-app" "$OUT_DIR/socket-app" "$OUT_DIR/worker-app"
 
-echo "Collecting GC logs..."
-$COMPOSE_CMD logs --no-log-prefix api   > "$OUT_DIR/api-gc.log"   2>/dev/null || true
-$COMPOSE_CMD logs --no-log-prefix socket > "$OUT_DIR/socket-gc.log" 2>/dev/null || true
-$COMPOSE_CMD logs --no-log-prefix worker > "$OUT_DIR/worker-gc.log" 2>/dev/null || true
-
-echo "Copying /app from api, socket, worker containers..."
-for svc in api socket worker; do
+# Step 1: 실행 중인 컨테이너 중지 (Node 종료 → .cpuprofile 파일 생성)
+echo "Stopping containers to flush CPU profiles..."
+for svc in "${SERVICES[@]}"; do
   cid="poposerver_$svc"
-  if docker ps -a -q -f name="^${cid}$" | grep -q .; then
-    docker cp "${cid}:/app/." "$OUT_DIR/${svc}-app/" 2>/dev/null || echo "  (skip $cid: not running or /app empty)"
+  if docker ps -q -f "name=^${cid}$" | grep -q .; then
+    docker stop "$cid" && echo "  Stopped $cid" || echo "  (failed to stop $cid)"
+  else
+    echo "  (skip $cid: not running)"
+  fi
+done
+echo ""
+
+# Step 2: GC 로그 수집 (컨테이너 중지 후에도 Docker 데몬이 로그 버퍼 보유)
+echo "Collecting GC logs..."
+for svc in "${SERVICES[@]}"; do
+  $COMPOSE_CMD logs --no-log-prefix "$svc" > "$OUT_DIR/${svc}-gc.log" 2>/dev/null || true
+  echo "  $OUT_DIR/${svc}-gc.log"
+done
+echo ""
+
+# Step 3: /app 전체 복사 (CPU.*.cpuprofile 포함)
+echo "Copying /app from containers..."
+for svc in "${SERVICES[@]}"; do
+  cid="poposerver_$svc"
+  if docker ps -a -q -f "name=^${cid}$" | grep -q .; then
+    docker cp "${cid}:/app/." "$OUT_DIR/${svc}-app/" 2>/dev/null \
+      && echo "  Copied $cid:/app → $OUT_DIR/${svc}-app/" \
+      || echo "  (skip $cid: /app copy failed)"
   else
     echo "  (skip $cid: container not found)"
   fi
 done
+echo ""
 
 echo "Done. Output in $OUT_DIR/"
-echo "  - *-gc.log: GC logs"
-echo "  - *-app/:   container /app (CPU.*.cpuprofile if process was stopped before copy)"
+echo "  - *-gc.log : GC logs (컨테이너 종료 직전 로그 포함)"
+echo "  - *-app/   : container /app (CPU.*.cpuprofile 포함)"
