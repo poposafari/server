@@ -15,3 +15,5 @@ docker/prod/nginx/ssl/
 .pnpm-store
 # Artillery 부하 테스트용 refresh token 목록 (비밀에 해당)
 docs
+# 프로파일 수집 결과 (collect-profile.sh)
+profile

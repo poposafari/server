@@ -4,6 +4,7 @@
 #       ./deploy.sh down         → 전체 down
 #       ./deploy.sh api          → api만 재빌드·재기동
 #       ./deploy.sh socket nginx → socket, nginx만
+# 프로파일링: ./deploy-profile.sh (별도 스크립트)
 
 set -e
 
