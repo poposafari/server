@@ -26,6 +26,18 @@ type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
 export const MOVE_TYPES = ['walk', 'running', 'ride', 'surf', 'jump'] as const;
 export type MoveType = (typeof MOVE_TYPES)[number];
 
+/** Tick 시스템: 이동 브로드캐스트를 이 주기(ms)마다 묶어서 전송. 20Hz = 최대 약 50ms 지연 */
+const TICK_RATE_MS = 50;
+
+/** Tick 버퍼에 담기는 이동 데이터 (users_moved 이벤트 payload와 동일한 필드) */
+export interface MoveBufferEntry {
+  x: number;
+  y: number;
+  direction: MoveDirection;
+  moveType: MoveType;
+  lastMoveTime: string;
+}
+
 /** 소켓 연결 시 handshake.auth.token(AT)으로 한 번 검증 후 채워지고, init 이후 확장되는 데이터 */
 export interface SocketData {
   /** handshake 시 access token 검증 후 추출 */
@@ -37,6 +49,10 @@ export interface SocketData {
 export class SocketApp {
   private httpServer: HttpServer;
   private io: SocketIOServer;
+
+  /** [Tick 시스템] 맵(roomId)별 → 유저별 이동 버퍼. 틱마다 한 번에 브로드캐스트 후 비움 */
+  private moveBuffer: Map<string, Map<string, MoveBufferEntry>> = new Map();
+  private tickInterval: NodeJS.Timeout | null = null;
 
   constructor(
     private readonly redis: Redis,
@@ -55,6 +71,24 @@ export class SocketApp {
 
     this.io.use(this.authMiddleware.bind(this));
     this.initEvents();
+    this.startTickLoop();
+  }
+
+  /**
+   * [Tick] TICK_RATE_MS마다 각 방의 버퍼를 모아 users_moved로 한 번에 브로드캐스트 후 버퍼 비움.
+   */
+  private startTickLoop(): void {
+    this.tickInterval = setInterval(() => {
+      this.moveBuffer.forEach((usersMap, roomId) => {
+        if (usersMap.size === 0) return;
+        const updates = Array.from(usersMap.entries()).map(([userId, entry]) => ({
+          userId,
+          ...entry,
+        }));
+        this.io.to(roomId).emit('users_moved', { updates });
+        usersMap.clear();
+      });
+    }, TICK_RATE_MS);
   }
 
   private authMiddleware(socket: Socket, next: (err?: Error) => void) {
@@ -100,6 +134,10 @@ export class SocketApp {
   }
 
   async close() {
+    if (this.tickInterval) {
+      clearInterval(this.tickInterval);
+      this.tickInterval = null;
+    }
     return new Promise<void>((resolve, reject) => {
       this.io.close(() => {
         this.httpServer.close((err: any) => {
@@ -252,18 +290,18 @@ export class SocketApp {
             break;
         }
 
-        // TODO: 나중에 지형/지물 충돌 체크 로직을 추가하자. (맵 타일 데이터로 벽 체크)
         const now = new Date().toISOString();
         await updateUserStatePosition(userId, {
           x: String(curX),
           y: String(curY),
           lastMoveTime: now,
         });
-        this.io.to(roomId).emit('user_moved', {
-          userId,
+
+        if (!this.moveBuffer.has(roomId)) this.moveBuffer.set(roomId, new Map());
+        this.moveBuffer.get(roomId)!.set(userId, {
           x: curX,
           y: curY,
-          direction,
+          direction: direction as MoveDirection,
           moveType,
           lastMoveTime: now,
         });
@@ -353,6 +391,9 @@ export class SocketApp {
         logger.info(`Client disconnected: ${socket.id} (Reason: ${reason})`);
         const { userId, roomId } = data;
         if (userId) {
+          if (roomId && this.moveBuffer.has(roomId)) {
+            this.moveBuffer.get(roomId)!.delete(userId);
+          }
           await persistUserStateFromRedisToDb(userId, this.dataSource);
           if (roomId) {
             await removeUserFromRoom(roomId, userId);
