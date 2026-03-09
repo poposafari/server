@@ -14,9 +14,13 @@ export interface TokenPair {
 
 // CORS_ORIGIN에서 호스트만 추출 (https://poposafari.net → poposafari.net)
 // api/socket 등 서브도메인에서도 쿠키 전송되도록
-const cookieDomain = envConfig.CORS_ORIGIN
-  ? (envConfig.CORS_ORIGIN.replace(/^https?:\/\//, '').split('/')[0] ?? undefined)
-  : undefined;
+// localhost는 쿠키 domain으로 설정하지 않음 (브라우저가 자동 처리)
+const cookieDomain = (() => {
+  if (!envConfig.CORS_ORIGIN) return undefined;
+  const host = envConfig.CORS_ORIGIN.replace(/^https?:\/\//, '').split(/[:/]/)[0];
+  if (!host || host === 'localhost') return undefined;
+  return host;
+})();
 
 export const refreshTokenCookieOptions: CookieOptions = {
   httpOnly: true, //JavaScript에서 접근 불가.
