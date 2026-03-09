@@ -53,7 +53,7 @@ for s in "$@"; do
   fi
 done
 
-echo "Perf mode: socket server with --perf-basic-prof + SYS_ADMIN."
+echo "Perf mode: socket uses Debian image (glibc) with --perf-basic-prof + SYS_ADMIN."
 echo "See docs/perf-guide.md for how to capture and analyze results."
 if [[ $# -eq 0 ]]; then
   echo "Rebuilding and starting all services..."

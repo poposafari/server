@@ -1,11 +1,18 @@
-# perf 프로파일링 모드: --perf-basic-prof 추가 + SYS_ADMIN 권한 부여.
+# perf 프로파일링 모드: Debian(glibc) 이미지 + --perf-basic-prof + SYS_ADMIN 권한.
 # deploy-perf.sh 또는
 # compose -f docker-compose.yml -f docker-compose.perf.yml up 시 사용.
+#
+# Alpine(musl)은 프레임 포인터 없이 컴파일되어 perf -g 스택 워킹 불가.
+# socket만 node:20-slim(Debian/glibc) 이미지로 빌드하여 해결.
 #
 # --perf-basic-prof: V8 JIT 코드 주소 → JS 함수명 매핑 파일(/tmp/perf-<pid>.map) 생성.
 # SYS_ADMIN + perf_event_paranoid: 컨테이너 안에서 perf record 실행에 필요.
 services:
   socket:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.perf
+    image: poposerver-perf:latest
     command: ['node', '--perf-basic-prof', '--heapsnapshot-near-heap-limit=1', 'dist/apps/socket/main.js']
     cap_add:
       - SYS_ADMIN
