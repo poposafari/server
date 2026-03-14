@@ -53,6 +53,7 @@ export class SocketApp {
   /** [Tick 시스템] 맵(roomId)별 → 유저별 이동 버퍼. 틱마다 한 번에 브로드캐스트 후 비움 */
   private moveBuffer: Map<string, Map<string, MoveBufferEntry>> = new Map();
   private tickInterval: NodeJS.Timeout | null = null;
+  // private tickSeq = 0;
 
   constructor(
     private readonly redis: Redis,
@@ -85,6 +86,7 @@ export class SocketApp {
           userId,
           ...entry,
         }));
+        // this.io.to(roomId).emit('users_moved', { tickSeq: ++this.tickSeq, updates });
         this.io.to(roomId).emit('users_moved', { updates });
         usersMap.clear();
       });
