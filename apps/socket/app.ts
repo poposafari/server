@@ -276,6 +276,9 @@ export class SocketApp {
         if (Number.isNaN(curX)) curX = 0;
         if (Number.isNaN(curY)) curY = 0;
 
+        const readX = curX;
+        const readY = curY;
+
         const step = moveType === 'jump' ? 2 : 1;
         switch (direction as MoveDirection) {
           case 'up':
@@ -298,6 +301,17 @@ export class SocketApp {
           y: String(curY),
           lastMoveTime: now,
         });
+
+        // [MOVE-DEBUG] race condition 검증용 — write 직후 Redis 재확인
+        const stateAfter = await getUserState(userId);
+        if (stateAfter && (Number(stateAfter.x) !== curX || Number(stateAfter.y) !== curY)) {
+          logger.warn(
+            `[RACE-DETECTED] userId=${userId} read=(${readX},${readY}) wrote=(${curX},${curY}) butRedisHas=(${stateAfter.x},${stateAfter.y})`,
+          );
+        }
+        logger.info(
+          `[MOVE-DEBUG] userId=${userId} dir=${direction} type=${moveType} read=(${readX},${readY}) -> wrote=(${curX},${curY})`,
+        );
 
         if (!this.moveBuffer.has(roomId)) this.moveBuffer.set(roomId, new Map());
         this.moveBuffer.get(roomId)!.set(userId, {
