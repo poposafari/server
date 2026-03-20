@@ -19,7 +19,6 @@ import {
 import { createServer, Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 
-const MOVE_DURATION_MS = 0;
 const MOVE_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
 type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
 
@@ -53,6 +52,9 @@ export class SocketApp {
   /** [Tick 시스템] 맵(roomId)별 → 유저별 이동 버퍼. 틱마다 한 번에 브로드캐스트 후 비움 */
   private moveBuffer: Map<string, Map<string, MoveBufferEntry>> = new Map();
   private tickInterval: NodeJS.Timeout | null = null;
+
+  /** In-memory 좌표 캐시: userId → { x, y }. move 핸들러에서 await 없이 좌표 업데이트 */
+  private userPositions: Map<string, { x: number; y: number }> = new Map();
   // private tickSeq = 0;
 
   constructor(
@@ -76,21 +78,40 @@ export class SocketApp {
   }
 
   /**
-   * [Tick] TICK_RATE_MS마다 각 방의 버퍼를 모아 users_moved로 한 번에 브로드캐스트 후 버퍼 비움.
+   * [Tick] TICK_RATE_MS마다 각 방의 버퍼를 모아 users_moved로 한 번에 브로드캐스트 후
+   * 변경된 좌표를 Redis에 일괄 기록 (pipeline).
    */
   private startTickLoop(): void {
-    this.tickInterval = setInterval(() => {
-      this.moveBuffer.forEach((usersMap, roomId) => {
-        if (usersMap.size === 0) return;
+    this.tickInterval = setInterval(async () => {
+      for (const [roomId, usersMap] of this.moveBuffer) {
+        if (usersMap.size === 0) continue;
         const updates = Array.from(usersMap.entries()).map(([userId, entry]) => ({
           userId,
           ...entry,
         }));
-        // this.io.to(roomId).emit('users_moved', { tickSeq: ++this.tickSeq, updates });
         this.io.to(roomId).emit('users_moved', { updates });
+        await this.syncPositionsToRedis(usersMap);
         usersMap.clear();
-      });
+      }
     }, TICK_RATE_MS);
+  }
+
+  /** 버퍼에 있는 유저 좌표를 Redis에 pipeline으로 일괄 기록 */
+  private async syncPositionsToRedis(usersMap: Map<string, MoveBufferEntry>): Promise<void> {
+    const pipeline = this.redis.pipeline();
+    for (const [userId, entry] of usersMap) {
+      const key = `user:${userId}:state`;
+      pipeline.hset(
+        key,
+        'x',
+        String(entry.x),
+        'y',
+        String(entry.y),
+        'lastMoveTime',
+        entry.lastMoveTime,
+      );
+    }
+    await pipeline.exec();
   }
 
   private authMiddleware(socket: Socket, next: (err?: Error) => void) {
@@ -207,6 +228,7 @@ export class SocketApp {
             createdAt: now,
             lastMoveTime: now,
           });
+          this.userPositions.set(authId, { x: Number(x), y: Number(y) });
           logger.info(`[Socket] init setUserState done: socketId=${socket.id} mapId=${mapId}`);
 
           socket.join(mapId);
@@ -240,7 +262,7 @@ export class SocketApp {
         }
       });
 
-      socket.on('move', async (payload: { direction?: string; moveType?: string } | string) => {
+      socket.on('move', (payload: { direction?: string; moveType?: string } | string) => {
         const userId = data.userId;
         const roomId = data.roomId;
         if (!userId || !roomId) return;
@@ -264,59 +286,29 @@ export class SocketApp {
             ? (parsed.moveType as MoveType)
             : 'walk';
 
-        const state = await getUserState(userId);
-        if (!state) return;
-
-        const nowMs = Date.now();
-        const lastMoveMs = new Date(state.lastMoveTime).getTime();
-        if (nowMs - lastMoveMs < MOVE_DURATION_MS) return;
-
-        let curX = Number(state.x);
-        let curY = Number(state.y);
-        if (Number.isNaN(curX)) curX = 0;
-        if (Number.isNaN(curY)) curY = 0;
-
-        const readX = curX;
-        const readY = curY;
-
+        const pos = this.userPositions.get(userId) ?? { x: 0, y: 0 };
         const step = moveType === 'jump' ? 2 : 1;
         switch (direction as MoveDirection) {
           case 'up':
-            curY -= step;
+            pos.y -= step;
             break;
           case 'down':
-            curY += step;
+            pos.y += step;
             break;
           case 'left':
-            curX -= step;
+            pos.x -= step;
             break;
           case 'right':
-            curX += step;
+            pos.x += step;
             break;
         }
+        this.userPositions.set(userId, pos);
 
         const now = new Date().toISOString();
-        await updateUserStatePosition(userId, {
-          x: String(curX),
-          y: String(curY),
-          lastMoveTime: now,
-        });
-
-        // [MOVE-DEBUG] race condition 검증용 — write 직후 Redis 재확인
-        const stateAfter = await getUserState(userId);
-        if (stateAfter && (Number(stateAfter.x) !== curX || Number(stateAfter.y) !== curY)) {
-          logger.warn(
-            `[RACE-DETECTED] userId=${userId} read=(${readX},${readY}) wrote=(${curX},${curY}) butRedisHas=(${stateAfter.x},${stateAfter.y})`,
-          );
-        }
-        logger.info(
-          `[MOVE-DEBUG] userId=${userId} dir=${direction} type=${moveType} read=(${readX},${readY}) -> wrote=(${curX},${curY})`,
-        );
-
         if (!this.moveBuffer.has(roomId)) this.moveBuffer.set(roomId, new Map());
         this.moveBuffer.get(roomId)!.set(userId, {
-          x: curX,
-          y: curY,
+          x: pos.x,
+          y: pos.y,
           direction: direction as MoveDirection,
           moveType,
           lastMoveTime: now,
@@ -361,6 +353,7 @@ export class SocketApp {
             y: String(y),
             lastMoveTime: now,
           });
+          this.userPositions.set(userId, { x, y });
 
           socket.join(targetMapId);
           await addUserToRoom(targetMapId, userId);
@@ -409,6 +402,15 @@ export class SocketApp {
         if (userId) {
           if (roomId && this.moveBuffer.has(roomId)) {
             this.moveBuffer.get(roomId)!.delete(userId);
+          }
+          const pos = this.userPositions.get(userId);
+          if (pos) {
+            await updateUserStatePosition(userId, {
+              x: String(pos.x),
+              y: String(pos.y),
+              lastMoveTime: new Date().toISOString(),
+            });
+            this.userPositions.delete(userId);
           }
           await persistUserStateFromRedisToDb(userId, this.dataSource);
           if (roomId) {
