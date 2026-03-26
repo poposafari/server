@@ -3,7 +3,6 @@ import { DataSource } from 'typeorm';
 import {
   envConfig,
   logger,
-  verifyToken,
   getUserState,
   setUserState,
   updateUserStatePosition,
@@ -37,9 +36,11 @@ export interface MoveBufferEntry {
   lastMoveTime: string;
 }
 
-/** 소켓 연결 시 handshake.auth.token(AT)으로 한 번 검증 후 채워지고, init 이후 확장되는 데이터 */
+const SESSION_KEY_PREFIX = 'session:';
+
+/** 소켓 연결 시 쿠키의 sid로 세션 검증 후 채워지고, init 이후 확장되는 데이터 */
 export interface SocketData {
-  /** handshake 시 access token 검증 후 추출 */
+  /** handshake 시 세션 검증 후 추출 */
   authId?: string;
   userId?: string;
   roomId?: string;
@@ -114,27 +115,31 @@ export class SocketApp {
     await pipeline.exec();
   }
 
-  private authMiddleware(socket: Socket, next: (err?: Error) => void) {
-    const authToken =
-      (typeof socket.handshake.auth?.token === 'string' && socket.handshake.auth.token) ||
-      (Array.isArray(socket.handshake.auth?.token) ? socket.handshake.auth.token[0] : undefined);
-    const queryToken =
-      typeof socket.handshake.query?.token === 'string'
-        ? socket.handshake.query.token
-        : Array.isArray(socket.handshake.query?.token)
-          ? socket.handshake.query.token[0]
-          : undefined;
-    const token = authToken || queryToken;
-    if (!token) {
-      next(new Error('Missing access token'));
+  private async authMiddleware(socket: Socket, next: (err?: Error) => void) {
+    const rawCookie = socket.handshake.headers.cookie;
+    if (!rawCookie) {
+      next(new Error('Missing session'));
       return;
     }
-    const payload = verifyToken('access', token);
-    if (!payload) {
-      next(new Error('Invalid access token'));
+
+    const sid = rawCookie
+      .split(';')
+      .map((c) => c.trim().split('='))
+      .find(([k]) => k === 'sid')?.[1];
+    if (!sid) {
+      next(new Error('Missing session'));
       return;
     }
-    (socket.data as SocketData).authId = payload.authId;
+
+    const key = `${SESSION_KEY_PREFIX}${sid}`;
+    const data = await this.redis.get(key);
+    if (!data) {
+      next(new Error('Invalid session'));
+      return;
+    }
+
+    const session = JSON.parse(data) as { authId: string };
+    (socket.data as SocketData).authId = session.authId;
     next();
   }
 

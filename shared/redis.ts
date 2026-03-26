@@ -1,6 +1,5 @@
+import { envConfig, logger } from '@poposerver/lib';
 import Redis, { RedisOptions } from 'ioredis';
-import { envConfig } from './utils';
-import { logger } from './utils/logger';
 
 const redisConfig: RedisOptions = {
   host: envConfig.REDIS_HOST,

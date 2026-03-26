@@ -1,69 +1,111 @@
-import express, { Request, Response, NextFunction } from 'express';
-import morgan from 'morgan';
-import cors from 'cors';
-import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
-import { AppError, AppErrorCode, AppErrorMessage, AppErrorRes, envConfig } from 'shared';
-import apiRouter from './routes';
-import { globalLimiter } from './middlewares';
+import Fastify, { FastifyError, FastifyInstance } from 'fastify';
+import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
+import cookie from '@fastify/cookie';
+import rateLimit from '@fastify/rate-limit';
+import { envConfig } from '@poposerver/lib/utils/env';
+import { logger } from '@poposerver/lib/utils/logger';
+import { AppError } from '@poposerver/lib/utils/error';
+import { AppErrorCode, AppErrorRes } from '@poposerver/lib/types';
+import { registerRoutes } from './routes';
 
-const app = express();
+export async function buildApp(): Promise<FastifyInstance> {
+  const app = Fastify({
+    logger: false,
+    trustProxy: true,
+  });
 
-// Behind nginx (and optionally Cloudflare): trust X-Forwarded-For so rate limiter sees real client IP
-app.set('trust proxy', 1);
+  // ── 보안 헤더 ──
+  await app.register(helmet);
 
-app.use(helmet());
-app.use(
-  cors({
+  // ── CORS ──
+  await app.register(cors, {
     origin: envConfig.CORS_ORIGIN || '*',
     credentials: true,
-  }),
-);
-app.use(morgan(envConfig.NODE_ENV === 'PROD' ? 'combined' : 'dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+  });
 
-if (envConfig.RATE_LIMIT_ENABLED) {
-  app.use(globalLimiter);
-}
+  // ── 쿠키 파싱 ──
+  await app.register(cookie);
 
-app.use('/health', (req, res) => {
-  res.status(200).json({ message: 'Poposafari server is running' });
-});
-
-app.use('/api', apiRouter);
-
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const error = new AppError(AppErrorMessage.NOT_FOUND, 404, AppErrorCode.NOT_FOUND);
-  next(error);
-});
-
-app.use((error: any, _req: Request, res: Response, _next: NextFunction) => {
-  let statusCode = 500;
-  let errorCode = AppErrorCode.INTERNAL_SERVER_ERROR;
-  let message: string | null = 'Internal Server Error';
-
-  if (error instanceof AppError) {
-    statusCode = error.statusCode;
-    errorCode = error.code;
-    message = envConfig.NODE_ENV === 'DEV' ? error.message : null;
-  } else if (error instanceof Error) {
-    message = envConfig.NODE_ENV === 'DEV' ? error.message : null;
-    console.error('[UNHANDLED ERROR]', error);
+  // ── 레이트 리밋 (조건부) ──
+  if (envConfig.RATE_LIMIT_ENABLED) {
+    await app.register(rateLimit, {
+      max: 60,
+      timeWindow: '1 minute',
+      errorResponseBuilder: () => ({
+        success: false,
+        error: {
+          code: 'RATE_LIMIT_EXCEEDED',
+          message: 'Too many requests. Please try again after 1 minute.',
+          status: 429,
+        },
+      }),
+    });
   }
 
-  const response: AppErrorRes = {
-    success: false,
-    // timestamp: new Date().toISOString(),
-    error: {
-      code: errorCode,
-      message,
-      status: statusCode,
-    },
-  };
+  // ── 요청 로깅 hook ──
+  app.addHook('onRequest', (request, _reply, done) => {
+    logger.debug(`→ ${request.method} ${request.url}`);
+    done();
+  });
 
-  res.status(statusCode).json(response);
-});
+  app.addHook('onResponse', (request, reply, done) => {
+    logger.info(`← ${request.method} ${request.url} ${reply.statusCode}`);
+    done();
+  });
 
-export default app;
+  // ── Health check ──
+  app.get('/health', async () => {
+    return { message: 'Poposafari server is running' };
+  });
+
+  // ── 라우트 등록 ──
+  await registerRoutes(app);
+
+  // ── Not Found 핸들러 ──
+  app.setNotFoundHandler((request, reply) => {
+    const response: AppErrorRes = {
+      success: false,
+      error: {
+        code: AppErrorCode.NOT_FOUND,
+        message:
+          envConfig.NODE_ENV === 'DEV' ? `Route ${request.method} ${request.url} not found` : null,
+        status: 404,
+      },
+    };
+    reply.status(404).send(response);
+  });
+
+  // ── 전역 에러 핸들러 ──
+  app.setErrorHandler((error: FastifyError | AppError | Error, _request, reply) => {
+    let statusCode = 500;
+    let errorCode = AppErrorCode.INTERNAL_SERVER_ERROR;
+    let message: string | null = 'Internal Server Error';
+
+    if (error instanceof AppError) {
+      statusCode = error.statusCode;
+      errorCode = error.code;
+      message = envConfig.NODE_ENV === 'DEV' ? error.message : null;
+    } else if ('validation' in error && (error as FastifyError).validation) {
+      statusCode = 400;
+      errorCode = AppErrorCode.DTO_INVALID;
+      message = error.message;
+    } else {
+      message = envConfig.NODE_ENV === 'DEV' ? error.message : null;
+      logger.error('[UNHANDLED ERROR]', error);
+    }
+
+    const response: AppErrorRes = {
+      success: false,
+      error: {
+        code: errorCode,
+        message,
+        status: statusCode,
+      },
+    };
+
+    reply.status(statusCode).send(response);
+  });
+
+  return app;
+}

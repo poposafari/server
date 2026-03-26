@@ -1,28 +1,46 @@
-import { Router } from 'express';
-import { AuthRepository } from './auth.repository';
-import { AppDataSource, AuditLog, Auth, validate } from '@poposerver/shared';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
+import { FastifyInstance } from 'fastify';
+import { sessionAuthGuard } from '../../hooks/session-auth.hook';
+import { zodValidate } from '../../hooks/validate.hook';
 import { authLocalSchema } from './auth.schema';
-import { jwtAuthGuard } from 'apps/api/middlewares/jwt.middleware';
-import { AuditRepository } from '../audit/audit.repository';
-import { AuditService } from '../audit/audit.service';
-import { authLimiterIfEnabled } from 'apps/api/middlewares';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { AuthRepository } from './auth.repository';
 
-const router = Router();
+export default async function authRoutes(app: FastifyInstance) {
+  const authRepository = new AuthRepository();
+  const authService = new AuthService(authRepository);
+  const authController = new AuthController(authService);
 
-const authRepository = new AuthRepository(AppDataSource.getRepository(Auth));
-const auditRepository = new AuditRepository(AppDataSource.getRepository(AuditLog));
+  // 인증 불필요
+  app.post('/register/local', {
+    preHandler: [zodValidate(authLocalSchema)],
+    handler: authController.registerLocal,
+  });
 
-const auditService = new AuditService(auditRepository);
-const authService = new AuthService(authRepository, AppDataSource);
+  app.post('/login/local', {
+    config: {
+      rateLimit: {
+        max: 5,
+        timeWindow: '15 minutes',
+      },
+    },
+    preHandler: [zodValidate(authLocalSchema)],
+    handler: authController.loginLocal,
+  });
 
-const authController = new AuthController(authService, auditService);
+  // 인증 필요
+  app.post('/logout', {
+    preHandler: [sessionAuthGuard],
+    handler: authController.logout,
+  });
 
-router.post('/register/local', validate(authLocalSchema), authController.registerLocal);
-router.post('/login/local', authLimiterIfEnabled, validate(authLocalSchema), authController.loginLocal);
-router.post('/logout', jwtAuthGuard, authController.logout);
-router.delete('/delete', jwtAuthGuard, authController.deleteAuth);
-router.post('/refresh', authController.startRefreshTokenFlow);
+  app.post('/check', {
+    preHandler: [sessionAuthGuard],
+    handler: authController.check,
+  });
 
-export default router;
+  app.delete('/delete', {
+    preHandler: [sessionAuthGuard],
+    handler: authController.deleteAuth,
+  });
+}

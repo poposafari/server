@@ -1,159 +1,93 @@
 import bcrypt from 'bcrypt';
-import {
-  AppError,
-  AppErrorCode,
-  AppErrorMessage,
-  deleteRefreshTokenInRedis,
-  generateAccessToken,
-  generateTokenPair,
-  getRefreshTokenInRedis,
-  publishSocketKick,
-  saveRefreshTokenInRedis,
-  TokenPair,
-  UserAuthProvider,
-  verifyRefreshTokenInRedis,
-  verifyToken,
-} from '@poposerver/shared';
-import { AuthLocalReq } from './auth.dto';
+import { AppError } from '@poposerver/lib/utils/error';
+import { AppErrorCode, AppErrorMessage } from '@poposerver/lib/types';
+import { UserAuthProvider } from '@poposerver/lib/types';
+import { createSession, deleteSession, publishSocketKick } from '@poposerver/lib/redis';
 import { AuthRepository } from './auth.repository';
-import { DataSource } from 'typeorm';
+import { AuthLocalInput } from './auth.schema';
+
+const SALT_ROUNDS = 10;
 
 export class AuthService {
-  private readonly SALT_ROUNDS = 10;
+  constructor(private readonly repo: AuthRepository) {}
 
-  constructor(
-    private readonly authRepository: AuthRepository,
-    private readonly dataSource: DataSource,
-  ) {}
-
-  private async generateAndStoreTokens(authId: string): Promise<TokenPair> {
-    const { accessToken, refreshToken } = generateTokenPair(authId);
-    await saveRefreshTokenInRedis(authId, refreshToken);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-
-  async registerLocal(req: AuthLocalReq): Promise<TokenPair> {
-    const { username, password } = req;
-    const existingAuth = await this.authRepository.findByProviderAndProviderId(
+  async registerLocal(input: AuthLocalInput): Promise<string> {
+    const existing = await this.repo.findByProviderAndProviderId(
       UserAuthProvider.LOCAL,
-      username,
+      input.username,
     );
-
-    if (existingAuth) {
+    if (existing) {
       throw new AppError(
-        AppErrorMessage.USER_ALREADY_EXISTS,
+        AppErrorMessage.ACCOUNT_ALREADY_EXIST,
         409,
-        AppErrorCode.USER_ALREADY_EXISTS,
+        AppErrorCode.ACCOUNT_ALREADY_EXIST,
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, this.SALT_ROUNDS); //CPU를 좀 많이 쓰는 작업임.
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+    const hashedPassword = await bcrypt.hash(input.password, SALT_ROUNDS);
 
+    let authRow;
     try {
-      const auth = await this.authRepository.create(
-        UserAuthProvider.LOCAL,
-        username,
-        hashedPassword,
-      );
-      await queryRunner.commitTransaction();
-
-      const tokenPair = await this.generateAndStoreTokens(auth.id);
-
-      return {
-        authId: auth.id,
-        accessToken: tokenPair.accessToken,
-        refreshToken: tokenPair.refreshToken,
-      };
+      authRow = await this.repo.create(UserAuthProvider.LOCAL, input.username, hashedPassword);
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-
       const dbError = error as { code?: string };
-
       if (dbError.code === '23505') {
         throw new AppError(
-          AppErrorMessage.USER_ALREADY_EXISTS,
+          AppErrorMessage.ACCOUNT_ALREADY_EXIST,
           409,
-          AppErrorCode.USER_ALREADY_EXISTS,
+          AppErrorCode.ACCOUNT_ALREADY_EXIST,
         );
       }
       throw error;
-    } finally {
-      await queryRunner.release();
     }
+
+    const sessionId = await createSession(String(authRow.id));
+    return sessionId;
   }
 
-  async loginLocal(req: AuthLocalReq): Promise<TokenPair> {
-    const { username, password } = req;
-
-    const auth = await this.authRepository.findByProviderIdWithPassword(
+  async loginLocal(input: AuthLocalInput): Promise<string> {
+    const auth = await this.repo.findActiveByProviderIdWithPassword(
       UserAuthProvider.LOCAL,
-      username,
+      input.username,
     );
     if (!auth) {
-      throw new AppError(AppErrorMessage.FAILED_LOGIN, 401, AppErrorCode.FAILED_LOGIN);
+      throw new AppError(AppErrorMessage.FAILED_ACCOUNT, 401, AppErrorCode.FAILED_ACCOUNT);
     }
 
-    const isPwValid = await bcrypt.compare(password, auth.password || '');
-    if (!isPwValid) {
-      throw new AppError(AppErrorMessage.FAILED_LOGIN, 401, AppErrorCode.FAILED_LOGIN);
+    const isValid = await bcrypt.compare(input.password, auth.password || '');
+    if (!isValid) {
+      throw new AppError(AppErrorMessage.FAILED_ACCOUNT, 401, AppErrorCode.FAILED_ACCOUNT);
     }
 
-    const tokenPair = await this.generateAndStoreTokens(auth.id);
-    await publishSocketKick(auth.id);
+    const authId = String(auth.id);
+    await publishSocketKick(authId);
 
-    return {
-      authId: auth.id,
-      accessToken: tokenPair.accessToken,
-      refreshToken: tokenPair.refreshToken,
-    };
+    const sessionId = await createSession(authId);
+    await this.repo.updateLastLoginAt(auth.id);
+
+    return sessionId;
   }
 
-  async logout(authId: string, refreshTokenFromRequest: string | undefined): Promise<void> {
-    if (!refreshTokenFromRequest) return;
-    const stored = await getRefreshTokenInRedis(authId);
-    if (stored !== null && stored === refreshTokenFromRequest) {
-      await deleteRefreshTokenInRedis(authId);
-    }
+  async logout(sessionId: string): Promise<void> {
+    await deleteSession(sessionId);
   }
 
-  async softDeleteAuth(authId: string): Promise<void> {
-    const auth = await this.authRepository.findByIdWithDeleted(authId);
+  async softDeleteAuth(authId: string, sessionId: string): Promise<void> {
+    const numericId = Number(authId);
+    const auth = await this.repo.findByIdIncludeDeleted(numericId);
     if (!auth) {
-      throw new AppError(AppErrorMessage.USER_NOT_FOUND, 404, AppErrorCode.USER_NOT_FOUND);
+      throw new AppError(AppErrorMessage.NOT_FOUND, 404, AppErrorCode.NOT_FOUND);
     }
-
     if (auth.deletedAt) {
       throw new AppError(
-        AppErrorMessage.USER_ALREADY_DELETED,
+        AppErrorMessage.ACCOUNT_ALREADY_DELETED,
         409,
-        AppErrorCode.USER_ALREADY_DELETED,
+        AppErrorCode.ACCOUNT_ALREADY_DELETED,
       );
     }
 
-    await this.authRepository.softDelete(authId);
-    await deleteRefreshTokenInRedis(authId);
-  }
-
-  async startRefreshTokenFlow(tokenFromCookie: string): Promise<{ accessToken: string }> {
-    const payload = verifyToken('refresh', tokenFromCookie);
-    if (!payload) {
-      throw new AppError(AppErrorMessage.RT_MISSING, 401, AppErrorCode.RT_MISSING);
-    }
-
-    const isMatched = await verifyRefreshTokenInRedis(payload.authId, tokenFromCookie);
-    if (!isMatched) {
-      throw new AppError(AppErrorMessage.RT_MISSING, 401, AppErrorCode.RT_MISSING);
-    }
-
-    const newAccessToken = generateAccessToken(payload.authId);
-
-    return { accessToken: newAccessToken };
+    await this.repo.softDelete(numericId);
+    await deleteSession(sessionId);
+    await publishSocketKick(authId);
   }
 }

@@ -1,0 +1,40 @@
+import {
+  pgTable,
+  serial,
+  integer,
+  smallint,
+  boolean,
+  varchar,
+  jsonb,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
+import { account } from './account';
+
+export const userPokemon = pgTable(
+  'user_pokemon',
+  {
+    id: serial('id').primaryKey(),
+    accountId: integer('account_id')
+      .notNull()
+      .references(() => account.id),
+    pokedexId: integer('pokedex_id').notNull(),
+    level: smallint('level').notNull().default(1),
+    gender: smallint('gender').notNull(),
+    isShiny: boolean('is_shiny').notNull().default(false),
+    nickname: varchar('nickname', { length: 50 }),
+    abilityId: integer('ability_id').notNull(),
+    natureId: integer('nature_id').notNull(),
+    skills: jsonb('skills').notNull().default([]),
+    heldItemId: integer('held_item_id'),
+    boxNumber: smallint('box_number'),
+    gridNumber: smallint('grid_number'),
+    partySlot: smallint('party_slot'),
+    ballId: integer('ball_id').notNull(),
+    caughtLocation: varchar('caught_location', { length: 4 }).notNull(),
+    caughtAt: timestamp('caught_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('uq_user_pokemon_box_grid').on(table.accountId, table.boxNumber, table.gridNumber),
+  ],
+);

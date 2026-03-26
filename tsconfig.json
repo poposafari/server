@@ -21,6 +21,12 @@
       ],
       "@poposerver/shared/*": [
         "./shared/*"
+      ],
+      "@poposerver/lib": [
+        "./lib"
+      ],
+      "@poposerver/lib/*": [
+        "./lib/*"
       ]
     }
   },

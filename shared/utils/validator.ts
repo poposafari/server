@@ -1,6 +1,6 @@
 import z, { ZodError, ZodSchema } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from './error';
+import { AppError } from '../../lib/utils/error';
 import { AppErrorCode } from '@poposerver/shared';
 
 export function validateSchema<T>(schema: z.ZodSchema<T>, data: unknown): T {

@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { envConfig } from './env';
+import { envConfig } from '../../lib/utils/env';
 import { CookieOptions } from 'express';
 
 export interface TokenPayload {

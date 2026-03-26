@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 import { getUserState, deleteUserState } from './redis';
 import { User } from './entities/user.entity';
 import type { UserLocationData, UserCostumeData } from './types';
-import { logger } from './utils/logger';
+import { logger } from '../lib/utils/logger';
 
 export interface PersistUserStateOptions {
   deleteFromRedis?: boolean;

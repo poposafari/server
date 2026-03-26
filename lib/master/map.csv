@@ -1,0 +1,3 @@
+id,comment,cost,item_max,item_spawn,type,wild_max,wild_rainy_dawn,wild_rainy_day,wild_rainy_dusk,wild_rainy_night,wild_snowy_dawn,wild_snowy_day,wild_snowy_dusk,wild_snowy_night,wild_stormy_dawn,wild_stormy_day,wild_stormy_dusk,wild_stormy_night,wild_sunny_dawn,wild_sunny_day,wild_sunny_dusk,wild_sunny_night,wild_windy_dawn,wild_windy_day,wild_windy_dusk,wild_windy_night
+p001,포포시티,0,0,[''],plaza,0,[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]
+s001,Test Safari,0,8,['poke-ball'],safari,5,['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001'],['0001']

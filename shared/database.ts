@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { envConfig } from '@poposerver/shared/utils';
-import { logger } from './utils/logger';
+import { logger } from '../lib/utils/logger';
 import * as entities from './entities';
 
 logger.debug('---------------------------------------------------');

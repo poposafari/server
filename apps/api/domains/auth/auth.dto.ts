@@ -1,12 +1,4 @@
-export interface AuthLocalReq {
-  username: string;
-  password: string;
-}
-
-export interface AuthSuccessRes {
+export interface AuthNullRes {
   success: true;
-  data: {
-    accessToken: string;
-    //refreshToken: string;
-  };
+  data: null;
 }

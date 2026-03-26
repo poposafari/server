@@ -1,12 +1,7 @@
-import { Router } from 'express';
-import authRoutes from './domains/auth/auth.route';
-import userRoutes from './domains/user/user.route';
-import gameRoutes from './domains/game/game.route';
+import { FastifyInstance } from 'fastify';
 
-const apiRouter = Router();
-
-apiRouter.use('/auth', authRoutes);
-apiRouter.use('/user', userRoutes);
-apiRouter.use('/game', gameRoutes);
-
-export default apiRouter;
+export async function registerRoutes(app: FastifyInstance) {
+  await app.register(import('./domains/auth/auth.route'), { prefix: '/api/auth' });
+  // await app.register(import('./domains/user/user.route'), { prefix: '/api/user' });
+  // await app.register(import('./domains/game/game.route'), { prefix: '/api/game' });
+}

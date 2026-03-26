@@ -8,6 +8,8 @@ const jestConfig: Config = {
   moduleNameMapper: {
     '^@poposerver/shared$': '<rootDir>/shared/index.ts',
     '^@poposerver/shared/(.*)$': '<rootDir>/shared/$1',
+    '^@poposerver/lib$': '<rootDir>/lib/index.ts',
+    '^@poposerver/lib/(.*)$': '<rootDir>/lib/$1',
     '^apps/(.*)$': '<rootDir>/apps/$1',
   },
 };

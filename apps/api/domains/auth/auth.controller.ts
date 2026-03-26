@@ -1,123 +1,55 @@
-import { Request, Response, NextFunction } from 'express';
+import { FastifyRequest, FastifyReply } from 'fastify';
+import { logger } from '@poposerver/lib/utils/logger';
 import { AuthService } from './auth.service';
-import { AuthLocalReq, AuthSuccessRes } from './auth.dto';
-import {
-  AppError,
-  AppErrorCode,
-  REFRESH_TOKEN_COOKIE_NAME,
-  refreshTokenCookieOptions,
-  AppErrorMessage,
-  AuditAction,
-} from '@poposerver/shared';
-import { AuthenticatedRequest } from 'apps/api/middlewares/jwt.middleware';
-import { logger } from '@poposerver/shared/utils/logger';
-import { AuditService } from '../audit/audit.service';
+import { AuthLocalInput } from './auth.schema';
+import { SESSION_COOKIE_NAME, sessionCookieOptions } from '@poposerver/lib/utils/cookie';
 
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly auditService: AuditService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   registerLocal = async (
-    req: Request<{}, AuthSuccessRes, AuthLocalReq>,
-    res: Response<AuthSuccessRes>,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      logger.debug(`Register(local) attempt: ${JSON.stringify(req.body.username)}`);
-      const request: AuthLocalReq = req.body;
-      const result = await this.authService.registerLocal(request);
+    request: FastifyRequest<{ Body: AuthLocalInput }>,
+    reply: FastifyReply,
+  ) => {
+    const sessionId = await this.authService.registerLocal(request.body);
 
-      res.cookie(REFRESH_TOKEN_COOKIE_NAME, result.refreshToken, refreshTokenCookieOptions);
+    reply.setCookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
+    logger.info(`Register(local) success`);
 
-      this.auditService.log(result.authId!, AuditAction.REGISTER_LOCAL, req.ip || '');
-      logger.info(`Register(local) success: username=${req.body.username}`);
-
-      res.status(201).json({ success: true, data: { accessToken: result.accessToken } });
-    } catch (error) {
-      logger.warn(`Register(local) error: ${JSON.stringify(error)}`);
-      next(error);
-    }
+    return reply.status(201).send({ success: true, data: null });
   };
 
   loginLocal = async (
-    req: Request<{}, AuthSuccessRes, AuthLocalReq>,
-    res: Response<AuthSuccessRes>,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      logger.debug(`Login(local) attempt: ${JSON.stringify(req.body)}`);
-      const request: AuthLocalReq = req.body;
-      const result = await this.authService.loginLocal(request);
+    request: FastifyRequest<{ Body: AuthLocalInput }>,
+    reply: FastifyReply,
+  ) => {
+    const sessionId = await this.authService.loginLocal(request.body);
 
-      res.cookie(REFRESH_TOKEN_COOKIE_NAME, result.refreshToken, refreshTokenCookieOptions);
+    reply.setCookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
+    logger.info(`Login(local) success`);
 
-      this.auditService.log(result.authId!, AuditAction.LOGIN_LOCAL, req.ip || '');
-      logger.info(`Login(local) success: username=${req.body.username}`);
-
-      res.status(200).json({ success: true, data: { accessToken: result.accessToken } });
-    } catch (error) {
-      logger.warn(`Login(local) error: ${JSON.stringify(error)}`);
-      next(error);
-    }
+    return reply.status(200).send({ success: true, data: null });
   };
 
-  logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      logger.debug(`Logout attempt: ${JSON.stringify(req.body)}`);
-      const authReq = req as AuthenticatedRequest;
-      const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
+  logout = async (request: FastifyRequest, reply: FastifyReply) => {
+    await this.authService.logout(request.sessionId);
 
-      await this.authService.logout(authReq.user!.authId, refreshToken);
-      res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
+    reply.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
+    logger.info(`Logout success: authId=${request.authId}`);
 
-      this.auditService.log(authReq.user!.authId, AuditAction.LOGOUT, req.ip || '');
-      logger.info(`Logout success: authId=${authReq.user!.authId}`);
-
-      res.status(200).json({ success: true, data: null });
-    } catch (error) {
-      logger.warn(`Logout error: ${JSON.stringify(error)}`);
-      next(error);
-    }
+    return reply.status(200).send({ success: true, data: null });
   };
 
-  deleteAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      logger.debug(`DeleteAuth attempt: ${JSON.stringify(req.body)}`);
-      const authReq = req as AuthenticatedRequest;
-
-      await this.authService.softDeleteAuth(authReq.user!.authId);
-      res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookieOptions);
-
-      this.auditService.log(authReq.user!.authId, AuditAction.DELETE_AUTH, req.ip || '');
-      logger.info(`DeleteAuth success: authId=${authReq.user!.authId}`);
-      res.status(200).json({ success: true, data: null });
-    } catch (error) {
-      logger.warn(`DeleteAuth error: ${JSON.stringify(error)}`);
-      next(error);
-    }
+  check = async (_request: FastifyRequest, reply: FastifyReply) => {
+    return reply.status(200).send({ success: true, data: null });
   };
 
-  startRefreshTokenFlow = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      logger.debug(`StartRefreshTokenFlow attempt: ${JSON.stringify(req.body)}`);
-      const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
-      if (!refreshToken) {
-        throw new AppError(AppErrorMessage.RT_MISSING, 401, AppErrorCode.RT_MISSING);
-      }
+  deleteAuth = async (request: FastifyRequest, reply: FastifyReply) => {
+    await this.authService.softDeleteAuth(request.authId, request.sessionId);
 
-      const { accessToken } = await this.authService.startRefreshTokenFlow(refreshToken);
+    reply.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
+    logger.info(`DeleteAuth success: authId=${request.authId}`);
 
-      logger.info(`StartRefreshTokenFlow success`);
-      res.status(200).json({ success: true, data: { accessToken } });
-    } catch (error) {
-      logger.warn(`StartRefreshTokenFlow error: ${JSON.stringify(error)}`);
-      next(error);
-    }
+    return reply.status(200).send({ success: true, data: null });
   };
 }
