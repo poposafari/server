@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
-import { ItemData, MapData, PokemonData } from 'shared/types';
+import { ItemData, MapData, PokemonData } from 'lib/types';
 import { logger } from './logger';
 
 /**
