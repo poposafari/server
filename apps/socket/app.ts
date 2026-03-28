@@ -1,22 +1,21 @@
 import { Redis } from 'ioredis';
-import { DataSource } from 'typeorm';
-import {
-  envConfig,
-  logger,
-  getUserState,
-  setUserState,
-  updateUserStatePosition,
-  updateUserStateMap,
-  addUserToRoom,
-  removeUserFromRoom,
-  getRoomMemberStates,
-  persistUserStateFromRedisToDb,
-  isValidChangeMapTarget,
-  User,
-  UserStartLocation,
-} from '@poposerver/shared';
 import { createServer, Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
+import {
+  addUserToRoom,
+  envConfig,
+  getRoomMemberStates,
+  getUserState,
+  isValidChangeMapTarget,
+  logger,
+  persistUserStateFromRedisToDb,
+  removeUserFromRoom,
+  updateUserStateMap,
+  updateUserStatePosition,
+} from '@poposerver/lib';
+
+/** user:state TTL (30분). API에서 설정하고, 소켓 연결 중 갱신 */
+const USER_STATE_TTL = 1800;
 
 const MOVE_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
 type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
@@ -58,10 +57,7 @@ export class SocketApp {
   private userPositions: Map<string, { x: number; y: number }> = new Map();
   // private tickSeq = 0;
 
-  constructor(
-    private readonly redis: Redis,
-    private readonly dataSource: DataSource,
-  ) {
+  constructor(private readonly redis: Redis) {
     this.httpServer = createServer();
     this.io = new SocketIOServer(this.httpServer, {
       cors: {
@@ -97,7 +93,7 @@ export class SocketApp {
     }, TICK_RATE_MS);
   }
 
-  /** 버퍼에 있는 유저 좌표를 Redis에 pipeline으로 일괄 기록 */
+  /** 버퍼에 있는 유저 좌표를 Redis에 pipeline으로 일괄 기록 + TTL 갱신 */
   private async syncPositionsToRedis(usersMap: Map<string, MoveBufferEntry>): Promise<void> {
     const pipeline = this.redis.pipeline();
     for (const [userId, entry] of usersMap) {
@@ -111,6 +107,7 @@ export class SocketApp {
         'lastMoveTime',
         entry.lastMoveTime,
       );
+      pipeline.expire(key, USER_STATE_TTL);
     }
     await pipeline.exec();
   }
@@ -192,7 +189,14 @@ export class SocketApp {
         try {
           const existingState = await getUserState(authId);
           logger.info(`[Socket] init existingState done: socketId=${socket.id}`);
-          if (existingState?.socketId && existingState.socketId !== socket.id) {
+          if (!existingState) {
+            socket.emit('init_error', {
+              message: 'Game state not found. Please enter the game first.',
+            });
+            return;
+          }
+
+          if (existingState.socketId && existingState.socketId !== socket.id) {
             const oldSocket = this.io.sockets.sockets.get(existingState.socketId);
             if (oldSocket) {
               oldSocket.emit('kicked', { message: 'Logged in from another device.' });
@@ -203,38 +207,16 @@ export class SocketApp {
             }
           }
 
-          const userRepo = this.dataSource.getRepository(User);
-          const user = await userRepo.findOne({
-            where: { authId },
-            select: ['nickname', 'gender', 'lastLocation', 'lastCostume'],
-          });
-          logger.info(`[Socket] init user lookup done: socketId=${socket.id} userFound=${!!user}`);
-          if (!user) {
-            logger.warn(`[Socket] init abort: user not found authId=${authId}`);
-            socket.emit('init_error', { message: 'User not found' });
-            return;
-          }
-          const { nickname, gender, lastLocation, lastCostume } = user;
+          // socketId만 업데이트 (나머지 state는 API getMe에서 이미 세팅됨)
+          const stateKey = `user:${authId}:state`;
+          await this.redis.hset(stateKey, 'socketId', socket.id);
+          await this.redis.expire(stateKey, USER_STATE_TTL);
 
-          const now = new Date().toISOString();
-          const mapId = lastLocation?.map ?? UserStartLocation.map;
-          const x = String(lastLocation?.x ?? UserStartLocation.x);
-          const y = String(lastLocation?.y ?? UserStartLocation.y);
-
-          await setUserState(authId, {
-            mapId,
-            x,
-            y,
-            nickname,
-            costume: JSON.stringify(lastCostume),
-            socketId: socket.id,
-            gender,
-            pet: '',
-            createdAt: now,
-            lastMoveTime: now,
+          const mapId = existingState.mapId;
+          this.userPositions.set(authId, {
+            x: Number(existingState.x),
+            y: Number(existingState.y),
           });
-          this.userPositions.set(authId, { x: Number(x), y: Number(y) });
-          logger.info(`[Socket] init setUserState done: socketId=${socket.id} mapId=${mapId}`);
 
           socket.join(mapId);
           await addUserToRoom(mapId, authId);
@@ -243,23 +225,30 @@ export class SocketApp {
           const roomStates = await getRoomMemberStates(mapId);
           socket.emit('init_room_state', { users: roomStates });
 
-          const userJoinedPayload = {
+          socket.to(mapId).emit('user_joined', {
             userId: authId,
             mapId,
-            x,
-            y,
-            nickname,
-            costume: JSON.stringify(lastCostume),
-            gender,
-            pet: '',
-            lastMoveTime: now,
-          };
-          socket.to(mapId).emit('user_joined', userJoinedPayload);
+            x: existingState.x,
+            y: existingState.y,
+            nickname: existingState.nickname,
+            costume: existingState.costume,
+            gender: existingState.gender,
+            pet: existingState.pet,
+            lastMoveTime: existingState.lastMoveTime,
+          });
 
-          logger.info(`[Socket] init about to set userId/roomId: socketId=${socket.id}`);
           data.userId = authId;
           data.roomId = mapId;
-          socket.emit('init_ok', { userId: authId, nickname, gender, lastLocation });
+          socket.emit('init_ok', {
+            userId: authId,
+            nickname: existingState.nickname,
+            gender: existingState.gender,
+            lastLocation: {
+              map: existingState.mapId,
+              x: Number(existingState.x),
+              y: Number(existingState.y),
+            },
+          });
           logger.info(`[Socket] init success: ${socket.id} userId=${authId}`);
         } catch (error) {
           logger.error(`[Socket] init failed: socketId=${socket.id} authId=${authId}`, error);
@@ -417,7 +406,7 @@ export class SocketApp {
             });
             this.userPositions.delete(userId);
           }
-          await persistUserStateFromRedisToDb(userId, this.dataSource);
+          await persistUserStateFromRedisToDb(userId);
           if (roomId) {
             await removeUserFromRoom(roomId, userId);
             this.io.to(roomId).emit('user_left', { userId });

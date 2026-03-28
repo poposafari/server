@@ -152,7 +152,7 @@ export enum PokedexStatus {
 
 // --- User types ---
 export const UserStartLocation: UserLocationData = { map: 'p001', x: 37, y: 32 };
-export const UserAvatarParts: (keyof UserCostumeData)[] = ['skin', 'hair', 'hairColor', 'outfit'];
+export const UserAvatarParts: (keyof UserCostumeData)[] = ['skin', 'hair', 'outfit'];
 export type UserGender = 'male' | 'female';
 
 export interface UserLocationData {
@@ -164,7 +164,6 @@ export interface UserLocationData {
 export interface UserCostumeData {
   skin: string;
   hair: string;
-  hairColor: string;
   outfit: string;
 }
 

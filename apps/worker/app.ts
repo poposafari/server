@@ -1,8 +1,7 @@
-import { DataSource } from 'typeorm';
 import cron from 'node-cron';
-import { getAllUserStateAuthIds, persistUserStateFromRedisToDb, logger } from '@poposerver/shared';
+import { getAllUserStateAuthIds, persistUserStateFromRedisToDb, logger } from '@poposerver/lib';
 
-export function startPeriodicUserStateBackup(dataSource: DataSource, cronSchedule: string): void {
+export function startPeriodicUserStateBackup(cronSchedule: string): void {
   cron.schedule(cronSchedule, async () => {
     const start = Date.now();
     logger.info('[Worker] User state backup job started');
@@ -15,7 +14,7 @@ export function startPeriodicUserStateBackup(dataSource: DataSource, cronSchedul
       await Promise.all(
         authIds.map(async (authId) => {
           try {
-            await persistUserStateFromRedisToDb(authId, dataSource, { deleteFromRedis: false });
+            await persistUserStateFromRedisToDb(authId, { deleteFromRedis: false });
             success += 1;
           } catch (err) {
             failures += 1;

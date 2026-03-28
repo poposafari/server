@@ -75,7 +75,7 @@ const USER_STATE_FIELDS: (keyof UserState)[] = [
 ];
 
 function toUserState(raw: Record<string, string>): UserState | null {
-  if (!raw?.socketId) return null;
+  if (!raw?.mapId) return null;
   const state: UserState = {} as UserState;
   for (const k of USER_STATE_FIELDS) {
     state[k] = raw[k] ?? '';

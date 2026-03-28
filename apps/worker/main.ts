@@ -1,21 +1,20 @@
 import {
-  AppDataSource,
   connectDB,
   connectRedis,
+  everyMinutes,
   logger,
   MasterData,
   RedisClient,
-  everyMinutes,
-} from '@poposerver/shared';
+} from '@poposerver/lib';
 import { startPeriodicUserStateBackup } from './app';
 
 async function boot() {
   try {
-    await connectDB(AppDataSource, 'WORKER');
+    await connectDB('WORKER');
     await connectRedis(RedisClient, 'WORKER');
     await MasterData.load('WORKER');
 
-    startPeriodicUserStateBackup(AppDataSource, everyMinutes(3));
+    startPeriodicUserStateBackup(everyMinutes(3));
 
     const shutdown = async (signal: string) => {
       logger.info(`[${signal}] Shutting down...`);

@@ -9,7 +9,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY tsconfig.json ./
 COPY apps ./apps
-COPY shared ./shared
+COPY lib ./lib
 
 RUN pnpm run build
 

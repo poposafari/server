@@ -1,4 +1,4 @@
-import { pgTable, integer, varchar, boolean, smallint, timestamp, check } from 'drizzle-orm/pg-core';
+import { pgTable, integer, varchar, char, boolean, smallint, timestamp, check } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { account } from './account';
 
@@ -13,7 +13,7 @@ export const user = pgTable(
     playtime: integer('playtime').notNull().default(0),
     hasStarter: boolean('has_starter').notNull().default(false),
     gender: smallint('gender').notNull(),
-    lastMapId: integer('last_map_id').notNull(),
+    lastMapId: char('last_map_id', { length: 4 }).notNull(),
     lastX: integer('last_x').notNull(),
     lastY: integer('last_y').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

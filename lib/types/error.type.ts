@@ -9,6 +9,9 @@ export enum AppErrorCode {
   FAILED_ACCOUNT = 'FAILED_ACCOUNT',
   ACCOUNT_ALREADY_DELETED = 'ACCOUNT_ALREADY_DELETED',
   EXCEED_REQUEST = 'EXCEED_REQUEST',
+  USER_NOT_FOUND = 'USER_NOT_FOUND',
+  USER_ALREADY_EXISTS = 'USER_ALREADY_EXISTS',
+  NICKNAME_ALREADY_EXISTS = 'NICKNAME_ALREADY_EXISTS',
 }
 
 export enum AppErrorMessage {
@@ -21,6 +24,9 @@ export enum AppErrorMessage {
   ACCOUNT_ALREADY_EXIST = 'Account already exist',
   FAILED_ACCOUNT = 'Account Failed',
   ACCOUNT_ALREADY_DELETED = 'Account already deleted',
+  USER_NOT_FOUND = 'User not found',
+  USER_ALREADY_EXISTS = 'User already exists',
+  NICKNAME_ALREADY_EXISTS = 'Nickname already exists',
 }
 
 export interface AppErrorRes {

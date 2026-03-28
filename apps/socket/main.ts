@@ -1,21 +1,20 @@
 import {
-  AppDataSource,
   connectDB,
   connectRedis,
   logger,
   MasterData,
   RedisClient,
   SOCKET_KICK_CHANNEL,
-} from '@poposerver/shared';
+} from '@poposerver/lib';
 import { SocketApp } from './app';
 
 async function boot() {
   try {
-    await connectDB(AppDataSource, 'SOCKET');
+    await connectDB('SOCKET');
     await connectRedis(RedisClient, 'SOCKET');
     await MasterData.load('SOCKET');
 
-    const socketApp = new SocketApp(RedisClient, AppDataSource);
+    const socketApp = new SocketApp(RedisClient);
     socketApp.listen();
 
     const kickSub = RedisClient.duplicate();
@@ -35,8 +34,6 @@ async function boot() {
         await kickSub.quit();
         await socketApp.close();
         await RedisClient.quit();
-
-        if (AppDataSource.isInitialized) await AppDataSource.destroy();
 
         logger.info('[Bye] Cleanup finished.');
         process.exit(0);

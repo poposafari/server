@@ -50,9 +50,11 @@ export interface UserState {
   x: string;
   y: string;
   nickname: string;
+  gender: string;
+  party: string;
+  itemSlots: string;
   costume: string;
   socketId: string;
-  gender: string;
   pet: string;
   createdAt: string;
   lastMoveTime: string;
@@ -63,16 +65,18 @@ const USER_STATE_FIELDS: (keyof UserState)[] = [
   'x',
   'y',
   'nickname',
+  'gender',
+  'party',
+  'itemSlots',
   'costume',
   'socketId',
-  'gender',
   'pet',
   'createdAt',
   'lastMoveTime',
 ];
 
 function toUserState(raw: Record<string, string>): UserState | null {
-  if (!raw?.socketId) return null;
+  if (!raw?.mapId) return null;
   const state: UserState = {} as UserState;
   for (const k of USER_STATE_FIELDS) {
     state[k] = raw[k] ?? '';

@@ -2,7 +2,13 @@ import bcrypt from 'bcrypt';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, AppErrorMessage } from '@poposerver/lib/types';
 import { UserAuthProvider } from '@poposerver/lib/types';
-import { createSession, deleteSession, publishSocketKick } from '@poposerver/lib/redis';
+import {
+  createSession,
+  deleteSession,
+  deleteUserState,
+  getSession,
+  publishSocketKick,
+} from '@poposerver/lib/redis';
 import { AuthRepository } from './auth.repository';
 import { AuthLocalInput } from './auth.schema';
 
@@ -69,7 +75,12 @@ export class AuthService {
   }
 
   async logout(sessionId: string): Promise<void> {
+    const session = await getSession(sessionId);
     await deleteSession(sessionId);
+    if (session) {
+      await publishSocketKick(session.authId);
+      await deleteUserState(session.authId);
+    }
   }
 
   async softDeleteAuth(authId: string, sessionId: string): Promise<void> {
@@ -89,5 +100,6 @@ export class AuthService {
     await this.repo.softDelete(numericId);
     await deleteSession(sessionId);
     await publishSocketKick(authId);
+    await deleteUserState(authId);
   }
 }
