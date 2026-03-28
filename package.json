@@ -8,7 +8,7 @@
     "api:dev": "ts-node -r tsconfig-paths/register apps/api/main.ts",
     "socket:dev": "ts-node -r tsconfig-paths/register apps/socket/main.ts",
     "worker:dev": "ts-node -r tsconfig-paths/register apps/worker/main.ts",
-    "build": "tsc && tsc-alias -p tsconfig.json && node -e \"require('fs').cpSync('shared/master', 'dist/shared/master', {recursive:true})\"",
+    "build": "tsc && tsc-alias -p tsconfig.json && node -e \"require('fs').cpSync('lib/master', 'dist/lib/master', {recursive:true})\"",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"**/*.{ts,json,md}\"",
     "db:dev": "docker compose -f docker/dev/docker-compose.yml --env-file .env.dev up -d",
