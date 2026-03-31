@@ -29,6 +29,11 @@ export default async function authRoutes(app: FastifyInstance) {
   });
 
   // 인증 필요
+  app.post('/invalidate-session', {
+    preHandler: [sessionAuthGuard],
+    handler: authController.invalidateSession,
+  });
+
   app.post('/logout', {
     preHandler: [sessionAuthGuard],
     handler: authController.logout,

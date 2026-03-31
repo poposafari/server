@@ -98,7 +98,6 @@ export class UserService {
         createdAt: new Date().toISOString(),
         lastMoveTime: String(Date.now()),
       },
-      1800, // 30분 TTL — 소켓 연결 시 갱신됨
     );
 
     return { profile, equippedCostumes, party, itemSlots };

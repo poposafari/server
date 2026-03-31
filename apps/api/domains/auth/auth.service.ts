@@ -66,12 +66,18 @@ export class AuthService {
     }
 
     const authId = String(auth.id);
-    await publishSocketKick(authId);
+
+    // 기존 접속자 킥은 여기서 하지 않음.
+    // POST /api/game/connect (토큰 발급) 시점에서 처리.
 
     const sessionId = await createSession(authId);
     await this.repo.updateLastLoginAt(auth.id);
 
     return sessionId;
+  }
+
+  async invalidateSession(sessionId: string): Promise<void> {
+    await deleteSession(sessionId);
   }
 
   async logout(sessionId: string): Promise<void> {

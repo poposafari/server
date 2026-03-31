@@ -8,5 +8,5 @@ export async function registerRoutes(app: FastifyInstance) {
   await app.register(import('./domains/pokedex/pokedex.route'), { prefix: '/api/pokedex' });
   await app.register(import('./domains/town-map/town-map.route'), { prefix: '/api/town-map' });
   await app.register(import('./domains/costume/costume.route'), { prefix: '/api/costume' });
-  // await app.register(import('./domains/game/game.route'), { prefix: '/api/game' });
+  await app.register(import('./domains/game/game.route'), { prefix: '/api/game' });
 }

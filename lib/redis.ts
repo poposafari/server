@@ -32,16 +32,16 @@ export const connectRedis = async (redisClient: Redis, serviceName: string) => {
 };
 
 export class RedisKey {
-  static userRefresh(authId: string): string {
-    return `auth:${authId}:refresh`;
-  }
-
   static userState(authId: string): string {
     return `user:${authId}:state`;
   }
 
   static roomUsers(mapId: string): string {
     return `room:${mapId}:users`;
+  }
+
+  static connToken(tokenId: string): string {
+    return `conn:${tokenId}`;
   }
 }
 
@@ -94,18 +94,19 @@ export async function getUserState(authId: string): Promise<UserState | null> {
 export async function setUserState(
   authId: string,
   state: UserState,
-  ttlSeconds?: number,
 ): Promise<void> {
   const key = RedisKey.userState(authId);
   await RedisClient.hset(key, state as unknown as Record<string, string>);
-  if (ttlSeconds != null) {
-    await RedisClient.expire(key, ttlSeconds);
-  }
 }
 
 export async function deleteUserState(authId: string): Promise<void> {
   const key = RedisKey.userState(authId);
   await RedisClient.del(key);
+}
+
+export async function clearUserStateSocketId(authId: string): Promise<void> {
+  const key = RedisKey.userState(authId);
+  await RedisClient.hset(key, 'socketId', '');
 }
 
 const USER_STATE_KEY_PREFIX = 'user:';
@@ -191,8 +192,15 @@ export async function getRoomMemberStates(mapId: string): Promise<RoomMemberStat
 
 /** API 로그인 시 기존 소켓 킥 신호용 Redis Pub/Sub 채널 */
 export const SOCKET_KICK_CHANNEL = 'socket:kick';
-export async function publishSocketKick(authId: string): Promise<void> {
-  await RedisClient.publish(SOCKET_KICK_CHANNEL, authId);
+
+export interface SocketKickMessage {
+  authId: string;
+  targetSocketId?: string;
+}
+
+export async function publishSocketKick(authId: string, targetSocketId?: string): Promise<void> {
+  const message: SocketKickMessage = { authId, targetSocketId };
+  await RedisClient.publish(SOCKET_KICK_CHANNEL, JSON.stringify(message));
 }
 
 // ── 세션 관리 ──
@@ -202,8 +210,8 @@ const SESSION_TTL = 604800; // 7일 (초)
 
 export async function createSession(authId: string): Promise<string> {
   const sessionId = crypto.randomUUID();
-  const key = `${SESSION_KEY_PREFIX}${sessionId}`;
-  await RedisClient.setex(key, SESSION_TTL, JSON.stringify({ authId }));
+  const sessionKey = `${SESSION_KEY_PREFIX}${sessionId}`;
+  await RedisClient.setex(sessionKey, SESSION_TTL, JSON.stringify({ authId }));
   return sessionId;
 }
 
@@ -215,6 +223,26 @@ export async function getSession(sessionId: string): Promise<{ authId: string } 
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {
-  const key = `${SESSION_KEY_PREFIX}${sessionId}`;
-  await RedisClient.del(key);
+  const sessionKey = `${SESSION_KEY_PREFIX}${sessionId}`;
+  await RedisClient.del(sessionKey);
+}
+
+// ── 연결 토큰 관리 ──
+
+const CONN_TOKEN_TTL = 30; // 30초
+
+export async function createConnToken(authId: string): Promise<string> {
+  const tokenId = crypto.randomUUID();
+  const key = RedisKey.connToken(tokenId);
+  await RedisClient.setex(key, CONN_TOKEN_TTL, authId);
+  return tokenId;
+}
+
+export async function consumeConnToken(tokenId: string): Promise<string | null> {
+  const key = RedisKey.connToken(tokenId);
+  const authId = await RedisClient.get(key);
+  if (authId) {
+    await RedisClient.del(key);
+  }
+  return authId;
 }

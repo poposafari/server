@@ -5,6 +5,7 @@ import {
   MasterData,
   RedisClient,
   SOCKET_KICK_CHANNEL,
+  SocketKickMessage,
 } from '@poposerver/lib';
 import { SocketApp } from './app';
 
@@ -20,11 +21,14 @@ async function boot() {
     const kickSub = RedisClient.duplicate();
     await connectRedis(kickSub, 'SOCKET_KICK_SUB');
     await kickSub.subscribe(SOCKET_KICK_CHANNEL);
-    kickSub.on('message', (channel: string, authId: string) => {
+    kickSub.on('message', (channel: string, raw: string) => {
       if (channel === SOCKET_KICK_CHANNEL) {
-        void socketApp
-          .kickByAuthId(authId)
-          .catch((err) => logger.error('[Socket] kickByAuthId failed:', err));
+        try {
+          const msg = JSON.parse(raw) as SocketKickMessage;
+          socketApp.kick(msg.authId, msg.targetSocketId);
+        } catch (err) {
+          logger.error('[Socket] kick failed:', err);
+        }
       }
     });
 

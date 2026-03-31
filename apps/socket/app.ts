@@ -3,6 +3,7 @@ import { createServer, Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import {
   addUserToRoom,
+  consumeConnToken,
   envConfig,
   getRoomMemberStates,
   getUserState,
@@ -12,10 +13,8 @@ import {
   removeUserFromRoom,
   updateUserStateMap,
   updateUserStatePosition,
+  deleteUserState,
 } from '@poposerver/lib';
-
-/** user:state TTL (30분). API에서 설정하고, 소켓 연결 중 갱신 */
-const USER_STATE_TTL = 1800;
 
 const MOVE_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
 type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
@@ -35,9 +34,7 @@ export interface MoveBufferEntry {
   lastMoveTime: string;
 }
 
-const SESSION_KEY_PREFIX = 'session:';
-
-/** 소켓 연결 시 쿠키의 sid로 세션 검증 후 채워지고, init 이후 확장되는 데이터 */
+/** 소켓 연결 시 연결 토큰 검증 후 채워지고, init 이후 확장되는 데이터 */
 export interface SocketData {
   /** handshake 시 세션 검증 후 추출 */
   authId?: string;
@@ -93,7 +90,7 @@ export class SocketApp {
     }, TICK_RATE_MS);
   }
 
-  /** 버퍼에 있는 유저 좌표를 Redis에 pipeline으로 일괄 기록 + TTL 갱신 */
+  /** 버퍼에 있는 유저 좌표를 Redis에 pipeline으로 일괄 기록 */
   private async syncPositionsToRedis(usersMap: Map<string, MoveBufferEntry>): Promise<void> {
     const pipeline = this.redis.pipeline();
     for (const [userId, entry] of usersMap) {
@@ -107,36 +104,24 @@ export class SocketApp {
         'lastMoveTime',
         entry.lastMoveTime,
       );
-      pipeline.expire(key, USER_STATE_TTL);
     }
     await pipeline.exec();
   }
 
   private async authMiddleware(socket: Socket, next: (err?: Error) => void) {
-    const rawCookie = socket.handshake.headers.cookie;
-    if (!rawCookie) {
-      next(new Error('Missing session'));
+    const token = socket.handshake.auth?.token;
+    if (!token || typeof token !== 'string') {
+      next(new Error('Missing connection token'));
       return;
     }
 
-    const sid = rawCookie
-      .split(';')
-      .map((c) => c.trim().split('='))
-      .find(([k]) => k === 'sid')?.[1];
-    if (!sid) {
-      next(new Error('Missing session'));
+    const authId = await consumeConnToken(token);
+    if (!authId) {
+      next(new Error('Invalid or expired connection token'));
       return;
     }
 
-    const key = `${SESSION_KEY_PREFIX}${sid}`;
-    const data = await this.redis.get(key);
-    if (!data) {
-      next(new Error('Invalid session'));
-      return;
-    }
-
-    const session = JSON.parse(data) as { authId: string };
-    (socket.data as SocketData).authId = session.authId;
+    (socket.data as SocketData).authId = authId;
     next();
   }
 
@@ -146,15 +131,24 @@ export class SocketApp {
     });
   }
 
-  /** Redis kick 신호 수신 시 호출: 해당 authId 소켓에 kicked emit 후 disconnect */
-  async kickByAuthId(authId: string): Promise<void> {
-    const state = await getUserState(authId);
-    if (!state?.socketId) return;
-    const oldSocket = this.io.sockets.sockets.get(state.socketId);
-    if (oldSocket) {
-      oldSocket.emit('kicked', { message: 'Logged in from another device.' });
-      oldSocket.disconnect(true);
-      logger.info(`[Socket] kicked by API: ${state.socketId} (authId: ${authId})`);
+  /** Redis kick 신호 수신 시 호출: targetSocketId가 있으면 해당 소켓만, 없으면 authId 전체 kick */
+  kick(authId: string, targetSocketId?: string): void {
+    if (targetSocketId) {
+      const socket = this.io.sockets.sockets.get(targetSocketId);
+      if (socket && (socket.data as SocketData).authId === authId) {
+        socket.emit('kicked', { message: 'Logged in from another device.' });
+        socket.disconnect(true);
+        logger.info(`[Socket] kicked by API: ${socket.id} (authId: ${authId})`);
+      }
+      return;
+    }
+
+    for (const [, socket] of this.io.sockets.sockets) {
+      if ((socket.data as SocketData).authId === authId) {
+        socket.emit('kicked', { message: 'Logged in from another device.' });
+        socket.disconnect(true);
+        logger.info(`[Socket] kicked by API: ${socket.id} (authId: ${authId})`);
+      }
     }
   }
 
@@ -174,9 +168,30 @@ export class SocketApp {
   }
 
   private initEvents() {
-    this.io.on('connection', (socket: Socket) => {
+    this.io.on('connection', async (socket: Socket) => {
       const data = socket.data as SocketData;
       logger.info(`Client connected: ${socket.id} (authId: ${data.authId})`);
+
+      // connection 폴백 킥 (Pub/Sub 실패 시 안전망) + socketId 세팅
+      if (data.authId) {
+        const stateKey = `user:${data.authId}:state`;
+        const existingState = await getUserState(data.authId);
+
+        if (existingState && existingState.socketId && existingState.socketId !== socket.id) {
+          const oldSocket = this.io.sockets.sockets.get(existingState.socketId);
+          if (oldSocket) {
+            oldSocket.emit('kicked', { message: 'Logged in from another device.' });
+            oldSocket.disconnect(true);
+            logger.info(
+              `[Socket] connection fallback kick: ${existingState.socketId} (authId: ${data.authId})`,
+            );
+          }
+        }
+
+        if (existingState) {
+          await this.redis.hset(stateKey, 'socketId', socket.id);
+        }
+      }
 
       socket.on('init', async () => {
         const authId = data.authId;
@@ -196,21 +211,7 @@ export class SocketApp {
             return;
           }
 
-          if (existingState.socketId && existingState.socketId !== socket.id) {
-            const oldSocket = this.io.sockets.sockets.get(existingState.socketId);
-            if (oldSocket) {
-              oldSocket.emit('kicked', { message: 'Logged in from another device.' });
-              oldSocket.disconnect(true);
-              logger.info(
-                `[Socket] kicked previous session: ${existingState.socketId} (authId: ${authId})`,
-              );
-            }
-          }
-
-          // socketId만 업데이트 (나머지 state는 API getMe에서 이미 세팅됨)
-          const stateKey = `user:${authId}:state`;
-          await this.redis.hset(stateKey, 'socketId', socket.id);
-          await this.redis.expire(stateKey, USER_STATE_TTL);
+          // init 시점 킥 제거 — connection 핸들러에서 이미 처리됨
 
           const mapId = existingState.mapId;
           this.userPositions.set(authId, {
@@ -392,7 +393,16 @@ export class SocketApp {
 
       socket.on('disconnect', async (reason) => {
         logger.info(`Client disconnected: ${socket.id} (Reason: ${reason})`);
-        const { userId, roomId } = data;
+        const { authId: disconnAuthId, userId, roomId } = data;
+
+        // init 전(Title 등)에서 disconnect된 경우: user:state의 socketId만 정리
+        if (!userId && disconnAuthId) {
+          const currentState = await getUserState(disconnAuthId);
+          if (currentState?.socketId === socket.id) {
+            await this.redis.hset(`user:${disconnAuthId}:state`, 'socketId', '');
+          }
+        }
+
         if (userId) {
           if (roomId && this.moveBuffer.has(roomId)) {
             this.moveBuffer.get(roomId)!.delete(userId);
@@ -406,7 +416,14 @@ export class SocketApp {
             });
             this.userPositions.delete(userId);
           }
-          await persistUserStateFromRedisToDb(userId);
+
+          // 소유권 확인: 현재 user:state의 socketId가 이 소켓인지 먼저 검사.
+          // 킥된 소켓이면 socketId가 '' 또는 새 소켓 ID이므로 불일치 → state 보존.
+          const currentState = await getUserState(userId);
+          const isOwner = currentState?.socketId === socket.id;
+
+          await persistUserStateFromRedisToDb(userId, { deleteFromRedis: isOwner });
+
           if (roomId) {
             await removeUserFromRoom(roomId, userId);
             this.io.to(roomId).emit('user_left', { userId });

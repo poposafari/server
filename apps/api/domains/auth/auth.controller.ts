@@ -19,14 +19,19 @@ export class AuthController {
     return reply.status(201).send({ success: true, data: null });
   };
 
-  loginLocal = async (
-    request: FastifyRequest<{ Body: AuthLocalInput }>,
-    reply: FastifyReply,
-  ) => {
+  loginLocal = async (request: FastifyRequest<{ Body: AuthLocalInput }>, reply: FastifyReply) => {
     const sessionId = await this.authService.loginLocal(request.body);
 
     reply.setCookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
     logger.info(`Login(local) success`);
+
+    return reply.status(200).send({ success: true, data: null });
+  };
+
+  invalidateSession = async (request: FastifyRequest, reply: FastifyReply) => {
+    await this.authService.invalidateSession(request.sessionId);
+
+    reply.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
 
     return reply.status(200).send({ success: true, data: null });
   };
@@ -46,6 +51,7 @@ export class AuthController {
 
   deleteAuth = async (request: FastifyRequest, reply: FastifyReply) => {
     await this.authService.softDeleteAuth(request.authId, request.sessionId);
+    await this.authService.logout(request.sessionId);
 
     reply.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
     logger.info(`DeleteAuth success: authId=${request.authId}`);
