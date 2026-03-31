@@ -15,13 +15,15 @@ export async function buildApp(): Promise<FastifyInstance> {
     trustProxy: true,
   });
 
-  // ── 보안 헤더 ──
-  await app.register(helmet);
-
-  // ── CORS ──
   await app.register(cors, {
     origin: envConfig.CORS_ORIGIN || '*',
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  });
+
+  // ── 보안 헤더 ──
+  await app.register(helmet, {
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
   });
 
   // ── 쿠키 파싱 ──
