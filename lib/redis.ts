@@ -203,6 +203,23 @@ export async function publishSocketKick(authId: string, targetSocketId?: string)
   await RedisClient.publish(SOCKET_KICK_CHANNEL, JSON.stringify(message));
 }
 
+// ── 게임 시간 관리 ──
+
+export const GAME_TIME_KEY = 'game:time';
+export const GAME_TIME_CHANNEL = 'game:time';
+
+export async function getGameTime(): Promise<string | null> {
+  return RedisClient.get(GAME_TIME_KEY);
+}
+
+export async function setGameTime(timeOfDay: string): Promise<void> {
+  await RedisClient.set(GAME_TIME_KEY, timeOfDay);
+}
+
+export async function publishGameTime(timeOfDay: string): Promise<void> {
+  await RedisClient.publish(GAME_TIME_CHANNEL, timeOfDay);
+}
+
 // ── 세션 관리 ──
 
 const SESSION_KEY_PREFIX = 'session:';

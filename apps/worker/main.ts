@@ -1,12 +1,5 @@
-import {
-  connectDB,
-  connectRedis,
-  everyMinutes,
-  logger,
-  MasterData,
-  RedisClient,
-} from '@poposerver/lib';
-import { startPeriodicUserStateBackup } from './app';
+import { connectDB, connectRedis, logger, MasterData, RedisClient } from '@poposerver/lib';
+import { startGameTimeClock } from './game-time';
 
 async function boot() {
   try {
@@ -14,11 +7,12 @@ async function boot() {
     await connectRedis(RedisClient, 'WORKER');
     await MasterData.load('WORKER');
 
-    startPeriodicUserStateBackup(everyMinutes(3));
+    const stopGameTime = startGameTimeClock();
 
     const shutdown = async (signal: string) => {
       logger.info(`[${signal}] Shutting down...`);
       try {
+        stopGameTime();
         logger.info('[Bye] Cleanup finished.');
         process.exit(0);
       } catch (error) {

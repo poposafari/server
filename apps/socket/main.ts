@@ -6,6 +6,7 @@ import {
   RedisClient,
   SOCKET_KICK_CHANNEL,
   SocketKickMessage,
+  GAME_TIME_CHANNEL,
 } from '@poposerver/lib';
 import { SocketApp } from './app';
 
@@ -32,9 +33,19 @@ async function boot() {
       }
     });
 
+    const gameTimeSub = RedisClient.duplicate();
+    await connectRedis(gameTimeSub, 'SOCKET_GAME_TIME_SUB');
+    await gameTimeSub.subscribe(GAME_TIME_CHANNEL);
+    gameTimeSub.on('message', (channel: string, timeOfDay: string) => {
+      if (channel === GAME_TIME_CHANNEL) {
+        socketApp.broadcastGameTime(timeOfDay);
+      }
+    });
+
     const shutdown = async (signal: string) => {
       logger.info(`[${signal}] Shutting down...`);
       try {
+        await gameTimeSub.quit();
         await kickSub.quit();
         await socketApp.close();
         await RedisClient.quit();
