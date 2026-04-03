@@ -1,0 +1,104 @@
+{
+  "p001": {
+    "comment": "포포시티",
+    "type": "plaza",
+    "cost": 0,
+    "item": {
+      "min": 1,
+      "max": 2,
+      "spawn": []
+    },
+    "wild": {
+      "min": 3,
+      "max": 5,
+      "dawn": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": []
+      },
+      "day": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": []
+      },
+      "dusk": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": []
+      },
+      "night": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": []
+      }
+    }
+  },
+  "s001": {
+    "comment": "1번도로",
+    "type": "safari",
+    "cost": 0,
+    "item": {
+      "min": 3,
+      "max": 5,
+      "spawn": ["occa-berry", "chople-berry"]
+    },
+    "wild": {
+      "min": 3,
+      "max": 5,
+      "dawn": {
+        "sunny": ["0003", "0007", "0052", "0052_galar", "0059_hisui"],
+        "rainy": [],
+        "stormy": []
+      },
+      "day": {
+        "sunny": ["0003", "0007", "0052", "0052_galar", "0059_hisui"],
+        "rainy": [],
+        "stormy": []
+      },
+      "dusk": {
+        "sunny": ["0003", "0007", "0052", "0052_galar", "0059_hisui"],
+        "rainy": [],
+        "stormy": []
+      },
+      "night": {
+        "sunny": ["0003", "0007", "0052", "0052_galar", "0059_hisui"],
+        "rainy": [],
+        "stormy": []
+      }
+    }
+  },
+  "s002": {
+    "comment": "1번도로",
+    "type": "safari",
+    "cost": 0,
+    "item": {
+      "min": 3,
+      "max": 5,
+      "spawn": ["occa-berry", "chople-berry"]
+    },
+    "wild": {
+      "min": 3,
+      "max": 5,
+      "dawn": {
+        "sunny": ["0003", "0007", "0052", "0052_galar", "0059_hisui"],
+        "rainy": [],
+        "stormy": []
+      },
+      "day": {
+        "sunny": ["0003", "0007", "0052", "0052_galar", "0059_hisui"],
+        "rainy": [],
+        "stormy": []
+      },
+      "dusk": {
+        "sunny": ["0003", "0007", "0052", "0052_galar", "0059_hisui"],
+        "rainy": [],
+        "stormy": []
+      },
+      "night": {
+        "sunny": ["0003", "0007", "0052", "0052_galar", "0059_hisui"],
+        "rainy": [],
+        "stormy": []
+      }
+    }
+  }
+}

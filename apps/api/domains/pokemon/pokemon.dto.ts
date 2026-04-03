@@ -7,8 +7,8 @@ export interface PokemonBoxRes {
     gender: number;
     isShiny: boolean;
     nickname: string | null;
-    abilityId: number;
-    natureId: number;
+    abilityId: string;
+    natureId: string;
     skills: unknown;
     heldItemId: number | null;
     boxNumber: number | null;

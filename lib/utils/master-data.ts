@@ -55,7 +55,7 @@ class MasterDataService {
 
       this.loadItems(path.join(baseDir, 'item.csv'));
       this.loadPokemons(path.join(baseDir, 'pokemon.csv'));
-      this.loadMaps(path.join(baseDir, 'map.csv'));
+      this.loadMapJson(baseDir);
       this.isLoaded = true;
       logger.info('StaticStorage loaded successfully.');
     } catch (error) {
@@ -114,24 +114,22 @@ class MasterDataService {
     });
   }
 
-  private loadMaps(filePath: string): void {
-    const records = this.readCsv(filePath);
-    records.forEach((record) => {
-      const mapData: any = {};
-      Object.keys(record).forEach((key) => {
-        const camelKey = toCamelCase(key);
-        const value = record[key];
+  private loadMapJson(baseDir: string): void {
+    const mapRaw = JSON.parse(fs.readFileSync(path.join(baseDir, 'map.json'), 'utf-8'));
+    const entryRaw = JSON.parse(fs.readFileSync(path.join(baseDir, 'map-entry.json'), 'utf-8'));
 
-        if (key.endsWith('_max') || key === 'cost') {
-          mapData[camelKey] = Number(value);
-        } else if (value.startsWith('[') && value.endsWith(']')) {
-          mapData[camelKey] = parsePythonList(value);
-        } else {
-          mapData[camelKey] = value;
-        }
-      });
-      this.maps.set(mapData.id, mapData as MapData);
-    });
+    for (const [id, data] of Object.entries<any>(mapRaw)) {
+      const entry = entryRaw[id] ? { x: entryRaw[id].x, y: entryRaw[id].y } : null;
+      this.maps.set(id, {
+        id,
+        comment: data.comment,
+        type: data.type,
+        cost: data.cost,
+        item: data.item,
+        wild: data.wild,
+        entry,
+      } as MapData);
+    }
   }
 
   private readCsv(filePath: string): any[] {

@@ -2,15 +2,17 @@ import { FastifyInstance } from 'fastify';
 import { buildApp } from 'apps/api/app';
 import { db } from '@poposerver/lib/db';
 import { connectDB } from '@poposerver/lib/db';
-import { RedisClient, connectRedis, RedisKey } from '@poposerver/lib/redis';
-import { account } from '@poposerver/lib/schema';
+import { RedisClient, connectRedis, RedisKey, getUserState, getSafariData } from '@poposerver/lib/redis';
+import { account, user } from '@poposerver/lib/schema';
 import { eq } from 'drizzle-orm';
+import { MasterData } from '@poposerver/lib/utils/master-data';
 
 let app: FastifyInstance;
 
 beforeAll(async () => {
   await connectDB('TEST');
   await connectRedis(RedisClient, 'TEST');
+  await MasterData.load('TEST');
   app = await buildApp();
   await app.ready();
 });
@@ -21,6 +23,7 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
+  await db.delete(user);
   await db.delete(account).where(eq(account.provider, 'local'));
   const keys = await RedisClient.keys('session:*');
   if (keys.length > 0) await RedisClient.del(...keys);
@@ -28,6 +31,8 @@ afterEach(async () => {
   if (connKeys.length > 0) await RedisClient.del(...connKeys);
   const userKeys = await RedisClient.keys('user:*:state');
   if (userKeys.length > 0) await RedisClient.del(...userKeys);
+  const safariKeys = await RedisClient.keys('safari:*');
+  if (safariKeys.length > 0) await RedisClient.del(...safariKeys);
 });
 
 // ── 헬퍼 ──
@@ -162,6 +167,7 @@ describe('기존 접속자가 있을 때 토큰 발급', () => {
       x: '10',
       y: '20',
       nickname: 'tester',
+      level: '1',
       gender: 'male',
       party: '',
       itemSlots: '',
@@ -215,6 +221,254 @@ describe('기존 접속자가 있을 때 토큰 발급', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.json().data.token).toBeDefined();
+  });
+});
+
+// ── 사파리 입장 ──
+
+async function createUserAndSetState(sid: string, level = 50): Promise<string> {
+  const authId = await getAuthIdFromSid(sid);
+  const accountId = Number(authId);
+
+  // user 테이블에 레코드 생성
+  await db.insert(user).values({
+    accountId,
+    nickname: `tester${accountId}`,
+    gender: 1,
+    level,
+    lastMapId: 'p001',
+    lastX: 37,
+    lastY: 32,
+  });
+
+  // Redis에 user state 세팅 (plaza에 있는 상태)
+  const stateKey = RedisKey.userState(authId);
+  await RedisClient.hset(stateKey, {
+    mapId: 'p001',
+    x: '37',
+    y: '32',
+    nickname: `tester${accountId}`,
+    level: String(level),
+    gender: '1',
+    party: '[]',
+    itemSlots: '[]',
+    costume: '[]',
+    socketId: '',
+    pet: '',
+    createdAt: new Date().toISOString(),
+    lastMoveTime: String(Date.now()),
+  });
+
+  return authId;
+}
+
+describe('POST /api/game/safari/enter', () => {
+  it('plaza에서 사파리 입장 → 200 + 야생 포켓몬/아이템 데이터 반환', async () => {
+    const sid = await registerAndGetSid();
+    await createUserAndSetState(sid, 50);
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/enter',
+      cookies: { sid },
+      payload: { mapId: 's001' },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.success).toBe(true);
+    expect(body.data).toBeDefined();
+    // s001 맵 데이터가 포함되어 있어야 함
+    expect(body.data['s001']).toBeDefined();
+    expect(body.data['s001'].wilds).toBeInstanceOf(Array);
+    expect(body.data['s001'].items).toBeInstanceOf(Array);
+  });
+
+  it('야생 포켓몬에 level 필드가 존재하고, 유저 레벨 ±10 범위 내', async () => {
+    const userLevel = 50;
+    const sid = await registerAndGetSid();
+    await createUserAndSetState(sid, userLevel);
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/enter',
+      cookies: { sid },
+      payload: { mapId: 's001' },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+
+    for (const mapId of Object.keys(body.data)) {
+      for (const wild of body.data[mapId].wilds) {
+        expect(wild.level).toBeDefined();
+        expect(typeof wild.level).toBe('number');
+        expect(wild.level).toBeGreaterThanOrEqual(Math.max(1, userLevel - 10));
+        expect(wild.level).toBeLessThanOrEqual(Math.min(100, userLevel + 10));
+      }
+    }
+  });
+
+  it('유저 레벨 1 → 야생 포켓몬 레벨이 1 미만이 되지 않음', async () => {
+    const sid = await registerAndGetSid();
+    await createUserAndSetState(sid, 1);
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/enter',
+      cookies: { sid },
+      payload: { mapId: 's001' },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+
+    for (const mapId of Object.keys(body.data)) {
+      for (const wild of body.data[mapId].wilds) {
+        expect(wild.level).toBeGreaterThanOrEqual(1);
+        expect(wild.level).toBeLessThanOrEqual(11);
+      }
+    }
+  });
+
+  it('유저 레벨 100 → 야생 포켓몬 레벨이 100 초과하지 않음', async () => {
+    const sid = await registerAndGetSid();
+    await createUserAndSetState(sid, 100);
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/enter',
+      cookies: { sid },
+      payload: { mapId: 's001' },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+
+    for (const mapId of Object.keys(body.data)) {
+      for (const wild of body.data[mapId].wilds) {
+        expect(wild.level).toBeGreaterThanOrEqual(90);
+        expect(wild.level).toBeLessThanOrEqual(100);
+      }
+    }
+  });
+
+  it('인증 없이 요청 → 401', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/enter',
+      payload: { mapId: 's001' },
+    });
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('잘못된 mapId 형식 → 400', async () => {
+    const sid = await registerAndGetSid();
+    await createUserAndSetState(sid);
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/enter',
+      cookies: { sid },
+      payload: { mapId: 'p001' },
+    });
+    expect(res.statusCode).toBe(400);
+  });
+
+  it('plaza가 아닌 곳에서 입장 시도 → 400 NOT_IN_PLAZA', async () => {
+    const sid = await registerAndGetSid();
+    const authId = await createUserAndSetState(sid);
+
+    // mapId를 사파리로 변경
+    await RedisClient.hset(RedisKey.userState(authId), 'mapId', 's001');
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/enter',
+      cookies: { sid },
+      payload: { mapId: 's001' },
+    });
+    expect(res.statusCode).toBe(400);
+  });
+
+  it('이미 사파리에 진입 중 → 409 ALREADY_IN_SAFARI', async () => {
+    const sid = await registerAndGetSid();
+    await createUserAndSetState(sid);
+
+    // 첫 번째 입장
+    await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/enter',
+      cookies: { sid },
+      payload: { mapId: 's001' },
+    });
+
+    // 위치를 다시 plaza로 되돌려서 두 번째 입장 시도
+    const authId = await getAuthIdFromSid(sid);
+    await RedisClient.hset(RedisKey.userState(authId), 'mapId', 'p001');
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/enter',
+      cookies: { sid },
+      payload: { mapId: 's001' },
+    });
+    expect(res.statusCode).toBe(409);
+  });
+});
+
+// ── 사파리 퇴장 ──
+
+describe('POST /api/game/safari/exit', () => {
+  it('사파리에서 퇴장 → 200 + p001로 이동 + 사파리 데이터 삭제', async () => {
+    const sid = await registerAndGetSid();
+    const authId = await createUserAndSetState(sid);
+
+    // 사파리 입장
+    await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/enter',
+      cookies: { sid },
+      payload: { mapId: 's001' },
+    });
+
+    // 사파리 퇴장
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/exit',
+      cookies: { sid },
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ success: true, data: null });
+
+    // Redis 확인: user state가 p001로 변경
+    const state = await getUserState(authId);
+    expect(state?.mapId).toBe('p001');
+
+    // Redis 확인: 사파리 데이터 삭제됨
+    const safariData = await getSafariData(authId);
+    expect(safariData).toBeNull();
+  });
+
+  it('사파리가 아닌 곳에서 퇴장 시도 → 400 NOT_IN_SAFARI', async () => {
+    const sid = await registerAndGetSid();
+    await createUserAndSetState(sid); // plaza에 있는 상태
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/exit',
+      cookies: { sid },
+    });
+    expect(res.statusCode).toBe(400);
+  });
+
+  it('인증 없이 요청 → 401', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/game/safari/exit',
+    });
+    expect(res.statusCode).toBe(401);
   });
 });
 

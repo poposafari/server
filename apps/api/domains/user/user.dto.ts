@@ -8,6 +8,7 @@ export interface UserGameDataRes {
   data: {
     profile: {
       nickname: string;
+      level: number;
       gender: number;
       money: number;
       playtime: number;
@@ -24,8 +25,8 @@ export interface UserGameDataRes {
       gender: number;
       isShiny: boolean;
       nickname: string | null;
-      abilityId: number;
-      natureId: number;
+      abilityId: string;
+      natureId: string;
       skills: unknown;
       heldItemId: number | null;
       partySlot: number | null;

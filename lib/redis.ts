@@ -43,6 +43,10 @@ export class RedisKey {
   static connToken(tokenId: string): string {
     return `conn:${tokenId}`;
   }
+
+  static safari(authId: string): string {
+    return `safari:${authId}`;
+  }
 }
 
 export interface UserState {
@@ -50,6 +54,7 @@ export interface UserState {
   x: string;
   y: string;
   nickname: string;
+  level: string;
   gender: string;
   party: string;
   itemSlots: string;
@@ -65,6 +70,7 @@ const USER_STATE_FIELDS: (keyof UserState)[] = [
   'x',
   'y',
   'nickname',
+  'level',
   'gender',
   'party',
   'itemSlots',
@@ -262,4 +268,47 @@ export async function consumeConnToken(tokenId: string): Promise<string | null> 
     await RedisClient.del(key);
   }
   return authId;
+}
+
+// ── 사파리 존 데이터 관리 ──
+
+export interface SafariWild {
+  uid: string;
+  pokedexId: string;
+  level: number;
+  gender: number;
+  isShiny: boolean;
+  nature: string;
+  ability: string;
+  caught: boolean;
+}
+
+export interface SafariItem {
+  uid: string;
+  itemId: string;
+  picked: boolean;
+}
+
+export interface SafariMapData {
+  wilds: SafariWild[];
+  items: SafariItem[];
+}
+
+export type SafariData = Record<string, SafariMapData>;
+
+export async function setSafariData(authId: string, data: SafariData): Promise<void> {
+  const key = RedisKey.safari(authId);
+  await RedisClient.set(key, JSON.stringify(data));
+}
+
+export async function getSafariData(authId: string): Promise<SafariData | null> {
+  const key = RedisKey.safari(authId);
+  const raw = await RedisClient.get(key);
+  if (!raw) return null;
+  return JSON.parse(raw) as SafariData;
+}
+
+export async function deleteSafariData(authId: string): Promise<void> {
+  const key = RedisKey.safari(authId);
+  await RedisClient.del(key);
 }

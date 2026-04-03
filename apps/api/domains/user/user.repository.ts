@@ -55,6 +55,7 @@ export class UserRepository {
     const [profile] = await db
       .select({
         nickname: user.nickname,
+        level: user.level,
         gender: user.gender,
         money: user.money,
         playtime: user.playtime,

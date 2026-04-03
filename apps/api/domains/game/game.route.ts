@@ -1,7 +1,11 @@
 import { FastifyInstance } from 'fastify';
 import { sessionAuthGuard } from '../../hooks/session-auth.hook';
+import { zodValidate } from '../../hooks/validate.hook';
 import { GameController } from './game.controller';
 import { GameService } from './game.service';
+import { SafariController } from './safari.controller';
+import { SafariService } from './safari.service';
+import { enterSafariSchema } from './safari.schema';
 
 export default async function gameRoutes(app: FastifyInstance) {
   const service = new GameService();
@@ -10,5 +14,18 @@ export default async function gameRoutes(app: FastifyInstance) {
   app.post('/connect', {
     preHandler: [sessionAuthGuard],
     handler: controller.connect,
+  });
+
+  const safariService = new SafariService();
+  const safariController = new SafariController(safariService);
+
+  app.post('/safari/enter', {
+    preHandler: [sessionAuthGuard, zodValidate(enterSafariSchema)],
+    handler: safariController.enter,
+  });
+
+  app.post('/safari/exit', {
+    preHandler: [sessionAuthGuard],
+    handler: safariController.exit,
   });
 }

@@ -51,6 +51,28 @@ export function rollShiny(): boolean {
   return Math.floor(Math.random() * SHINY_RATE) === 0;
 }
 
+const SAFARI_SHINY_RATE = 1024;
+
+export function rollSafariShiny(): boolean {
+  return Math.floor(Math.random() * SAFARI_SHINY_RATE) === 0;
+}
+
+export function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function pickRandom<T>(arr: T[], count: number): T[] {
+  const result: T[] = [];
+  for (let i = 0; i < count; i++) {
+    result.push(arr[Math.floor(Math.random() * arr.length)]);
+  }
+  return result;
+}
+
+export function pickOne<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 export function rollGender(male: number, female: number): PokemonGender {
   const maleInt = Math.round(male * 100);
   const femaleInt = Math.round(female * 100);
