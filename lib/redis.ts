@@ -280,7 +280,9 @@ export interface SafariWild {
   isShiny: boolean;
   nature: string;
   ability: string;
-  caught: boolean;
+  caught: number; // 0=WILD, 1=CAUGHT, 2=FLED
+  bait: boolean;
+  rock: boolean;
 }
 
 export interface SafariItem {

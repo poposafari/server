@@ -11,3 +11,11 @@ export const pickItemSchema = z.object({
 });
 
 export type PickItemInput = z.infer<typeof pickItemSchema>;
+
+export const catchWildSchema = z.object({
+  uid: z.string().uuid(),
+  bait: z.boolean(),
+  rock: z.boolean(),
+});
+
+export type CatchWildInput = z.infer<typeof catchWildSchema>;

@@ -29,7 +29,7 @@ export async function persistUserStateFromRedisToDb(
 
   // Redis에서 party, itemSlots, costume 파싱
   const party: { id: number }[] = state.party ? JSON.parse(state.party) : [];
-  const itemSlots: { itemId: number }[] = state.itemSlots ? JSON.parse(state.itemSlots) : [];
+  const itemSlots: { itemId: string }[] = state.itemSlots ? JSON.parse(state.itemSlots) : [];
   const costume: { costumeId: string }[] = state.costume ? JSON.parse(state.costume) : [];
 
   await db.transaction(async (tx) => {

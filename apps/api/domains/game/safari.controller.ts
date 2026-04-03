@@ -16,6 +16,16 @@ export class SafariController {
     return reply.status(200).send({ success: true, data });
   };
 
+  catchWild = async (request: FastifyRequest, reply: FastifyReply) => {
+    const { uid, bait, rock } = request.body as {
+      uid: string;
+      bait: boolean;
+      rock: boolean;
+    };
+    const data = await this.service.catchWild(request.authId!, uid, bait, rock);
+    return reply.status(200).send({ success: true, data });
+  };
+
   exit = async (request: FastifyRequest, reply: FastifyReply) => {
     await this.service.exit(request.authId!);
     return reply.status(200).send({ success: true, data: null });

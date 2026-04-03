@@ -5,7 +5,7 @@ import { GameController } from './game.controller';
 import { GameService } from './game.service';
 import { SafariController } from './safari.controller';
 import { SafariService } from './safari.service';
-import { enterSafariSchema, pickItemSchema } from './safari.schema';
+import { enterSafariSchema, pickItemSchema, catchWildSchema } from './safari.schema';
 
 export default async function gameRoutes(app: FastifyInstance) {
   const service = new GameService();
@@ -27,6 +27,11 @@ export default async function gameRoutes(app: FastifyInstance) {
   app.post('/safari/pick-item', {
     preHandler: [sessionAuthGuard, zodValidate(pickItemSchema)],
     handler: safariController.pickItem,
+  });
+
+  app.post('/safari/catch', {
+    preHandler: [sessionAuthGuard, zodValidate(catchWildSchema)],
+    handler: safariController.catchWild,
   });
 
   app.post('/safari/exit', {
