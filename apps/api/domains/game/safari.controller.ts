@@ -10,6 +10,12 @@ export class SafariController {
     return reply.status(200).send({ success: true, data });
   };
 
+  pickItem = async (request: FastifyRequest, reply: FastifyReply) => {
+    const { uid } = request.body as { uid: string };
+    const data = await this.service.pickItem(request.authId!, uid);
+    return reply.status(200).send({ success: true, data });
+  };
+
   exit = async (request: FastifyRequest, reply: FastifyReply) => {
     await this.service.exit(request.authId!);
     return reply.status(200).send({ success: true, data: null });

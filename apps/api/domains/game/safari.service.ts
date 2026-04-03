@@ -1,4 +1,7 @@
 import crypto from 'crypto';
+import { sql } from 'drizzle-orm';
+import { db } from '@poposerver/lib/db';
+import { userItem } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import {
   getGameTime,
@@ -114,6 +117,60 @@ export class SafariService {
     });
 
     return safariData;
+  }
+
+  async pickItem(authId: string, uid: string): Promise<{ itemId: string; newQuantity: number }> {
+    const userState = await getUserState(authId);
+    if (!userState || !userState.mapId.startsWith('s')) {
+      throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
+    }
+
+    const safariData = await getSafariData(authId);
+    if (!safariData) {
+      throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
+    }
+
+    const mapData = safariData[userState.mapId];
+    if (!mapData) {
+      throw new AppError('Safari map data not found', 404, AppErrorCode.NOT_FOUND);
+    }
+
+    const itemIndex = mapData.items.findIndex((item) => item.uid === uid);
+    if (itemIndex === -1) {
+      throw new AppError('Item not found in current map', 404, AppErrorCode.SAFARI_ITEM_NOT_FOUND);
+    }
+
+    const targetItem = mapData.items[itemIndex];
+
+    if (targetItem.picked) {
+      throw new AppError('Item already picked', 409, AppErrorCode.SAFARI_ITEM_ALREADY_PICKED);
+    }
+
+    // Redis: picked = true
+    targetItem.picked = true;
+    await setSafariData(authId, safariData);
+
+    // DB: user_item upsert
+    const accountId = Number(authId);
+    const [result] = await db
+      .insert(userItem)
+      .values({
+        accountId,
+        itemId: targetItem.itemId,
+        quantity: 1,
+      })
+      .onConflictDoUpdate({
+        target: [userItem.accountId, userItem.itemId],
+        set: {
+          quantity: sql`${userItem.quantity} + 1`,
+        },
+      })
+      .returning({ quantity: userItem.quantity });
+
+    return {
+      itemId: targetItem.itemId,
+      newQuantity: result.quantity,
+    };
   }
 
   async exit(authId: string): Promise<void> {

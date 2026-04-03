@@ -5,3 +5,9 @@ export const enterSafariSchema = z.object({
 });
 
 export type EnterSafariInput = z.infer<typeof enterSafariSchema>;
+
+export const pickItemSchema = z.object({
+  uid: z.string().uuid(),
+});
+
+export type PickItemInput = z.infer<typeof pickItemSchema>;

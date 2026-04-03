@@ -1,4 +1,4 @@
-import { pgTable, integer, smallint, primaryKey, check } from 'drizzle-orm/pg-core';
+import { pgTable, integer, smallint, primaryKey, check, varchar } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { account } from './account';
 
@@ -8,7 +8,7 @@ export const userItem = pgTable(
     accountId: integer('account_id')
       .notNull()
       .references(() => account.id),
-    itemId: integer('item_id').notNull(),
+    itemId: varchar('item_id', { length: 64 }).notNull(),
     quantity: integer('quantity').notNull().default(1),
     slotNumber: smallint('slot_number'),
   },
