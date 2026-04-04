@@ -8,4 +8,10 @@ export class ItemController {
     const data = await this.itemService.getBag(request.authId);
     return reply.status(200).send({ success: true, data });
   };
+
+  sell = async (request: FastifyRequest, reply: FastifyReply) => {
+    const body = request.body as { item: string; quantity: number };
+    const data = await this.itemService.sell(request.authId, body);
+    return reply.status(200).send({ success: true, data });
+  };
 }
