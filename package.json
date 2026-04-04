@@ -17,7 +17,7 @@
     "db:test:down": "docker compose -f docker/dev/docker-compose.yml stop postgres-test redis-test",
     "db:push:dev": "dotenv -e .env.dev -- drizzle-kit push",
     "db:push:prod": "dotenv -e docker/prod/.env.prod -- drizzle-kit push",
-    "db:generate": "dotenv -e .env.dev -- drizzle-kit generate",
+    "db:generate": "dotenv -e docker/prod/.env.prod -- drizzle-kit generate",
     "db:migrate:dev": "dotenv -e .env.dev -- drizzle-kit migrate",
     "db:migrate:prod": "dotenv -e docker/prod/.env.prod -- drizzle-kit migrate",
     "db:studio": "dotenv -e .env.dev -- drizzle-kit studio",
