@@ -78,8 +78,7 @@ export class SafariService {
         const pokemonData = MasterData.getPokemon(pokedexId);
         const gender = pokemonData ? rollGender(pokemonData.rateMale, pokemonData.rateFemale) : 0;
         const nature = pickOne(PokemonNatural);
-        const ability =
-          pokemonData?.ability.length ? pickOne(pokemonData.ability) : '';
+        const ability = pokemonData?.ability.length ? pickOne(pokemonData.ability) : '';
         const wildLevel = Math.min(100, Math.max(1, randomInt(userLevel - 10, userLevel + 10)));
         return {
           uid: crypto.randomUUID(),
@@ -324,9 +323,7 @@ export class SafariService {
           .from(userPokemon)
           .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.boxNumber)));
 
-        const occupied = new Set(
-          existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`),
-        );
+        const occupied = new Set(existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`));
         let targetBox = 1;
         let targetGrid = 1;
         const MAX_BOX = 30;

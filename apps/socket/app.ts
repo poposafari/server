@@ -366,6 +366,16 @@ export class SocketApp {
           socket.emit('init_room_state', { users: roomStates });
 
           const state = await getUserState(userId);
+
+          if (state) {
+            const visited: number[] = state.visitedMaps ? JSON.parse(state.visitedMaps) : [];
+            const targetMapIdNum = Number(targetMapId);
+            if (!visited.includes(targetMapIdNum)) {
+              visited.push(targetMapIdNum);
+              await this.redis.hset(`user:${userId}:state`, 'visitedMaps', JSON.stringify(visited));
+            }
+          }
+
           const userJoinedPayload = state
             ? {
                 userId,

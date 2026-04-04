@@ -1,6 +1,9 @@
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, AppErrorMessage, PokemonGender, UserStartLocation } from '@poposerver/lib/types';
 import { setUserState } from '@poposerver/lib/redis';
+import { eq } from 'drizzle-orm';
+import { db } from '@poposerver/lib/db';
+import { userTownMap } from '@poposerver/lib/schema';
 import { UserRepository } from './user.repository';
 import { CreateUserInput } from './user.schema';
 
@@ -82,6 +85,12 @@ export class UserService {
 
     const { profile, equippedCostumes, party, itemSlots } = result;
 
+    const visitedMapRows = await db
+      .select({ mapId: userTownMap.mapId })
+      .from(userTownMap)
+      .where(eq(userTownMap.accountId, accountId));
+    const visitedMapIds = visitedMapRows.map((r) => r.mapId);
+
     await setUserState(
       authId,
       {
@@ -98,6 +107,7 @@ export class UserService {
         pet: '',
         createdAt: new Date().toISOString(),
         lastMoveTime: String(Date.now()),
+        visitedMaps: JSON.stringify(visitedMapIds),
       },
     );
 

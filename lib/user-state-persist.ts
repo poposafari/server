@@ -1,6 +1,6 @@
 import { eq, sql, and, notInArray, isNotNull, inArray } from 'drizzle-orm';
 import { db } from './db';
-import { user, userPokemon, userItem, userCostume } from './schema';
+import { user, userPokemon, userItem, userCostume, userTownMap } from './schema';
 import { getUserState, deleteUserState } from './redis';
 import { logger } from './utils/logger';
 
@@ -77,9 +77,7 @@ export async function persistUserStateFromRedisToDb(
       await tx
         .update(userItem)
         .set({ slotNumber: slot })
-        .where(
-          and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemSlots[slot].itemId)),
-        );
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemSlots[slot].itemId)));
     }
     if (slotItemIds.length > 0) {
       await tx
@@ -99,7 +97,19 @@ export async function persistUserStateFromRedisToDb(
         .where(and(eq(userItem.accountId, accountId), isNotNull(userItem.slotNumber)));
     }
 
-    // 4. costume → user_costume.is_equipped
+    // 4. visitedMaps → user_town_map
+    const visitedMaps: number[] = state.visitedMaps ? JSON.parse(state.visitedMaps) : [];
+    if (visitedMaps.length > 0) {
+      const values = visitedMaps.map((mapId) => ({ accountId, mapId }));
+      await tx
+        .insert(userTownMap)
+        .values(values)
+        .onConflictDoNothing({
+          target: [userTownMap.accountId, userTownMap.mapId],
+        });
+    }
+
+    // 5. costume → user_costume.is_equipped
     const equippedCostumeIds = costume.map((c) => c.costumeId);
     if (equippedCostumeIds.length > 0) {
       await tx

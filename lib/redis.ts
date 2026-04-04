@@ -63,6 +63,7 @@ export interface UserState {
   pet: string;
   createdAt: string;
   lastMoveTime: string;
+  visitedMaps: string;
 }
 
 const USER_STATE_FIELDS: (keyof UserState)[] = [
@@ -79,6 +80,7 @@ const USER_STATE_FIELDS: (keyof UserState)[] = [
   'pet',
   'createdAt',
   'lastMoveTime',
+  'visitedMaps',
 ];
 
 function toUserState(raw: Record<string, string>): UserState | null {
