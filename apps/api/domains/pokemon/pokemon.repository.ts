@@ -3,6 +3,14 @@ import { userPokemon } from '@poposerver/lib/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 
 export class PokemonRepository {
+  async findByIdAndAccount(id: number, accountId: number) {
+    const [row] = await db
+      .select()
+      .from(userPokemon)
+      .where(and(eq(userPokemon.id, id), eq(userPokemon.accountId, accountId)));
+    return row ?? null;
+  }
+
   async findBoxByAccountId(accountId: number) {
     return db
       .select({
