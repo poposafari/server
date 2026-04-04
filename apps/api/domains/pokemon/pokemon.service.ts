@@ -3,8 +3,28 @@ import { db } from '@poposerver/lib/db';
 import { userPokemon, userItem } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
-import { AppErrorCode } from '@poposerver/lib/types';
+import { AppErrorCode, PokemonTier } from '@poposerver/lib/types';
 import { PokemonRepository } from './pokemon.repository';
+
+const TIER_BASE_REWARD: Record<PokemonTier, number> = {
+  common: 1,
+  rare: 3,
+  epic: 6,
+  legendary: 10,
+  mythical: 10,
+};
+
+function getLevelBonus(level: number): number {
+  if (level <= 20) return 0;
+  if (level <= 40) return 1;
+  if (level <= 60) return 2;
+  if (level <= 80) return 4;
+  return 7;
+}
+
+function calcSellReward(level: number, tier: PokemonTier): number {
+  return TIER_BASE_REWARD[tier] + getLevelBonus(level);
+}
 
 export class PokemonService {
   constructor(private readonly repo: PokemonRepository) {}
@@ -107,6 +127,43 @@ export class PokemonService {
     });
 
     return result;
+  }
+
+  async sell(authId: string, body: { id: number }) {
+    const accountId = Number(authId);
+
+    const pokemon = await this.repo.findByIdAndAccount(body.id, accountId);
+    if (!pokemon) {
+      throw new AppError('Pokemon not found', 404, AppErrorCode.POKEMON_NOT_FOUND);
+    }
+
+    if (pokemon.partySlot !== null) {
+      throw new AppError('Cannot sell a party pokemon', 400, AppErrorCode.POKEMON_IN_PARTY);
+    }
+
+    const masterPokemon = MasterData.getPokemon(pokemon.pokedexId);
+    if (!masterPokemon) {
+      throw new AppError('Pokemon master data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    const candyItemId = `${masterPokemon.type1}-candy`;
+    const reward = calcSellReward(pokemon.level, masterPokemon.tier);
+
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(userPokemon)
+        .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)));
+
+      await tx
+        .insert(userItem)
+        .values({ accountId, itemId: candyItemId, quantity: reward })
+        .onConflictDoUpdate({
+          target: [userItem.accountId, userItem.itemId],
+          set: { quantity: sql`${userItem.quantity} + ${reward}` },
+        });
+    });
+
+    return { candyId: candyItemId, quantity: reward };
   }
 
   async learnMove(authId: string, body: { id: number; move: string }) {
