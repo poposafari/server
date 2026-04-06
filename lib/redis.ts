@@ -44,8 +44,12 @@ export class RedisKey {
     return `conn:${tokenId}`;
   }
 
-  static safari(authId: string): string {
-    return `safari:${authId}`;
+  static safariMap(authId: string, mapId: string): string {
+    return `safari:${authId}:${mapId}`;
+  }
+
+  static safariVisited(authId: string): string {
+    return `safari:${authId}:visited`;
   }
 }
 
@@ -298,21 +302,33 @@ export interface SafariMapData {
   items: SafariItem[];
 }
 
-export type SafariData = Record<string, SafariMapData>;
-
-export async function setSafariData(authId: string, data: SafariData): Promise<void> {
-  const key = RedisKey.safari(authId);
-  await RedisClient.set(key, JSON.stringify(data));
+export async function setSafariMapData(
+  authId: string,
+  mapId: string,
+  data: SafariMapData,
+): Promise<void> {
+  const pipeline = RedisClient.pipeline();
+  pipeline.set(RedisKey.safariMap(authId, mapId), JSON.stringify(data));
+  pipeline.sadd(RedisKey.safariVisited(authId), mapId);
+  await pipeline.exec();
 }
 
-export async function getSafariData(authId: string): Promise<SafariData | null> {
-  const key = RedisKey.safari(authId);
-  const raw = await RedisClient.get(key);
+export async function getSafariMapData(
+  authId: string,
+  mapId: string,
+): Promise<SafariMapData | null> {
+  const raw = await RedisClient.get(RedisKey.safariMap(authId, mapId));
   if (!raw) return null;
-  return JSON.parse(raw) as SafariData;
+  return JSON.parse(raw) as SafariMapData;
 }
 
-export async function deleteSafariData(authId: string): Promise<void> {
-  const key = RedisKey.safari(authId);
-  await RedisClient.del(key);
+export async function getSafariVisitedMaps(authId: string): Promise<string[]> {
+  return RedisClient.smembers(RedisKey.safariVisited(authId));
+}
+
+export async function deleteAllSafariData(authId: string): Promise<void> {
+  const visited = await RedisClient.smembers(RedisKey.safariVisited(authId));
+  const keys = visited.map((mapId) => RedisKey.safariMap(authId, mapId));
+  keys.push(RedisKey.safariVisited(authId));
+  await RedisClient.del(...keys);
 }

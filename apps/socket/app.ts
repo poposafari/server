@@ -339,10 +339,10 @@ export class SocketApp {
           return;
         }
 
-        if (!isValidChangeMapTarget(targetMapId, x, y)) {
-          socket.emit('change_map_error', { message: 'Spawn position not allowed' });
-          return;
-        }
+        // if (!isValidChangeMapTarget(targetMapId, x, y)) {
+        //   socket.emit('change_map_error', { message: 'Spawn position not allowed' });
+        //   return;
+        // }
 
         try {
           await removeUserFromRoom(roomId, userId);
@@ -368,10 +368,9 @@ export class SocketApp {
           const state = await getUserState(userId);
 
           if (state) {
-            const visited: number[] = state.visitedMaps ? JSON.parse(state.visitedMaps) : [];
-            const targetMapIdNum = Number(targetMapId);
-            if (!visited.includes(targetMapIdNum)) {
-              visited.push(targetMapIdNum);
+            const visited: string[] = state.visitedMaps ? JSON.parse(state.visitedMaps) : [];
+            if (!visited.includes(targetMapId)) {
+              visited.push(targetMapId);
               await this.redis.hset(`user:${userId}:state`, 'visitedMaps', JSON.stringify(visited));
             }
           }

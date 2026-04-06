@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { buildApp } from 'apps/api/app';
 import { db } from '@poposerver/lib/db';
 import { connectDB } from '@poposerver/lib/db';
-import { RedisClient, connectRedis, RedisKey, getUserState, getSafariData } from '@poposerver/lib/redis';
+import { RedisClient, connectRedis, RedisKey, getUserState, getSafariMapData, getSafariVisitedMaps } from '@poposerver/lib/redis';
 import { account, user } from '@poposerver/lib/schema';
 import { eq } from 'drizzle-orm';
 import { MasterData } from '@poposerver/lib/utils/master-data';
@@ -447,8 +447,8 @@ describe('POST /api/game/safari/exit', () => {
     expect(state?.mapId).toBe('p001');
 
     // Redis 확인: 사파리 데이터 삭제됨
-    const safariData = await getSafariData(authId);
-    expect(safariData).toBeNull();
+    const visited = await getSafariVisitedMaps(authId);
+    expect(visited).toHaveLength(0);
   });
 
   it('사파리가 아닌 곳에서 퇴장 시도 → 400 NOT_IN_SAFARI', async () => {

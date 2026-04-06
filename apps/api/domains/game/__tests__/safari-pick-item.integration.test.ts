@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { buildApp } from 'apps/api/app';
 import { db } from '@poposerver/lib/db';
 import { connectDB } from '@poposerver/lib/db';
-import { RedisClient, connectRedis, RedisKey, getUserState, getSafariData } from '@poposerver/lib/redis';
+import { RedisClient, connectRedis, RedisKey, getUserState, getSafariMapData } from '@poposerver/lib/redis';
 import { account, user, userItem } from '@poposerver/lib/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { MasterData } from '@poposerver/lib/utils/master-data';
@@ -108,13 +108,9 @@ async function enterSafariAndGetItemUid(
     payload: { mapId: 's001' },
   });
 
-  const safariData = await getSafariData(authId);
-  if (!safariData) return null;
-
-  // 현재 유저가 있는 맵(s001)에서 아이템 찾기
   const state = await getUserState(authId);
   const mapId = state!.mapId;
-  const mapData = safariData[mapId];
+  const mapData = await getSafariMapData(authId, mapId);
   if (!mapData || mapData.items.length === 0) return null;
 
   return {
@@ -165,8 +161,8 @@ describe('POST /api/game/safari/pick-item', () => {
       payload: { uid: itemInfo.uid },
     });
 
-    const safariData = await getSafariData(authId);
-    const item = safariData![itemInfo.mapId].items.find((i) => i.uid === itemInfo.uid);
+    const mapData = await getSafariMapData(authId, itemInfo.mapId);
+    const item = mapData!.items.find((i) => i.uid === itemInfo.uid);
     expect(item!.picked).toBe(true);
   });
 

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const enterSafariSchema = z.object({
   mapId: z.string().regex(/^s\d{3}$/),
+  needEntry: z.boolean(),
 });
 
 export type EnterSafariInput = z.infer<typeof enterSafariSchema>;

@@ -98,7 +98,9 @@ export async function persistUserStateFromRedisToDb(
     }
 
     // 4. visitedMaps → user_town_map
-    const visitedMaps: number[] = state.visitedMaps ? JSON.parse(state.visitedMaps) : [];
+    const visitedMaps: string[] = (state.visitedMaps ? JSON.parse(state.visitedMaps) : []).filter(
+      (mapId: string | null): mapId is string => mapId != null,
+    );
     if (visitedMaps.length > 0) {
       const values = visitedMaps.map((mapId) => ({ accountId, mapId }));
       await tx

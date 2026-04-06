@@ -7,10 +7,10 @@ import {
   getGameTime,
   getUserState,
   updateUserStateMap,
-  setSafariData,
-  getSafariData,
-  deleteSafariData,
-  SafariData,
+  setSafariMapData,
+  getSafariMapData,
+  deleteAllSafariData,
+  SafariMapData,
   SafariWild,
   SafariItem,
 } from '@poposerver/lib/redis';
@@ -34,10 +34,19 @@ import { AppError } from '@poposerver/lib/utils/error';
 type CatchResult = 'caught' | 'fail' | 'flee';
 
 export class SafariService {
-  async enter(authId: string, mapId: string): Promise<SafariData> {
-    // 1-a. 검증: 현재 사용자가 plaza(p로 시작)에 있는지 확인
+  async enter(
+    authId: string,
+    mapId: string,
+    needEntry: boolean,
+  ): Promise<{ mapData: SafariMapData; entry?: { x: number; y: number } }> {
+    // 1-a. 검증: 현재 사용자가 plaza 또는 safari에 있는지 확인
     const userState = await getUserState(authId);
-    if (!userState || !userState.mapId.startsWith('p')) {
+    if (!userState) {
+      throw new AppError('Must be in plaza to enter safari', 400, AppErrorCode.NOT_IN_PLAZA);
+    }
+
+    const currentPrefix = userState.mapId[0];
+    if (currentPrefix !== 'p' && currentPrefix !== 's') {
       throw new AppError('Must be in plaza to enter safari', 400, AppErrorCode.NOT_IN_PLAZA);
     }
 
@@ -51,27 +60,20 @@ export class SafariService {
       throw new AppError('Map not found', 404, AppErrorCode.NOT_FOUND);
     }
 
-    // 2. 이미 사파리에 있는지 확인
-    const existing = await getSafariData(authId);
-    if (existing) {
-      throw new AppError('Already in safari zone', 409, AppErrorCode.ALREADY_IN_SAFARI);
-    }
+    // 2. 해당 맵 데이터가 이미 있으면 데이터 유지, 위치만 이동
+    let mapData = await getSafariMapData(authId, mapId);
 
-    // 3. 유저 레벨 조회 (Redis user state)
-    const userLevel = Number(userState.level) || 1;
+    if (!mapData) {
+      // 3. 유저 레벨 조회
+      const userLevel = Number(userState.level) || 1;
 
-    // 4. 현재 게임 시간 조회
-    const timeOfDay = ((await getGameTime()) ?? TimeOfDay.DAY) as TimeOfDay;
-    const weather: Weather = Weather.SUNNY; // TODO: 날씨 시스템 구현 후 교체
+      // 4. 현재 게임 시간 조회
+      const timeOfDay = ((await getGameTime()) ?? TimeOfDay.DAY) as TimeOfDay;
+      const weather: Weather = Weather.SUNNY; // TODO: 날씨 시스템 구현 후 교체
 
-    // 5. 모든 사파리 존 맵에 대해 생성
-    const allMaps = MasterData.getAllMaps().filter((m) => m.id.startsWith('s'));
-    const safariData: SafariData = {};
-
-    for (const map of allMaps) {
-      // 야생 포켓몬 생성
-      const wildPool = map.wild[timeOfDay]?.[weather] ?? [];
-      const wildCount = wildPool.length > 0 ? randomInt(map.wild.min, map.wild.max) : 0;
+      // 5. 요청 맵에 대해서만 야생 포켓몬 생성
+      const wildPool = targetMap.wild[timeOfDay]?.[weather] ?? [];
+      const wildCount = wildPool.length > 0 ? randomInt(targetMap.wild.min, targetMap.wild.max) : 0;
       const selectedPokemons = pickRandom(wildPool, wildCount);
 
       const wilds: SafariWild[] = selectedPokemons.map((pokedexId) => {
@@ -95,8 +97,8 @@ export class SafariService {
       });
 
       // 아이템 생성
-      const itemPool = map.item.spawn ?? [];
-      const itemCount = itemPool.length > 0 ? randomInt(map.item.min, map.item.max) : 0;
+      const itemPool = targetMap.item.spawn ?? [];
+      const itemCount = itemPool.length > 0 ? randomInt(targetMap.item.min, targetMap.item.max) : 0;
       const selectedItems = pickRandom(itemPool, itemCount);
 
       const items: SafariItem[] = selectedItems.map((itemId) => ({
@@ -105,22 +107,29 @@ export class SafariService {
         picked: false,
       }));
 
-      safariData[map.id] = { wilds, items };
+      mapData = { wilds, items };
+      await setSafariMapData(authId, mapId, mapData);
     }
 
-    // 6. Redis에 사파리 데이터 저장
-    await setSafariData(authId, safariData);
+    // 6. 사용자 위치 업데이트
+    if (needEntry) {
+      const entry = targetMap.entry ?? { x: UserStartLocation.x, y: UserStartLocation.y };
+      await updateUserStateMap(authId, {
+        mapId,
+        x: String(entry.x),
+        y: String(entry.y),
+        lastMoveTime: String(Date.now()),
+      });
+      return { mapData, entry };
+    }
 
-    // 7. 사용자 위치를 요청한 사파리 맵의 entry로 업데이트
-    const entry = targetMap.entry ?? { x: UserStartLocation.x, y: UserStartLocation.y };
-    await updateUserStateMap(authId, {
-      mapId,
-      x: String(entry.x),
-      y: String(entry.y),
-      lastMoveTime: String(Date.now()),
-    });
-
-    return safariData;
+    // await updateUserStateMap(authId, {
+    //   mapId,
+    //   x: String(userState.x),
+    //   y: String(userState.y),
+    //   lastMoveTime: String(Date.now()),
+    // });
+    return { mapData };
   }
 
   async pickItem(authId: string, uid: string): Promise<{ itemId: string; newQuantity: number }> {
@@ -129,12 +138,8 @@ export class SafariService {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
-    const safariData = await getSafariData(authId);
-    if (!safariData) {
-      throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
-    }
-
-    const mapData = safariData[userState.mapId];
+    const mapId = userState.mapId;
+    const mapData = await getSafariMapData(authId, mapId);
     if (!mapData) {
       throw new AppError('Safari map data not found', 404, AppErrorCode.NOT_FOUND);
     }
@@ -152,7 +157,7 @@ export class SafariService {
 
     // Redis: picked = true
     targetItem.picked = true;
-    await setSafariData(authId, safariData);
+    await setSafariMapData(authId, mapId, mapData);
 
     // DB: user_item upsert
     const accountId = Number(authId);
@@ -195,9 +200,10 @@ export class SafariService {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
-    const safariData = await getSafariData(authId);
-    if (!safariData) {
-      throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
+    const mapId = userState.mapId;
+    const mapData = await getSafariMapData(authId, mapId);
+    if (!mapData) {
+      throw new AppError('Safari map data not found', 404, AppErrorCode.NOT_FOUND);
     }
 
     // 2. 사파리볼 보유 확인
@@ -208,12 +214,6 @@ export class SafariService {
 
     if (!safariBall || safariBall.quantity <= 0) {
       throw new AppError('No safari balls', 400, AppErrorCode.SAFARI_BALL_NOT_FOUND);
-    }
-
-    // 3. 현재 맵에서 해당 야생 포켓몬 찾기
-    const mapData = safariData[userState.mapId];
-    if (!mapData) {
-      throw new AppError('Safari map data not found', 404, AppErrorCode.NOT_FOUND);
     }
 
     const wildIndex = mapData.wilds.findIndex((w) => w.uid === uid);
@@ -288,7 +288,7 @@ export class SafariService {
     } else {
       wild.caught = 2;
     }
-    await setSafariData(authId, safariData);
+    await setSafariMapData(authId, mapId, mapData);
 
     // 9. DB 트랜잭션
     if (result === 'caught') {
@@ -454,15 +454,15 @@ export class SafariService {
     return maxBonus;
   }
 
-  async exit(authId: string): Promise<void> {
+  async exit(authId: string): Promise<{ mapId: string; entry: { x: number; y: number } }> {
     // 1. 현재 사파리 존에 있는지 확인
     const userState = await getUserState(authId);
     if (!userState || !userState.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
-    // 2. 사파리 데이터 삭제
-    await deleteSafariData(authId);
+    // 2. 사파리 데이터 전체 삭제
+    await deleteAllSafariData(authId);
 
     // 3. p001로 위치 이동
     const p001 = MasterData.getMap('p001');
@@ -473,5 +473,7 @@ export class SafariService {
       y: String(entry.y),
       lastMoveTime: String(Date.now()),
     });
+
+    return { mapId: 'p001', entry };
   }
 }
