@@ -17,12 +17,20 @@ export class SafariController {
   };
 
   catchWild = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { uid, bait, rock } = request.body as {
-      uid: string;
-      bait: boolean;
-      rock: boolean;
-    };
-    const data = await this.service.catchWild(request.authId!, uid, bait, rock);
+    const { uid } = request.body as { uid: string };
+    const data = await this.service.catchWild(request.authId!, uid);
+    return reply.status(200).send({ success: true, data });
+  };
+
+  baitWild = async (request: FastifyRequest, reply: FastifyReply) => {
+    const { uid } = request.body as { uid: string };
+    const data = await this.service.baitWild(request.authId!, uid);
+    return reply.status(200).send({ success: true, data });
+  };
+
+  rockWild = async (request: FastifyRequest, reply: FastifyReply) => {
+    const { uid } = request.body as { uid: string };
+    const data = await this.service.rockWild(request.authId!, uid);
     return reply.status(200).send({ success: true, data });
   };
 

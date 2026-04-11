@@ -32,6 +32,7 @@ import {
 import { AppError } from '@poposerver/lib/utils/error';
 
 type CatchResult = 'caught' | 'fail' | 'flee';
+type FleeResult = 'flee' | 'stay';
 
 export class SafariService {
   async enter(
@@ -185,8 +186,6 @@ export class SafariService {
   async catchWild(
     authId: string,
     uid: string,
-    bait: boolean,
-    rock: boolean,
   ): Promise<{
     result: CatchResult;
     pokemon?: typeof userPokemon.$inferSelect;
@@ -262,19 +261,12 @@ export class SafariService {
       partyBonus = this.calculatePartyBonus(bonusData);
     }
 
-    // 6. bait/rock 업데이트 (둘 다 true면 bait 우선)
-    if (bait && rock) {
-      rock = false;
-    }
-    wild.bait = bait;
-    wild.rock = rock;
-
-    // 7. 확률 계산 및 판정
+    // 6. 확률 계산 및 판정 (Redis에 저장된 bait/rock 상태 사용)
     const result = this.calculateCatchResult(
       pokemonData.rateCapture,
       pokemonData.rateFlee,
-      bait,
-      rock,
+      wild.bait,
+      wild.rock,
       partyBonus,
     );
 
@@ -402,6 +394,69 @@ export class SafariService {
 
       return { result };
     }
+  }
+
+  async baitWild(authId: string, uid: string): Promise<{ result: FleeResult }> {
+    return this.applyBaitOrRock(authId, uid, 'bait');
+  }
+
+  async rockWild(authId: string, uid: string): Promise<{ result: FleeResult }> {
+    return this.applyBaitOrRock(authId, uid, 'rock');
+  }
+
+  private async applyBaitOrRock(
+    authId: string,
+    uid: string,
+    kind: 'bait' | 'rock',
+  ): Promise<{ result: FleeResult }> {
+    const userState = await getUserState(authId);
+    if (!userState || !userState.mapId.startsWith('s')) {
+      throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
+    }
+
+    const mapId = userState.mapId;
+    const mapData = await getSafariMapData(authId, mapId);
+    if (!mapData) {
+      throw new AppError('Safari map data not found', 404, AppErrorCode.NOT_FOUND);
+    }
+
+    const wild = mapData.wilds.find((w) => w.uid === uid);
+    if (!wild) {
+      throw new AppError('Wild pokemon not found', 404, AppErrorCode.SAFARI_WILD_NOT_FOUND);
+    }
+    if (wild.caught === 1) {
+      throw new AppError('Already caught', 409, AppErrorCode.SAFARI_WILD_ALREADY_CAUGHT);
+    }
+    if (wild.caught === 2) {
+      throw new AppError('Already fled', 409, AppErrorCode.SAFARI_WILD_ALREADY_FLED);
+    }
+
+    // 플래그 업데이트 (배타적: bait/rock 중 하나만 true)
+    if (kind === 'bait') {
+      wild.bait = true;
+      wild.rock = false;
+    } else {
+      wild.bait = false;
+      wild.rock = true;
+    }
+
+    const pokemonData = MasterData.getPokemon(wild.pokedexId);
+    if (!pokemonData) {
+      throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    // 도망 확률만 계산 (bait 우선)
+    let fleeMul = 1.0;
+    if (wild.bait) fleeMul = 0.5;
+    else if (wild.rock) fleeMul = 2.0;
+
+    const finalFlee = Math.min(pokemonData.rateFlee * fleeMul, 0.9);
+    const fled = Math.random() < finalFlee;
+
+    if (fled) wild.caught = 2;
+    await setSafariMapData(authId, mapId, mapData);
+
+    return { result: fled ? 'flee' : 'stay' };
   }
 
   private calculateCatchResult(

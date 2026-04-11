@@ -5,7 +5,13 @@ import { GameController } from './game.controller';
 import { GameService } from './game.service';
 import { SafariController } from './safari.controller';
 import { SafariService } from './safari.service';
-import { enterSafariSchema, pickItemSchema, catchWildSchema } from './safari.schema';
+import {
+  enterSafariSchema,
+  pickItemSchema,
+  catchWildSchema,
+  baitWildSchema,
+  rockWildSchema,
+} from './safari.schema';
 
 export default async function gameRoutes(app: FastifyInstance) {
   const service = new GameService();
@@ -32,6 +38,16 @@ export default async function gameRoutes(app: FastifyInstance) {
   app.post('/safari/catch', {
     preHandler: [sessionAuthGuard, zodValidate(catchWildSchema)],
     handler: safariController.catchWild,
+  });
+
+  app.post('/safari/bait', {
+    preHandler: [sessionAuthGuard, zodValidate(baitWildSchema)],
+    handler: safariController.baitWild,
+  });
+
+  app.post('/safari/rock', {
+    preHandler: [sessionAuthGuard, zodValidate(rockWildSchema)],
+    handler: safariController.rockWild,
   });
 
   app.post('/safari/exit', {

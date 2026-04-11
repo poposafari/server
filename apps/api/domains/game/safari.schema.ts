@@ -15,8 +15,18 @@ export type PickItemInput = z.infer<typeof pickItemSchema>;
 
 export const catchWildSchema = z.object({
   uid: z.string().uuid(),
-  bait: z.boolean(),
-  rock: z.boolean(),
 });
 
 export type CatchWildInput = z.infer<typeof catchWildSchema>;
+
+export const baitWildSchema = z.object({
+  uid: z.string().uuid(),
+});
+
+export type BaitWildInput = z.infer<typeof baitWildSchema>;
+
+export const rockWildSchema = z.object({
+  uid: z.string().uuid(),
+});
+
+export type RockWildInput = z.infer<typeof rockWildSchema>;
