@@ -83,7 +83,7 @@ export class UserService {
       );
     }
 
-    const { profile, equippedCostumes, party, itemSlots } = result;
+    const { profile, equippedCostumes, party, itemSlots, essentialItems } = result;
 
     const visitedMapRows = await db
       .select({ mapId: userTownMap.mapId })
@@ -111,6 +111,6 @@ export class UserService {
       },
     );
 
-    return { profile, equippedCostumes, party, itemSlots };
+    return { profile, equippedCostumes, party, itemSlots, essentialItems };
   }
 }

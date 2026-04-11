@@ -1,6 +1,6 @@
 import { db } from '@poposerver/lib/db';
 import { user, userCostume, userPokemon, userItem } from '@poposerver/lib/schema';
-import { eq, and, isNotNull } from 'drizzle-orm';
+import { eq, and, or, isNotNull, like } from 'drizzle-orm';
 
 export class UserRepository {
   async findByAccountId(accountId: number) {
@@ -76,9 +76,7 @@ export class UserRepository {
         costumeId: userCostume.costumeId,
       })
       .from(userCostume)
-      .where(
-        and(eq(userCostume.accountId, accountId), eq(userCostume.isEquipped, true)),
-      );
+      .where(and(eq(userCostume.accountId, accountId), eq(userCostume.isEquipped, true)));
 
     // 3. 파티 포켓몬 조회
     const party = await db
@@ -97,9 +95,7 @@ export class UserRepository {
         ballId: userPokemon.ballId,
       })
       .from(userPokemon)
-      .where(
-        and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)),
-      )
+      .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)))
       .orderBy(userPokemon.partySlot);
 
     // 4. 단축 슬롯 아이템 조회
@@ -110,11 +106,23 @@ export class UserRepository {
         slotNumber: userItem.slotNumber,
       })
       .from(userItem)
-      .where(
-        and(eq(userItem.accountId, accountId), isNotNull(userItem.slotNumber)),
-      )
+      .where(and(eq(userItem.accountId, accountId), isNotNull(userItem.slotNumber)))
       .orderBy(userItem.slotNumber);
 
-    return { profile, equippedCostumes, party, itemSlots };
+    const essentialItems = await db
+      .select({
+        itemId: userItem.itemId,
+        quantity: userItem.quantity,
+        slotNumber: userItem.slotNumber,
+      })
+      .from(userItem)
+      .where(
+        and(
+          eq(userItem.accountId, accountId),
+          or(eq(userItem.itemId, 'safari-ball'), like(userItem.itemId, '%-candy')),
+        ),
+      );
+
+    return { profile, equippedCostumes, party, itemSlots, essentialItems };
   }
 }
