@@ -38,9 +38,29 @@
     "type": "safari",
     "cost": 0,
     "item": {
-      "min": 3,
-      "max": 5,
-      "spawn": ["occa-berry", "chople-berry"]
+      "min": 0,
+      "max": 2,
+      "spawn": [
+        "safari-ball",
+        "normal-candy",
+        "fire-candy",
+        "water-candy",
+        "grass-candy",
+        "electric-candy",
+        "ice-candy",
+        "fighting-candy",
+        "poison-candy",
+        "ground-candy",
+        "flying-candy",
+        "psychic-candy",
+        "bug-candy",
+        "rock-candy",
+        "ghost-candy",
+        "dragon-candy",
+        "dark-candy",
+        "steel-candy",
+        "fairy-candy"
+      ]
     },
     "wild": {
       "min": 3,
@@ -68,13 +88,33 @@
     }
   },
   "s002": {
-    "comment": "1번도로",
+    "comment": "숲1",
     "type": "safari",
     "cost": 0,
     "item": {
-      "min": 3,
-      "max": 5,
-      "spawn": ["occa-berry", "chople-berry"]
+      "min": 0,
+      "max": 2,
+      "spawn": [
+        "safari-ball",
+        "normal-candy",
+        "fire-candy",
+        "water-candy",
+        "grass-candy",
+        "electric-candy",
+        "ice-candy",
+        "fighting-candy",
+        "poison-candy",
+        "ground-candy",
+        "flying-candy",
+        "psychic-candy",
+        "bug-candy",
+        "rock-candy",
+        "ghost-candy",
+        "dragon-candy",
+        "dark-candy",
+        "steel-candy",
+        "fairy-candy"
+      ]
     },
     "wild": {
       "min": 3,
