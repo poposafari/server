@@ -4,7 +4,7 @@ import { zodValidate } from '../../hooks/validate.hook';
 import { PokemonController } from './pokemon.controller';
 import { PokemonService } from './pokemon.service';
 import { PokemonRepository } from './pokemon.repository';
-import { evolveSchema, learnMoveSchema, sellSchema } from './pokemon.schema';
+import { arrangeSchema, evolveSchema, learnMoveSchema, sellSchema } from './pokemon.schema';
 
 export default async function pokemonRoutes(app: FastifyInstance) {
   const repo = new PokemonRepository();
@@ -16,6 +16,11 @@ export default async function pokemonRoutes(app: FastifyInstance) {
     handler: controller.getBox,
   });
 
+  app.get('/box/meta', {
+    preHandler: [sessionAuthGuard],
+    handler: controller.getBoxMeta,
+  });
+
   app.post('/evolve', {
     preHandler: [sessionAuthGuard, zodValidate(evolveSchema)],
     handler: controller.evolve,
@@ -24,6 +29,11 @@ export default async function pokemonRoutes(app: FastifyInstance) {
   app.post('/sell', {
     preHandler: [sessionAuthGuard, zodValidate(sellSchema)],
     handler: controller.sell,
+  });
+
+  app.patch('/box/arrange', {
+    preHandler: [sessionAuthGuard, zodValidate(arrangeSchema)],
+    handler: controller.arrange,
   });
 
   app.post('/learn-move', {

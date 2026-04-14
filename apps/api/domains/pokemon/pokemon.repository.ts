@@ -1,6 +1,6 @@
 import { db } from '@poposerver/lib/db';
-import { userPokemon } from '@poposerver/lib/schema';
-import { eq, and, isNull } from 'drizzle-orm';
+import { userPokemon, userBoxMeta } from '@poposerver/lib/schema';
+import { eq, and, isNull, inArray, isNotNull, notInArray, sql } from 'drizzle-orm';
 
 export class PokemonRepository {
   async findByIdAndAccount(id: number, accountId: number) {
@@ -35,5 +35,65 @@ export class PokemonRepository {
         and(eq(userPokemon.accountId, accountId), isNull(userPokemon.partySlot)),
       )
       .orderBy(userPokemon.boxNumber, userPokemon.gridNumber);
+  }
+
+  async findByIdsAndAccount(ids: number[], accountId: number) {
+    return db
+      .select({ id: userPokemon.id })
+      .from(userPokemon)
+      .where(and(inArray(userPokemon.id, ids), eq(userPokemon.accountId, accountId)));
+  }
+
+  async findPartyByAccountId(accountId: number) {
+    return db
+      .select({ id: userPokemon.id, partySlot: userPokemon.partySlot })
+      .from(userPokemon)
+      .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)))
+      .orderBy(userPokemon.partySlot);
+  }
+
+  async findBoxMetaByAccountId(accountId: number) {
+    return db
+      .select({
+        boxNumber: userBoxMeta.boxNumber,
+        wallpaper: userBoxMeta.wallpaper,
+        name: userBoxMeta.name,
+      })
+      .from(userBoxMeta)
+      .where(eq(userBoxMeta.accountId, accountId))
+      .orderBy(userBoxMeta.boxNumber);
+  }
+
+  async upsertBoxMeta(
+    tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+    accountId: number,
+    meta: { boxNumber: number; wallpaper: number; name: string },
+  ) {
+    await tx
+      .insert(userBoxMeta)
+      .values({
+        accountId,
+        boxNumber: meta.boxNumber,
+        wallpaper: meta.wallpaper,
+        name: meta.name,
+      })
+      .onConflictDoUpdate({
+        target: [userBoxMeta.accountId, userBoxMeta.boxNumber],
+        set: { wallpaper: meta.wallpaper, name: meta.name },
+      });
+  }
+
+  async countPartyExcluding(accountId: number, excludeIds: number[]) {
+    const [row] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(userPokemon)
+      .where(
+        and(
+          eq(userPokemon.accountId, accountId),
+          isNotNull(userPokemon.partySlot),
+          notInArray(userPokemon.id, excludeIds),
+        ),
+      );
+    return Number(row?.count ?? 0);
   }
 }

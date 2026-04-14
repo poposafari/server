@@ -152,6 +152,14 @@ export async function getAllUserStateAuthIds(): Promise<string[]> {
   });
 }
 
+export async function updateUserStateParty(
+  authId: string,
+  party: { id: number }[],
+): Promise<void> {
+  const key = RedisKey.userState(authId);
+  await RedisClient.hset(key, 'party', JSON.stringify(party));
+}
+
 export async function updateUserStatePosition(
   authId: string,
   updates: { x: string; y: string; lastMoveTime: string },
