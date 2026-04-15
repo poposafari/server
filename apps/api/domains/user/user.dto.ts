@@ -22,6 +22,7 @@ export interface UserGameDataRes {
       id: number;
       pokedexId: number;
       level: number;
+      friendship: number;
       gender: number;
       isShiny: boolean;
       nickname: string | null;
