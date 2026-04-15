@@ -9,6 +9,13 @@ export const sellSchema = z.object({
   id: z.number().int().positive(),
 });
 
+export const enhanceSchema = z.object({
+  id: z.number().int().positive(),
+  candy: z.number().int().positive(),
+});
+
+export type EnhanceInput = z.infer<typeof enhanceSchema>;
+
 export const learnMoveSchema = z.object({
   id: z.number().int().positive(),
   move: z.string().startsWith('move_'),

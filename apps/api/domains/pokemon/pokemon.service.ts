@@ -4,7 +4,7 @@ import { userPokemon, userItem } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, PokemonTier } from '@poposerver/lib/types';
-import { updateUserStateParty } from '@poposerver/lib/redis';
+import { getGameTime, updateUserStateParty } from '@poposerver/lib/redis';
 import { PokemonRepository } from './pokemon.repository';
 
 const TIER_BASE_REWARD: Record<PokemonTier, number> = {
@@ -26,6 +26,8 @@ function getLevelBonus(level: number): number {
 function calcSellReward(level: number, tier: PokemonTier): number {
   return TIER_BASE_REWARD[tier] + getLevelBonus(level);
 }
+
+const POKEMON_MAX_LEVEL = 999;
 
 export class PokemonService {
   constructor(private readonly repo: PokemonRepository) {}
@@ -61,67 +63,63 @@ export class PokemonService {
 
     const newPokedexId = masterPokemon.evolNext[costIndex];
 
-    // 4. friendship 차단
-    if (/^friendship_\d+$/.test(body.cost)) {
-      throw new AppError(
-        'Friendship evolution not yet available',
-        400,
-        AppErrorCode.EVOLUTION_NOT_AVAILABLE,
-      );
-    }
+    const parts = body.cost.split('+').map((p) => p.trim());
+    const itemCost = new Map<string, number>();
 
-    // 5. 트랜잭션: 아이템 차감 + pokedexId 변경
-    const result = await db.transaction(async (tx) => {
-      const candyMatch = body.cost.match(/^candy_(\d+)$/);
+    let cachedGameTime: string | null | undefined;
+
+    for (const part of parts) {
+      const candyMatch = part.match(/^candy_(\d+)$/);
+      const friendshipMatch = part.match(/^friendship_(\d+)$/);
+      const timeMatch = part.match(/^time_(day|night|dawn|dusk)$/);
 
       if (candyMatch) {
-        // candy_XX 패턴
         const candyCount = Number(candyMatch[1]);
         const candyItemId = `${masterPokemon.type1}-candy`;
-
-        const [item] = await tx
-          .select({ quantity: userItem.quantity })
-          .from(userItem)
-          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyItemId)));
-
-        if (!item || item.quantity < candyCount) {
-          throw new AppError('Not enough candy', 400, AppErrorCode.EVOLUTION_COST_NOT_ENOUGH);
+        itemCost.set(candyItemId, (itemCost.get(candyItemId) ?? 0) + candyCount);
+      } else if (friendshipMatch) {
+        const required = Number(friendshipMatch[1]);
+        if (pokemon.friendship < required) {
+          throw new AppError('Not enough friendship', 400, AppErrorCode.EVOLUTION_COST_NOT_ENOUGH);
         }
-
-        if (item.quantity - candyCount === 0) {
-          await tx
-            .delete(userItem)
-            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyItemId)));
-        } else {
-          await tx
-            .update(userItem)
-            .set({ quantity: sql`${userItem.quantity} - ${candyCount}` })
-            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyItemId)));
+      } else if (timeMatch) {
+        const requiredPeriod = timeMatch[1];
+        if (cachedGameTime === undefined) {
+          cachedGameTime = await getGameTime();
+        }
+        if (cachedGameTime !== requiredPeriod) {
+          throw new AppError('Time condition not met', 400, AppErrorCode.EVOLUTION_COST_NOT_ENOUGH);
         }
       } else {
-        // 진화석 등 일반 아이템
+        itemCost.set(part, (itemCost.get(part) ?? 0) + 1);
+      }
+    }
+
+    // 5. 트랜잭션: 모든 아이템 비용 차감 + pokedexId 변경 (원자적)
+    const result = await db.transaction(async (tx) => {
+      for (const [itemId, requiredCount] of itemCost) {
         const [item] = await tx
           .select({ quantity: userItem.quantity })
           .from(userItem)
-          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.cost)));
+          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)));
 
-        if (!item || item.quantity < 1) {
+        if (!item || item.quantity < requiredCount) {
           throw new AppError(
-            'Evolution item not found',
+            'Not enough evolution items',
             400,
             AppErrorCode.EVOLUTION_COST_NOT_ENOUGH,
           );
         }
 
-        if (item.quantity === 1) {
+        if (item.quantity - requiredCount === 0) {
           await tx
             .delete(userItem)
-            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.cost)));
+            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)));
         } else {
           await tx
             .update(userItem)
-            .set({ quantity: sql`${userItem.quantity} - 1` })
-            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.cost)));
+            .set({ quantity: sql`${userItem.quantity} - ${requiredCount}` })
+            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)));
         }
       }
 
@@ -268,6 +266,70 @@ export class PokemonService {
         currentParty.map((p) => ({ id: p.id })),
       );
     }
+  }
+
+  async enhance(authId: string, body: { id: number; candy: number }) {
+    const accountId = Number(authId);
+
+    const pokemon = await this.repo.findByIdAndAccount(body.id, accountId);
+    if (!pokemon) {
+      throw new AppError('Pokemon not found', 404, AppErrorCode.POKEMON_NOT_FOUND);
+    }
+
+    const masterPokemon = MasterData.getPokemon(pokemon.pokedexId);
+    if (!masterPokemon) {
+      throw new AppError('Pokemon master data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    const newLevel = pokemon.level + body.candy;
+    if (newLevel > POKEMON_MAX_LEVEL) {
+      throw new AppError(
+        'Pokemon level would exceed maximum',
+        400,
+        AppErrorCode.POKEMON_LEVEL_MAX_EXCEEDED,
+      );
+    }
+
+    const candyItemId = `${masterPokemon.type1}-candy`;
+
+    const result = await db.transaction(async (tx) => {
+      const [item] = await tx
+        .select({ quantity: userItem.quantity })
+        .from(userItem)
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyItemId)));
+
+      if (!item || item.quantity < body.candy) {
+        throw new AppError('Not enough candy', 400, AppErrorCode.CANDY_NOT_ENOUGH);
+      }
+
+      const remaining = item.quantity - body.candy;
+
+      if (remaining === 0) {
+        await tx
+          .delete(userItem)
+          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyItemId)));
+      } else {
+        await tx
+          .update(userItem)
+          .set({ quantity: sql`${userItem.quantity} - ${body.candy}` })
+          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyItemId)));
+      }
+
+      const [updated] = await tx
+        .update(userPokemon)
+        .set({ level: newLevel })
+        .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)))
+        .returning({ id: userPokemon.id, level: userPokemon.level });
+
+      return { updated, remaining };
+    });
+
+    return {
+      id: result.updated.id,
+      level: result.updated.level,
+      candyId: candyItemId,
+      candyRemaining: result.remaining,
+    };
   }
 
   async learnMove(authId: string, body: { id: number; move: string }) {
