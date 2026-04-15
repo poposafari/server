@@ -30,6 +30,8 @@ import {
   UserStartLocation,
 } from '@poposerver/lib/types';
 import { AppError } from '@poposerver/lib/utils/error';
+import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
+import { applyUserExp } from '@poposerver/lib/utils/level';
 
 type CatchResult = 'caught' | 'fail' | 'flee';
 type FleeResult = 'flee' | 'stay';
@@ -82,7 +84,8 @@ export class SafariService {
         const gender = pokemonData ? rollGender(pokemonData.rateMale, pokemonData.rateFemale) : 0;
         const nature = pickOne(PokemonNatural);
         const ability = pokemonData?.ability.length ? pickOne(pokemonData.ability) : '';
-        const wildLevel = Math.min(100, Math.max(1, randomInt(userLevel - 10, userLevel + 10)));
+        const { min: wildMin, max: wildMax } = LEVEL_CURVE.wildLevelRange(userLevel);
+        const wildLevel = randomInt(wildMin, wildMax);
         return {
           uid: crypto.randomUUID(),
           pokedexId,
@@ -190,6 +193,7 @@ export class SafariService {
     result: CatchResult;
     pokemon?: typeof userPokemon.$inferSelect;
     reward?: { candyId: string; candyQuantity: number };
+    expReward?: { gained: number; level: number; exp: number; leveledUp: boolean };
   }> {
     const accountId = Number(authId);
 
@@ -238,6 +242,15 @@ export class SafariService {
     const partyRaw: { id: number }[] = JSON.parse(userState.party || '[]');
     const partyIds = partyRaw.map((p) => p.id);
     let partyBonus = 0;
+
+    if (partyIds.length > 0) {
+      await db
+        .update(userPokemon)
+        .set({
+          friendship: sql`LEAST(${userPokemon.friendship} + 2, 255)`,
+        })
+        .where(and(eq(userPokemon.accountId, accountId), inArray(userPokemon.id, partyIds)));
+    }
 
     if (partyIds.length > 0) {
       const partyPokemons = await db
@@ -295,6 +308,7 @@ export class SafariService {
       const candyQuantity = randomInt(candyMin, candyMax);
 
       let insertedPokemon: typeof userPokemon.$inferSelect;
+      let expReward: { gained: number; level: number; exp: number; leveledUp: boolean };
 
       await db.transaction(async (tx) => {
         // 사파리볼 차감
@@ -372,12 +386,22 @@ export class SafariService {
             target: [userItem.accountId, userItem.itemId],
             set: { quantity: sql`${userItem.quantity} + ${candyQuantity}` },
           });
+
+        const expGain = LEVEL_CURVE.expGain(pokemonData.tier, wild.level);
+        const applied = await applyUserExp(tx, accountId, expGain);
+        expReward = {
+          gained: applied.gained,
+          level: applied.level,
+          exp: applied.exp,
+          leveledUp: applied.leveledUp,
+        };
       });
 
       return {
         result,
         pokemon: insertedPokemon!,
         reward: { candyId, candyQuantity },
+        expReward: expReward!,
       };
     } else {
       // fail 또는 flee: 사파리볼만 차감
@@ -477,8 +501,11 @@ export class SafariService {
       fleeMul = 2.0;
     }
 
-    const finalCapture = Math.min(rateCapture * captureMul + partyBonus, 0.9);
-    const finalFlee = Math.min(rateFlee * fleeMul, 0.9);
+    const finalCapture = Math.min(
+      rateCapture * captureMul + partyBonus,
+      LEVEL_CURVE.CAPTURE_RATE_CAP,
+    );
+    const finalFlee = Math.min(rateFlee * fleeMul, LEVEL_CURVE.FLEE_RATE_CAP);
 
     if (Math.random() < finalCapture) return 'caught';
     if (Math.random() < finalFlee) return 'flee';
@@ -500,7 +527,7 @@ export class SafariService {
 
     let maxBonus = 0;
     for (const p of partyPokemons) {
-      const lvlBonus = Math.floor(p.level / 25) * 0.02;
+      const lvlBonus = LEVEL_CURVE.partyLevelBonus(p.level);
       const shinyBonus = p.isShiny ? 0.03 : 0;
       const tBonus = tierBonus[p.tier] ?? 0;
       maxBonus = Math.max(maxBonus, lvlBonus + shinyBonus + tBonus);
