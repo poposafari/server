@@ -13,6 +13,7 @@ export const user = pgTable(
     playtime: integer('playtime').notNull().default(0),
     hasStarter: boolean('has_starter').notNull().default(false),
     level: smallint('level').notNull().default(1),
+    exp: integer('exp').notNull().default(0),
     gender: smallint('gender').notNull(),
     lastMapId: char('last_map_id', { length: 4 }).notNull(),
     lastX: integer('last_x').notNull(),
@@ -21,6 +22,7 @@ export const user = pgTable(
   },
   (table) => [
     check('ck_user_money', sql`${table.money} >= 0`),
-    check('ck_user_level', sql`${table.level} >= 1 AND ${table.level} <= 100`),
+    check('ck_user_level', sql`${table.level} >= 1 AND ${table.level} <= 50`),
+    check('ck_user_exp', sql`${table.exp} >= 0`),
   ],
 );
