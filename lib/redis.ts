@@ -60,7 +60,6 @@ export interface UserState {
   nickname: string;
   level: string;
   gender: string;
-  party: string;
   itemSlots: string;
   costume: string;
   socketId: string;
@@ -77,7 +76,6 @@ const USER_STATE_FIELDS: (keyof UserState)[] = [
   'nickname',
   'level',
   'gender',
-  'party',
   'itemSlots',
   'costume',
   'socketId',
@@ -150,14 +148,6 @@ export async function getAllUserStateAuthIds(): Promise<string[]> {
     stream.on('end', () => resolve(authIds));
     stream.on('error', reject);
   });
-}
-
-export async function updateUserStateParty(
-  authId: string,
-  party: { id: number }[],
-): Promise<void> {
-  const key = RedisKey.userState(authId);
-  await RedisClient.hset(key, 'party', JSON.stringify(party));
 }
 
 export async function updateUserStatePosition(

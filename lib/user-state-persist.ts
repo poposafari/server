@@ -1,6 +1,6 @@
 import { eq, sql, and, notInArray, isNotNull, inArray } from 'drizzle-orm';
 import { db } from './db';
-import { user, userPokemon, userItem, userCostume, userTownMap } from './schema';
+import { user, userItem, userCostume, userTownMap } from './schema';
 import { getUserState, deleteUserState } from './redis';
 import { logger } from './utils/logger';
 
@@ -27,8 +27,7 @@ export async function persistUserStateFromRedisToDb(
     deltaSeconds = Math.max(0, Math.floor((now - sessionStart) / 1000));
   }
 
-  // Redis에서 party, itemSlots, costume 파싱
-  const party: { id: number }[] = state.party ? JSON.parse(state.party) : [];
+  // Redis에서 itemSlots, costume 파싱
   const itemSlots: { itemId: string }[] = state.itemSlots ? JSON.parse(state.itemSlots) : [];
   const costume: { costumeId: string }[] = state.costume ? JSON.parse(state.costume) : [];
 
@@ -45,33 +44,7 @@ export async function persistUserStateFromRedisToDb(
       })
       .where(eq(user.accountId, accountId));
 
-    // 2. party → user_pokemon.party_slot
-    const partyPokemonIds = party.map((p) => p.id);
-    for (let slot = 0; slot < party.length; slot++) {
-      await tx
-        .update(userPokemon)
-        .set({ partySlot: slot })
-        .where(and(eq(userPokemon.id, party[slot].id), eq(userPokemon.accountId, accountId)));
-    }
-    if (partyPokemonIds.length > 0) {
-      await tx
-        .update(userPokemon)
-        .set({ partySlot: null })
-        .where(
-          and(
-            eq(userPokemon.accountId, accountId),
-            notInArray(userPokemon.id, partyPokemonIds),
-            isNotNull(userPokemon.partySlot),
-          ),
-        );
-    } else {
-      await tx
-        .update(userPokemon)
-        .set({ partySlot: null })
-        .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)));
-    }
-
-    // 3. itemSlots → user_item.slot_number
+    // 2. itemSlots → user_item.slot_number
     const slotItemIds = itemSlots.map((s) => s.itemId);
     for (let slot = 0; slot < itemSlots.length; slot++) {
       await tx

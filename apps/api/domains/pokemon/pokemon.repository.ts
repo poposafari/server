@@ -32,9 +32,7 @@ export class PokemonRepository {
         caughtAt: userPokemon.caughtAt,
       })
       .from(userPokemon)
-      .where(
-        and(eq(userPokemon.accountId, accountId), isNull(userPokemon.partySlot)),
-      )
+      .where(and(eq(userPokemon.accountId, accountId), isNull(userPokemon.partySlot)))
       .orderBy(userPokemon.boxNumber, userPokemon.gridNumber);
   }
 
@@ -43,14 +41,6 @@ export class PokemonRepository {
       .select({ id: userPokemon.id })
       .from(userPokemon)
       .where(and(inArray(userPokemon.id, ids), eq(userPokemon.accountId, accountId)));
-  }
-
-  async findPartyByAccountId(accountId: number) {
-    return db
-      .select({ id: userPokemon.id, partySlot: userPokemon.partySlot })
-      .from(userPokemon)
-      .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)))
-      .orderBy(userPokemon.partySlot);
   }
 
   async findBoxMetaByAccountId(accountId: number) {

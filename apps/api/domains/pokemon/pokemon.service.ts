@@ -4,7 +4,7 @@ import { userPokemon, userItem } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, PokemonTier } from '@poposerver/lib/types';
-import { getGameTime, updateUserStateParty } from '@poposerver/lib/redis';
+import { getGameTime } from '@poposerver/lib/redis';
 import { PokemonRepository } from './pokemon.repository';
 
 const TIER_BASE_REWARD: Record<PokemonTier, number> = {
@@ -257,15 +257,6 @@ export class PokemonService {
         }
       }
     });
-
-    // Redis party 동기화: DB의 최종 파티 상태를 Redis에 반영하여 Flush 덮어쓰기 방지
-    if (ids.length > 0) {
-      const currentParty = await this.repo.findPartyByAccountId(accountId);
-      await updateUserStateParty(
-        authId,
-        currentParty.map((p) => ({ id: p.id })),
-      );
-    }
   }
 
   async enhance(authId: string, body: { id: number; candy: number }) {

@@ -238,9 +238,18 @@ export class SafariService {
       throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
     }
 
-    // 5. 파티 포켓몬 보너스 계산
-    const partyRaw: { id: number }[] = JSON.parse(userState.party || '[]');
-    const partyIds = partyRaw.map((p) => p.id);
+    // 5. 파티 포켓몬 보너스 계산 (DB 직통)
+    const partyPokemons = await db
+      .select({
+        id: userPokemon.id,
+        pokedexId: userPokemon.pokedexId,
+        level: userPokemon.level,
+        isShiny: userPokemon.isShiny,
+      })
+      .from(userPokemon)
+      .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)));
+
+    const partyIds = partyPokemons.map((p) => p.id);
     let partyBonus = 0;
 
     if (partyIds.length > 0) {
@@ -250,17 +259,6 @@ export class SafariService {
           friendship: sql`LEAST(${userPokemon.friendship} + 2, 255)`,
         })
         .where(and(eq(userPokemon.accountId, accountId), inArray(userPokemon.id, partyIds)));
-    }
-
-    if (partyIds.length > 0) {
-      const partyPokemons = await db
-        .select({
-          pokedexId: userPokemon.pokedexId,
-          level: userPokemon.level,
-          isShiny: userPokemon.isShiny,
-        })
-        .from(userPokemon)
-        .where(inArray(userPokemon.id, partyIds));
 
       const bonusData = partyPokemons.map((p) => {
         const masterPokemon = MasterData.getPokemon(String(p.pokedexId));
