@@ -11,7 +11,7 @@ export interface PokemonBoxRes {
     abilityId: string;
     natureId: string;
     skills: unknown;
-    heldItemId: number | null;
+    heldItemId: string | null;
     boxNumber: number | null;
     gridNumber: number | null;
     ballId: number;

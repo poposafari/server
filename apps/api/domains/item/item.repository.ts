@@ -1,6 +1,6 @@
 import { db } from '@poposerver/lib/db';
 import { userItem } from '@poposerver/lib/schema';
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 
 export class ItemRepository {
   async findBagByAccountId(accountId: number) {
@@ -8,11 +8,9 @@ export class ItemRepository {
       .select({
         itemId: userItem.itemId,
         quantity: userItem.quantity,
-        slotNumber: userItem.slotNumber,
+        register: userItem.register,
       })
       .from(userItem)
-      .where(
-        and(eq(userItem.accountId, accountId), isNull(userItem.slotNumber)),
-      );
+      .where(eq(userItem.accountId, accountId));
   }
 }

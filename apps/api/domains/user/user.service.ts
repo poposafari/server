@@ -100,7 +100,6 @@ export class UserService {
         nickname: profile.nickname,
         level: String(profile.level),
         gender: String(profile.gender),
-        itemSlots: JSON.stringify(itemSlots),
         costume: JSON.stringify(equippedCostumes),
         socketId: '',
         pet: '',

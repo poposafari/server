@@ -60,7 +60,6 @@ export interface UserState {
   nickname: string;
   level: string;
   gender: string;
-  itemSlots: string;
   costume: string;
   socketId: string;
   pet: string;
@@ -76,7 +75,6 @@ const USER_STATE_FIELDS: (keyof UserState)[] = [
   'nickname',
   'level',
   'gender',
-  'itemSlots',
   'costume',
   'socketId',
   'pet',

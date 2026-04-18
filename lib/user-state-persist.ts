@@ -1,6 +1,6 @@
-import { eq, sql, and, notInArray, isNotNull, inArray } from 'drizzle-orm';
+import { eq, sql, and, inArray, notInArray } from 'drizzle-orm';
 import { db } from './db';
-import { user, userItem, userCostume, userTownMap } from './schema';
+import { user, userCostume, userTownMap } from './schema';
 import { getUserState, deleteUserState } from './redis';
 import { logger } from './utils/logger';
 
@@ -27,8 +27,7 @@ export async function persistUserStateFromRedisToDb(
     deltaSeconds = Math.max(0, Math.floor((now - sessionStart) / 1000));
   }
 
-  // Redis에서 itemSlots, costume 파싱
-  const itemSlots: { itemId: string }[] = state.itemSlots ? JSON.parse(state.itemSlots) : [];
+  // Redis에서 costume 파싱
   const costume: { costumeId: string }[] = state.costume ? JSON.parse(state.costume) : [];
 
   await db.transaction(async (tx) => {
@@ -43,32 +42,6 @@ export async function persistUserStateFromRedisToDb(
         playtime: sql`${user.playtime} + ${deltaSeconds}`,
       })
       .where(eq(user.accountId, accountId));
-
-    // 2. itemSlots → user_item.slot_number
-    const slotItemIds = itemSlots.map((s) => s.itemId);
-    for (let slot = 0; slot < itemSlots.length; slot++) {
-      await tx
-        .update(userItem)
-        .set({ slotNumber: slot })
-        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemSlots[slot].itemId)));
-    }
-    if (slotItemIds.length > 0) {
-      await tx
-        .update(userItem)
-        .set({ slotNumber: null })
-        .where(
-          and(
-            eq(userItem.accountId, accountId),
-            notInArray(userItem.itemId, slotItemIds),
-            isNotNull(userItem.slotNumber),
-          ),
-        );
-    } else {
-      await tx
-        .update(userItem)
-        .set({ slotNumber: null })
-        .where(and(eq(userItem.accountId, accountId), isNotNull(userItem.slotNumber)));
-    }
 
     // 4. visitedMaps → user_town_map
     const visitedMaps: string[] = (state.visitedMaps ? JSON.parse(state.visitedMaps) : []).filter(

@@ -99,22 +99,21 @@ export class UserRepository {
       .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)))
       .orderBy(userPokemon.partySlot);
 
-    // 4. 단축 슬롯 아이템 조회
+    // 4. 등록된 아이템 조회
     const itemSlots = await db
       .select({
         itemId: userItem.itemId,
         quantity: userItem.quantity,
-        slotNumber: userItem.slotNumber,
+        register: userItem.register,
       })
       .from(userItem)
-      .where(and(eq(userItem.accountId, accountId), isNotNull(userItem.slotNumber)))
-      .orderBy(userItem.slotNumber);
+      .where(and(eq(userItem.accountId, accountId), eq(userItem.register, true)));
 
     const essentialItems = await db
       .select({
         itemId: userItem.itemId,
         quantity: userItem.quantity,
-        slotNumber: userItem.slotNumber,
+        register: userItem.register,
       })
       .from(userItem)
       .where(

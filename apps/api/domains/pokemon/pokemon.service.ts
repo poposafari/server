@@ -348,6 +348,10 @@ export class PokemonService {
       throw new AppError('Move already learned', 409, AppErrorCode.MOVE_ALREADY_LEARNED);
     }
 
+    if (currentSkills.length >= 4) {
+      throw new AppError('Move limit exceeded', 400, AppErrorCode.MOVE_LIMIT_EXCEEDED);
+    }
+
     // 4. 트랜잭션: 아이템 차감 + skills push
     const result = await db.transaction(async (tx) => {
       const [item] = await tx

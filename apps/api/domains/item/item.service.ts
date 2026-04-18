@@ -1,6 +1,6 @@
 import { eq, and, sql } from 'drizzle-orm';
 import { db } from '@poposerver/lib/db';
-import { user, userItem } from '@poposerver/lib/schema';
+import { user, userItem, userPokemon } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode } from '@poposerver/lib/types';
@@ -16,18 +16,15 @@ export class ItemService {
   async buy(authId: string, body: { item: string; quantity: number }) {
     const accountId = Number(authId);
 
-    // 1. 마스터 데이터 검증
     const itemData = MasterData.getItem(body.item);
     if (!itemData) {
       throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
     }
 
-    // 2. 구매 가능 여부
     if (!itemData.purchasable) {
       throw new AppError('Item is not purchasable', 400, AppErrorCode.ITEM_NOT_PURCHASABLE);
     }
 
-    // 3. 총 비용 계산 + 잔액 확인
     const totalCost = itemData.buy * body.quantity;
 
     const [userData] = await db
@@ -39,16 +36,13 @@ export class ItemService {
       throw new AppError('Insufficient money', 400, AppErrorCode.INSUFFICIENT_MONEY);
     }
 
-    // 4. 트랜잭션: money 차감 + 아이템 지급
     const result = await db.transaction(async (tx) => {
-      // money 차감
       const [updatedUser] = await tx
         .update(user)
         .set({ money: sql`${user.money} - ${totalCost}` })
         .where(eq(user.accountId, accountId))
         .returning({ money: user.money });
 
-      // 아이템 UPSERT
       await tx
         .insert(userItem)
         .values({ accountId, itemId: body.item, quantity: body.quantity })
@@ -57,12 +51,11 @@ export class ItemService {
           set: { quantity: sql`${userItem.quantity} + ${body.quantity}` },
         });
 
-      // 갱신된 아이템 레코드 조회
       const [item] = await tx
         .select({
           itemId: userItem.itemId,
           quantity: userItem.quantity,
-          slotNumber: userItem.slotNumber,
+          register: userItem.register,
         })
         .from(userItem)
         .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.item)));
@@ -76,18 +69,15 @@ export class ItemService {
   async sell(authId: string, body: { item: string; quantity: number }) {
     const accountId = Number(authId);
 
-    // 1. 마스터 데이터 검증
     const itemData = MasterData.getItem(body.item);
     if (!itemData) {
       throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
     }
 
-    // 2. 판매 가능 여부
     if (!itemData.sellable) {
       throw new AppError('Item is not sellable', 400, AppErrorCode.ITEM_NOT_SELLABLE);
     }
 
-    // 3. 소지 수량 확인
     const [ownedItem] = await db
       .select({ quantity: userItem.quantity })
       .from(userItem)
@@ -97,10 +87,8 @@ export class ItemService {
       throw new AppError('Insufficient item quantity', 400, AppErrorCode.ITEM_INSUFFICIENT_QUANTITY);
     }
 
-    // 4. 판매 금액 계산
     const totalGain = itemData.sell * body.quantity;
 
-    // 5. 트랜잭션: 아이템 차감 + money 증가
     const result = await db.transaction(async (tx) => {
       const remaining = ownedItem.quantity - body.quantity;
 
@@ -125,5 +113,122 @@ export class ItemService {
     });
 
     return result;
+  }
+
+  async giveHold(authId: string, body: { userPokemonId: number; heldItem: string }) {
+    const accountId = Number(authId);
+
+    const itemData = MasterData.getItem(body.heldItem);
+    if (!itemData) {
+      throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
+    }
+    if (itemData.category === 'key') {
+      throw new AppError('Item is not holdable', 400, AppErrorCode.ITEM_NOT_HOLDABLE);
+    }
+
+    return db.transaction(async (tx) => {
+      const [pkm] = await tx
+        .select({ id: userPokemon.id, heldItemId: userPokemon.heldItemId })
+        .from(userPokemon)
+        .where(and(eq(userPokemon.id, body.userPokemonId), eq(userPokemon.accountId, accountId)));
+      if (!pkm) {
+        throw new AppError('Pokemon not owned', 403, AppErrorCode.POKEMON_NOT_OWNED);
+      }
+
+      const [owned] = await tx
+        .select({ quantity: userItem.quantity })
+        .from(userItem)
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.heldItem)));
+      if (!owned || owned.quantity < 1) {
+        throw new AppError('Item not owned', 400, AppErrorCode.ITEM_NOT_OWNED);
+      }
+
+      // 1) 새 heldItem -1 (0이면 삭제)
+      if (owned.quantity === 1) {
+        await tx
+          .delete(userItem)
+          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.heldItem)));
+      } else {
+        await tx
+          .update(userItem)
+          .set({ quantity: sql`${userItem.quantity} - 1` })
+          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.heldItem)));
+      }
+
+      // 2) 기존 heldItem 반환
+      if (pkm.heldItemId) {
+        await tx
+          .insert(userItem)
+          .values({ accountId, itemId: pkm.heldItemId, quantity: 1, register: false })
+          .onConflictDoUpdate({
+            target: [userItem.accountId, userItem.itemId],
+            set: { quantity: sql`${userItem.quantity} + 1` },
+          });
+      }
+
+      // 3) heldItem 덮어쓰기
+      await tx
+        .update(userPokemon)
+        .set({ heldItemId: body.heldItem })
+        .where(eq(userPokemon.id, body.userPokemonId));
+
+      return {
+        pokemonId: body.userPokemonId,
+        heldItem: body.heldItem,
+        previousHeld: pkm.heldItemId,
+      };
+    });
+  }
+
+  async register(authId: string, body: { itemId: string }) {
+    const accountId = Number(authId);
+
+    const itemData = MasterData.getItem(body.itemId);
+    if (!itemData) {
+      throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
+    }
+    if (itemData.category !== 'key') {
+      throw new AppError('Item is not registerable', 400, AppErrorCode.ITEM_NOT_REGISTERABLE);
+    }
+
+    const updated = await db
+      .update(userItem)
+      .set({ register: true })
+      .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.itemId)))
+      .returning({
+        itemId: userItem.itemId,
+        quantity: userItem.quantity,
+        register: userItem.register,
+      });
+    if (updated.length === 0) {
+      throw new AppError('Item not owned', 400, AppErrorCode.ITEM_NOT_OWNED);
+    }
+    return updated[0];
+  }
+
+  async unregister(authId: string, body: { itemId: string }) {
+    const accountId = Number(authId);
+
+    const itemData = MasterData.getItem(body.itemId);
+    if (!itemData) {
+      throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
+    }
+    if (itemData.category !== 'key') {
+      throw new AppError('Item is not registerable', 400, AppErrorCode.ITEM_NOT_REGISTERABLE);
+    }
+
+    const updated = await db
+      .update(userItem)
+      .set({ register: false })
+      .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.itemId)))
+      .returning({
+        itemId: userItem.itemId,
+        quantity: userItem.quantity,
+        register: userItem.register,
+      });
+    if (updated.length === 0) {
+      throw new AppError('Item not owned', 400, AppErrorCode.ITEM_NOT_OWNED);
+    }
+    return updated[0];
   }
 }

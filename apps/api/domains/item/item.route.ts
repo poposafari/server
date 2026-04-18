@@ -1,7 +1,13 @@
 import { FastifyInstance } from 'fastify';
 import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { zodValidate } from '../../hooks/validate.hook';
-import { sellItemSchema, buyItemSchema } from './item.schema';
+import {
+  sellItemSchema,
+  buyItemSchema,
+  giveHoldSchema,
+  registerItemSchema,
+  unregisterItemSchema,
+} from './item.schema';
 import { ItemController } from './item.controller';
 import { ItemService } from './item.service';
 import { ItemRepository } from './item.repository';
@@ -24,5 +30,20 @@ export default async function itemRoutes(app: FastifyInstance) {
   app.post('/sell', {
     preHandler: [sessionAuthGuard, zodValidate(sellItemSchema)],
     handler: controller.sell,
+  });
+
+  app.post('/give-hold', {
+    preHandler: [sessionAuthGuard, zodValidate(giveHoldSchema)],
+    handler: controller.giveHold,
+  });
+
+  app.post('/register', {
+    preHandler: [sessionAuthGuard, zodValidate(registerItemSchema)],
+    handler: controller.register,
+  });
+
+  app.post('/unregister', {
+    preHandler: [sessionAuthGuard, zodValidate(unregisterItemSchema)],
+    handler: controller.unregister,
   });
 }

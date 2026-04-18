@@ -1,8 +1,8 @@
 export interface ItemBagRes {
   success: true;
   data: {
-    itemId: number;
+    itemId: string;
     quantity: number;
-    slotNumber: number | null;
+    register: boolean;
   }[];
 }

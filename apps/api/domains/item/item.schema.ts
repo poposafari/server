@@ -13,3 +13,22 @@ export const buyItemSchema = z.object({
 });
 
 export type BuyItemInput = z.infer<typeof buyItemSchema>;
+
+export const giveHoldSchema = z.object({
+  userPokemonId: z.number().int().positive(),
+  heldItem: z.string().min(1),
+});
+
+export type GiveHoldInput = z.infer<typeof giveHoldSchema>;
+
+export const registerItemSchema = z.object({
+  itemId: z.string().min(1),
+});
+
+export type RegisterItemInput = z.infer<typeof registerItemSchema>;
+
+export const unregisterItemSchema = z.object({
+  itemId: z.string().min(1),
+});
+
+export type UnregisterItemInput = z.infer<typeof unregisterItemSchema>;

@@ -29,7 +29,7 @@ export const userPokemon = pgTable(
     abilityId: varchar('ability_id', { length: 50 }).notNull(),
     natureId: varchar('nature_id', { length: 50 }).notNull(),
     skills: jsonb('skills').notNull().default([]),
-    heldItemId: integer('held_item_id'),
+    heldItemId: varchar('held_item_id', { length: 64 }),
     boxNumber: smallint('box_number'),
     gridNumber: smallint('grid_number'),
     partySlot: smallint('party_slot'),

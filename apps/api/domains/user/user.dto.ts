@@ -29,14 +29,14 @@ export interface UserGameDataRes {
       abilityId: string;
       natureId: string;
       skills: unknown;
-      heldItemId: number | null;
+      heldItemId: string | null;
       partySlot: number | null;
       ballId: number;
     }[];
     itemSlots: {
-      itemId: number;
+      itemId: string;
       quantity: number;
-      slotNumber: number | null;
+      register: boolean;
     }[];
   };
 }
