@@ -21,6 +21,12 @@ export const giveHoldSchema = z.object({
 
 export type GiveHoldInput = z.infer<typeof giveHoldSchema>;
 
+export const takeHoldSchema = z.object({
+  id: z.number().int().positive(),
+});
+
+export type TakeHoldInput = z.infer<typeof takeHoldSchema>;
+
 export const registerItemSchema = z.object({
   itemId: z.string().min(1),
 });

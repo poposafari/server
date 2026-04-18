@@ -180,6 +180,43 @@ export class ItemService {
     });
   }
 
+  async takeHold(authId: string, body: { id: number }) {
+    const accountId = Number(authId);
+
+    return db.transaction(async (tx) => {
+      const [pkm] = await tx
+        .select({ id: userPokemon.id, heldItemId: userPokemon.heldItemId })
+        .from(userPokemon)
+        .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)));
+      if (!pkm) {
+        throw new AppError('Pokemon not owned', 403, AppErrorCode.POKEMON_NOT_OWNED);
+      }
+      if (!pkm.heldItemId) {
+        throw new AppError('Pokemon has no held item', 400, AppErrorCode.POKEMON_NO_HELD_ITEM);
+      }
+
+      const returnedItemId = pkm.heldItemId;
+
+      await tx
+        .update(userPokemon)
+        .set({ heldItemId: null })
+        .where(eq(userPokemon.id, body.id));
+
+      await tx
+        .insert(userItem)
+        .values({ accountId, itemId: returnedItemId, quantity: 1, register: false })
+        .onConflictDoUpdate({
+          target: [userItem.accountId, userItem.itemId],
+          set: { quantity: sql`${userItem.quantity} + 1` },
+        });
+
+      return {
+        pokemonId: body.id,
+        returnedItem: returnedItemId,
+      };
+    });
+  }
+
   async register(authId: string, body: { itemId: string }) {
     const accountId = Number(authId);
 

@@ -5,6 +5,7 @@ import {
   sellItemSchema,
   buyItemSchema,
   giveHoldSchema,
+  takeHoldSchema,
   registerItemSchema,
   unregisterItemSchema,
 } from './item.schema';
@@ -35,6 +36,11 @@ export default async function itemRoutes(app: FastifyInstance) {
   app.post('/give-hold', {
     preHandler: [sessionAuthGuard, zodValidate(giveHoldSchema)],
     handler: controller.giveHold,
+  });
+
+  app.post('/take-hold', {
+    preHandler: [sessionAuthGuard, zodValidate(takeHoldSchema)],
+    handler: controller.takeHold,
   });
 
   app.post('/register', {
