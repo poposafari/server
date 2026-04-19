@@ -6,6 +6,9 @@ import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode } from '@poposerver/lib/types';
 import { ItemRepository } from './item.repository';
 
+const MAX_ITEM_QUANTITY = 9999;
+const MAX_USER_MONEY = 999_999_999;
+
 export class ItemService {
   constructor(private readonly repo: ItemRepository) {}
 
@@ -20,6 +23,8 @@ export class ItemService {
     if (!itemData) {
       throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
     }
+
+    console.log(itemData.purchasable);
 
     if (!itemData.purchasable) {
       throw new AppError('Item is not purchasable', 400, AppErrorCode.ITEM_NOT_PURCHASABLE);
@@ -37,6 +42,19 @@ export class ItemService {
     }
 
     const result = await db.transaction(async (tx) => {
+      const [existing] = await tx
+        .select({ quantity: userItem.quantity })
+        .from(userItem)
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.item)));
+      const newQty = (existing?.quantity ?? 0) + body.quantity;
+      if (newQty > MAX_ITEM_QUANTITY) {
+        throw new AppError(
+          'Item quantity limit exceeded',
+          400,
+          AppErrorCode.ITEM_QUANTITY_LIMIT_EXCEEDED,
+        );
+      }
+
       const [updatedUser] = await tx
         .update(user)
         .set({ money: sql`${user.money} - ${totalCost}` })
@@ -74,6 +92,8 @@ export class ItemService {
       throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
     }
 
+    console.log(body.item + itemData.sellable);
+
     if (!itemData.sellable) {
       throw new AppError('Item is not sellable', 400, AppErrorCode.ITEM_NOT_SELLABLE);
     }
@@ -84,12 +104,33 @@ export class ItemService {
       .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.item)));
 
     if (!ownedItem || ownedItem.quantity < body.quantity) {
-      throw new AppError('Insufficient item quantity', 400, AppErrorCode.ITEM_INSUFFICIENT_QUANTITY);
+      throw new AppError(
+        'Insufficient item quantity',
+        400,
+        AppErrorCode.ITEM_INSUFFICIENT_QUANTITY,
+      );
     }
 
     const totalGain = itemData.sell * body.quantity;
 
+    const [currentUser] = await db
+      .select({ money: user.money })
+      .from(user)
+      .where(eq(user.accountId, accountId));
+
+    if (currentUser && currentUser.money + totalGain > MAX_USER_MONEY) {
+      throw new AppError('Money limit exceeded', 400, AppErrorCode.MONEY_LIMIT_EXCEEDED);
+    }
+
     const result = await db.transaction(async (tx) => {
+      const [txUser] = await tx
+        .select({ money: user.money })
+        .from(user)
+        .where(eq(user.accountId, accountId));
+      if (txUser && txUser.money + totalGain > MAX_USER_MONEY) {
+        throw new AppError('Money limit exceeded', 400, AppErrorCode.MONEY_LIMIT_EXCEEDED);
+      }
+
       const remaining = ownedItem.quantity - body.quantity;
 
       if (remaining === 0) {
@@ -197,10 +238,7 @@ export class ItemService {
 
       const returnedItemId = pkm.heldItemId;
 
-      await tx
-        .update(userPokemon)
-        .set({ heldItemId: null })
-        .where(eq(userPokemon.id, body.id));
+      await tx.update(userPokemon).set({ heldItemId: null }).where(eq(userPokemon.id, body.id));
 
       await tx
         .insert(userItem)

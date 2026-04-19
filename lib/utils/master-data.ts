@@ -22,7 +22,7 @@ const parsePythonList = (value: string): string[] => {
  * Python 스타일의 Boolean 문자열("True", "False")을 JS Boolean으로 변환
  */
 const parseBoolean = (value: string): boolean => {
-  return value === 'True';
+  return value === 'TRUE';
 };
 
 /**
@@ -72,15 +72,15 @@ class MasterDataService {
         const camelKey = toCamelCase(key);
         const value = record[key];
 
-        if (
-          key.includes('spawn_rate') ||
-          key.includes('spawn_max') ||
-          key.includes('buy') ||
-          key.includes('sell')
+        if (key.endsWith('able')) {
+          item[camelKey] = parseBoolean(value);
+        } else if (
+          key === 'spawn_rate' ||
+          key === 'spawn_max' ||
+          key === 'buy' ||
+          key === 'sell'
         ) {
           item[camelKey] = Number(value);
-        } else if (key.endsWith('able') || key === 'purchasable') {
-          item[camelKey] = parseBoolean(value);
         } else {
           item[camelKey] = value;
         }

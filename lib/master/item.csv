@@ -1,5 +1,5 @@
 id,buy,category,comment,purchasable,sell,sellable,spawn_max,spawn_rate,spawnable,tier
-safari-ball,300,pokeball,사파리볼,TRUE,0,FALSE,5,50,TRUE,common
+safari-ball,300,pokeball,사파리볼,TRUE,100,TRUE,5,50,TRUE,common
 fire-stone,20000,etc,불꽃의돌,TRUE,1000,TRUE,1,10,TRUE,epic
 water-stone,20000,etc,물의돌,TRUE,1000,TRUE,1,10,TRUE,epic
 thunder-stone,20000,etc,천둥의돌,TRUE,1000,TRUE,1,10,TRUE,epic
