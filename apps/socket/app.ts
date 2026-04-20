@@ -5,13 +5,16 @@ import {
   addUserToRoom,
   consumeConnToken,
   envConfig,
+  extractPetState,
   getRoomMemberStates,
   getUserState,
   isValidChangeMapTarget,
   logger,
   persistUserStateFromRedisToDb,
+  petChangeReqSchema,
   removeUserFromRoom,
   updateUserStateMap,
+  updateUserStatePet,
   updateUserStatePosition,
   deleteUserState,
   getGameTime,
@@ -229,7 +232,9 @@ export class SocketApp {
           logger.info(`[Socket] init addUserToRoom done: socketId=${socket.id}`);
 
           const roomStates = await getRoomMemberStates(mapId);
-          socket.emit('init_room_state', { users: roomStates });
+          socket.emit('init_room_state', {
+            users: roomStates.map((s) => ({ ...s, pet: extractPetState(s) })),
+          });
 
           socket.to(mapId).emit('user_joined', {
             userId: authId,
@@ -239,7 +244,7 @@ export class SocketApp {
             nickname: existingState.nickname,
             costume: existingState.costume,
             gender: existingState.gender,
-            pet: existingState.pet,
+            pet: extractPetState(existingState),
             lastMoveTime: existingState.lastMoveTime,
           });
 
@@ -363,7 +368,9 @@ export class SocketApp {
           data.roomId = targetMapId;
 
           const roomStates = await getRoomMemberStates(targetMapId);
-          socket.emit('init_room_state', { users: roomStates });
+          socket.emit('init_room_state', {
+            users: roomStates.map((s) => ({ ...s, pet: extractPetState(s) })),
+          });
 
           const state = await getUserState(userId);
 
@@ -384,7 +391,7 @@ export class SocketApp {
                 nickname: state.nickname,
                 costume: state.costume,
                 gender: state.gender,
-                pet: state.pet,
+                pet: extractPetState(state),
                 lastMoveTime: now,
               }
             : {
@@ -395,7 +402,7 @@ export class SocketApp {
                 nickname: '',
                 costume: '',
                 gender: '',
-                pet: '',
+                pet: null,
                 lastMoveTime: now,
               };
           socket.to(targetMapId).emit('user_joined', userJoinedPayload);
@@ -405,6 +412,33 @@ export class SocketApp {
         } catch (error) {
           logger.error('[Socket] change_map failed:', error);
           socket.emit('change_map_error', { message: 'Change map failed' });
+        }
+      });
+
+      socket.on('pet-change', async (payload: unknown) => {
+        const userId = data.userId;
+        const roomId = data.roomId;
+        if (!userId || !roomId) return;
+
+        const parsed = petChangeReqSchema.safeParse(payload);
+        if (!parsed.success) {
+          logger.warn(
+            `[Socket] pet-change invalid payload from ${userId}: ${parsed.error.message}`,
+          );
+          return;
+        }
+
+        const { pokedexId, isShiny } = parsed.data;
+
+        try {
+          await updateUserStatePet(userId, { pokedexId, isShiny });
+          socket.to(roomId).emit('other-pet-change', {
+            userId,
+            pokedexId,
+            isShiny,
+          });
+        } catch (error) {
+          logger.error(`[Socket] pet-change failed userId=${userId}:`, error);
         }
       });
 

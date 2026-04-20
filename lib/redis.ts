@@ -62,7 +62,8 @@ export interface UserState {
   gender: string;
   costume: string;
   socketId: string;
-  pet: string;
+  'pet:pokedexId': string;
+  'pet:isShiny': string;
   createdAt: string;
   lastMoveTime: string;
   visitedMaps: string;
@@ -77,7 +78,8 @@ const USER_STATE_FIELDS: (keyof UserState)[] = [
   'gender',
   'costume',
   'socketId',
-  'pet',
+  'pet:pokedexId',
+  'pet:isShiny',
   'createdAt',
   'lastMoveTime',
   'visitedMaps',
@@ -164,6 +166,17 @@ export async function updateUserStateMap(
   await RedisClient.hset(key, updates);
 }
 
+export async function updateUserStatePet(
+  authId: string,
+  pet: { pokedexId: string | null; isShiny: boolean },
+): Promise<void> {
+  const key = RedisKey.userState(authId);
+  await RedisClient.hset(key, {
+    'pet:pokedexId': pet.pokedexId ?? '',
+    'pet:isShiny': pet.isShiny ? '1' : '0',
+  });
+}
+
 export async function addUserToRoom(mapId: string, userId: string): Promise<void> {
   const key = RedisKey.roomUsers(mapId);
   await RedisClient.sadd(key, userId);
@@ -175,6 +188,12 @@ export async function removeUserFromRoom(mapId: string, userId: string): Promise
 }
 
 export type RoomMemberState = { userId: string } & UserState;
+
+export function extractPetState(state: UserState): { pokedexId: string; isShiny: boolean } | null {
+  const pokedexId = state['pet:pokedexId'];
+  if (!pokedexId) return null;
+  return { pokedexId, isShiny: state['pet:isShiny'] === '1' };
+}
 
 export async function getRoomMemberStates(mapId: string): Promise<RoomMemberState[]> {
   const roomKey = RedisKey.roomUsers(mapId);

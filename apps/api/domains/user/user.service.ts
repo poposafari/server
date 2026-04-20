@@ -1,5 +1,10 @@
 import { AppError } from '@poposerver/lib/utils/error';
-import { AppErrorCode, AppErrorMessage, PokemonGender, UserStartLocation } from '@poposerver/lib/types';
+import {
+  AppErrorCode,
+  AppErrorMessage,
+  PokemonGender,
+  UserStartLocation,
+} from '@poposerver/lib/types';
 import { setUserState } from '@poposerver/lib/redis';
 import { eq } from 'drizzle-orm';
 import { db } from '@poposerver/lib/db';
@@ -76,11 +81,7 @@ export class UserService {
     const result = await this.userRepo.findGameDataByAccountId(accountId);
 
     if (!result) {
-      throw new AppError(
-        AppErrorMessage.USER_NOT_FOUND,
-        404,
-        AppErrorCode.USER_NOT_FOUND,
-      );
+      throw new AppError(AppErrorMessage.USER_NOT_FOUND, 404, AppErrorCode.USER_NOT_FOUND);
     }
 
     const { profile, equippedCostumes, party, itemSlots, essentialItems } = result;
@@ -91,23 +92,23 @@ export class UserService {
       .where(eq(userTownMap.accountId, accountId));
     const visitedMapIds = visitedMapRows.map((r) => r.mapId);
 
-    await setUserState(
-      authId,
-      {
-        mapId: profile.lastMapId,
-        x: String(profile.lastX),
-        y: String(profile.lastY),
-        nickname: profile.nickname,
-        level: String(profile.level),
-        gender: String(profile.gender),
-        costume: JSON.stringify(equippedCostumes),
-        socketId: '',
-        pet: '',
-        createdAt: new Date().toISOString(),
-        lastMoveTime: String(Date.now()),
-        visitedMaps: JSON.stringify(visitedMapIds),
-      },
-    );
+    const petLeader = party[0] ?? null;
+
+    await setUserState(authId, {
+      mapId: profile.lastMapId,
+      x: String(profile.lastX),
+      y: String(profile.lastY),
+      nickname: profile.nickname,
+      level: String(profile.level),
+      gender: String(profile.gender),
+      costume: JSON.stringify(equippedCostumes),
+      socketId: '',
+      'pet:pokedexId': petLeader ? String(petLeader.pokedexId) : '',
+      'pet:isShiny': petLeader?.isShiny ? '1' : '0',
+      createdAt: new Date().toISOString(),
+      lastMoveTime: String(Date.now()),
+      visitedMaps: JSON.stringify(visitedMapIds),
+    });
 
     return { profile, equippedCostumes, party, itemSlots, essentialItems };
   }
