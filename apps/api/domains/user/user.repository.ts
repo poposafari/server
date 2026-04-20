@@ -56,6 +56,7 @@ export class UserRepository {
       .select({
         nickname: user.nickname,
         level: user.level,
+        exp: user.exp,
         gender: user.gender,
         money: user.money,
         playtime: user.playtime,
