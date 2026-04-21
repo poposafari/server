@@ -304,6 +304,7 @@ export interface SafariWild {
   caught: number; // 0=WILD, 1=CAUGHT, 2=FLED
   bait: boolean;
   rock: boolean;
+  caughtCount: number;
 }
 
 export interface SafariItem {

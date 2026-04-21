@@ -79,6 +79,23 @@ export class SafariService {
       const wildCount = wildPool.length > 0 ? randomInt(targetMap.wild.min, targetMap.wild.max) : 0;
       const selectedPokemons = pickRandom(wildPool, wildCount);
 
+      const uniquePokedexIds = Array.from(new Set(selectedPokemons));
+      const pokedexRows = uniquePokedexIds.length
+        ? await db
+            .select({
+              pokedexId: userPokedex.pokedexId,
+              caughtCount: userPokedex.caughtCount,
+            })
+            .from(userPokedex)
+            .where(
+              and(
+                eq(userPokedex.accountId, Number(authId)),
+                inArray(userPokedex.pokedexId, uniquePokedexIds),
+              ),
+            )
+        : [];
+      const caughtCountMap = new Map(pokedexRows.map((r) => [r.pokedexId, r.caughtCount]));
+
       const wilds: SafariWild[] = selectedPokemons.map((pokedexId) => {
         const pokemonData = MasterData.getPokemon(pokedexId);
         const gender = pokemonData ? rollGender(pokemonData.rateMale, pokemonData.rateFemale) : 0;
@@ -97,6 +114,7 @@ export class SafariService {
           caught: 0,
           bait: false,
           rock: false,
+          caughtCount: caughtCountMap.get(pokedexId) ?? 0,
         };
       });
 
