@@ -38,7 +38,6 @@ export async function persistUserStateFromRedisToDb(
         lastMapId: state.mapId,
         lastX: x,
         lastY: y,
-        level: Number(state.level) || 1,
         playtime: sql`${user.playtime} + ${deltaSeconds}`,
       })
       .where(eq(user.accountId, accountId));

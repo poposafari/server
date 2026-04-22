@@ -99,7 +99,6 @@ export class UserService {
       x: String(profile.lastX),
       y: String(profile.lastY),
       nickname: profile.nickname,
-      level: String(profile.level),
       gender: String(profile.gender),
       costume: JSON.stringify(equippedCostumes),
       socketId: '',

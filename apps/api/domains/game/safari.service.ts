@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { sql, eq, and, inArray, isNotNull } from 'drizzle-orm';
 import { db } from '@poposerver/lib/db';
-import { userItem, userPokemon, userPokedex } from '@poposerver/lib/schema';
+import { user, userItem, userPokemon, userPokedex } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import {
   getGameTime,
@@ -67,8 +67,12 @@ export class SafariService {
     let mapData = await getSafariMapData(authId, mapId);
 
     if (!mapData) {
-      // 3. 유저 레벨 조회
-      const userLevel = Number(userState.level) || 1;
+      // 3. 유저 레벨 조회 (DB가 권위. Redis user_state에는 level을 두지 않는다.)
+      const [userRow] = await db
+        .select({ level: user.level })
+        .from(user)
+        .where(eq(user.accountId, Number(authId)));
+      const userLevel = userRow?.level ?? 1;
 
       // 4. 현재 게임 시간 조회
       const gameTime = await getGameTime();
