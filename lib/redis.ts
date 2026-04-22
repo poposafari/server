@@ -101,10 +101,7 @@ export async function getUserState(authId: string): Promise<UserState | null> {
   return toUserState(raw as Record<string, string>);
 }
 
-export async function setUserState(
-  authId: string,
-  state: UserState,
-): Promise<void> {
+export async function setUserState(authId: string, state: UserState): Promise<void> {
   const key = RedisKey.userState(authId);
   await RedisClient.hset(key, state as unknown as Record<string, string>);
 }
@@ -235,16 +232,28 @@ export async function publishSocketKick(authId: string, targetSocketId?: string)
 export const GAME_TIME_KEY = 'game:time';
 export const GAME_TIME_CHANNEL = 'game:time';
 
-export async function getGameTime(): Promise<string | null> {
-  return RedisClient.get(GAME_TIME_KEY);
+export interface GameTimeState {
+  phase: string;
+  startedAt: number; //시작 시간(ms)
+  duration: number; // 전체 시간(ms)
 }
 
-export async function setGameTime(timeOfDay: string): Promise<void> {
-  await RedisClient.set(GAME_TIME_KEY, timeOfDay);
+export async function getGameTime(): Promise<GameTimeState | null> {
+  const raw = await RedisClient.get(GAME_TIME_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as GameTimeState;
+  } catch {
+    return null;
+  }
 }
 
-export async function publishGameTime(timeOfDay: string): Promise<void> {
-  await RedisClient.publish(GAME_TIME_CHANNEL, timeOfDay);
+export async function setGameTime(state: GameTimeState): Promise<void> {
+  await RedisClient.set(GAME_TIME_KEY, JSON.stringify(state));
+}
+
+export async function publishGameTime(state: GameTimeState): Promise<void> {
+  await RedisClient.publish(GAME_TIME_CHANNEL, JSON.stringify(state));
 }
 
 // ── 세션 관리 ──

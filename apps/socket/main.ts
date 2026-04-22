@@ -7,6 +7,7 @@ import {
   SOCKET_KICK_CHANNEL,
   SocketKickMessage,
   GAME_TIME_CHANNEL,
+  GameTimeState,
 } from '@poposerver/lib';
 import { SocketApp } from './app';
 
@@ -36,9 +37,14 @@ async function boot() {
     const gameTimeSub = RedisClient.duplicate();
     await connectRedis(gameTimeSub, 'SOCKET_GAME_TIME_SUB');
     await gameTimeSub.subscribe(GAME_TIME_CHANNEL);
-    gameTimeSub.on('message', (channel: string, timeOfDay: string) => {
+    gameTimeSub.on('message', (channel: string, raw: string) => {
       if (channel === GAME_TIME_CHANNEL) {
-        socketApp.broadcastGameTime(timeOfDay);
+        try {
+          const state = JSON.parse(raw) as GameTimeState;
+          socketApp.broadcastGameTime(state);
+        } catch (err) {
+          logger.error('[Socket] game time parse failed:', err);
+        }
       }
     });
 

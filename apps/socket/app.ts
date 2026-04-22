@@ -18,6 +18,7 @@ import {
   updateUserStatePosition,
   deleteUserState,
   getGameTime,
+  GameTimeState,
 } from '@poposerver/lib';
 
 const MOVE_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
@@ -156,8 +157,12 @@ export class SocketApp {
     }
   }
 
-  broadcastGameTime(timeOfDay: string): void {
-    this.io.emit('game_time_changed', { timeOfDay });
+  broadcastGameTime(state: GameTimeState): void {
+    this.io.emit('game_time_changed', {
+      timeOfDay: state.phase,
+      startedAt: state.startedAt,
+      duration: state.duration,
+    });
   }
 
   async close() {
@@ -261,7 +266,9 @@ export class SocketApp {
               x: Number(existingState.x),
               y: Number(existingState.y),
             },
-            timeOfDay: gameTime || 'day',
+            timeOfDay: gameTime?.phase ?? 'day',
+            gameTimeStartedAt: gameTime?.startedAt,
+            gameTimeDuration: gameTime?.duration,
           });
           logger.info(`[Socket] init success: ${socket.id} userId=${authId}`);
         } catch (error) {

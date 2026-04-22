@@ -1,5 +1,5 @@
 import { TimeOfDay } from '@poposerver/lib/types/game.type';
-import { setGameTime, publishGameTime } from '@poposerver/lib';
+import { GameTimeState, setGameTime, publishGameTime } from '@poposerver/lib';
 import { logger } from '@poposerver/lib';
 
 const CYCLE_MS = 7_200_000; // 120분
@@ -11,30 +11,38 @@ const PHASES: { name: TimeOfDay; duration: number }[] = [
   { name: TimeOfDay.NIGHT, duration: 2_400_000 },
 ];
 
-function getCurrentPhase(): TimeOfDay {
-  const offset = Date.now() % CYCLE_MS;
+function getCurrentPhaseState(): GameTimeState {
+  const now = Date.now();
+  const offset = now % CYCLE_MS;
   let cumulative = 0;
   for (const phase of PHASES) {
+    const phaseStart = cumulative;
     cumulative += phase.duration;
-    if (offset < cumulative) return phase.name;
+    if (offset < cumulative) {
+      return {
+        phase: phase.name,
+        startedAt: now - (offset - phaseStart),
+        duration: phase.duration,
+      };
+    }
   }
-  return TimeOfDay.DAWN;
+  return { phase: PHASES[0].name, startedAt: now, duration: PHASES[0].duration };
 }
 
 export function startGameTimeClock(): () => void {
-  let currentPhase = getCurrentPhase();
+  let currentState = getCurrentPhaseState();
 
-  setGameTime(currentPhase);
-  publishGameTime(currentPhase);
-  logger.info(`[GAME_TIME] Initial phase: ${currentPhase}`);
+  setGameTime(currentState);
+  publishGameTime(currentState);
+  logger.info(`[GAME_TIME] Initial phase: ${currentState.phase}`);
 
   const timer = setInterval(async () => {
-    const phase = getCurrentPhase();
-    if (phase !== currentPhase) {
-      currentPhase = phase;
-      await setGameTime(phase);
-      await publishGameTime(phase);
-      logger.info(`[GAME_TIME] Phase changed to: ${phase}`);
+    const next = getCurrentPhaseState();
+    if (next.phase !== currentState.phase) {
+      currentState = next;
+      await setGameTime(next);
+      await publishGameTime(next);
+      logger.info(`[GAME_TIME] Phase changed to: ${next.phase}`);
     }
   }, 1000);
 

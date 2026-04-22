@@ -71,7 +71,8 @@ export class SafariService {
       const userLevel = Number(userState.level) || 1;
 
       // 4. 현재 게임 시간 조회
-      const timeOfDay = ((await getGameTime()) ?? TimeOfDay.DAY) as TimeOfDay;
+      const gameTime = await getGameTime();
+      const timeOfDay = (gameTime?.phase ?? TimeOfDay.DAY) as TimeOfDay;
       const weather: Weather = Weather.SUNNY; // TODO: 날씨 시스템 구현 후 교체
 
       // 5. 요청 맵에 대해서만 야생 포켓몬 생성

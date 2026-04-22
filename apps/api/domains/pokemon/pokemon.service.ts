@@ -85,7 +85,7 @@ export class PokemonService {
       } else if (timeMatch) {
         const requiredPeriod = timeMatch[1];
         if (cachedGameTime === undefined) {
-          cachedGameTime = await getGameTime();
+          cachedGameTime = (await getGameTime())?.phase ?? null;
         }
         if (cachedGameTime !== requiredPeriod) {
           throw new AppError('Time condition not met', 400, AppErrorCode.EVOLUTION_COST_NOT_ENOUGH);
