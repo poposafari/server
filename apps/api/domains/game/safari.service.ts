@@ -7,24 +7,27 @@ import {
   getGameTime,
   getUserState,
   updateUserStateMap,
-  setSafariMapData,
-  getSafariMapData,
   deleteAllSafariData,
-  SafariMapData,
   SafariWild,
   SafariItem,
+  addWild,
+  getWild,
+  updateWild,
+  deleteWild,
+  getAllWildsWithCleanup,
+  listWildIds,
+  setSafariItems,
+  getSafariItems,
+  addSafariActive,
+  publishWildDespawn,
+  RedisClient,
+  RedisKey,
 } from '@poposerver/lib/redis';
-import {
-  rollSafariShiny,
-  rollGender,
-  randomInt,
-  pickRandom,
-  pickOne,
-} from '@poposerver/lib/utils/rng';
+import { generateWildBatch, randomWildTtlSec } from '@poposerver/lib/utils/wild-roll';
+import { randomInt, pickRandom } from '@poposerver/lib/utils/rng';
 import {
   TimeOfDay,
   Weather,
-  PokemonNatural,
   PokemonTier,
   AppErrorCode,
   UserStartLocation,
@@ -41,7 +44,10 @@ export class SafariService {
     authId: string,
     mapId: string,
     needEntry: boolean,
-  ): Promise<{ mapData: SafariMapData; entry?: { x: number; y: number } }> {
+  ): Promise<{
+    mapData: { wilds: SafariWild[]; items: SafariItem[] };
+    entry?: { x: number; y: number };
+  }> {
     // 1-a. 검증: 현재 사용자가 plaza 또는 safari에 있는지 확인
     const userState = await getUserState(authId);
     if (!userState) {
@@ -63,82 +69,80 @@ export class SafariService {
       throw new AppError('Map not found', 404, AppErrorCode.NOT_FOUND);
     }
 
-    // 2. 해당 맵 데이터가 이미 있으면 데이터 유지, 위치만 이동
-    let mapData = await getSafariMapData(authId, mapId);
+    // 2. 기존 wild 인덱스와 items 존재 여부로 첫 진입 / 재진입 구분
+    const existingWildIds = await listWildIds(authId, mapId);
+    const existingItems = await getSafariItems(authId, mapId);
+    const isFirstEntry = existingWildIds.length === 0 && existingItems === null;
 
-    if (!mapData) {
-      // 3. 유저 레벨 조회 (DB가 권위. Redis user_state에는 level을 두지 않는다.)
+    let wilds: SafariWild[];
+    let items: SafariItem[];
+
+    if (isFirstEntry) {
       const [userRow] = await db
         .select({ level: user.level })
         .from(user)
         .where(eq(user.accountId, Number(authId)));
       const userLevel = userRow?.level ?? 1;
 
-      // 4. 현재 게임 시간 조회
       const gameTime = await getGameTime();
       const timeOfDay = (gameTime?.phase ?? TimeOfDay.DAY) as TimeOfDay;
       const weather: Weather = Weather.SUNNY; // TODO: 날씨 시스템 구현 후 교체
 
-      // 5. 요청 맵에 대해서만 야생 포켓몬 생성
-      const wildPool = targetMap.wild[timeOfDay]?.[weather] ?? [];
-      const wildCount = wildPool.length > 0 ? randomInt(targetMap.wild.min, targetMap.wild.max) : 0;
-      const selectedPokemons = pickRandom(wildPool, wildCount);
+      // 정책: 최초 진입 시 항상 max까지 스폰 (min은 고려하지 않음).
+      const wildCount = targetMap.wild.max;
+      wilds = await generateWildBatch(
+        Number(authId),
+        mapId,
+        wildCount,
+        userLevel,
+        timeOfDay,
+        weather,
+      );
 
-      const uniquePokedexIds = Array.from(new Set(selectedPokemons));
-      const pokedexRows = uniquePokedexIds.length
-        ? await db
-            .select({
-              pokedexId: userPokedex.pokedexId,
-              caughtCount: userPokedex.caughtCount,
-            })
-            .from(userPokedex)
-            .where(
-              and(
-                eq(userPokedex.accountId, Number(authId)),
-                inArray(userPokedex.pokedexId, uniquePokedexIds),
-              ),
-            )
-        : [];
-      const caughtCountMap = new Map(pokedexRows.map((r) => [r.pokedexId, r.caughtCount]));
-
-      const wilds: SafariWild[] = selectedPokemons.map((pokedexId) => {
-        const pokemonData = MasterData.getPokemon(pokedexId);
-        const gender = pokemonData ? rollGender(pokemonData.rateMale, pokemonData.rateFemale) : 0;
-        const nature = pickOne(PokemonNatural);
-        const ability = pokemonData?.ability.length ? pickOne(pokemonData.ability) : '';
-        const { min: wildMin, max: wildMax } = LEVEL_CURVE.wildLevelRange(userLevel);
-        const wildLevel = randomInt(wildMin, wildMax);
-        return {
-          uid: crypto.randomUUID(),
-          pokedexId,
-          level: wildLevel,
-          gender,
-          isShiny: rollSafariShiny(),
-          nature,
-          ability,
-          caught: 0,
-          bait: false,
-          rock: false,
-          caughtCount: caughtCountMap.get(pokedexId) ?? 0,
-        };
-      });
+      // 각 wild 개별 TTL로 저장 (파이프라인 일괄 실행 + expiresAt 부여)
+      if (wilds.length > 0) {
+        const now = Date.now();
+        const pipeline = RedisClient.pipeline();
+        for (const w of wilds) {
+          const ttlSec = randomWildTtlSec();
+          w.expiresAt = now + ttlSec * 1000;
+          pipeline.set(
+            RedisKey.safariWild(authId, mapId, w.uid),
+            // Redis에는 expiresAt 제외하고 저장 (TTL이 단일 진실 공급원)
+            JSON.stringify({ ...w, expiresAt: undefined }),
+            'EX',
+            ttlSec,
+          );
+        }
+        pipeline.sadd(RedisKey.safariWildIds(authId, mapId), ...wilds.map((w) => w.uid));
+        pipeline.sadd(RedisKey.safariVisited(authId), mapId);
+        await pipeline.exec();
+      } else {
+        // pool이 비어 wild가 0개여도 방문 기록은 남긴다
+        await RedisClient.sadd(RedisKey.safariVisited(authId), mapId);
+      }
 
       // 아이템 생성
       const itemPool = targetMap.item.spawn ?? [];
       const itemCount = itemPool.length > 0 ? randomInt(targetMap.item.min, targetMap.item.max) : 0;
       const selectedItems = pickRandom(itemPool, itemCount);
-
-      const items: SafariItem[] = selectedItems.map((itemId) => ({
+      items = selectedItems.map((itemId) => ({
         uid: crypto.randomUUID(),
         itemId,
         picked: false,
       }));
+      await setSafariItems(authId, mapId, items);
 
-      mapData = { wilds, items };
-      await setSafariMapData(authId, mapId, mapData);
+      await addSafariActive(authId, mapId);
+    } else {
+      wilds = await getAllWildsWithCleanup(authId, mapId);
+      items = existingItems ?? [];
+      // safari:active 인덱스가 어떤 이유로든 빠져있을 수 있으니 idempotent하게 보장
+      await addSafariActive(authId, mapId);
     }
 
-    // 6. 사용자 위치 업데이트
+    const mapData = { wilds, items };
+
     if (needEntry) {
       const entry = targetMap.entry ?? { x: UserStartLocation.x, y: UserStartLocation.y };
       await updateUserStateMap(authId, {
@@ -150,12 +154,6 @@ export class SafariService {
       return { mapData, entry };
     }
 
-    // await updateUserStateMap(authId, {
-    //   mapId,
-    //   x: String(userState.x),
-    //   y: String(userState.y),
-    //   lastMoveTime: String(Date.now()),
-    // });
     return { mapData };
   }
 
@@ -166,27 +164,25 @@ export class SafariService {
     }
 
     const mapId = userState.mapId;
-    const mapData = await getSafariMapData(authId, mapId);
-    if (!mapData) {
+    const items = await getSafariItems(authId, mapId);
+    if (!items) {
       throw new AppError('Safari map data not found', 404, AppErrorCode.NOT_FOUND);
     }
 
-    const itemIndex = mapData.items.findIndex((item) => item.uid === uid);
+    const itemIndex = items.findIndex((item) => item.uid === uid);
     if (itemIndex === -1) {
       throw new AppError('Item not found in current map', 404, AppErrorCode.SAFARI_ITEM_NOT_FOUND);
     }
 
-    const targetItem = mapData.items[itemIndex];
+    const targetItem = items[itemIndex];
 
     if (targetItem.picked) {
       throw new AppError('Item already picked', 409, AppErrorCode.SAFARI_ITEM_ALREADY_PICKED);
     }
 
-    // Redis: picked = true
     targetItem.picked = true;
-    await setSafariMapData(authId, mapId, mapData);
+    await setSafariItems(authId, mapId, items);
 
-    // DB: user_item upsert
     const accountId = Number(authId);
     const [result] = await db
       .insert(userItem)
@@ -220,19 +216,13 @@ export class SafariService {
   }> {
     const accountId = Number(authId);
 
-    // 1. 사파리 존 검증
     const userState = await getUserState(authId);
     if (!userState || !userState.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
     const mapId = userState.mapId;
-    const mapData = await getSafariMapData(authId, mapId);
-    if (!mapData) {
-      throw new AppError('Safari map data not found', 404, AppErrorCode.NOT_FOUND);
-    }
 
-    // 2. 사파리볼 보유 확인
     const [safariBall] = await db
       .select({ quantity: userItem.quantity })
       .from(userItem)
@@ -242,12 +232,13 @@ export class SafariService {
       throw new AppError('No safari balls', 400, AppErrorCode.SAFARI_BALL_NOT_FOUND);
     }
 
-    const wildIndex = mapData.wilds.findIndex((w) => w.uid === uid);
-    if (wildIndex === -1) {
-      throw new AppError('Wild pokemon not found', 404, AppErrorCode.SAFARI_WILD_NOT_FOUND);
+    const wild = await getWild(authId, mapId, uid);
+    // 기획: TTL 만료로 Redis에 야생이 이미 없으면 볼만 소비하고 flee로 응답.
+    // (배틀 UI에서 "도망" 연출이 나오고 사용자는 아무 것도 잡지 못함.)
+    if (!wild) {
+      await this.consumeSafariBall(accountId, safariBall.quantity);
+      return { result: 'flee' };
     }
-
-    const wild = mapData.wilds[wildIndex];
     if (wild.caught === 1) {
       throw new AppError('Already caught', 409, AppErrorCode.SAFARI_WILD_ALREADY_CAUGHT);
     }
@@ -255,13 +246,12 @@ export class SafariService {
       throw new AppError('Already fled', 409, AppErrorCode.SAFARI_WILD_ALREADY_FLED);
     }
 
-    // 4. 마스터 데이터에서 포켓몬 정보 조회
     const pokemonData = MasterData.getPokemon(wild.pokedexId);
     if (!pokemonData) {
       throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
     }
 
-    // 5. 파티 포켓몬 보너스 계산 (DB 직통)
+    // 파티 포켓몬 보너스
     const partyPokemons = await db
       .select({
         id: userPokemon.id,
@@ -295,7 +285,6 @@ export class SafariService {
       partyBonus = this.calculatePartyBonus(bonusData);
     }
 
-    // 6. 확률 계산 및 판정 (Redis에 저장된 bait/rock 상태 사용)
     const result = this.calculateCatchResult(
       pokemonData.rateCapture,
       pokemonData.rateFlee,
@@ -304,19 +293,24 @@ export class SafariService {
       partyBonus,
     );
 
-    // 8. 결과에 따른 Redis 업데이트
+    // 결과에 따른 Redis 업데이트
     if (result === 'fail') {
       wild.caught = 0;
       wild.bait = false;
       wild.rock = false;
+      await updateWild(authId, mapId, wild);
     } else if (result === 'caught') {
       wild.caught = 1;
+      // 즉시 디스폰: 키 삭제 + 디스폰 통지
+      await deleteWild(authId, mapId, wild.uid);
+      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'caught' });
     } else {
       wild.caught = 2;
+      await deleteWild(authId, mapId, wild.uid);
+      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
     }
-    await setSafariMapData(authId, mapId, mapData);
 
-    // 9. DB 트랜잭션
+    // DB 트랜잭션
     if (result === 'caught') {
       const candyId = `${pokemonData.type1}-candy`;
       const candyRanges: Record<string, [number, number]> = {
@@ -332,7 +326,6 @@ export class SafariService {
       let expReward: { gained: number; level: number; exp: number; leveledUp: boolean };
 
       await db.transaction(async (tx) => {
-        // 사파리볼 차감
         if (safariBall.quantity === 1) {
           await tx
             .delete(userItem)
@@ -344,7 +337,6 @@ export class SafariService {
             .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
         }
 
-        // 빈 박스/그리드 자리 찾기
         const existingBoxPokemon = await tx
           .select({ boxNumber: userPokemon.boxNumber, gridNumber: userPokemon.gridNumber })
           .from(userPokemon)
@@ -366,7 +358,6 @@ export class SafariService {
           }
         }
 
-        // user_pokemon 삽입
         const [inserted] = await tx
           .insert(userPokemon)
           .values({
@@ -390,7 +381,6 @@ export class SafariService {
 
         insertedPokemon = inserted;
 
-        // user_pokedex upsert
         await tx
           .insert(userPokedex)
           .values({ accountId, pokedexId: wild.pokedexId, caughtCount: 1 })
@@ -399,7 +389,6 @@ export class SafariService {
             set: { caughtCount: sql`${userPokedex.caughtCount} + 1` },
           });
 
-        // 캔디 보상 upsert
         await tx
           .insert(userItem)
           .values({ accountId, itemId: candyId, quantity: candyQuantity })
@@ -425,19 +414,21 @@ export class SafariService {
         expReward: expReward!,
       };
     } else {
-      // fail 또는 flee: 사파리볼만 차감
-      if (safariBall.quantity === 1) {
-        await db
-          .delete(userItem)
-          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
-      } else {
-        await db
-          .update(userItem)
-          .set({ quantity: sql`${userItem.quantity} - 1` })
-          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
-      }
-
+      await this.consumeSafariBall(accountId, safariBall.quantity);
       return { result };
+    }
+  }
+
+  private async consumeSafariBall(accountId: number, currentQuantity: number): Promise<void> {
+    if (currentQuantity === 1) {
+      await db
+        .delete(userItem)
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
+    } else {
+      await db
+        .update(userItem)
+        .set({ quantity: sql`${userItem.quantity} - 1` })
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
     }
   }
 
@@ -460,14 +451,10 @@ export class SafariService {
     }
 
     const mapId = userState.mapId;
-    const mapData = await getSafariMapData(authId, mapId);
-    if (!mapData) {
-      throw new AppError('Safari map data not found', 404, AppErrorCode.NOT_FOUND);
-    }
-
-    const wild = mapData.wilds.find((w) => w.uid === uid);
+    const wild = await getWild(authId, mapId, uid);
+    // 기획: TTL 만료로 Redis에 야생이 이미 없으면 bait/rock도 즉시 flee로 응답.
     if (!wild) {
-      throw new AppError('Wild pokemon not found', 404, AppErrorCode.SAFARI_WILD_NOT_FOUND);
+      return { result: 'flee' };
     }
     if (wild.caught === 1) {
       throw new AppError('Already caught', 409, AppErrorCode.SAFARI_WILD_ALREADY_CAUGHT);
@@ -476,7 +463,6 @@ export class SafariService {
       throw new AppError('Already fled', 409, AppErrorCode.SAFARI_WILD_ALREADY_FLED);
     }
 
-    // 플래그 업데이트 (배타적: bait/rock 중 하나만 true)
     if (kind === 'bait') {
       wild.bait = true;
       wild.rock = false;
@@ -490,7 +476,6 @@ export class SafariService {
       throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
     }
 
-    // 도망 확률만 계산 (bait 우선)
     let fleeMul = 1.0;
     if (wild.bait) fleeMul = 0.5;
     else if (wild.rock) fleeMul = 2.0;
@@ -498,8 +483,13 @@ export class SafariService {
     const finalFlee = Math.min(pokemonData.rateFlee * fleeMul, 0.9);
     const fled = Math.random() < finalFlee;
 
-    if (fled) wild.caught = 2;
-    await setSafariMapData(authId, mapId, mapData);
+    if (fled) {
+      wild.caught = 2;
+      await deleteWild(authId, mapId, wild.uid);
+      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
+    } else {
+      await updateWild(authId, mapId, wild);
+    }
 
     return { result: fled ? 'flee' : 'stay' };
   }
@@ -558,16 +548,13 @@ export class SafariService {
   }
 
   async exit(authId: string): Promise<{ mapId: string; entry: { x: number; y: number } }> {
-    // 1. 현재 사파리 존에 있는지 확인
     const userState = await getUserState(authId);
     if (!userState || !userState.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
-    // 2. 사파리 데이터 전체 삭제
     await deleteAllSafariData(authId);
 
-    // 3. p001로 위치 이동
     const p001 = MasterData.getMap('p001');
     const entry = p001?.entry ?? { x: UserStartLocation.x, y: UserStartLocation.y };
     await updateUserStateMap(authId, {

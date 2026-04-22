@@ -2,6 +2,7 @@ import { Redis } from 'ioredis';
 import { createServer, Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import {
+  addSafariActive,
   addUserToRoom,
   consumeConnToken,
   envConfig,
@@ -19,6 +20,9 @@ import {
   deleteUserState,
   getGameTime,
   GameTimeState,
+  SafariWild,
+  WildDespawnReason,
+  removeSafariActive,
 } from '@poposerver/lib';
 
 const MOVE_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
@@ -165,6 +169,32 @@ export class SocketApp {
     });
   }
 
+  private emitToAuthInRoom(authId: string, mapId: string, event: string, payload: unknown): void {
+    for (const [, socket] of this.io.sockets.sockets) {
+      const d = socket.data as SocketData;
+      if (d.authId === authId && d.roomId === mapId) {
+        socket.emit(event, payload);
+      }
+    }
+  }
+
+  private emitToAuthAllRooms(authId: string, event: string, payload: unknown): void {
+    for (const [, socket] of this.io.sockets.sockets) {
+      const d = socket.data as SocketData;
+      if (d.authId === authId) {
+        socket.emit(event, payload);
+      }
+    }
+  }
+
+  emitWildSpawn(authId: string, mapId: string, wild: SafariWild): void {
+    this.emitToAuthInRoom(authId, mapId, 'wild:spawn', { mapId, wild });
+  }
+
+  emitWildDespawn(authId: string, mapId: string, wildUid: string, reason: WildDespawnReason): void {
+    this.emitToAuthAllRooms(authId, 'wild:despawn', { mapId, wildUid, reason });
+  }
+
   async close() {
     if (this.tickInterval) {
       clearInterval(this.tickInterval);
@@ -234,6 +264,10 @@ export class SocketApp {
 
           socket.join(mapId);
           await addUserToRoom(mapId, authId);
+
+          if (mapId.startsWith('s')) {
+            await addSafariActive(authId, mapId);
+          }
           logger.info(`[Socket] init addUserToRoom done: socketId=${socket.id}`);
 
           const roomStates = await getRoomMemberStates(mapId);
@@ -361,6 +395,10 @@ export class SocketApp {
           socket.leave(roomId);
           this.io.to(roomId).emit('user_left', { userId });
 
+          if (roomId.startsWith('s')) {
+            await removeSafariActive(userId, roomId);
+          }
+
           const now = new Date().toISOString();
           await updateUserStateMap(userId, {
             mapId: targetMapId,
@@ -373,6 +411,10 @@ export class SocketApp {
           socket.join(targetMapId);
           await addUserToRoom(targetMapId, userId);
           data.roomId = targetMapId;
+
+          if (targetMapId.startsWith('s')) {
+            await addSafariActive(userId, targetMapId);
+          }
 
           const roomStates = await getRoomMemberStates(targetMapId);
           socket.emit('init_room_state', {
@@ -485,6 +527,9 @@ export class SocketApp {
           if (roomId) {
             await removeUserFromRoom(roomId, userId);
             this.io.to(roomId).emit('user_left', { userId });
+            if (roomId.startsWith('s')) {
+              await removeSafariActive(userId, roomId);
+            }
           }
         }
       });

@@ -34,7 +34,7 @@ services:
     container_name: poposerver_redis
     ports:
       - '6379:6379'
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --notify-keyspace-events Ex
     volumes:
       - redis_data:/data
     networks:
@@ -45,7 +45,7 @@ services:
     container_name: poposerver_redis_test
     ports:
       - '8889:6379' # 다른 포트 사용
-    command: redis-server --appendonly no --requirepass ${REDIS_PASSWORD}
+    command: redis-server --appendonly no --requirepass ${REDIS_PASSWORD} --notify-keyspace-events Ex
     tmpfs:
       - /data # 테스트용이므로 메모리에 저장 (빠름)
     networks:
