@@ -10,7 +10,7 @@ import { logger } from './logger';
 const parsePythonList = (value: string): string[] => {
   if (!value || value === '[]') return [];
   try {
-    const jsonString = value.replace(/'/g, '"');
+    const jsonString = value.replace(/['‘’]/g, '"');
     return JSON.parse(jsonString);
   } catch (error) {
     logger.warn(`Failed to parse list string: ${value}`, error);

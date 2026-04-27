@@ -11,7 +11,7 @@ import {
 } from '../types';
 import { MasterData } from './master-data';
 import { LEVEL_CURVE } from '../constants/level-curve';
-import { rollSafariShiny, rollGender, randomInt, pickRandom, pickOne } from './rng';
+import { rollSafariShiny, rollGender, randomInt, pickWeightedMany, pickOne } from './rng';
 
 export function randomWildTtlSec(): number {
   return randomInt(SAFARI_WILD_TTL_MIN_SEC, SAFARI_WILD_TTL_MAX_SEC);
@@ -44,7 +44,9 @@ export async function generateWildBatch(
   const wildPool = targetMap.wild[timeOfDay]?.[weather as keyof MapWildWeather] ?? [];
   if (wildPool.length === 0) return [];
 
-  const selectedPokedexIds = pickRandom<string>(wildPool, count);
+  const ids = wildPool.map((e) => e.id);
+  const weights = wildPool.map((e) => e.weight);
+  const selectedPokedexIds = pickWeightedMany<string>(ids, weights, count);
 
   const uniquePokedexIds = Array.from(new Set(selectedPokedexIds));
   const pokedexRows = uniquePokedexIds.length

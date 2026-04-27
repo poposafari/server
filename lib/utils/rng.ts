@@ -73,6 +73,24 @@ export function pickOne<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+export function pickWeighted<T>(arr: T[], weights: number[]): T {
+  const total = weights.reduce((s, w) => s + (w > 0 ? w : 0), 0);
+  if (total <= 0) return arr[Math.floor(Math.random() * arr.length)];
+  let r = Math.random() * total;
+  for (let i = 0; i < arr.length; i++) {
+    const w = weights[i] > 0 ? weights[i] : 0;
+    r -= w;
+    if (r <= 0) return arr[i];
+  }
+  return arr[arr.length - 1];
+}
+
+export function pickWeightedMany<T>(arr: T[], weights: number[], count: number): T[] {
+  const result: T[] = [];
+  for (let i = 0; i < count; i++) result.push(pickWeighted(arr, weights));
+  return result;
+}
+
 export function rollGender(male: number, female: number): PokemonGender {
   const maleInt = Math.round(male * 100);
   const femaleInt = Math.round(female * 100);

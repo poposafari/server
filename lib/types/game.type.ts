@@ -54,10 +54,15 @@ export enum MapWildState {
   MOVING = 'MOVING',
 }
 
+export interface MapWildEntry {
+  id: string;
+  weight: number;
+}
+
 export interface MapWildWeather {
-  sunny: string[];
-  rainy: string[];
-  stormy: string[];
+  sunny: MapWildEntry[];
+  rainy: MapWildEntry[];
+  stormy: MapWildEntry[];
 }
 
 export interface MapWildData {
@@ -164,7 +169,6 @@ export interface PokemonData {
   rateFemale: number;
   rateFlee: number;
   rateMale: number;
-  rateSpawn: number;
   skills: string[];
   spawn: PokemonSpawnTile[];
   tier: PokemonTier;
