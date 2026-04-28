@@ -40,6 +40,14 @@ export class AuthRepository {
     return row;
   }
 
+  async createOAuth(provider: string, providerId: string) {
+    const [row] = await db
+      .insert(account)
+      .values({ provider, providerId, password: null })
+      .returning({ id: account.id });
+    return row;
+  }
+
   async updateLastLoginAt(authId: number) {
     await db
       .update(account)

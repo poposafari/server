@@ -47,6 +47,10 @@ export enum AppErrorCode {
   INVALID_ARRANGEMENT = 'INVALID_ARRANGEMENT',
   ITEM_QUANTITY_LIMIT_EXCEEDED = 'ITEM_QUANTITY_LIMIT_EXCEEDED',
   MONEY_LIMIT_EXCEEDED = 'MONEY_LIMIT_EXCEEDED',
+  OAUTH_INVALID_STATE = 'OAUTH_INVALID_STATE',
+  OAUTH_TOKEN_FAILED = 'OAUTH_TOKEN_FAILED',
+  OAUTH_USERINFO_FAILED = 'OAUTH_USERINFO_FAILED',
+  OAUTH_CANCELED = 'OAUTH_CANCELED',
 }
 
 export enum AppErrorMessage {
@@ -62,6 +66,10 @@ export enum AppErrorMessage {
   USER_NOT_FOUND = 'User not found',
   USER_ALREADY_EXISTS = 'User already exists',
   NICKNAME_ALREADY_EXISTS = 'Nickname already exists',
+  OAUTH_INVALID_STATE = 'OAuth state is invalid or expired',
+  OAUTH_TOKEN_FAILED = 'OAuth token exchange failed',
+  OAUTH_USERINFO_FAILED = 'OAuth user info fetch failed',
+  OAUTH_CANCELED = 'OAuth authorization was canceled',
 }
 
 export interface AppErrorRes {

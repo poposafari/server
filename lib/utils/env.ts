@@ -36,6 +36,20 @@ const envSchema = z.object({
 
   // CORS
   CORS_ORIGIN: z.string().optional(),
+
+  // OAuth — Google
+  OAUTH_GOOGLE_CLIENT_ID: z.string().min(1),
+  OAUTH_GOOGLE_CLIENT_SECRET: z.string().min(1),
+  OAUTH_GOOGLE_REDIRECT_URI: z.string().url(),
+
+  // OAuth — Discord
+  OAUTH_DISCORD_CLIENT_ID: z.string().min(1),
+  OAUTH_DISCORD_CLIENT_SECRET: z.string().min(1),
+  OAUTH_DISCORD_REDIRECT_URI: z.string().url(),
+
+  // OAuth — 콜백 후 클라이언트 리다이렉트 (success/failure)
+  OAUTH_CLIENT_SUCCESS_URL: z.string().url(),
+  OAUTH_CLIENT_FAILURE_URL: z.string().url(),
 });
 
 const envCheck = envSchema.safeParse(process.env);

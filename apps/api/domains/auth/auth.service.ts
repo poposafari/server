@@ -51,6 +51,49 @@ export class AuthService {
     return sessionId;
   }
 
+  async loginOrCreateOAuth(provider: 'google' | 'discord', providerId: string): Promise<string> {
+    const existing = await this.repo.findByProviderAndProviderId(provider, providerId);
+
+    if (existing?.deletedAt) {
+      throw new AppError(
+        AppErrorMessage.ACCOUNT_ALREADY_DELETED,
+        401,
+        AppErrorCode.ACCOUNT_ALREADY_DELETED,
+      );
+    }
+
+    let authId: number;
+    if (existing) {
+      authId = existing.id;
+    } else {
+      try {
+        const created = await this.repo.createOAuth(provider, providerId);
+        authId = created.id;
+      } catch (error) {
+        const dbError = error as { code?: string };
+        if (dbError.code === '23505') {
+          const retry = await this.repo.findByProviderAndProviderId(provider, providerId);
+          if (!retry || retry.deletedAt) {
+            throw new AppError(
+              AppErrorMessage.ACCOUNT_ALREADY_DELETED,
+              401,
+              AppErrorCode.ACCOUNT_ALREADY_DELETED,
+            );
+          }
+          authId = retry.id;
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    // 기존 접속자 킥은 여기서 하지 않음.
+    // POST /api/game/connect (토큰 발급) 시점에서 처리. (loginLocal과 동일)
+    const sessionId = await createSession(String(authId));
+    await this.repo.updateLastLoginAt(authId);
+    return sessionId;
+  }
+
   async loginLocal(input: AuthLocalInput): Promise<string> {
     const auth = await this.repo.findActiveByProviderIdWithPassword(
       UserAuthProvider.LOCAL,

@@ -304,6 +304,32 @@ export async function deleteSession(sessionId: string): Promise<void> {
   await RedisClient.del(sessionKey);
 }
 
+const OAUTH_STATE_KEY_PREFIX = 'oauth:state:';
+const OAUTH_STATE_TTL = 600; // 10분
+
+export type OAuthProviderName = 'google' | 'discord';
+
+export async function createOAuthState(provider: OAuthProviderName): Promise<string> {
+  const state = crypto.randomUUID();
+  const key = `${OAUTH_STATE_KEY_PREFIX}${state}`;
+  await RedisClient.setex(key, OAUTH_STATE_TTL, JSON.stringify({ provider }));
+  return state;
+}
+
+export async function consumeOAuthState(
+  state: string,
+): Promise<{ provider: OAuthProviderName } | null> {
+  const key = `${OAUTH_STATE_KEY_PREFIX}${state}`;
+  const data = await RedisClient.get(key);
+  if (!data) return null;
+  await RedisClient.del(key);
+  try {
+    return JSON.parse(data) as { provider: OAuthProviderName };
+  } catch {
+    return null;
+  }
+}
+
 // ── 연결 토큰 관리 ──
 
 const CONN_TOKEN_TTL = 30; // 30초

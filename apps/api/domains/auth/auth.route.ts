@@ -28,6 +28,26 @@ export default async function authRoutes(app: FastifyInstance) {
     handler: authController.loginLocal,
   });
 
+  app.get('/oauth/:provider/authorize', {
+    config: {
+      rateLimit: {
+        max: 20,
+        timeWindow: '15 minutes',
+      },
+    },
+    handler: authController.oauthAuthorize,
+  });
+
+  app.get('/oauth/:provider/callback', {
+    config: {
+      rateLimit: {
+        max: 20,
+        timeWindow: '15 minutes',
+      },
+    },
+    handler: authController.oauthCallback,
+  });
+
   // 인증 필요
   app.post('/invalidate-session', {
     preHandler: [sessionAuthGuard],
