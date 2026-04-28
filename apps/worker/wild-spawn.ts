@@ -7,6 +7,7 @@ import {
   MasterData,
   publishWildSpawn,
   removeSafariActive,
+  S000_MAP_ID,
   TimeOfDay,
   Weather,
 } from '@poposerver/lib';
@@ -63,6 +64,8 @@ async function processPair(
   timeOfDay: TimeOfDay,
   weather: Weather,
 ): Promise<number | 'skipped'> {
+  if (mapId === S000_MAP_ID) return 'skipped';
+
   // self-heal: 실제 사용자 상태가 이 맵에 없으면 인덱스에서 제거
   const state = await getUserState(authId);
   if (!state || state.mapId !== mapId) {

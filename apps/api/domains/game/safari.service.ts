@@ -31,6 +31,10 @@ import {
   PokemonTier,
   AppErrorCode,
   UserStartLocation,
+  S000_MAP_ID,
+  POST_S000_LOCATION,
+  S000_REWARD_ITEM_ID,
+  S000_REWARD_QUANTITY,
 } from '@poposerver/lib/types';
 import { AppError } from '@poposerver/lib/utils/error';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
@@ -69,6 +73,16 @@ export class SafariService {
       throw new AppError('Map not found', 404, AppErrorCode.NOT_FOUND);
     }
 
+    if (mapId === S000_MAP_ID) {
+      const [row] = await db
+        .select({ hasStarter: user.hasStarter })
+        .from(user)
+        .where(eq(user.accountId, Number(authId)));
+      if (!row || !row.hasStarter) {
+        throw new AppError('No starter selection available', 400, AppErrorCode.NO_STARTER);
+      }
+    }
+
     // 2. 기존 wild 인덱스와 items 존재 여부로 첫 진입 / 재진입 구분
     const existingWildIds = await listWildIds(authId, mapId);
     const existingItems = await getSafariItems(authId, mapId);
@@ -99,20 +113,27 @@ export class SafariService {
         weather,
       );
 
-      // 각 wild 개별 TTL로 저장 (파이프라인 일괄 실행 + expiresAt 부여)
       if (wilds.length > 0) {
+        const isS000 = mapId === S000_MAP_ID;
         const now = Date.now();
         const pipeline = RedisClient.pipeline();
         for (const w of wilds) {
-          const ttlSec = randomWildTtlSec();
-          w.expiresAt = now + ttlSec * 1000;
-          pipeline.set(
-            RedisKey.safariWild(authId, mapId, w.uid),
-            // Redis에는 expiresAt 제외하고 저장 (TTL이 단일 진실 공급원)
-            JSON.stringify({ ...w, expiresAt: undefined }),
-            'EX',
-            ttlSec,
-          );
+          if (isS000) {
+            w.expiresAt = undefined;
+            pipeline.set(
+              RedisKey.safariWild(authId, mapId, w.uid),
+              JSON.stringify({ ...w, expiresAt: undefined }),
+            );
+          } else {
+            const ttlSec = randomWildTtlSec();
+            w.expiresAt = now + ttlSec * 1000;
+            pipeline.set(
+              RedisKey.safariWild(authId, mapId, w.uid),
+              JSON.stringify({ ...w, expiresAt: undefined }),
+              'EX',
+              ttlSec,
+            );
+          }
         }
         pipeline.sadd(RedisKey.safariWildIds(authId, mapId), ...wilds.map((w) => w.uid));
         pipeline.sadd(RedisKey.safariVisited(authId), mapId);
@@ -232,9 +253,16 @@ export class SafariService {
       throw new AppError('No safari balls', 400, AppErrorCode.SAFARI_BALL_NOT_FOUND);
     }
 
+    let isS000Starter = false;
+    if (mapId === S000_MAP_ID) {
+      const [row] = await db
+        .select({ hasStarter: user.hasStarter })
+        .from(user)
+        .where(eq(user.accountId, accountId));
+      isS000Starter = !!row?.hasStarter;
+    }
+
     const wild = await getWild(authId, mapId, uid);
-    // 기획: TTL 만료로 Redis에 야생이 이미 없으면 볼만 소비하고 flee로 응답.
-    // (배틀 UI에서 "도망" 연출이 나오고 사용자는 아무 것도 잡지 못함.)
     if (!wild) {
       await this.consumeSafariBall(accountId, safariBall.quantity);
       return { result: 'flee' };
@@ -285,13 +313,15 @@ export class SafariService {
       partyBonus = this.calculatePartyBonus(bonusData);
     }
 
-    const result = this.calculateCatchResult(
-      pokemonData.rateCapture,
-      pokemonData.rateFlee,
-      wild.bait,
-      wild.rock,
-      partyBonus,
-    );
+    const result: CatchResult = isS000Starter
+      ? 'caught'
+      : this.calculateCatchResult(
+          pokemonData.rateCapture,
+          pokemonData.rateFlee,
+          wild.bait,
+          wild.rock,
+          partyBonus,
+        );
 
     // 결과에 따른 Redis 업데이트
     if (result === 'fail') {
@@ -312,15 +342,22 @@ export class SafariService {
 
     // DB 트랜잭션
     if (result === 'caught') {
-      const candyId = `${pokemonData.type1}-candy`;
-      const candyRanges: Record<string, [number, number]> = {
-        common: [1, 3],
-        rare: [3, 5],
-        epic: [10, 20],
-        legendary: [50, 100],
-      };
-      const [candyMin, candyMax] = candyRanges[pokemonData.tier] ?? [1, 3];
-      const candyQuantity = randomInt(candyMin, candyMax);
+      let candyId: string;
+      let candyQuantity: number;
+      if (isS000Starter) {
+        candyId = S000_REWARD_ITEM_ID;
+        candyQuantity = S000_REWARD_QUANTITY;
+      } else {
+        candyId = `${pokemonData.type1}-candy`;
+        const candyRanges: Record<string, [number, number]> = {
+          common: [1, 3],
+          rare: [3, 5],
+          epic: [10, 20],
+          legendary: [50, 100],
+        };
+        const [candyMin, candyMax] = candyRanges[pokemonData.tier] ?? [1, 3];
+        candyQuantity = randomInt(candyMin, candyMax);
+      }
 
       let insertedPokemon: typeof userPokemon.$inferSelect;
       let expReward: { gained: number; level: number; exp: number; leveledUp: boolean };
@@ -343,13 +380,14 @@ export class SafariService {
           .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.boxNumber)));
 
         const occupied = new Set(existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`));
+
         let targetBox = 1;
-        let targetGrid = 1;
+        let targetGrid = 0;
         const MAX_BOX = 30;
-        const MAX_GRID = 30;
+        const GRID_PER_BOX = 30;
 
         outer: for (let b = 1; b <= MAX_BOX; b++) {
-          for (let g = 1; g <= MAX_GRID; g++) {
+          for (let g = 0; g < GRID_PER_BOX; g++) {
             if (!occupied.has(`${b}:${g}`)) {
               targetBox = b;
               targetGrid = g;
@@ -405,7 +443,29 @@ export class SafariService {
           exp: applied.exp,
           leveledUp: applied.leveledUp,
         };
+
+        if (isS000Starter) {
+          await tx
+            .update(user)
+            .set({
+              lastMapId: POST_S000_LOCATION.map,
+              lastX: POST_S000_LOCATION.x,
+              lastY: POST_S000_LOCATION.y,
+              hasStarter: false,
+            })
+            .where(eq(user.accountId, accountId));
+        }
       });
+
+      if (isS000Starter) {
+        await updateUserStateMap(authId, {
+          mapId: POST_S000_LOCATION.map,
+          x: String(POST_S000_LOCATION.x),
+          y: String(POST_S000_LOCATION.y),
+          lastMoveTime: String(Date.now()),
+        });
+        await deleteAllSafariData(authId);
+      }
 
       return {
         result,

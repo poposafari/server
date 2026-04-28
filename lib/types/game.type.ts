@@ -183,9 +183,43 @@ export enum PokedexStatus {
   CAUGHT,
 }
 
-// --- User types ---
-export const UserStartLocation: UserLocationData = { map: 'p001', x: 37, y: 32 };
+export const UserStartLocation: UserLocationData = { map: 's000', x: 34, y: 34 };
 export const UserAvatarParts: (keyof UserCostumeData)[] = ['skin', 'hair', 'outfit'];
+
+export const S000_MAP_ID = 's000';
+export const POST_S000_LOCATION: UserLocationData = { map: 'p001', x: 50, y: 30 };
+export const S000_REWARD_ITEM_ID = 'safari-ball';
+export const S000_REWARD_QUANTITY = 30;
+
+export const STARTER_POKEDEX_IDS: readonly string[] = [
+  '0001',
+  '0004',
+  '0007',
+  '0152',
+  '0155',
+  '0158',
+  '0252',
+  '0255',
+  '0258',
+  '0387',
+  '0390',
+  '0393',
+  '0495',
+  '0498',
+  '0501',
+  '0650',
+  '0653',
+  '0656',
+  '0722',
+  '0725',
+  '0728',
+  '0810',
+  '0813',
+  '0816',
+  '0906',
+  '0909',
+  '0912',
+];
 export type UserGender = 'male' | 'female';
 
 export interface UserLocationData {

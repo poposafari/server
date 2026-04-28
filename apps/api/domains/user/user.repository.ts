@@ -47,6 +47,12 @@ export class UserRepository {
           isEquipped: true,
         })),
       );
+
+      await tx.insert(userItem).values({
+        accountId,
+        itemId: 'safari-ball',
+        quantity: 1,
+      });
     });
   }
 

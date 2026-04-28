@@ -7,7 +7,7 @@ export const createUserSchema = z.object({
   nickname: z
     .string()
     .trim()
-    .min(1, 'Nickname must be at least 1 character')
+    .min(2, 'Nickname must be at least 2 character')
     .max(12, 'Nickname must be at most 12 characters')
     .regex(GLOBAL_NICKNAME_REGEX, 'Nickname can only contain letters and numbers')
     .refine(

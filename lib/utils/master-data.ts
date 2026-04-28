@@ -74,12 +74,7 @@ class MasterDataService {
 
         if (key.endsWith('able')) {
           item[camelKey] = parseBoolean(value);
-        } else if (
-          key === 'spawn_rate' ||
-          key === 'spawn_max' ||
-          key === 'buy' ||
-          key === 'sell'
-        ) {
+        } else if (key === 'spawn_rate' || key === 'spawn_max' || key === 'buy' || key === 'sell') {
           item[camelKey] = Number(value);
         } else {
           item[camelKey] = value;
@@ -150,7 +145,13 @@ class MasterDataService {
   }
 
   public getPokemon(id: string): PokemonData | undefined {
-    return this.pokemons.get(id);
+    const direct = this.pokemons.get(id);
+    if (direct) return direct;
+    if (/^0+\d+$/.test(id)) {
+      const stripped = String(parseInt(id, 10));
+      return this.pokemons.get(stripped);
+    }
+    return undefined;
   }
 
   public getMap(id: string): MapData | undefined {

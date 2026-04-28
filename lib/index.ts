@@ -1,5 +1,6 @@
 export { db, connectDB } from './db';
 export * from './constants/overworld-init-pos';
+export * from './constants/map-policy';
 export * from './redis';
 export * from './schema';
 export * from './types';

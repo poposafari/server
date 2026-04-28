@@ -23,6 +23,7 @@ import {
   SafariWild,
   WildDespawnReason,
   removeSafariActive,
+  shouldSyncOtherPlayers,
 } from '@poposerver/lib';
 
 const MOVE_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
@@ -88,11 +89,13 @@ export class SocketApp {
     this.tickInterval = setInterval(async () => {
       for (const [roomId, usersMap] of this.moveBuffer) {
         if (usersMap.size === 0) continue;
-        const updates = Array.from(usersMap.entries()).map(([userId, entry]) => ({
-          userId,
-          ...entry,
-        }));
-        this.io.to(roomId).emit('users_moved', { updates });
+        if (shouldSyncOtherPlayers(roomId)) {
+          const updates = Array.from(usersMap.entries()).map(([userId, entry]) => ({
+            userId,
+            ...entry,
+          }));
+          this.io.to(roomId).emit('users_moved', { updates });
+        }
         await this.syncPositionsToRedis(usersMap);
         usersMap.clear();
       }
@@ -211,29 +214,33 @@ export class SocketApp {
   }
 
   private initEvents() {
-    this.io.on('connection', async (socket: Socket) => {
+    this.io.on('connection', (socket: Socket) => {
       const data = socket.data as SocketData;
       logger.info(`Client connected: ${socket.id} (authId: ${data.authId})`);
 
-      // connection 폴백 킥 (Pub/Sub 실패 시 안전망) + socketId 세팅
       if (data.authId) {
-        const stateKey = `user:${data.authId}:state`;
-        const existingState = await getUserState(data.authId);
+        const authId = data.authId;
+        void (async () => {
+          const stateKey = `user:${authId}:state`;
+          const existingState = await getUserState(authId);
 
-        if (existingState && existingState.socketId && existingState.socketId !== socket.id) {
-          const oldSocket = this.io.sockets.sockets.get(existingState.socketId);
-          if (oldSocket) {
-            oldSocket.emit('kicked', { message: 'Logged in from another device.' });
-            oldSocket.disconnect(true);
-            logger.info(
-              `[Socket] connection fallback kick: ${existingState.socketId} (authId: ${data.authId})`,
-            );
+          if (existingState && existingState.socketId && existingState.socketId !== socket.id) {
+            const oldSocket = this.io.sockets.sockets.get(existingState.socketId);
+            if (oldSocket) {
+              oldSocket.emit('kicked', { message: 'Logged in from another device.' });
+              oldSocket.disconnect(true);
+              logger.info(
+                `[Socket] connection fallback kick: ${existingState.socketId} (authId: ${authId})`,
+              );
+            }
           }
-        }
 
-        if (existingState) {
-          await this.redis.hset(stateKey, 'socketId', socket.id);
-        }
+          if (existingState) {
+            await this.redis.hset(stateKey, 'socketId', socket.id);
+          }
+        })().catch((err) => {
+          logger.error(`[Socket] connection fallback failed: socketId=${socket.id}`, err);
+        });
       }
 
       socket.on('init', async () => {
@@ -262,30 +269,36 @@ export class SocketApp {
             y: Number(existingState.y),
           });
 
-          socket.join(mapId);
-          await addUserToRoom(mapId, authId);
+          const syncOthers = shouldSyncOtherPlayers(mapId);
+
+          if (syncOthers) {
+            socket.join(mapId);
+            await addUserToRoom(mapId, authId);
+          }
 
           if (mapId.startsWith('s')) {
             await addSafariActive(authId, mapId);
           }
           logger.info(`[Socket] init addUserToRoom done: socketId=${socket.id}`);
 
-          const roomStates = await getRoomMemberStates(mapId);
+          const roomStates = syncOthers ? await getRoomMemberStates(mapId) : [];
           socket.emit('init_room_state', {
             users: roomStates.map((s) => ({ ...s, pet: extractPetState(s) })),
           });
 
-          socket.to(mapId).emit('user_joined', {
-            userId: authId,
-            mapId,
-            x: existingState.x,
-            y: existingState.y,
-            nickname: existingState.nickname,
-            costume: existingState.costume,
-            gender: existingState.gender,
-            pet: extractPetState(existingState),
-            lastMoveTime: existingState.lastMoveTime,
-          });
+          if (syncOthers) {
+            socket.to(mapId).emit('user_joined', {
+              userId: authId,
+              mapId,
+              x: existingState.x,
+              y: existingState.y,
+              nickname: existingState.nickname,
+              costume: existingState.costume,
+              gender: existingState.gender,
+              pet: extractPetState(existingState),
+              lastMoveTime: existingState.lastMoveTime,
+            });
+          }
 
           data.userId = authId;
           data.roomId = mapId;
@@ -391,9 +404,14 @@ export class SocketApp {
         // }
 
         try {
-          await removeUserFromRoom(roomId, userId);
-          socket.leave(roomId);
-          this.io.to(roomId).emit('user_left', { userId });
+          const syncFromOthers = shouldSyncOtherPlayers(roomId);
+          const syncToOthers = shouldSyncOtherPlayers(targetMapId);
+
+          if (syncFromOthers) {
+            await removeUserFromRoom(roomId, userId);
+            socket.leave(roomId);
+            this.io.to(roomId).emit('user_left', { userId });
+          }
 
           if (roomId.startsWith('s')) {
             await removeSafariActive(userId, roomId);
@@ -408,15 +426,17 @@ export class SocketApp {
           });
           this.userPositions.set(userId, { x, y });
 
-          socket.join(targetMapId);
-          await addUserToRoom(targetMapId, userId);
+          if (syncToOthers) {
+            socket.join(targetMapId);
+            await addUserToRoom(targetMapId, userId);
+          }
           data.roomId = targetMapId;
 
           if (targetMapId.startsWith('s')) {
             await addSafariActive(userId, targetMapId);
           }
 
-          const roomStates = await getRoomMemberStates(targetMapId);
+          const roomStates = syncToOthers ? await getRoomMemberStates(targetMapId) : [];
           socket.emit('init_room_state', {
             users: roomStates.map((s) => ({ ...s, pet: extractPetState(s) })),
           });
@@ -431,30 +451,32 @@ export class SocketApp {
             }
           }
 
-          const userJoinedPayload = state
-            ? {
-                userId,
-                mapId: targetMapId,
-                x: String(x),
-                y: String(y),
-                nickname: state.nickname,
-                costume: state.costume,
-                gender: state.gender,
-                pet: extractPetState(state),
-                lastMoveTime: now,
-              }
-            : {
-                userId,
-                mapId: targetMapId,
-                x: String(x),
-                y: String(y),
-                nickname: '',
-                costume: '',
-                gender: '',
-                pet: null,
-                lastMoveTime: now,
-              };
-          socket.to(targetMapId).emit('user_joined', userJoinedPayload);
+          if (syncToOthers) {
+            const userJoinedPayload = state
+              ? {
+                  userId,
+                  mapId: targetMapId,
+                  x: String(x),
+                  y: String(y),
+                  nickname: state.nickname,
+                  costume: state.costume,
+                  gender: state.gender,
+                  pet: extractPetState(state),
+                  lastMoveTime: now,
+                }
+              : {
+                  userId,
+                  mapId: targetMapId,
+                  x: String(x),
+                  y: String(y),
+                  nickname: '',
+                  costume: '',
+                  gender: '',
+                  pet: null,
+                  lastMoveTime: now,
+                };
+            socket.to(targetMapId).emit('user_joined', userJoinedPayload);
+          }
 
           socket.emit('change_map_ok', { mapId: targetMapId, x, y });
           logger.info(`[Socket] change_map: ${userId} -> ${targetMapId} (${x},${y})`);
@@ -481,11 +503,13 @@ export class SocketApp {
 
         try {
           await updateUserStatePet(userId, { pokedexId, isShiny });
-          socket.to(roomId).emit('other-pet-change', {
-            userId,
-            pokedexId,
-            isShiny,
-          });
+          if (shouldSyncOtherPlayers(roomId)) {
+            socket.to(roomId).emit('other-pet-change', {
+              userId,
+              pokedexId,
+              isShiny,
+            });
+          }
         } catch (error) {
           logger.error(`[Socket] pet-change failed userId=${userId}:`, error);
         }
@@ -525,8 +549,10 @@ export class SocketApp {
           await persistUserStateFromRedisToDb(userId, { deleteFromRedis: isOwner });
 
           if (roomId) {
-            await removeUserFromRoom(roomId, userId);
-            this.io.to(roomId).emit('user_left', { userId });
+            if (shouldSyncOtherPlayers(roomId)) {
+              await removeUserFromRoom(roomId, userId);
+              this.io.to(roomId).emit('user_left', { userId });
+            }
             if (roomId.startsWith('s')) {
               await removeSafariActive(userId, roomId);
             }

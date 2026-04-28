@@ -7,6 +7,8 @@ import {
   TimeOfDay,
   Weather,
   PokemonNatural,
+  S000_MAP_ID,
+  STARTER_POKEDEX_IDS,
   type MapWildWeather,
 } from '../types';
 import { MasterData } from './master-data';
@@ -41,12 +43,18 @@ export async function generateWildBatch(
   const targetMap = MasterData.getMap(mapId);
   if (!targetMap) return [];
 
-  const wildPool = targetMap.wild[timeOfDay]?.[weather as keyof MapWildWeather] ?? [];
-  if (wildPool.length === 0) return [];
+  const selectedPokedexIds: string[] =
+    mapId === S000_MAP_ID
+      ? [...STARTER_POKEDEX_IDS]
+      : (() => {
+          const wildPool = targetMap.wild[timeOfDay]?.[weather as keyof MapWildWeather] ?? [];
+          if (wildPool.length === 0) return [];
+          const ids = wildPool.map((e) => e.id);
+          const weights = wildPool.map((e) => e.weight);
+          return pickWeightedMany<string>(ids, weights, count);
+        })();
 
-  const ids = wildPool.map((e) => e.id);
-  const weights = wildPool.map((e) => e.weight);
-  const selectedPokedexIds = pickWeightedMany<string>(ids, weights, count);
+  if (selectedPokedexIds.length === 0) return [];
 
   const uniquePokedexIds = Array.from(new Set(selectedPokedexIds));
   const pokedexRows = uniquePokedexIds.length

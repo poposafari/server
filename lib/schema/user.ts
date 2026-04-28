@@ -11,7 +11,7 @@ export const user = pgTable(
     nickname: varchar('nickname', { length: 14 }).notNull().unique(),
     money: integer('money').notNull().default(0),
     playtime: integer('playtime').notNull().default(0),
-    hasStarter: boolean('has_starter').notNull().default(false),
+    hasStarter: boolean('has_starter').notNull().default(true),
     level: smallint('level').notNull().default(1),
     exp: integer('exp').notNull().default(0),
     gender: smallint('gender').notNull(),
