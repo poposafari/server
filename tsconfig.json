@@ -14,8 +14,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "paths": {
-      "@poposerver/shared": ["./shared"],
-      "@poposerver/shared/*": ["./shared/*"],
       "@poposerver/lib": ["./lib"],
       "@poposerver/lib/*": ["./lib/*"]
     }

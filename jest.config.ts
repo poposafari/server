@@ -6,8 +6,6 @@ const jestConfig: Config = {
   clearMocks: true,
   moduleFileExtensions: ['ts', 'js', 'json'],
   moduleNameMapper: {
-    '^@poposerver/shared$': '<rootDir>/shared/index.ts',
-    '^@poposerver/shared/(.*)$': '<rootDir>/shared/$1',
     '^@poposerver/lib$': '<rootDir>/lib/index.ts',
     '^@poposerver/lib/(.*)$': '<rootDir>/lib/$1',
     '^apps/(.*)$': '<rootDir>/apps/$1',
