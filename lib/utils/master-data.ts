@@ -74,7 +74,7 @@ class MasterDataService {
 
         if (key.endsWith('able')) {
           item[camelKey] = parseBoolean(value);
-        } else if (key === 'spawn_rate' || key === 'spawn_max' || key === 'buy' || key === 'sell') {
+        } else if (key === 'buy' || key === 'sell') {
           item[camelKey] = Number(value);
         } else {
           item[camelKey] = value;

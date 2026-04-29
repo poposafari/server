@@ -38,9 +38,6 @@ export interface ItemData {
   purchasable: boolean;
   sell: number;
   sellable: boolean;
-  spawnMax: number;
-  spawnRate: number;
-  spawnable: boolean;
   tier: ItemTier;
 }
 
@@ -74,10 +71,15 @@ export interface MapWildData {
   night: MapWildWeather;
 }
 
+export interface MapItemEntry {
+  id: string;
+  weight: number;
+}
+
 export interface MapItemData {
   min: number;
   max: number;
-  spawn: string[];
+  spawn: MapItemEntry[];
 }
 
 export interface MapData {

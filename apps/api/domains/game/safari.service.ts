@@ -24,7 +24,7 @@ import {
   RedisKey,
 } from '@poposerver/lib/redis';
 import { generateWildBatch, randomWildTtlSec } from '@poposerver/lib/utils/wild-roll';
-import { randomInt, pickRandom } from '@poposerver/lib/utils/rng';
+import { randomInt, pickWeightedMany } from '@poposerver/lib/utils/rng';
 import {
   TimeOfDay,
   Weather,
@@ -146,8 +146,12 @@ export class SafariService {
       // 아이템 생성
       const itemPool = targetMap.item.spawn ?? [];
       const itemCount = itemPool.length > 0 ? randomInt(targetMap.item.min, targetMap.item.max) : 0;
-      const selectedItems = pickRandom(itemPool, itemCount);
-      items = selectedItems.map((itemId) => ({
+      const selectedItemIds = pickWeightedMany(
+        itemPool.map((e) => e.id),
+        itemPool.map((e) => e.weight),
+        itemCount,
+      );
+      items = selectedItemIds.map((itemId) => ({
         uid: crypto.randomUUID(),
         itemId,
         picked: false,

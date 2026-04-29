@@ -75,25 +75,82 @@
       "min": 0,
       "max": 2,
       "spawn": [
-        "safari-ball",
-        "normal-candy",
-        "fire-candy",
-        "water-candy",
-        "grass-candy",
-        "electric-candy",
-        "ice-candy",
-        "fighting-candy",
-        "poison-candy",
-        "ground-candy",
-        "flying-candy",
-        "psychic-candy",
-        "bug-candy",
-        "rock-candy",
-        "ghost-candy",
-        "dragon-candy",
-        "dark-candy",
-        "steel-candy",
-        "fairy-candy"
+        {
+          "id": "safari-ball",
+          "weight": 1
+        },
+        {
+          "id": "normal-candy",
+          "weight": 1
+        },
+        {
+          "id": "fire-candy",
+          "weight": 1
+        },
+        {
+          "id": "water-candy",
+          "weight": 1
+        },
+        {
+          "id": "grass-candy",
+          "weight": 1
+        },
+        {
+          "id": "electric-candy",
+          "weight": 1
+        },
+        {
+          "id": "ice-candy",
+          "weight": 1
+        },
+        {
+          "id": "fighting-candy",
+          "weight": 1
+        },
+        {
+          "id": "poison-candy",
+          "weight": 1
+        },
+        {
+          "id": "ground-candy",
+          "weight": 1
+        },
+        {
+          "id": "flying-candy",
+          "weight": 1
+        },
+        {
+          "id": "psychic-candy",
+          "weight": 1
+        },
+        {
+          "id": "bug-candy",
+          "weight": 1
+        },
+        {
+          "id": "rock-candy",
+          "weight": 1
+        },
+        {
+          "id": "ghost-candy",
+          "weight": 1
+        },
+        {
+          "id": "dragon-candy",
+          "weight": 1
+        },
+        {
+          "id": "dark-candy",
+          "weight": 1
+        },
+        {
+          "id": "steel-candy",
+          "weight": 1
+        },
+        {
+          "id": "fairy-candy",
+          "weight": 1
+        }
       ]
     },
     "wild": {
@@ -389,25 +446,82 @@
       "min": 0,
       "max": 2,
       "spawn": [
-        "safari-ball",
-        "normal-candy",
-        "fire-candy",
-        "water-candy",
-        "grass-candy",
-        "electric-candy",
-        "ice-candy",
-        "fighting-candy",
-        "poison-candy",
-        "ground-candy",
-        "flying-candy",
-        "psychic-candy",
-        "bug-candy",
-        "rock-candy",
-        "ghost-candy",
-        "dragon-candy",
-        "dark-candy",
-        "steel-candy",
-        "fairy-candy"
+        {
+          "id": "safari-ball",
+          "weight": 1
+        },
+        {
+          "id": "normal-candy",
+          "weight": 1
+        },
+        {
+          "id": "fire-candy",
+          "weight": 1
+        },
+        {
+          "id": "water-candy",
+          "weight": 1
+        },
+        {
+          "id": "grass-candy",
+          "weight": 1
+        },
+        {
+          "id": "electric-candy",
+          "weight": 1
+        },
+        {
+          "id": "ice-candy",
+          "weight": 1
+        },
+        {
+          "id": "fighting-candy",
+          "weight": 1
+        },
+        {
+          "id": "poison-candy",
+          "weight": 1
+        },
+        {
+          "id": "ground-candy",
+          "weight": 1
+        },
+        {
+          "id": "flying-candy",
+          "weight": 1
+        },
+        {
+          "id": "psychic-candy",
+          "weight": 1
+        },
+        {
+          "id": "bug-candy",
+          "weight": 1
+        },
+        {
+          "id": "rock-candy",
+          "weight": 1
+        },
+        {
+          "id": "ghost-candy",
+          "weight": 1
+        },
+        {
+          "id": "dragon-candy",
+          "weight": 1
+        },
+        {
+          "id": "dark-candy",
+          "weight": 1
+        },
+        {
+          "id": "steel-candy",
+          "weight": 1
+        },
+        {
+          "id": "fairy-candy",
+          "weight": 1
+        }
       ]
     },
     "wild": {
@@ -527,25 +641,82 @@
       "min": 0,
       "max": 2,
       "spawn": [
-        "safari-ball",
-        "normal-candy",
-        "fire-candy",
-        "water-candy",
-        "grass-candy",
-        "electric-candy",
-        "ice-candy",
-        "fighting-candy",
-        "poison-candy",
-        "ground-candy",
-        "flying-candy",
-        "psychic-candy",
-        "bug-candy",
-        "rock-candy",
-        "ghost-candy",
-        "dragon-candy",
-        "dark-candy",
-        "steel-candy",
-        "fairy-candy"
+        {
+          "id": "safari-ball",
+          "weight": 1
+        },
+        {
+          "id": "normal-candy",
+          "weight": 1
+        },
+        {
+          "id": "fire-candy",
+          "weight": 1
+        },
+        {
+          "id": "water-candy",
+          "weight": 1
+        },
+        {
+          "id": "grass-candy",
+          "weight": 1
+        },
+        {
+          "id": "electric-candy",
+          "weight": 1
+        },
+        {
+          "id": "ice-candy",
+          "weight": 1
+        },
+        {
+          "id": "fighting-candy",
+          "weight": 1
+        },
+        {
+          "id": "poison-candy",
+          "weight": 1
+        },
+        {
+          "id": "ground-candy",
+          "weight": 1
+        },
+        {
+          "id": "flying-candy",
+          "weight": 1
+        },
+        {
+          "id": "psychic-candy",
+          "weight": 1
+        },
+        {
+          "id": "bug-candy",
+          "weight": 1
+        },
+        {
+          "id": "rock-candy",
+          "weight": 1
+        },
+        {
+          "id": "ghost-candy",
+          "weight": 1
+        },
+        {
+          "id": "dragon-candy",
+          "weight": 1
+        },
+        {
+          "id": "dark-candy",
+          "weight": 1
+        },
+        {
+          "id": "steel-candy",
+          "weight": 1
+        },
+        {
+          "id": "fairy-candy",
+          "weight": 1
+        }
       ]
     },
     "wild": {
