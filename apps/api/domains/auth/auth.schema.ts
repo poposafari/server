@@ -16,3 +16,10 @@ export const authLocalSchema = z.object({
 });
 
 export type AuthLocalInput = z.infer<typeof authLocalSchema>;
+
+export const loginLocalSchema = z.object({
+  username: z.string().min(1).max(64),
+  password: z.string().min(1).max(128),
+});
+
+export type LoginLocalInput = z.infer<typeof loginLocalSchema>;

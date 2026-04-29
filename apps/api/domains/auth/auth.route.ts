@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { zodValidate } from '../../hooks/validate.hook';
-import { authLocalSchema } from './auth.schema';
+import { authLocalSchema, loginLocalSchema } from './auth.schema';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthRepository } from './auth.repository';
@@ -24,7 +24,7 @@ export default async function authRoutes(app: FastifyInstance) {
         timeWindow: '15 minutes',
       },
     },
-    preHandler: [zodValidate(authLocalSchema)],
+    preHandler: [zodValidate(loginLocalSchema)],
     handler: authController.loginLocal,
   });
 

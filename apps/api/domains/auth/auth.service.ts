@@ -10,7 +10,7 @@ import {
   publishSocketKick,
 } from '@poposerver/lib/redis';
 import { AuthRepository } from './auth.repository';
-import { AuthLocalInput } from './auth.schema';
+import { AuthLocalInput, LoginLocalInput } from './auth.schema';
 
 const SALT_ROUNDS = 10;
 
@@ -94,7 +94,7 @@ export class AuthService {
     return sessionId;
   }
 
-  async loginLocal(input: AuthLocalInput): Promise<string> {
+  async loginLocal(input: LoginLocalInput): Promise<string> {
     const auth = await this.repo.findActiveByProviderIdWithPassword(
       UserAuthProvider.LOCAL,
       input.username,

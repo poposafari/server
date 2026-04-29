@@ -9,7 +9,7 @@ import {
   type OAuthProviderName,
 } from '@poposerver/lib/redis';
 import { AuthService } from './auth.service';
-import { AuthLocalInput } from './auth.schema';
+import { AuthLocalInput, LoginLocalInput } from './auth.schema';
 import { isOAuthProviderName, oauthProviders } from './oauth/oauth.provider';
 import { SESSION_COOKIE_NAME, sessionCookieOptions } from '@poposerver/lib/utils/cookie';
 
@@ -28,7 +28,7 @@ export class AuthController {
     return reply.status(201).send({ success: true, data: null });
   };
 
-  loginLocal = async (request: FastifyRequest<{ Body: AuthLocalInput }>, reply: FastifyReply) => {
+  loginLocal = async (request: FastifyRequest<{ Body: LoginLocalInput }>, reply: FastifyReply) => {
     const sessionId = await this.authService.loginLocal(request.body);
 
     reply.setCookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
