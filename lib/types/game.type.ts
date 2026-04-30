@@ -15,6 +15,7 @@ export enum Weather {
   SUNNY = 'sunny',
   RAINY = 'rainy',
   STORMY = 'stormy',
+  FOGGY = 'foggy',
   SNOWY = 'snowy',
   WINDY = 'windy',
 }
@@ -60,6 +61,7 @@ export interface MapWildWeather {
   sunny: MapWildEntry[];
   rainy: MapWildEntry[];
   stormy: MapWildEntry[];
+  foggy: MapWildEntry[];
 }
 
 export interface MapWildData {

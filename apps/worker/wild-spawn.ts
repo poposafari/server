@@ -1,5 +1,6 @@
 import {
   addWild,
+  getAllMapWeathers,
   getAllWildsWithCleanup,
   getSafariActive,
   getUserState,
@@ -30,7 +31,8 @@ export async function runWildSpawnCycle(concurrency: number = CONCURRENCY): Prom
 
   const gameTime = await getGameTime();
   const timeOfDay = (gameTime?.phase ?? TimeOfDay.DAY) as TimeOfDay;
-  const weather: Weather = Weather.SUNNY;
+
+  const weatherByMap = await getAllMapWeathers();
 
   let spawned = 0;
   let skipped = 0;
@@ -39,7 +41,10 @@ export async function runWildSpawnCycle(concurrency: number = CONCURRENCY): Prom
   for (let i = 0; i < pairs.length; i += concurrency) {
     const batch = pairs.slice(i, i + concurrency);
     const results = await Promise.allSettled(
-      batch.map((p) => processPair(p.authId, p.mapId, timeOfDay, weather)),
+      batch.map((p) => {
+        const w = (weatherByMap[p.mapId]?.weather as Weather) ?? Weather.SUNNY;
+        return processPair(p.authId, p.mapId, timeOfDay, w);
+      }),
     );
     for (const r of results) {
       if (r.status === 'fulfilled') {

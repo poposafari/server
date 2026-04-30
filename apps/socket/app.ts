@@ -20,6 +20,8 @@ import {
   deleteUserState,
   getGameTime,
   GameTimeState,
+  getMapWeather,
+  WeatherState,
   SafariWild,
   WildDespawnReason,
   removeSafariActive,
@@ -172,6 +174,20 @@ export class SocketApp {
     });
   }
 
+  broadcastWeather(state: WeatherState): void {
+    const payload = {
+      mapId: state.mapId,
+      weather: state.weather,
+      startedAt: state.startedAt,
+      duration: state.duration,
+    };
+    for (const [, socket] of this.io.sockets.sockets) {
+      if ((socket.data as SocketData).roomId === state.mapId) {
+        socket.emit('weather_changed', payload);
+      }
+    }
+  }
+
   private emitToAuthInRoom(authId: string, mapId: string, event: string, payload: unknown): void {
     for (const [, socket] of this.io.sockets.sockets) {
       const d = socket.data as SocketData;
@@ -304,6 +320,7 @@ export class SocketApp {
           data.roomId = mapId;
 
           const gameTime = await getGameTime();
+          const weather = await getMapWeather(mapId);
           socket.emit('init_ok', {
             userId: authId,
             nickname: existingState.nickname,
@@ -316,6 +333,9 @@ export class SocketApp {
             timeOfDay: gameTime?.phase ?? 'day',
             gameTimeStartedAt: gameTime?.startedAt,
             gameTimeDuration: gameTime?.duration,
+            weather: weather?.weather ?? 'sunny',
+            weatherStartedAt: weather?.startedAt,
+            weatherDuration: weather?.duration,
           });
           logger.info(`[Socket] init success: ${socket.id} userId=${authId}`);
         } catch (error) {
@@ -478,7 +498,15 @@ export class SocketApp {
             socket.to(targetMapId).emit('user_joined', userJoinedPayload);
           }
 
-          socket.emit('change_map_ok', { mapId: targetMapId, x, y });
+          const weather = await getMapWeather(targetMapId);
+          socket.emit('change_map_ok', {
+            mapId: targetMapId,
+            x,
+            y,
+            weather: weather?.weather ?? 'sunny',
+            weatherStartedAt: weather?.startedAt,
+            weatherDuration: weather?.duration,
+          });
           logger.info(`[Socket] change_map: ${userId} -> ${targetMapId} (${x},${y})`);
         } catch (error) {
           logger.error('[Socket] change_map failed:', error);

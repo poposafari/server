@@ -9,6 +9,8 @@ import {
   SocketKickMessage,
   GAME_TIME_CHANNEL,
   GameTimeState,
+  WEATHER_CHANNEL,
+  WeatherState,
   WILD_SPAWN_CHANNEL,
   WILD_DESPAWN_CHANNEL,
   KEYEVENT_EXPIRED_CHANNEL,
@@ -55,6 +57,19 @@ async function boot() {
         } catch (err) {
           logger.error('[Socket] game time parse failed:', err);
         }
+      }
+    });
+
+    const weatherSub = RedisClient.duplicate();
+    await connectRedis(weatherSub, 'SOCKET_WEATHER_SUB');
+    await weatherSub.subscribe(WEATHER_CHANNEL);
+    weatherSub.on('message', (channel: string, raw: string) => {
+      if (channel !== WEATHER_CHANNEL) return;
+      try {
+        const state = JSON.parse(raw) as WeatherState;
+        socketApp.broadcastWeather(state);
+      } catch (err) {
+        logger.error('[Socket] weather parse failed:', err);
       }
     });
 
@@ -110,6 +125,7 @@ async function boot() {
         await expirySub.quit();
         await wildDespawnSub.quit();
         await wildSpawnSub.quit();
+        await weatherSub.quit();
         await gameTimeSub.quit();
         await kickSub.quit();
         await socketApp.close();

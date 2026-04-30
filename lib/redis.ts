@@ -280,6 +280,47 @@ export async function publishGameTime(state: GameTimeState): Promise<void> {
   await RedisClient.publish(GAME_TIME_CHANNEL, JSON.stringify(state));
 }
 
+export const WEATHER_KEY = 'weather:state';
+export const WEATHER_CHANNEL = 'weather:changed';
+
+export interface WeatherState {
+  mapId: string;
+  weather: string;
+  startedAt: number;
+  duration: number;
+}
+
+export async function getMapWeather(mapId: string): Promise<WeatherState | null> {
+  const raw = await RedisClient.hget(WEATHER_KEY, mapId);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as WeatherState;
+  } catch {
+    return null;
+  }
+}
+
+export async function getAllMapWeathers(): Promise<Record<string, WeatherState>> {
+  const raw = await RedisClient.hgetall(WEATHER_KEY);
+  const result: Record<string, WeatherState> = {};
+  for (const [mapId, json] of Object.entries(raw)) {
+    try {
+      result[mapId] = JSON.parse(json) as WeatherState;
+    } catch {
+      // skip
+    }
+  }
+  return result;
+}
+
+export async function setMapWeather(state: WeatherState): Promise<void> {
+  await RedisClient.hset(WEATHER_KEY, state.mapId, JSON.stringify(state));
+}
+
+export async function publishMapWeather(state: WeatherState): Promise<void> {
+  await RedisClient.publish(WEATHER_CHANNEL, JSON.stringify(state));
+}
+
 // ── 세션 관리 ──
 
 const SESSION_KEY_PREFIX = 'session:';
