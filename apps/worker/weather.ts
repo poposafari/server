@@ -14,10 +14,10 @@ const MAX_MS = 15 * 60 * 1000;
 const TICK_MS = 1_000;
 
 const WEATHER_TABLE: { weather: Weather; weight: number }[] = [
-  { weather: Weather.SUNNY, weight: 10 },
-  { weather: Weather.RAINY, weight: 10 },
-  { weather: Weather.STORMY, weight: 10 },
-  { weather: Weather.FOGGY, weight: 70 },
+  { weather: Weather.SUNNY, weight: 70 },
+  { weather: Weather.RAINY, weight: 20 },
+  { weather: Weather.STORMY, weight: 5 },
+  { weather: Weather.FOGGY, weight: 20 },
 ];
 
 const WEATHER_POOL = WEATHER_TABLE.map((e) => e.weather);
