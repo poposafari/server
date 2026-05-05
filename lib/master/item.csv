@@ -112,7 +112,7 @@ move_rollout,15000,tms_hms,구르기,FALSE,1500,TRUE,epic
 move_stomp,15000,tms_hms,짓밟기,FALSE,1500,TRUE,epic
 move_taunt,15000,tms_hms,도발,FALSE,1500,TRUE,epic
 move_twin-beam,15000,tms_hms,트윈빔,FALSE,1500,TRUE,epic
-bicycle,999999999,key,자전거,TRUE,0,TRUE,legendary
+bicycle,15000,key,자전거,TRUE,0,TRUE,legendary
 gracidea,999999999,key,그라시데아꽃,TRUE,0,TRUE,legendary
 reveal-glass,999999999,key,비추는거울,TRUE,0,TRUE,legendary
 dna-splicers,999999999,key,유전자쐐기,TRUE,0,TRUE,legendary
