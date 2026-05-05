@@ -3,14 +3,16 @@ services:
     image: postgres:15-alpine
     container_name: poposerver_postgres
     restart: unless-stopped
-    ports:
-      - '5432:5432'
+    # 호스트에 publish 안 함 (docker bridge 내부에서만 접근)
+    expose:
+      - '5432'
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_DATABASE}
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      # Lightsail Block Storage 마운트(/mnt/pgdata, ext4) → 인스턴스 destroy해도 데이터 보존
+      - /mnt/pgdata:/var/lib/postgresql/data
     networks:
       - poposerver_prod
     healthcheck:
@@ -22,14 +24,14 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1536M # TODO(8-0): replace with measured baseline + 30~50% margin
 
   redis:
     image: redis:alpine
     container_name: poposerver_redis
     restart: unless-stopped
-    ports:
-      - '6379:6379'
+    expose:
+      - '6379'
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --notify-keyspace-events Ex
     volumes:
       - redis_data:/data
@@ -44,13 +46,10 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 256M # TODO(8-0): replace with measured baseline + 30~50% margin
 
   api:
-    build:
-      context: ../..
-      dockerfile: Dockerfile
-    image: poposerver:latest
+    image: ghcr.io/poposafari/server:${IMAGE_TAG:-latest}
     container_name: poposerver_api
     restart: unless-stopped
     command: ['node', '--heapsnapshot-near-heap-limit=1', 'dist/apps/api/main.js']
@@ -67,13 +66,19 @@ services:
     networks:
       poposerver_prod:
         ipv4_address: 172.28.0.10
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:9000/health || exit 1']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 400M # TODO(8-0): replace with measured baseline + 30~50% margin
 
   socket:
-    image: poposerver:latest
+    image: ghcr.io/poposafari/server:${IMAGE_TAG:-latest}
     container_name: poposerver_socket
     restart: unless-stopped
     command: ['node', '--heapsnapshot-near-heap-limit=1', 'dist/apps/socket/main.js']
@@ -93,10 +98,10 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 400M # TODO(8-0): replace with measured baseline + 30~50% margin
 
   flush:
-    image: poposerver:latest
+    image: ghcr.io/poposafari/server:${IMAGE_TAG:-latest}
     container_name: poposerver_flush
     restart: unless-stopped
     command: ['node', '--heapsnapshot-near-heap-limit=1', 'dist/apps/flush/main.js']
@@ -116,10 +121,10 @@ services:
     deploy:
       resources:
         limits:
-          memory: 128M
+          memory: 350M # TODO(8-0): replace with measured baseline + 30~50% margin
 
   worker:
-    image: poposerver:latest
+    image: ghcr.io/poposafari/server:${IMAGE_TAG:-latest}
     container_name: poposerver_worker
     restart: unless-stopped
     command: ['node', '--heapsnapshot-near-heap-limit=1', 'dist/apps/worker/main.js']
@@ -139,7 +144,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 350M # TODO(8-0): replace with measured baseline + 30~50% margin
 
   nginx:
     image: nginx:alpine
@@ -152,6 +157,10 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
+      # 점검 모드: deploy.sh가 ./flags/maintenance 파일을 touch/rm으로 토글
+      - ./flags:/etc/nginx/flags:ro
+      # 점검 페이지(503 응답 본문)
+      - ./nginx/maintenance:/var/www/maintenance:ro
       # 프론트 빌드 결과 + 게임 에셋 (poposafari.net 루트)
       - ./static:/var/www/poposafari:ro
     depends_on:
@@ -162,10 +171,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 128M
+          memory: 64M # TODO(8-0): replace with measured baseline + 30~50% margin
 
 volumes:
-  pg_data:
   redis_data:
 
 networks:
