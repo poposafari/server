@@ -10,6 +10,8 @@ RUN pnpm install --frozen-lockfile
 COPY tsconfig.json ./
 COPY apps ./apps
 COPY lib ./lib
+COPY drizzle.config.ts ./
+COPY drizzle ./drizzle
 
 RUN pnpm run build
 
