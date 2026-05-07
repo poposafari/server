@@ -1,7 +1,10 @@
 # 스테이징/프로덕션: tsc 빌드 후 node로 실행 (ts-node 미사용)
 FROM node:20-alpine
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# pnpm 버전 명시 — @latest는 Node 메이저 호환성을 깨뜨려 빌드 사고 유발
+# (예: pnpm 11+는 Node 22.13+ 필요, node:sqlite 빌트인 사용)
+# pnpm-lock.yaml의 lockfileVersion 9.0과 호환되는 pnpm 9 계열로 고정
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
