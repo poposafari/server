@@ -7,6 +7,8 @@ import {
   RedisKey,
   SOCKET_KICK_CHANNEL,
   SocketKickMessage,
+  SOCKET_MAINTENANCE_CHANNEL,
+  SocketMaintenanceMessage,
   GAME_TIME_CHANNEL,
   GameTimeState,
   WEATHER_CHANNEL,
@@ -43,6 +45,21 @@ async function boot() {
         } catch (err) {
           logger.error('[Socket] kick failed:', err);
         }
+      }
+    });
+
+    const maintenanceSub = RedisClient.duplicate();
+    await connectRedis(maintenanceSub, 'SOCKET_MAINTENANCE_SUB');
+    await maintenanceSub.subscribe(SOCKET_MAINTENANCE_CHANNEL);
+    maintenanceSub.on('message', (channel: string, raw: string) => {
+      if (channel !== SOCKET_MAINTENANCE_CHANNEL) return;
+      try {
+        const msg = JSON.parse(raw) as SocketMaintenanceMessage;
+        if (msg.type === 'start') {
+          socketApp.broadcastMaintenance();
+        }
+      } catch (err) {
+        logger.error('[Socket] maintenance broadcast failed:', err);
       }
     });
 
@@ -110,10 +127,7 @@ async function boot() {
       if (!parsed) return;
       try {
         socketApp.emitWildDespawn(parsed.authId, parsed.mapId, parsed.wildUid, 'ttl');
-        await RedisClient.srem(
-          RedisKey.safariWildIds(parsed.authId, parsed.mapId),
-          parsed.wildUid,
-        );
+        await RedisClient.srem(RedisKey.safariWildIds(parsed.authId, parsed.mapId), parsed.wildUid);
       } catch (err) {
         logger.error('[Socket] wild expiry handling failed:', err);
       }
@@ -127,6 +141,7 @@ async function boot() {
         await wildSpawnSub.quit();
         await weatherSub.quit();
         await gameTimeSub.quit();
+        await maintenanceSub.quit();
         await kickSub.quit();
         await socketApp.close();
         await RedisClient.quit();

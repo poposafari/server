@@ -47,6 +47,8 @@ const envSchema = z.object({
   // OAuth — 콜백 후 클라이언트 리다이렉트 (success/failure)
   OAUTH_CLIENT_SUCCESS_URL: z.string().url(),
   OAUTH_CLIENT_FAILURE_URL: z.string().url(),
+
+  INTERNAL_TOKEN: z.string().optional(),
 });
 
 const envCheck = envSchema.safeParse(process.env);

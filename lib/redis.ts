@@ -251,6 +251,17 @@ export async function publishSocketKick(authId: string, targetSocketId?: string)
   await RedisClient.publish(SOCKET_KICK_CHANNEL, JSON.stringify(message));
 }
 
+export const SOCKET_MAINTENANCE_CHANNEL = 'socket:maintenance';
+
+export interface SocketMaintenanceMessage {
+  type: 'start';
+}
+
+export async function publishSocketMaintenance(): Promise<void> {
+  const message: SocketMaintenanceMessage = { type: 'start' };
+  await RedisClient.publish(SOCKET_MAINTENANCE_CHANNEL, JSON.stringify(message));
+}
+
 // ── 게임 시간 관리 ──
 
 export const GAME_TIME_KEY = 'game:time';

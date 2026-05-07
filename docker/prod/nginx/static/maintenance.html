@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>Maintenance — PopoSafari</title>
+    <style>
+      body {
+        background: #1a1a2e;
+        color: #fff;
+        font-family: system-ui, sans-serif;
+        text-align: center;
+        padding-top: 25vh;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      p {
+        font-size: 1rem;
+        opacity: 0.85;
+      }
+      p.hint {
+        font-size: 0.9rem;
+        opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 data-i18n="title"></h1>
+    <p data-i18n="desc1"></p>
+    <p data-i18n="desc2"></p>
+    <p class="hint" data-i18n="hint"></p>
+
+    <script>
+      // Client app(i18next)과 동일한 locale 셋: ko / en / jp
+      // - 텍스트 원문은 client/src/locales/{ko,en,jp}/etc.ts와 일치시킨다
+      var TRANSLATIONS = {
+        ko: {
+          lang: 'ko',
+          title: '🛠️ 점검 중입니다',
+          desc1: '서비스 이용에 불편을 드려 죄송합니다.',
+          desc2: '점검이 완료되는 대로 다시 안내드리겠습니다.',
+          hint: '점검이 끝난 뒤 새로고침(F5) 해주세요',
+        },
+        en: {
+          lang: 'en',
+          title: '🛠️ Under Maintenance',
+          desc1: "We're sorry for the inconvenience.",
+          desc2: "We'll be back as soon as the maintenance is complete.",
+          hint: 'Please refresh (F5) once maintenance is over',
+        },
+        jp: {
+          lang: 'ja',
+          title: '🛠️ メンテナンスちゅう',
+          desc1: 'ごふべんを おかけして もうしわけございません。',
+          desc2: 'メンテナンスが おわるまで しばらく おまちください。',
+          hint: 'メンテナンスが おわったら リロード(F5)してください',
+        },
+      };
+
+      // BCP-47 언어 코드를 클라 locale 키로 정규화
+      function normalize(tag) {
+        if (!tag) return null;
+        var t = String(tag).toLowerCase();
+        if (t.indexOf('ko') === 0) return 'ko';
+        if (t.indexOf('ja') === 0 || t.indexOf('jp') === 0) return 'jp';
+        if (t.indexOf('en') === 0) return 'en';
+        return null;
+      }
+
+      // 우선순위: localStorage.i18nextLng → navigator.languages → navigator.language → 'en'
+      function pickLocale() {
+        try {
+          var saved = window.localStorage && localStorage.getItem('i18nextLng');
+          var fromSaved = normalize(saved);
+          if (fromSaved) return fromSaved;
+        } catch (e) {
+          // localStorage 접근 실패(시크릿모드 + 정책 등). 무시하고 다음 단계로.
+        }
+        var langs = navigator.languages || [navigator.language];
+        for (var i = 0; i < langs.length; i++) {
+          var picked = normalize(langs[i]);
+          if (picked) return picked;
+        }
+        return 'en';
+      }
+
+      var locale = pickLocale();
+      var t = TRANSLATIONS[locale] || TRANSLATIONS.en;
+      document.documentElement.setAttribute('lang', t.lang);
+      var nodes = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < nodes.length; i++) {
+        var key = nodes[i].getAttribute('data-i18n');
+        if (t[key]) nodes[i].textContent = t[key];
+      }
+    </script>
+  </body>
+</html>

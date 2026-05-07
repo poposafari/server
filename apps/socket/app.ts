@@ -166,6 +166,15 @@ export class SocketApp {
     }
   }
 
+  broadcastMaintenance(): void {
+    const total = this.io.sockets.sockets.size;
+    logger.info(`[Socket] broadcasting maintenance to ${total} active sockets`);
+    for (const [, socket] of this.io.sockets.sockets) {
+      socket.emit('kicked', { reason: 'MAINTENANCE' });
+      socket.disconnect(true);
+    }
+  }
+
   broadcastGameTime(state: GameTimeState): void {
     this.io.emit('game_time_changed', {
       timeOfDay: state.phase,
