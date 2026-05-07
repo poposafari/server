@@ -162,7 +162,8 @@ services:
       # 점검 페이지(503 응답 본문)
       - ./nginx/maintenance:/var/www/maintenance:ro
       # 프론트 빌드 결과 + 게임 에셋 (poposafari.net 루트)
-      - ./static:/var/www/poposafari:ro
+      # client/.github/workflows/deploy.yml의 atomic swap 타겟과 동일 경로여야 함
+      - /var/www/poposafari:/var/www/poposafari:ro
     depends_on:
       - api
       - socket
