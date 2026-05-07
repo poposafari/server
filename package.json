@@ -9,6 +9,7 @@
     "socket:dev": "ts-node -r tsconfig-paths/register apps/socket/main.ts",
     "worker:dev": "ts-node -r tsconfig-paths/register apps/worker/main.ts",
     "flush:dev": "ts-node -r tsconfig-paths/register apps/flush/main.ts",
+    "typecheck": "tsc --noEmit",
     "build": "tsc && tsc-alias -p tsconfig.json && node -e \"require('fs').cpSync('lib/master', 'dist/lib/master', {recursive:true})\"",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"**/*.{ts,json,md}\"",
