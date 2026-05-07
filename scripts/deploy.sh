@@ -37,8 +37,7 @@ IMAGE_TAG=$IMAGE_TAG $COMPOSE pull api socket worker flush
 echo "[3/8] recreate app containers (PG/Redis 유지)"
 IMAGE_TAG=$IMAGE_TAG $COMPOSE up -d --no-deps api socket worker flush
 
-echo "[4/8] drizzle migrate"
-docker exec poposafari-api-1 pnpm db:migrate:prod
+echo "[4/8] drizzle migrate — skipped (manual schema management)"
 
 echo "[5/8] healthcheck (30s 폴링)"
 for i in $(seq 1 30); do

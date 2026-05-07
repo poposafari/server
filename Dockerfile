@@ -10,8 +10,11 @@ RUN pnpm install --frozen-lockfile
 COPY tsconfig.json ./
 COPY apps ./apps
 COPY lib ./lib
-COPY drizzle.config.ts ./
-COPY drizzle ./drizzle
+
+# 현재는 prod 스키마가 안정 상태이며 schema 변경은 별도 절차(아래 주석 참조)로 처리.
+# 마이그레이션을 다시 자동화할 시점에 두 줄을 복원하면 된다:
+#   COPY drizzle.config.ts ./
+#   COPY drizzle ./drizzle
 
 RUN pnpm run build
 
