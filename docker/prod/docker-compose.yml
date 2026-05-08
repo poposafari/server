@@ -3,9 +3,12 @@ services:
     image: postgres:15-alpine
     container_name: poposerver_postgres
     restart: unless-stopped
-    # 호스트에 publish 안 함 (docker bridge 내부에서만 접근)
+    # docker bridge 내부 통신
     expose:
       - '5432'
+    # 호스트 loopback에만 publish — DataGrip 등 SSH tunnel을 통한 DBA 접근용. 0.0.0.0 노출 금지
+    ports:
+      - '127.0.0.1:5432:5432'
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -32,6 +35,9 @@ services:
     restart: unless-stopped
     expose:
       - '6379'
+    # 호스트 loopback에만 publish — SSH tunnel 통한 DBA 접근용. 0.0.0.0 노출 금지
+    ports:
+      - '127.0.0.1:6379:6379'
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --notify-keyspace-events Ex
     volumes:
       - redis_data:/data
