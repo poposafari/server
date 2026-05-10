@@ -28,8 +28,8 @@ else
 fi
 
 echo "[1/8] maintenance flag ON"
-docker exec poposafari-nginx-1 touch /etc/nginx/maintenance.flag
-docker exec poposafari-nginx-1 nginx -s reload
+docker exec poposerver_nginx touch /etc/nginx/maintenance.flag
+docker exec poposerver_nginx nginx -s reload
 
 echo "[2/8] image pull (tag=$IMAGE_TAG)"
 IMAGE_TAG=$IMAGE_TAG $COMPOSE pull api socket worker flush
@@ -49,8 +49,8 @@ for i in $(seq 1 30); do
 done
 
 echo "[6/8] maintenance flag OFF"
-docker exec poposafari-nginx-1 rm -f /etc/nginx/maintenance.flag
-docker exec poposafari-nginx-1 nginx -s reload
+docker exec poposerver_nginx rm -f /etc/nginx/maintenance.flag
+docker exec poposerver_nginx nginx -s reload
 
 echo "[7/8] save deployed SHA"
 echo "$IMAGE_TAG" > ~/.poposafari-current-sha
