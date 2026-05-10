@@ -28,7 +28,7 @@ else
 fi
 
 echo "[1/8] maintenance flag ON"
-sudo touch /etc/nginx/maintenance.flag
+docker exec poposafari-nginx-1 touch /etc/nginx/maintenance.flag
 docker exec poposafari-nginx-1 nginx -s reload
 
 echo "[2/8] image pull (tag=$IMAGE_TAG)"
@@ -49,7 +49,7 @@ for i in $(seq 1 30); do
 done
 
 echo "[6/8] maintenance flag OFF"
-sudo rm -f /etc/nginx/maintenance.flag
+docker exec poposafari-nginx-1 rm -f /etc/nginx/maintenance.flag
 docker exec poposafari-nginx-1 nginx -s reload
 
 echo "[7/8] save deployed SHA"
