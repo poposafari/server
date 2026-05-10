@@ -55,7 +55,7 @@ services:
           memory: 256M # TODO(8-0): replace with measured baseline + 30~50% margin
 
   api:
-    image: ghcr.io/poposafari/server:${IMAGE_TAG:-latest}
+    image: ghcr.io/seophohoho/poposerver:${IMAGE_TAG:-latest}
     container_name: poposerver_api
     restart: unless-stopped
     command: ['node', '--heapsnapshot-near-heap-limit=1', 'dist/apps/api/main.js']
@@ -84,7 +84,7 @@ services:
           memory: 400M # TODO(8-0): replace with measured baseline + 30~50% margin
 
   socket:
-    image: ghcr.io/poposafari/server:${IMAGE_TAG:-latest}
+    image: ghcr.io/seophohoho/poposerver:${IMAGE_TAG:-latest}
     container_name: poposerver_socket
     restart: unless-stopped
     command: ['node', '--heapsnapshot-near-heap-limit=1', 'dist/apps/socket/main.js']
@@ -107,7 +107,7 @@ services:
           memory: 400M # TODO(8-0): replace with measured baseline + 30~50% margin
 
   flush:
-    image: ghcr.io/poposafari/server:${IMAGE_TAG:-latest}
+    image: ghcr.io/seophohoho/poposerver:${IMAGE_TAG:-latest}
     container_name: poposerver_flush
     restart: unless-stopped
     command: ['node', '--heapsnapshot-near-heap-limit=1', 'dist/apps/flush/main.js']
@@ -130,7 +130,7 @@ services:
           memory: 350M # TODO(8-0): replace with measured baseline + 30~50% margin
 
   worker:
-    image: ghcr.io/poposafari/server:${IMAGE_TAG:-latest}
+    image: ghcr.io/seophohoho/poposerver:${IMAGE_TAG:-latest}
     container_name: poposerver_worker
     restart: unless-stopped
     command: ['node', '--heapsnapshot-near-heap-limit=1', 'dist/apps/worker/main.js']
