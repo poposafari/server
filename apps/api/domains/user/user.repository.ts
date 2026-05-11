@@ -101,6 +101,8 @@ export class UserRepository {
         heldItemId: userPokemon.heldItemId,
         partySlot: userPokemon.partySlot,
         ballId: userPokemon.ballId,
+        caughtLocation: userPokemon.caughtLocation,
+        caughtAt: userPokemon.caughtAt,
       })
       .from(userPokemon)
       .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)))

@@ -33,6 +33,8 @@ export interface UserGameDataRes {
       heldItemId: string | null;
       partySlot: number | null;
       ballId: number;
+      caughtLocation: string;
+      caughtAt: string;
     }[];
     itemSlots: {
       itemId: string;
