@@ -40,8 +40,9 @@ IMAGE_TAG=$IMAGE_TAG $COMPOSE up -d --no-deps api socket worker flush
 echo "[4/8] drizzle migrate — skipped (manual schema management)"
 
 echo "[5/8] healthcheck (30s 폴링)"
+
 for i in $(seq 1 30); do
-  if curl -sf http://localhost:9000/api/healthz; then
+  if docker exec poposerver_api wget -qO- http://localhost:9000/health >/dev/null 2>&1; then
     echo "  healthy at attempt $i"; break
   fi
   sleep 1
