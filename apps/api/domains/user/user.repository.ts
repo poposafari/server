@@ -1,5 +1,5 @@
 import { db } from '@poposerver/lib/db';
-import { user, userCostume, userPokemon, userItem } from '@poposerver/lib/schema';
+import { user, userCostume, userPokemon, userItem, userPokedex } from '@poposerver/lib/schema';
 import { eq, and, or, isNotNull, like } from 'drizzle-orm';
 
 export class UserRepository {
@@ -132,6 +132,14 @@ export class UserRepository {
         ),
       );
 
-    return { profile, equippedCostumes, party, itemSlots, essentialItems };
+    const pokedex = await db
+      .select({
+        pokedexId: userPokedex.pokedexId,
+        caughtCount: userPokedex.caughtCount,
+      })
+      .from(userPokedex)
+      .where(eq(userPokedex.accountId, accountId));
+
+    return { profile, equippedCostumes, party, itemSlots, essentialItems, pokedex };
   }
 }

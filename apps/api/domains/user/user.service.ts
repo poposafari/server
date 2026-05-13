@@ -84,7 +84,7 @@ export class UserService {
       throw new AppError(AppErrorMessage.USER_NOT_FOUND, 404, AppErrorCode.USER_NOT_FOUND);
     }
 
-    const { profile, equippedCostumes, party, itemSlots, essentialItems } = result;
+    const { profile, equippedCostumes, party, itemSlots, essentialItems, pokedex } = result;
 
     const visitedMapRows = await db
       .select({ mapId: userTownMap.mapId })
@@ -109,6 +109,6 @@ export class UserService {
       visitedMaps: JSON.stringify(visitedMapIds),
     });
 
-    return { profile, equippedCostumes, party, itemSlots, essentialItems };
+    return { profile, equippedCostumes, party, itemSlots, essentialItems, pokedex };
   }
 }

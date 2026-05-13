@@ -41,5 +41,9 @@ export interface UserGameDataRes {
       quantity: number;
       register: boolean;
     }[];
+    pokedex: {
+      pokedexId: string;
+      caughtCount: number;
+    }[];
   };
 }
