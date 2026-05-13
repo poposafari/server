@@ -73,7 +73,7 @@ services:
       poposerver_prod:
         ipv4_address: 172.28.0.10
     healthcheck:
-      test: ['CMD-SHELL', 'wget -qO- http://localhost:9000/health || exit 1']
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:9000/health || exit 1']
       interval: 10s
       timeout: 3s
       retries: 5

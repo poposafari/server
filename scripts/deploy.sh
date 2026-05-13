@@ -20,7 +20,7 @@ if [ -n "$INTERNAL_TOKEN" ]; then
   docker exec poposerver_api wget -qO- \
     --header="X-Internal-Token: ${INTERNAL_TOKEN}" \
     --post-data="" \
-    http://localhost:9000/api/__internal/maintenance/broadcast || \
+    http://127.0.0.1:9000/api/__internal/maintenance/broadcast || \
     echo "  WARN: broadcast failed (계속 진행)"
   sleep 3   # 클라이언트들이 MaintenancePhase로 전환할 시간 확보
 else
@@ -52,7 +52,7 @@ for i in $(seq 1 60); do
     exit 1
   fi
 
-  if docker exec poposerver_api wget -qO- http://localhost:9000/health >/dev/null 2>&1; then
+  if docker exec poposerver_api wget -qO- http://127.0.0.1:9000/health >/dev/null 2>&1; then
     echo "  healthy at attempt $i"; break
   fi
   sleep 1
