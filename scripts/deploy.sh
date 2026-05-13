@@ -39,14 +39,30 @@ IMAGE_TAG=$IMAGE_TAG $COMPOSE up -d --no-deps api socket worker flush
 
 echo "[4/8] drizzle migrate — skipped (manual schema management)"
 
-echo "[5/8] healthcheck (30s 폴링)"
+echo "[5/8] healthcheck (60s 폴링)"
 
-for i in $(seq 1 30); do
+for i in $(seq 1 60); do
+  STATUS=$(docker inspect -f '{{.State.Status}}' poposerver_api 2>/dev/null || echo "missing")
+  RESTARTS=$(docker inspect -f '{{.RestartCount}}' poposerver_api 2>/dev/null || echo "?")
+
+  if [ "$STATUS" = "restarting" ] || [ "$STATUS" = "exited" ]; then
+    echo "FAIL: api container status=$STATUS restarts=$RESTARTS (attempt $i)"
+    echo "----- docker logs poposerver_api (tail 150) -----"
+    docker logs poposerver_api --tail 150 2>&1 || true
+    exit 1
+  fi
+
   if docker exec poposerver_api wget -qO- http://localhost:9000/health >/dev/null 2>&1; then
     echo "  healthy at attempt $i"; break
   fi
   sleep 1
-  if [ "$i" -eq 30 ]; then echo "FAIL: healthcheck timeout"; exit 1; fi
+
+  if [ "$i" -eq 60 ]; then
+    echo "FAIL: healthcheck timeout"
+    echo "----- docker logs poposerver_api (tail 150) -----"
+    docker logs poposerver_api --tail 150 2>&1 || true
+    exit 1
+  fi
 done
 
 echo "[6/8] maintenance flag OFF"
