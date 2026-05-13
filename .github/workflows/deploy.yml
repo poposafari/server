@@ -7,6 +7,7 @@ on:
       - 'lib/**'
       - 'docker/prod/**'
       - 'drizzle/**'
+      - 'scripts/**'
       - '.github/workflows/deploy.yml'
 
 jobs:
@@ -67,6 +68,7 @@ jobs:
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           script: |
             cd ~/poposafari/server
+            git pull --ff-only origin main
             ./scripts/deploy.sh ${{ needs.build-and-push.outputs.sha }}
 
       - name: Notify Discord (deploy success)
