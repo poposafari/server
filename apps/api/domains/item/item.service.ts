@@ -24,10 +24,18 @@ export class ItemService {
       throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
     }
 
-    console.log(itemData.purchasable);
-
     if (!itemData.purchasable) {
       throw new AppError('Item is not purchasable', 400, AppErrorCode.ITEM_NOT_PURCHASABLE);
+    }
+
+    if (body.item === 'bicycle') {
+      const [ownedBicycle] = await db
+        .select({ quantity: userItem.quantity })
+        .from(userItem)
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'bicycle')));
+      if (ownedBicycle && ownedBicycle.quantity > 0) {
+        throw new AppError('Bicycle already owned', 400, AppErrorCode.ITEM_ALREADY_OWNED);
+      }
     }
 
     const totalCost = itemData.buy * body.quantity;
