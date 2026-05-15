@@ -1,5 +1,6 @@
 import { connectDB, connectRedis, logger, MasterData, RedisClient } from '@poposerver/lib';
 import { startGameTimeClock } from './game-time';
+import { startJanitorLoops } from './janitor';
 import { startWeatherClock } from './weather';
 import { startWildSpawnLoop } from './wild-spawn';
 
@@ -12,6 +13,7 @@ async function boot() {
     const stopGameTime = startGameTimeClock();
     const stopWeather = startWeatherClock();
     const stopWildSpawn = startWildSpawnLoop();
+    const stopJanitor = startJanitorLoops();
 
     const shutdown = async (signal: string) => {
       logger.info(`[${signal}] Shutting down...`);
@@ -19,6 +21,7 @@ async function boot() {
         stopGameTime();
         stopWeather();
         await stopWildSpawn();
+        await stopJanitor();
         logger.info('[Bye] Cleanup finished.');
         process.exit(0);
       } catch (error) {

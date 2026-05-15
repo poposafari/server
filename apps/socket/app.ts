@@ -4,6 +4,7 @@ import { Server as SocketIOServer, Socket } from 'socket.io';
 import {
   addSafariActive,
   addUserToRoom,
+  clearConnReservedGrace,
   consumeConnToken,
   envConfig,
   extractPetState,
@@ -13,6 +14,7 @@ import {
   logger,
   persistUserStateFromRedisToDb,
   petChangeReqSchema,
+  removeActivePlayer,
   removeUserFromRoom,
   updateUserStateMap,
   updateUserStatePet,
@@ -246,6 +248,9 @@ export class SocketApp {
       if (data.authId) {
         const authId = data.authId;
         void (async () => {
+          // 핸드셰이크 성공 → 슬롯 grace 종료. janitor가 stale로 판정하지 않게 한다.
+          await clearConnReservedGrace(authId);
+
           const stateKey = `user:${authId}:state`;
           const existingState = await getUserState(authId);
 
@@ -584,6 +589,12 @@ export class SocketApp {
           const isOwner = currentState?.socketId === socket.id;
 
           await persistUserStateFromRedisToDb(userId, { deleteFromRedis: isOwner });
+
+          if (isOwner) {
+            // 슬롯 회수. ownership 가드를 통과한 경우에만 — 킥당한 소켓이 SREM하면
+            // 같은 authId의 새 연결까지 영향받기 때문.
+            await removeActivePlayer(userId);
+          }
 
           if (roomId) {
             if (shouldSyncOtherPlayers(roomId)) {

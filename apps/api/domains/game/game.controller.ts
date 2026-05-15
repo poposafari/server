@@ -6,7 +6,12 @@ export class GameController {
 
   connect = async (request: FastifyRequest, reply: FastifyReply) => {
     const authId = request.authId!;
-    const token = await this.service.issueConnToken(authId);
-    return reply.status(200).send({ success: true, data: { token } });
+    const result = await this.service.connect(authId);
+    return reply.status(200).send({ success: true, data: result });
+  };
+
+  getOnlineCount = async (_request: FastifyRequest, reply: FastifyReply) => {
+    const count = await this.service.getOnlineCount();
+    return reply.status(200).send({ success: true, data: { count } });
   };
 }

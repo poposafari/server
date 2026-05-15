@@ -22,6 +22,11 @@ export default async function gameRoutes(app: FastifyInstance) {
     handler: controller.connect,
   });
 
+  app.get('/online', {
+    preHandler: [sessionAuthGuard],
+    handler: controller.getOnlineCount,
+  });
+
   const safariService = new SafariService();
   const safariController = new SafariController(safariService);
 
