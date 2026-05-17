@@ -51,7 +51,7 @@ export function rollShiny(): boolean {
   return Math.floor(Math.random() * SHINY_RATE) === 0;
 }
 
-const SAFARI_SHINY_RATE = 1024;
+const SAFARI_SHINY_RATE = 4096;
 
 export function rollSafariShiny(): boolean {
   return Math.floor(Math.random() * SAFARI_SHINY_RATE) === 0;

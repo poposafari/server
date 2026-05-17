@@ -353,14 +353,7 @@ export class SafariService {
         candyQuantity = S000_REWARD_QUANTITY;
       } else {
         candyId = `${pokemonData.type1}-candy`;
-        const candyRanges: Record<string, [number, number]> = {
-          common: [1, 3],
-          rare: [3, 5],
-          epic: [10, 20],
-          legendary: [50, 100],
-        };
-        const [candyMin, candyMax] = candyRanges[pokemonData.tier] ?? [1, 3];
-        candyQuantity = randomInt(candyMin, candyMax);
+        candyQuantity = LEVEL_CURVE.CANDY_BY_TIER[pokemonData.tier] ?? 3;
       }
 
       let insertedPokemon: typeof userPokemon.$inferSelect;
@@ -592,23 +585,15 @@ export class SafariService {
   ): number {
     if (partyPokemons.length === 0) return 0;
 
-    const tierBonus: Record<string, number> = {
-      common: 0,
-      rare: 0,
-      epic: 0.03,
-      legendary: 0.05,
-      mythical: 0.05,
-    };
-
-    let maxBonus = 0;
+    let sum = 0;
     for (const p of partyPokemons) {
       const lvlBonus = LEVEL_CURVE.partyLevelBonus(p.level);
-      const shinyBonus = p.isShiny ? 0.03 : 0;
-      const tBonus = tierBonus[p.tier] ?? 0;
-      maxBonus = Math.max(maxBonus, lvlBonus + shinyBonus + tBonus);
+      const shinyBonus = p.isShiny ? LEVEL_CURVE.PARTY_SHINY_BONUS : 0;
+      const tBonus = LEVEL_CURVE.PARTY_TIER_BONUS[p.tier] ?? 0;
+      sum += lvlBonus + shinyBonus + tBonus;
     }
 
-    return maxBonus;
+    return sum / LEVEL_CURVE.PARTY_SLOT_COUNT;
   }
 
   async exit(authId: string): Promise<{ mapId: string; entry: { x: number; y: number } }> {

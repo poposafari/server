@@ -95,7 +95,7 @@ export interface MapData {
 }
 
 // --- Pokemon types ---
-export type PokemonTier = 'common' | 'rare' | 'epic' | 'legendary' | 'mythical';
+export type PokemonTier = 'common' | 'rare' | 'epic' | 'legendary';
 export type PokemonSpawnTile = 'land' | 'water';
 export type PokemonType =
   | 'normal'

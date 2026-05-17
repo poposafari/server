@@ -1,35 +1,38 @@
-export type TierKey = 'common' | 'rare' | 'epic' | 'legendary' | 'mythical';
+export type TierKey = 'common' | 'rare' | 'epic' | 'legendary';
 
 export const LEVEL_CURVE = {
   // ── 유저 레벨 ──
-  USER_LEVEL_MAX: 50,
+  USER_LEVEL_MAX: 100,
 
-  /** 현재 레벨 → 다음 레벨까지 필요한 exp (현재 레벨 구간 내). */
-  expToNext: (level: number): number => Math.floor(50 * level * level),
+  /** 현재 레벨 → 다음 레벨까지 필요한 exp (이차곡선: L²). */
+  expToNext: (level: number): number => level * level,
 
   // ── 포켓몬 레벨 ──
-  POKEMON_LEVEL_MIN: 0,
-  POKEMON_LEVEL_MAX: 999,
+  POKEMON_LEVEL_MIN: 1,
+  POKEMON_LEVEL_MAX: 100,
 
-  // ── 야생 스폰 스케일 ──
-  WILD_SCALE: 20,
-  WILD_BASE_SPREAD: 5,
-  WILD_SPREAD_GROWTH: 1.5,
+  // ── 야생 스폰 ──
+  WILD_SPREAD: 3,
 
-  /** 유저 레벨 기반 야생 포켓몬 레벨 범위 [min, max] (포함). */
+  /** 유저 레벨 기반 야생 포켓몬 레벨 범위 [min, max] (포함). pivot=userLevel ±WILD_SPREAD. */
   wildLevelRange: (userLevel: number): { min: number; max: number } => {
-    const pivot = Math.round(userLevel * LEVEL_CURVE.WILD_SCALE);
-    const spread = Math.floor(
-      LEVEL_CURVE.WILD_BASE_SPREAD + userLevel * LEVEL_CURVE.WILD_SPREAD_GROWTH,
-    );
-    const min = Math.max(LEVEL_CURVE.POKEMON_LEVEL_MIN, pivot - spread);
-    const max = Math.min(LEVEL_CURVE.POKEMON_LEVEL_MAX, pivot + spread);
+    const pivot = userLevel;
+    const min = Math.max(LEVEL_CURVE.POKEMON_LEVEL_MIN, pivot - LEVEL_CURVE.WILD_SPREAD);
+    const max = Math.min(LEVEL_CURVE.POKEMON_LEVEL_MAX, pivot + LEVEL_CURVE.WILD_SPREAD);
     return { min, max };
   },
 
   // ── 포획 보너스 ──
-  PARTY_LEVEL_COEF: 0.0003,
-  PARTY_LEVEL_CAP: 0.3,
+  PARTY_LEVEL_COEF: 0.002,
+  PARTY_LEVEL_CAP: 0.2,
+  PARTY_SHINY_BONUS: 0.05,
+  PARTY_TIER_BONUS: {
+    common: 0,
+    rare: 0.01,
+    epic: 0.02,
+    legendary: 0.03,
+  } as Record<TierKey, number>,
+  PARTY_SLOT_COUNT: 6,
   CAPTURE_RATE_CAP: 0.999,
   FLEE_RATE_CAP: 0.9,
 
@@ -43,7 +46,6 @@ export const LEVEL_CURVE = {
     rare: 25,
     epic: 60,
     legendary: 150,
-    mythical: 200,
   } as Record<string, number>,
 
   /** 포획 성공 시 유저가 얻는 경험치. */
@@ -51,4 +53,12 @@ export const LEVEL_CURVE = {
     const base = LEVEL_CURVE.EXP_BASE_BY_TIER[tier] ?? 10;
     return Math.floor(base * (1 + wildLevel / 100));
   },
+
+  // ── 캔디 보상 ──
+  CANDY_BY_TIER: {
+    common: 3,
+    rare: 5,
+    epic: 10,
+    legendary: 20,
+  } as Record<string, number>,
 };

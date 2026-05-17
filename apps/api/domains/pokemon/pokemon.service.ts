@@ -12,7 +12,6 @@ const TIER_BASE_REWARD: Record<PokemonTier, number> = {
   rare: 3,
   epic: 6,
   legendary: 10,
-  mythical: 10,
 };
 
 function getLevelBonus(level: number): number {
@@ -27,7 +26,7 @@ function calcSellReward(level: number, tier: PokemonTier): number {
   return TIER_BASE_REWARD[tier] + getLevelBonus(level);
 }
 
-const POKEMON_MAX_LEVEL = 999;
+const POKEMON_MAX_LEVEL = 100;
 
 export class PokemonService {
   constructor(private readonly repo: PokemonRepository) {}
