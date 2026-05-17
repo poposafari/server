@@ -927,5 +927,157 @@
         "foggy": []
       }
     }
+  },
+  "s004": {
+    "comment": "사파리존 s004",
+    "type": "safari",
+    "cost": 0,
+    "item": {
+      "min": 0,
+      "max": 0,
+      "spawn": []
+    },
+    "wild": {
+      "min": 0,
+      "max": 0,
+      "dawn": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "day": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "dusk": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "night": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      }
+    }
+  },
+  "s005": {
+    "comment": "사파리존 s005",
+    "type": "safari",
+    "cost": 0,
+    "item": {
+      "min": 0,
+      "max": 0,
+      "spawn": []
+    },
+    "wild": {
+      "min": 0,
+      "max": 0,
+      "dawn": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "day": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "dusk": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "night": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      }
+    }
+  },
+  "s006": {
+    "comment": "사파리존 s006",
+    "type": "safari",
+    "cost": 0,
+    "item": {
+      "min": 0,
+      "max": 0,
+      "spawn": []
+    },
+    "wild": {
+      "min": 0,
+      "max": 0,
+      "dawn": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "day": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "dusk": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "night": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      }
+    }
+  },
+  "s007": {
+    "comment": "사파리존 s007",
+    "type": "safari",
+    "cost": 0,
+    "item": {
+      "min": 0,
+      "max": 0,
+      "spawn": []
+    },
+    "wild": {
+      "min": 0,
+      "max": 0,
+      "dawn": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "day": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "dusk": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "night": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      }
+    }
   }
 }
