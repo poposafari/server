@@ -228,7 +228,7 @@ describe('기존 접속자가 있을 때 토큰 발급', () => {
 
 // ── 사파리 입장 ──
 
-async function createUserAndSetState(sid: string, level = 50): Promise<string> {
+async function createUserAndSetState(sid: string): Promise<string> {
   const authId = await getAuthIdFromSid(sid);
   const accountId = Number(authId);
 
@@ -237,7 +237,6 @@ async function createUserAndSetState(sid: string, level = 50): Promise<string> {
     accountId,
     nickname: `tester${accountId}`,
     gender: 1,
-    level,
     lastMapId: 'p001',
     lastX: 37,
     lastY: 32,
@@ -250,7 +249,6 @@ async function createUserAndSetState(sid: string, level = 50): Promise<string> {
     x: '37',
     y: '32',
     nickname: `tester${accountId}`,
-    level: String(level),
     gender: '1',
     party: '[]',
     itemSlots: '[]',
@@ -267,7 +265,7 @@ async function createUserAndSetState(sid: string, level = 50): Promise<string> {
 describe('POST /api/game/safari/enter', () => {
   it('plaza에서 사파리 입장 → 200 + 야생 포켓몬/아이템 데이터 반환', async () => {
     const sid = await registerAndGetSid();
-    await createUserAndSetState(sid, 50);
+    await createUserAndSetState(sid);
 
     const res = await app.inject({
       method: 'POST',
@@ -286,10 +284,9 @@ describe('POST /api/game/safari/enter', () => {
     expect(body.data['s001'].items).toBeInstanceOf(Array);
   });
 
-  it('야생 포켓몬에 level 필드가 존재하고, 유저 레벨 ±10 범위 내', async () => {
-    const userLevel = 50;
+  it('야생 포켓몬 레벨이 맵의 levelMin~levelMax 범위 내 (s001=5~10)', async () => {
     const sid = await registerAndGetSid();
-    await createUserAndSetState(sid, userLevel);
+    await createUserAndSetState(sid);
 
     const res = await app.inject({
       method: 'POST',
@@ -305,52 +302,8 @@ describe('POST /api/game/safari/enter', () => {
       for (const wild of body.data[mapId].wilds) {
         expect(wild.level).toBeDefined();
         expect(typeof wild.level).toBe('number');
-        expect(wild.level).toBeGreaterThanOrEqual(Math.max(1, userLevel - 10));
-        expect(wild.level).toBeLessThanOrEqual(Math.min(100, userLevel + 10));
-      }
-    }
-  });
-
-  it('유저 레벨 1 → 야생 포켓몬 레벨이 1 미만이 되지 않음', async () => {
-    const sid = await registerAndGetSid();
-    await createUserAndSetState(sid, 1);
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/game/safari/enter',
-      cookies: { sid },
-      payload: { mapId: 's001' },
-    });
-
-    expect(res.statusCode).toBe(200);
-    const body = res.json();
-
-    for (const mapId of Object.keys(body.data)) {
-      for (const wild of body.data[mapId].wilds) {
-        expect(wild.level).toBeGreaterThanOrEqual(1);
-        expect(wild.level).toBeLessThanOrEqual(11);
-      }
-    }
-  });
-
-  it('유저 레벨 100 → 야생 포켓몬 레벨이 100 초과하지 않음', async () => {
-    const sid = await registerAndGetSid();
-    await createUserAndSetState(sid, 100);
-
-    const res = await app.inject({
-      method: 'POST',
-      url: '/api/game/safari/enter',
-      cookies: { sid },
-      payload: { mapId: 's001' },
-    });
-
-    expect(res.statusCode).toBe(200);
-    const body = res.json();
-
-    for (const mapId of Object.keys(body.data)) {
-      for (const wild of body.data[mapId].wilds) {
-        expect(wild.level).toBeGreaterThanOrEqual(90);
-        expect(wild.level).toBeLessThanOrEqual(100);
+        expect(wild.level).toBeGreaterThanOrEqual(5);
+        expect(wild.level).toBeLessThanOrEqual(10);
       }
     }
   });

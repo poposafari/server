@@ -26,6 +26,13 @@ import {
 import { generateWildBatch, randomWildTtlSec } from '@poposerver/lib/utils/wild-roll';
 import { randomInt, pickWeightedMany } from '@poposerver/lib/utils/rng';
 import {
+  POKEMON_LEVEL_MAX,
+  calcCaptureExp,
+  levelFromExp,
+  totalExpForLevel,
+} from '@poposerver/lib/utils/exp-curve';
+import { pickExpCandyDrop } from '@poposerver/lib/utils/exp-candy-drop';
+import {
   TimeOfDay,
   Weather,
   PokemonTier,
@@ -38,7 +45,6 @@ import {
 } from '@poposerver/lib/types';
 import { AppError } from '@poposerver/lib/utils/error';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
-import { applyUserExp } from '@poposerver/lib/utils/level';
 
 type CatchResult = 'caught' | 'fail' | 'flee';
 type FleeResult = 'flee' | 'stay';
@@ -92,12 +98,6 @@ export class SafariService {
     let items: SafariItem[];
 
     if (isFirstEntry) {
-      const [userRow] = await db
-        .select({ level: user.level })
-        .from(user)
-        .where(eq(user.accountId, Number(authId)));
-      const userLevel = userRow?.level ?? 1;
-
       const gameTime = await getGameTime();
       const timeOfDay = (gameTime?.phase ?? TimeOfDay.DAY) as TimeOfDay;
       const weather: Weather = Weather.SUNNY; // TODO: 날씨 시스템 구현 후 교체
@@ -108,7 +108,6 @@ export class SafariService {
         Number(authId),
         mapId,
         wildCount,
-        userLevel,
         timeOfDay,
         weather,
       );
@@ -236,8 +235,14 @@ export class SafariService {
   ): Promise<{
     result: CatchResult;
     pokemon?: typeof userPokemon.$inferSelect;
-    reward?: { candyId: string; candyQuantity: number };
-    expReward?: { gained: number; level: number; exp: number; leveledUp: boolean };
+    rewards?: Array<{ itemId: string; quantity: number }>;
+    partyExp?: Array<{
+      id: number;
+      gained: number;
+      level: number;
+      exp: number;
+      leveledUp: boolean;
+    }>;
   }> {
     const accountId = Number(authId);
 
@@ -283,16 +288,18 @@ export class SafariService {
       throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
     }
 
-    // 파티 포켓몬 보너스
+    // 파티 포켓몬 보너스 (응답/보너스 계산 모두 슬롯 순서를 따른다)
     const partyPokemons = await db
       .select({
         id: userPokemon.id,
         pokedexId: userPokemon.pokedexId,
         level: userPokemon.level,
+        exp: userPokemon.exp,
         isShiny: userPokemon.isShiny,
       })
       .from(userPokemon)
-      .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)));
+      .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)))
+      .orderBy(userPokemon.partySlot);
 
     const partyIds = partyPokemons.map((p) => p.id);
     let partyBonus = 0;
@@ -357,7 +364,17 @@ export class SafariService {
       }
 
       let insertedPokemon: typeof userPokemon.$inferSelect;
-      let expReward: { gained: number; level: number; exp: number; leveledUp: boolean };
+      const partyExpResults: Array<{
+        id: number;
+        gained: number;
+        level: number;
+        exp: number;
+        leveledUp: boolean;
+      }> = [];
+      const rewards: Array<{ itemId: string; quantity: number }> = [];
+      if (candyQuantity > 0) {
+        rewards.push({ itemId: candyId, quantity: candyQuantity });
+      }
 
       await db.transaction(async (tx) => {
         if (safariBall.quantity === 1) {
@@ -432,14 +449,61 @@ export class SafariService {
             set: { quantity: sql`${userItem.quantity} + ${candyQuantity}` },
           });
 
-        const expGain = LEVEL_CURVE.expGain(pokemonData.tier, wild.level);
-        const applied = await applyUserExp(tx, accountId, expGain);
-        expReward = {
-          gained: applied.gained,
-          level: applied.level,
-          exp: applied.exp,
-          leveledUp: applied.leveledUp,
-        };
+        // 경험사탕 드롭 (S000 스타터는 제외)
+        if (!isS000Starter) {
+          const drop = pickExpCandyDrop(pokemonData.tier, wild.level);
+          await tx
+            .insert(userItem)
+            .values({ accountId, itemId: drop.itemId, quantity: drop.quantity })
+            .onConflictDoUpdate({
+              target: [userItem.accountId, userItem.itemId],
+              set: { quantity: sql`${userItem.quantity} + ${drop.quantity}` },
+            });
+          if (drop.quantity > 0) {
+            rewards.push({ itemId: drop.itemId, quantity: drop.quantity });
+          }
+        }
+
+        // 파티 EXP 분배 (Gen 5+ 스케일링, s = 파티 수)
+        if (partyPokemons.length > 0 && pokemonData.baseExp > 0) {
+          const s = partyPokemons.length;
+          for (const member of partyPokemons) {
+            const memberMaster = MasterData.getPokemon(String(member.pokedexId));
+            if (!memberMaster) continue;
+            if (member.level >= POKEMON_LEVEL_MAX) {
+              partyExpResults.push({
+                id: member.id,
+                gained: 0,
+                level: member.level,
+                exp: member.exp,
+                leveledUp: false,
+              });
+              continue;
+            }
+            const gained = calcCaptureExp(
+              pokemonData.baseExp,
+              wild.level,
+              s,
+              member.level,
+            );
+            const cap = totalExpForLevel(POKEMON_LEVEL_MAX, memberMaster.growthGroup);
+            const newExp = Math.min(member.exp + gained, cap);
+            const newLevel = levelFromExp(newExp, memberMaster.growthGroup);
+            await tx
+              .update(userPokemon)
+              .set({ exp: newExp, level: newLevel })
+              .where(
+                and(eq(userPokemon.id, member.id), eq(userPokemon.accountId, accountId)),
+              );
+            partyExpResults.push({
+              id: member.id,
+              gained,
+              level: newLevel,
+              exp: newExp,
+              leveledUp: newLevel > member.level,
+            });
+          }
+        }
 
         if (isS000Starter) {
           await tx
@@ -467,8 +531,8 @@ export class SafariService {
       return {
         result,
         pokemon: insertedPokemon!,
-        reward: { candyId, candyQuantity },
-        expReward: expReward!,
+        rewards,
+        partyExp: partyExpResults,
       };
     } else {
       await this.consumeSafariBall(accountId, safariBall.quantity);

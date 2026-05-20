@@ -5,6 +5,14 @@ import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, PokemonTier } from '@poposerver/lib/types';
 import { getGameTime } from '@poposerver/lib/redis';
+import {
+  EXP_CANDY_VALUE,
+  POKEMON_LEVEL_MAX,
+  expToNextLevel,
+  isExpCandyId,
+  levelFromExp,
+  totalExpForLevel,
+} from '@poposerver/lib/utils/exp-curve';
 import { PokemonRepository } from './pokemon.repository';
 
 const TIER_BASE_REWARD: Record<PokemonTier, number> = {
@@ -25,8 +33,6 @@ function getLevelBonus(level: number): number {
 function calcSellReward(level: number, tier: PokemonTier): number {
   return TIER_BASE_REWARD[tier] + getLevelBonus(level);
 }
-
-const POKEMON_MAX_LEVEL = 100;
 
 export class PokemonService {
   constructor(private readonly repo: PokemonRepository) {}
@@ -258,7 +264,10 @@ export class PokemonService {
     });
   }
 
-  async enhance(authId: string, body: { id: number; candy: number }) {
+  async enhance(
+    authId: string,
+    body: { id: number; candies: { itemId: string; count: number }[] },
+  ) {
     const accountId = Number(authId);
 
     const pokemon = await this.repo.findByIdAndAccount(body.id, accountId);
@@ -270,55 +279,71 @@ export class PokemonService {
     if (!masterPokemon) {
       throw new AppError('Pokemon master data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
     }
-
-    const newLevel = pokemon.level + body.candy;
-    if (newLevel > POKEMON_MAX_LEVEL) {
+    if (pokemon.level >= POKEMON_LEVEL_MAX) {
       throw new AppError(
-        'Pokemon level would exceed maximum',
+        'Pokemon already at max level',
         400,
         AppErrorCode.POKEMON_LEVEL_MAX_EXCEEDED,
       );
     }
 
-    const candyItemId = `${masterPokemon.type1}-candy`;
+    const candyMap = new Map<string, number>();
+    let expGain = 0;
+    for (const c of body.candies) {
+      if (!isExpCandyId(c.itemId)) {
+        throw new AppError('Invalid exp candy', 400, AppErrorCode.DTO_INVALID);
+      }
+      candyMap.set(c.itemId, (candyMap.get(c.itemId) ?? 0) + c.count);
+      expGain += EXP_CANDY_VALUE[c.itemId] * c.count;
+    }
+
+    const group = masterPokemon.growthGroup;
+    const capExp = totalExpForLevel(POKEMON_LEVEL_MAX, group);
 
     const result = await db.transaction(async (tx) => {
-      const [item] = await tx
-        .select({ quantity: userItem.quantity })
-        .from(userItem)
-        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyItemId)));
+      for (const [itemId, required] of candyMap) {
+        const [item] = await tx
+          .select({ quantity: userItem.quantity })
+          .from(userItem)
+          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)));
 
-      if (!item || item.quantity < body.candy) {
-        throw new AppError('Not enough candy', 400, AppErrorCode.CANDY_NOT_ENOUGH);
+        if (!item || item.quantity < required) {
+          throw new AppError('Not enough candy', 400, AppErrorCode.CANDY_NOT_ENOUGH);
+        }
+        if (item.quantity === required) {
+          await tx
+            .delete(userItem)
+            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)));
+        } else {
+          await tx
+            .update(userItem)
+            .set({ quantity: sql`${userItem.quantity} - ${required}` })
+            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)));
+        }
       }
 
-      const remaining = item.quantity - body.candy;
-
-      if (remaining === 0) {
-        await tx
-          .delete(userItem)
-          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyItemId)));
-      } else {
-        await tx
-          .update(userItem)
-          .set({ quantity: sql`${userItem.quantity} - ${body.candy}` })
-          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyItemId)));
-      }
+      const newExp = Math.min(pokemon.exp + expGain, capExp);
+      const newLevel = levelFromExp(newExp, group);
 
       const [updated] = await tx
         .update(userPokemon)
-        .set({ level: newLevel })
+        .set({ exp: newExp, level: newLevel })
         .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)))
-        .returning({ id: userPokemon.id, level: userPokemon.level });
+        .returning({
+          id: userPokemon.id,
+          level: userPokemon.level,
+          exp: userPokemon.exp,
+        });
 
-      return { updated, remaining };
+      return { updated, prevLevel: pokemon.level };
     });
 
     return {
       id: result.updated.id,
       level: result.updated.level,
-      candyId: candyItemId,
-      candyRemaining: result.remaining,
+      exp: result.updated.exp,
+      expToNext: expToNextLevel(result.updated.exp, group),
+      leveledUp: result.updated.level > result.prevLevel,
     };
   }
 

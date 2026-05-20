@@ -17,6 +17,7 @@ export class PokemonRepository {
         id: userPokemon.id,
         pokedexId: userPokemon.pokedexId,
         level: userPokemon.level,
+        exp: userPokemon.exp,
         friendship: userPokemon.friendship,
         gender: userPokemon.gender,
         isShiny: userPokemon.isShiny,

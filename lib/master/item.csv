@@ -154,3 +154,8 @@ dragon-candy,999999999,candy,드래곤 사탕,FALSE,0,FALSE,common
 dark-candy,999999999,candy,악 사탕,FALSE,0,FALSE,common
 steel-candy,999999999,candy,강철 사탕,FALSE,0,FALSE,common
 fairy-candy,999999999,candy,페어리 사탕,FALSE,0,FALSE,common
+experience-candy-xs,999999999,candy,경험사탕 XS,FALSE,0,FALSE,common
+experience-candy-s,999999999,candy,경험사탕 S,FALSE,0,FALSE,rare
+experience-candy-m,999999999,candy,경험사탕 M,FALSE,0,FALSE,epic
+experience-candy-l,999999999,candy,경험사탕 L,FALSE,0,FALSE,legendary
+experience-candy-xl,999999999,candy,경험사탕 XL,FALSE,0,FALSE,legendary

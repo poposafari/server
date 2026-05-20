@@ -61,8 +61,6 @@ export class UserRepository {
     const [profile] = await db
       .select({
         nickname: user.nickname,
-        level: user.level,
-        exp: user.exp,
         gender: user.gender,
         money: user.money,
         playtime: user.playtime,
@@ -91,6 +89,7 @@ export class UserRepository {
         id: userPokemon.id,
         pokedexId: userPokemon.pokedexId,
         level: userPokemon.level,
+        exp: userPokemon.exp,
         friendship: userPokemon.friendship,
         gender: userPokemon.gender,
         isShiny: userPokemon.isShiny,

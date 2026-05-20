@@ -19,25 +19,17 @@ export const catchWildSchema = z.object({
 
 export type CatchWildInput = z.infer<typeof catchWildSchema>;
 
-export const expRewardSchema = z.object({
-  gained: z.number().int().nonnegative(),
-  level: z.number().int().min(1).max(50),
-  exp: z.number().int().nonnegative(),
-  leveledUp: z.boolean(),
-});
-
-export type ExpReward = z.infer<typeof expRewardSchema>;
-
 export const catchWildResultSchema = z.object({
   result: z.enum(['caught', 'fail', 'flee']),
   pokemon: z.any().optional(),
-  reward: z
-    .object({
-      candyId: z.string(),
-      candyQuantity: z.number().int().nonnegative(),
-    })
+  rewards: z
+    .array(
+      z.object({
+        itemId: z.string(),
+        quantity: z.number().int().nonnegative(),
+      }),
+    )
     .optional(),
-  expReward: expRewardSchema.optional(),
 });
 
 export type CatchWildResult = z.infer<typeof catchWildResultSchema>;

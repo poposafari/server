@@ -98,6 +98,8 @@ POKEMON_MAPPING: list[tuple[str, str | None, any]] = [
     ("tier",         "rank",          _str),
     ("type1",        "type1",         _str),
     ("type2",        "type2",         _str),
+    ("growth_group", "growthGroup",   _str),
+    ("base_exp",     "baseExp",       _int),
 ]
 
 MAPPINGS: dict[str, list[tuple[str, str | None, any]]] = {

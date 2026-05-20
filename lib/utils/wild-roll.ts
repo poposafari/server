@@ -12,7 +12,6 @@ import {
   type MapWildWeather,
 } from '../types';
 import { MasterData } from './master-data';
-import { LEVEL_CURVE } from '../constants/level-curve';
 import { rollSafariShiny, rollGender, randomInt, pickWeightedMany, pickOne } from './rng';
 
 export function randomWildTtlSec(): number {
@@ -23,10 +22,11 @@ export function randomWildTtlSec(): number {
  * 사파리 맵의 wild 풀에서 count개를 롤링해 SafariWild[]를 생성.
  * Redis 쓰기 없이 pure하게 반환. 호출자가 addWild로 저장한다.
  *
+ * 야생 레벨은 맵의 wild.levelMin~levelMax 균등 랜덤.
+ *
  * @param accountId DB 조회용 (caughtCount 프리필)
  * @param mapId 대상 사파리 맵 id
  * @param count 생성 개수
- * @param userLevel wildLevelRange 계산용
  * @param timeOfDay wild 풀 선택
  * @param weather wild 풀 선택
  */
@@ -34,7 +34,6 @@ export async function generateWildBatch(
   accountId: number,
   mapId: string,
   count: number,
-  userLevel: number,
   timeOfDay: TimeOfDay,
   weather: Weather,
 ): Promise<SafariWild[]> {
@@ -78,8 +77,7 @@ export async function generateWildBatch(
     const gender = pokemonData ? rollGender(pokemonData.rateMale, pokemonData.rateFemale) : 0;
     const nature = pickOne(PokemonNatural);
     const ability = pokemonData?.ability.length ? pickOne(pokemonData.ability) : '';
-    const { min: wildMin, max: wildMax } = LEVEL_CURVE.wildLevelRange(userLevel);
-    const wildLevel = randomInt(wildMin, wildMax);
+    const wildLevel = randomInt(targetMap.wild.levelMin, targetMap.wild.levelMax);
     return {
       uid: crypto.randomUUID(),
       pokedexId,

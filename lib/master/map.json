@@ -49,6 +49,8 @@
     "wild": {
       "min": 27,
       "max": 27,
+      "levelMin": 5,
+      "levelMax": 5,
       "dawn": {
         "sunny": [],
         "rainy": [],
@@ -164,6 +166,8 @@
     "wild": {
       "min": 3,
       "max": 5,
+      "levelMin": 5,
+      "levelMax": 10,
       "dawn": {
         "sunny": [
           {
@@ -539,6 +543,8 @@
     "wild": {
       "min": 3,
       "max": 5,
+      "levelMin": 8,
+      "levelMax": 15,
       "dawn": {
         "sunny": [
           {
@@ -738,6 +744,8 @@
     "wild": {
       "min": 3,
       "max": 5,
+      "levelMin": 12,
+      "levelMax": 20,
       "dawn": {
         "sunny": [
           {
@@ -940,6 +948,8 @@
     "wild": {
       "min": 0,
       "max": 0,
+      "levelMin": 18,
+      "levelMax": 28,
       "dawn": {
         "sunny": [],
         "rainy": [],
@@ -978,6 +988,8 @@
     "wild": {
       "min": 0,
       "max": 0,
+      "levelMin": 25,
+      "levelMax": 38,
       "dawn": {
         "sunny": [],
         "rainy": [],
@@ -1016,6 +1028,8 @@
     "wild": {
       "min": 0,
       "max": 0,
+      "levelMin": 32,
+      "levelMax": 45,
       "dawn": {
         "sunny": [],
         "rainy": [],
@@ -1054,6 +1068,8 @@
     "wild": {
       "min": 0,
       "max": 0,
+      "levelMin": 38,
+      "levelMax": 52,
       "dawn": {
         "sunny": [],
         "rainy": [],
@@ -1092,6 +1108,8 @@
     "wild": {
       "min": 0,
       "max": 0,
+      "levelMin": 45,
+      "levelMax": 60,
       "dawn": {
         "sunny": [],
         "rainy": [],
@@ -1130,6 +1148,8 @@
     "wild": {
       "min": 0,
       "max": 0,
+      "levelMin": 52,
+      "levelMax": 68,
       "dawn": {
         "sunny": [],
         "rainy": [],
@@ -1168,6 +1188,8 @@
     "wild": {
       "min": 0,
       "max": 0,
+      "levelMin": 60,
+      "levelMax": 78,
       "dawn": {
         "sunny": [],
         "rainy": [],
@@ -1206,6 +1228,168 @@
     "wild": {
       "min": 0,
       "max": 0,
+      "levelMin": 70,
+      "levelMax": 90,
+      "dawn": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "day": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "dusk": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "night": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      }
+    }
+  },
+  "s012": {
+    "comment": "사파리존 s012",
+    "type": "safari",
+    "cost": 0,
+    "item": {
+      "min": 0,
+      "max": 0,
+      "spawn": []
+    },
+    "wild": {
+      "min": 0,
+      "max": 0,
+      "levelMin": 70,
+      "levelMax": 90,
+      "dawn": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "day": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "dusk": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "night": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      }
+    }
+  },
+  "s013": {
+    "comment": "사파리존 s013",
+    "type": "safari",
+    "cost": 0,
+    "item": {
+      "min": 0,
+      "max": 0,
+      "spawn": []
+    },
+    "wild": {
+      "min": 0,
+      "max": 0,
+      "levelMin": 70,
+      "levelMax": 90,
+      "dawn": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "day": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "dusk": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "night": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      }
+    }
+  },
+  "s014": {
+    "comment": "사파리존 s014",
+    "type": "safari",
+    "cost": 0,
+    "item": {
+      "min": 0,
+      "max": 0,
+      "spawn": []
+    },
+    "wild": {
+      "min": 0,
+      "max": 0,
+      "levelMin": 70,
+      "levelMax": 90,
+      "dawn": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "day": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "dusk": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      },
+      "night": {
+        "sunny": [],
+        "rainy": [],
+        "stormy": [],
+        "foggy": []
+      }
+    }
+  },
+  "s015": {
+    "comment": "사파리존 s015",
+    "type": "safari",
+    "cost": 0,
+    "item": {
+      "min": 0,
+      "max": 0,
+      "spawn": []
+    },
+    "wild": {
+      "min": 0,
+      "max": 0,
+      "levelMin": 70,
+      "levelMax": 90,
       "dawn": {
         "sunny": [],
         "rainy": [],

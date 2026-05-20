@@ -9,9 +9,25 @@ export const sellSchema = z.object({
   id: z.number().int().positive(),
 });
 
+export const EXP_CANDY_ITEM_IDS = [
+  'experience-candy-xs',
+  'experience-candy-s',
+  'experience-candy-m',
+  'experience-candy-l',
+  'experience-candy-xl',
+] as const;
+
 export const enhanceSchema = z.object({
   id: z.number().int().positive(),
-  candy: z.number().int().positive(),
+  candies: z
+    .array(
+      z.object({
+        itemId: z.enum(EXP_CANDY_ITEM_IDS),
+        count: z.number().int().positive(),
+      }),
+    )
+    .min(1)
+    .max(EXP_CANDY_ITEM_IDS.length),
 });
 
 export type EnhanceInput = z.infer<typeof enhanceSchema>;

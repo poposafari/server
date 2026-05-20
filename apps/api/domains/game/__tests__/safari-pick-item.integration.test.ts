@@ -62,7 +62,7 @@ async function getAuthIdFromSid(sid: string): Promise<string> {
   return JSON.parse(data!).authId;
 }
 
-async function createUserAndSetState(sid: string, level = 50): Promise<string> {
+async function createUserAndSetState(sid: string): Promise<string> {
   const authId = await getAuthIdFromSid(sid);
   const accountId = Number(authId);
 
@@ -70,7 +70,6 @@ async function createUserAndSetState(sid: string, level = 50): Promise<string> {
     accountId,
     nickname: `tester${accountId}`,
     gender: 1,
-    level,
     lastMapId: 'p001',
     lastX: 37,
     lastY: 32,
@@ -82,7 +81,6 @@ async function createUserAndSetState(sid: string, level = 50): Promise<string> {
     x: '37',
     y: '32',
     nickname: `tester${accountId}`,
-    level: String(level),
     gender: '1',
     party: '[]',
     itemSlots: '[]',

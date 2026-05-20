@@ -22,6 +22,7 @@ export const userPokemon = pgTable(
       .references(() => account.id),
     pokedexId: varchar('pokedex_id', { length: 20 }).notNull(),
     level: smallint('level').notNull().default(1),
+    exp: integer('exp').notNull().default(0),
     friendship: smallint('friendship').notNull().default(0),
     gender: smallint('gender').notNull(),
     isShiny: boolean('is_shiny').notNull().default(false),

@@ -67,6 +67,8 @@ export interface MapWildWeather {
 export interface MapWildData {
   min: number;
   max: number;
+  levelMin: number;
+  levelMax: number;
   dawn: MapWildWeather;
   day: MapWildWeather;
   dusk: MapWildWeather;
@@ -97,6 +99,13 @@ export interface MapData {
 // --- Pokemon types ---
 export type PokemonTier = 'common' | 'rare' | 'epic' | 'legendary';
 export type PokemonSpawnTile = 'land' | 'water';
+export type GrowthGroup =
+  | 'fast'
+  | 'medium_fast'
+  | 'medium_slow'
+  | 'slow'
+  | 'erratic'
+  | 'fluctuating';
 export type PokemonType =
   | 'normal'
   | 'fire'
@@ -179,6 +188,8 @@ export interface PokemonData {
   type1: PokemonType;
   type2: PokemonType | null;
   weightKg: number;
+  growthGroup: GrowthGroup;
+  baseExp: number;
 }
 
 // --- Pokedex types ---

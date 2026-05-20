@@ -12,9 +12,6 @@ import {
   TimeOfDay,
   Weather,
 } from '@poposerver/lib';
-import { db } from '@poposerver/lib/db';
-import { user } from '@poposerver/lib/schema';
-import { eq } from 'drizzle-orm';
 import { getGameTime } from '@poposerver/lib';
 import { generateWildBatch, randomWildTtlSec } from '@poposerver/lib/utils/wild-roll';
 
@@ -93,17 +90,10 @@ async function processPair(
 
   const need = max - liveCount;
 
-  const [userRow] = await db
-    .select({ level: user.level })
-    .from(user)
-    .where(eq(user.accountId, Number(authId)));
-  const userLevel = userRow?.level ?? 1;
-
   const newWilds = await generateWildBatch(
     Number(authId),
     mapId,
     need,
-    userLevel,
     timeOfDay,
     weather,
   );

@@ -1,22 +1,19 @@
 import { sql, eq, and, inArray, isNotNull } from 'drizzle-orm';
 import { db } from '@poposerver/lib/db';
-import { user, userItem, userPokemon, userPokedex } from '@poposerver/lib/schema';
+import { userItem, userPokemon, userPokedex } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, PokemonNatural } from '@poposerver/lib/types';
-import { rollGender, rollSafariShiny, randomInt, pickOne } from '@poposerver/lib/utils/rng';
-import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
+import { rollGender, rollSafariShiny, pickOne } from '@poposerver/lib/utils/rng';
 import { getUserState } from '@poposerver/lib/redis';
 import { FOSSIL_RECIPES } from './fossil.recipe';
 
 const MAX_BOX = 30;
 const GRID_PER_BOX = 30;
+const FOSSIL_LEVEL = 20;
 
 export class FossilService {
-  async restore(
-    authId: string,
-    id: number,
-  ): Promise<{ pokemon: typeof userPokemon.$inferSelect }> {
+  async restore(authId: string, id: number): Promise<{ pokemon: typeof userPokemon.$inferSelect }> {
     const accountId = Number(authId);
 
     const recipe = FOSSIL_RECIPES[id];
@@ -41,9 +38,7 @@ export class FossilService {
     const ownedRows = await db
       .select({ itemId: userItem.itemId, quantity: userItem.quantity })
       .from(userItem)
-      .where(
-        and(eq(userItem.accountId, accountId), inArray(userItem.itemId, recipe.ingredients)),
-      );
+      .where(and(eq(userItem.accountId, accountId), inArray(userItem.itemId, recipe.ingredients)));
     const ownedMap = new Map(ownedRows.map((r) => [r.itemId, r.quantity]));
 
     const missing = recipe.ingredients.filter((it) => (ownedMap.get(it) ?? 0) < 1);
@@ -59,14 +54,8 @@ export class FossilService {
     const userState = await getUserState(authId);
     const caughtLocation = userState?.mapId ?? 'p001';
 
-    // 사파리 야생 결정과 동일하게 롤링
-    const [userRow] = await db
-      .select({ level: user.level })
-      .from(user)
-      .where(eq(user.accountId, accountId));
-    const userLevel = userRow?.level ?? 1;
-    const { min: wildMin, max: wildMax } = LEVEL_CURVE.wildLevelRange(userLevel);
-    const level = randomInt(wildMin, wildMax);
+    // 화석 복원 포켓몬은 고정 L20
+    const level = FOSSIL_LEVEL;
     const gender = rollGender(pokemonData.rateMale, pokemonData.rateFemale);
     const nature = pickOne(PokemonNatural);
     const ability = pokemonData.ability.length ? pickOne(pokemonData.ability) : '';
@@ -94,9 +83,7 @@ export class FossilService {
         .from(userPokemon)
         .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.boxNumber)));
 
-      const occupied = new Set(
-        existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`),
-      );
+      const occupied = new Set(existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`));
 
       let targetBox = 1;
       let targetGrid = 0;

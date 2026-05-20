@@ -49,7 +49,7 @@ export class PokemonController {
   };
 
   enhance = async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as { id: number; candy: number };
+    const body = request.body as { id: number; candies: { itemId: string; count: number }[] };
     const data = await this.pokemonService.enhance(request.authId, body);
     return reply.status(200).send({ success: true, data });
   };

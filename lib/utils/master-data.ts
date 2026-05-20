@@ -96,7 +96,8 @@ class MasterDataService {
           key.startsWith('rate_') ||
           key.endsWith('_kg') ||
           key.endsWith('_m') ||
-          key === 'generation'
+          key === 'generation' ||
+          key === 'base_exp'
         ) {
           pokemon[camelKey] = Number(value);
         } else if (value.startsWith('[') && value.endsWith(']')) {
@@ -115,6 +116,22 @@ class MasterDataService {
 
     for (const [id, data] of Object.entries<any>(mapRaw)) {
       const entry = entryRaw[id] ? { x: entryRaw[id].x, y: entryRaw[id].y } : null;
+      if (data.type === 'safari' && data.wild) {
+        const { levelMin, levelMax } = data.wild;
+        if (
+          typeof levelMin !== 'number' ||
+          typeof levelMax !== 'number' ||
+          !Number.isInteger(levelMin) ||
+          !Number.isInteger(levelMax) ||
+          levelMin < 1 ||
+          levelMax > 100 ||
+          levelMin > levelMax
+        ) {
+          throw new Error(
+            `Invalid wild level range for map ${id}: levelMin=${levelMin}, levelMax=${levelMax}`,
+          );
+        }
+      }
       this.maps.set(id, {
         id,
         comment: data.comment,

@@ -8,8 +8,6 @@ export interface UserGameDataRes {
   data: {
     profile: {
       nickname: string;
-      level: number;
-      exp: number;
       gender: number;
       money: number;
       playtime: number;
