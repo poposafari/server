@@ -42,9 +42,9 @@ export async function persistUserStateFromRedisToDb(
       })
       .where(eq(user.accountId, accountId));
 
-    // 4. visitedMaps → user_town_map
+    // 4. visitedMaps → user_town_map (사파리존 s* 맵만 기록)
     const visitedMaps: string[] = (state.visitedMaps ? JSON.parse(state.visitedMaps) : []).filter(
-      (mapId: string | null): mapId is string => mapId != null,
+      (mapId: string | null): mapId is string => mapId != null && mapId.startsWith('s'),
     );
     if (visitedMaps.length > 0) {
       const values = visitedMaps.map((mapId) => ({ accountId, mapId }));

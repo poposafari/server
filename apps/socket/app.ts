@@ -477,7 +477,7 @@ export class SocketApp {
 
           const state = await getUserState(userId);
 
-          if (state) {
+          if (state && targetMapId.startsWith('s')) {
             const visited: string[] = state.visitedMaps ? JSON.parse(state.visitedMaps) : [];
             if (!visited.includes(targetMapId)) {
               visited.push(targetMapId);

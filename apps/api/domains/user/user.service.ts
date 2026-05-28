@@ -109,6 +109,14 @@ export class UserService {
       visitedMaps: JSON.stringify(visitedMapIds),
     });
 
-    return { profile, equippedCostumes, party, itemSlots, essentialItems, pokedex };
+    return {
+      profile,
+      equippedCostumes,
+      party,
+      itemSlots,
+      essentialItems,
+      pokedex,
+      visitedMaps: visitedMapIds,
+    };
   }
 }

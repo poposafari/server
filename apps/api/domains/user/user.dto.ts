@@ -43,5 +43,6 @@ export interface UserGameDataRes {
       pokedexId: string;
       caughtCount: number;
     }[];
+    visitedMaps: string[];
   };
 }
