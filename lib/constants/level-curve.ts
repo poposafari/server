@@ -30,4 +30,18 @@ export const LEVEL_CURVE = {
     epic: 5,
     legendary: 10,
   } as Record<string, number>,
+
+  // ── 판매 보상 ──
+  SELL_CANDY_BY_TIER: {
+    common: 1,
+    rare: 2,
+    epic: 3,
+    legendary: 4,
+  } as Record<TierKey, number>,
+  SELL_EXP_CANDY_QTY_BY_TIER: {
+    common: 1,
+    rare: 2,
+    epic: 3,
+    legendary: 4,
+  } as Record<TierKey, number>,
 };

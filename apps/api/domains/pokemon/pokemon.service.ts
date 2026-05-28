@@ -3,7 +3,7 @@ import { db } from '@poposerver/lib/db';
 import { userPokemon, userItem } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
-import { AppErrorCode, PokemonTier } from '@poposerver/lib/types';
+import { AppErrorCode } from '@poposerver/lib/types';
 import { getGameTime } from '@poposerver/lib/redis';
 import {
   EXP_CANDY_VALUE,
@@ -13,26 +13,9 @@ import {
   levelFromExp,
   totalExpForLevel,
 } from '@poposerver/lib/utils/exp-curve';
+import { pickSellExpCandy } from '@poposerver/lib/utils/exp-candy-drop';
+import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
 import { PokemonRepository } from './pokemon.repository';
-
-const TIER_BASE_REWARD: Record<PokemonTier, number> = {
-  common: 1,
-  rare: 3,
-  epic: 6,
-  legendary: 10,
-};
-
-function getLevelBonus(level: number): number {
-  if (level <= 20) return 0;
-  if (level <= 40) return 1;
-  if (level <= 60) return 2;
-  if (level <= 80) return 4;
-  return 7;
-}
-
-function calcSellReward(level: number, tier: PokemonTier): number {
-  return TIER_BASE_REWARD[tier] + getLevelBonus(level);
-}
 
 export class PokemonService {
   constructor(private readonly repo: PokemonRepository) {}
@@ -158,24 +141,31 @@ export class PokemonService {
       throw new AppError('Pokemon master data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
     }
 
-    const candyItemId = `${masterPokemon.type1}-candy`;
-    const reward = calcSellReward(pokemon.level, masterPokemon.tier);
+    const typeCandy = {
+      itemId: `${masterPokemon.type1}-candy`,
+      quantity: LEVEL_CURVE.SELL_CANDY_BY_TIER[masterPokemon.tier],
+    };
+    const expCandy = pickSellExpCandy(masterPokemon.tier, pokemon.level);
+
+    const rewards = [typeCandy, expCandy];
 
     await db.transaction(async (tx) => {
       await tx
         .delete(userPokemon)
         .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)));
 
-      await tx
-        .insert(userItem)
-        .values({ accountId, itemId: candyItemId, quantity: reward })
-        .onConflictDoUpdate({
-          target: [userItem.accountId, userItem.itemId],
-          set: { quantity: sql`${userItem.quantity} + ${reward}` },
-        });
+      for (const reward of rewards) {
+        await tx
+          .insert(userItem)
+          .values({ accountId, itemId: reward.itemId, quantity: reward.quantity })
+          .onConflictDoUpdate({
+            target: [userItem.accountId, userItem.itemId],
+            set: { quantity: sql`${userItem.quantity} + ${reward.quantity}` },
+          });
+      }
     });
 
-    return { candyId: candyItemId, quantity: reward };
+    return { rewards };
   }
 
   async arrange(
