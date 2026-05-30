@@ -33,8 +33,8 @@ afterEach(async () => {
   if (userKeys.length > 0) await RedisClient.del(...userKeys);
   const safariKeys = await RedisClient.keys('safari:*');
   if (safariKeys.length > 0) await RedisClient.del(...safariKeys);
-  // 큐/슬롯 키 정리 — connect 분기에서 SADD되므로 누적 방지
-  await RedisClient.del('active:players', 'queue:waiting', 'queue:waiting:lastSeen');
+  // 슬롯 키 정리 — connect 분기에서 SADD되므로 누적 방지
+  await RedisClient.del('active:players');
 });
 
 // ── 헬퍼 ──

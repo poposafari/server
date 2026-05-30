@@ -77,16 +77,6 @@ export class RedisKey {
   static connReserved(authId: string): string {
     return `conn:reserved:${authId}`;
   }
-
-  /** FIFO 대기열 ZSET. score = enqueue 시각(ms), member = authId. */
-  static queueWaiting(): string {
-    return `queue:waiting`;
-  }
-
-  /** 큐 폴링 heartbeat ZSET. score = 최근 heartbeat ms, member = authId. janitor stale 판정용. */
-  static queueWaitingLastSeen(): string {
-    return `queue:waiting:lastSeen`;
-  }
 }
 
 const SAFARI_WILD_KEY_RE = /^safari:([^:]+):([^:]+):wild:([^:]+)$/;
@@ -402,57 +392,35 @@ export async function consumeOAuthState(
   }
 }
 
-// ── 동접 슬롯 + FIFO 큐 ──
+// ── 동접 슬롯 ──
 
 /** conn-token 발급 후 소켓 핸드셰이크 대기 grace (초). janitor가 이 키 존재 시 stale로 보지 않음. */
 export const CONN_RESERVED_TTL_SEC = 30;
 
 /**
- * Capacity boundary에서의 race를 막기 위해 한 Lua 트랜잭션으로
- * SCARD 체크 → SADD(슬롯 점유) 또는 ZADD(큐 + lastSeen)을 원자적으로 수행한다.
- * 반환: 'acquired' 또는 ['queued', <position 0-based>]
- *
- * KEYS[1] = active:players
- * KEYS[2] = queue:waiting
- * KEYS[3] = queue:waiting:lastSeen
- * ARGV[1] = authId
- * ARGV[2] = SLOT_CAPACITY (number)
- * ARGV[3] = NOW (ms)
+ * SCARD 체크와 SADD를 한 Lua 트랜잭션으로 묶어 capacity boundary race를 차단.
+ * 반환: 'acquired' (슬롯 점유 성공) 또는 'full' (capacity 가득).
  */
-const ACQUIRE_OR_QUEUE_LUA = `
+const TRY_ACQUIRE_SLOT_LUA = `
 local active = redis.call('SCARD', KEYS[1])
 if active < tonumber(ARGV[2]) then
   redis.call('SADD', KEYS[1], ARGV[1])
-  return {'acquired'}
+  return 'acquired'
 else
-  redis.call('ZADD', KEYS[2], ARGV[3], ARGV[1])
-  redis.call('ZADD', KEYS[3], ARGV[3], ARGV[1])
-  local position = redis.call('ZRANK', KEYS[2], ARGV[1])
-  return {'queued', position}
+  return 'full'
 end
 `;
 
-export type AcquireOrQueueResult = { kind: 'acquired' } | { kind: 'queued'; position: number };
-
-/** 신규 진입자에 대해 슬롯을 따거나 큐에 enqueue 한다. case (1)(2)는 호출자가 사전 분기해야 함. */
-export async function acquireOrEnqueue(
-  authId: string,
-  capacity: number,
-  now: number = Date.now(),
-): Promise<AcquireOrQueueResult> {
-  const raw = (await RedisClient.eval(
-    ACQUIRE_OR_QUEUE_LUA,
-    3,
+/** capacity 여유가 있으면 슬롯을 점유하고 true, 가득 차 있으면 false. */
+export async function tryAcquireSlot(authId: string, capacity: number): Promise<boolean> {
+  const result = (await RedisClient.eval(
+    TRY_ACQUIRE_SLOT_LUA,
+    1,
     RedisKey.activePlayers(),
-    RedisKey.queueWaiting(),
-    RedisKey.queueWaitingLastSeen(),
     authId,
     String(capacity),
-    String(now),
-  )) as ['acquired'] | ['queued', number];
-
-  if (raw[0] === 'acquired') return { kind: 'acquired' };
-  return { kind: 'queued', position: raw[1] };
+  )) as string;
+  return result === 'acquired';
 }
 
 export async function isActivePlayer(authId: string): Promise<boolean> {
@@ -472,26 +440,6 @@ export async function getAllActivePlayers(): Promise<string[]> {
   return RedisClient.smembers(RedisKey.activePlayers());
 }
 
-/** 큐 보유 여부 + 0-based 순번 반환. 큐에 없으면 null. */
-export async function getQueuePosition(authId: string): Promise<number | null> {
-  const pos = await RedisClient.zrank(RedisKey.queueWaiting(), authId);
-  return pos;
-}
-
-/** 큐 polling heartbeat 갱신. score만 lastSeen ZSET에 update하므로 큐 순번에 영향 없음. */
-export async function touchQueueHeartbeat(authId: string, now: number = Date.now()): Promise<void> {
-  await RedisClient.zadd(RedisKey.queueWaitingLastSeen(), now, authId);
-}
-
-/** Cancel/janitor 공용. 두 ZSET에서 동시 제거. */
-export async function removeFromQueue(authIds: string[]): Promise<void> {
-  if (authIds.length === 0) return;
-  const pipeline = RedisClient.pipeline();
-  pipeline.zrem(RedisKey.queueWaiting(), ...authIds);
-  pipeline.zrem(RedisKey.queueWaitingLastSeen(), ...authIds);
-  await pipeline.exec();
-}
-
 /** conn-token 발급 시점에 grace 키를 SETEX. 30초 내 소켓 connection 시 DEL된다. */
 export async function setConnReservedGrace(authId: string): Promise<void> {
   await RedisClient.setex(RedisKey.connReserved(authId), CONN_RESERVED_TTL_SEC, '1');
@@ -504,56 +452,6 @@ export async function clearConnReservedGrace(authId: string): Promise<void> {
 export async function hasConnReservedGrace(authId: string): Promise<boolean> {
   const r = await RedisClient.exists(RedisKey.connReserved(authId));
   return r === 1;
-}
-
-/**
- * 큐 첫 번째 사용자를 1명 promote (active로 이동) + 동시에 grace SETEX.
- * SADD와 SETEX를 한 Lua에 묶어 cleanupStaleSlots와의 race를 차단.
- * 반환: promote된 authId 또는 null (큐 비었거나 capacity 가득).
- *
- * KEYS[1] = active:players
- * KEYS[2] = queue:waiting
- * KEYS[3] = queue:waiting:lastSeen
- * ARGV[1] = SLOT_CAPACITY (number)
- * ARGV[2] = grace_key_prefix (string; "conn:reserved:")
- * ARGV[3] = grace_ttl_sec (number)
- */
-const PROMOTE_FROM_QUEUE_LUA = `
-local active = redis.call('SCARD', KEYS[1])
-if active >= tonumber(ARGV[1]) then
-  return nil
-end
-
-local next = redis.call('ZRANGE', KEYS[2], 0, 0)
-if #next == 0 then
-  return nil
-end
-
-local authId = next[1]
-redis.call('ZREM', KEYS[2], authId)
-redis.call('ZREM', KEYS[3], authId)
-redis.call('SADD', KEYS[1], authId)
-redis.call('SET', ARGV[2] .. authId, '1', 'EX', tonumber(ARGV[3]))
-return authId
-`;
-
-export async function promoteOneFromQueue(capacity: number): Promise<string | null> {
-  const result = (await RedisClient.eval(
-    PROMOTE_FROM_QUEUE_LUA,
-    3,
-    RedisKey.activePlayers(),
-    RedisKey.queueWaiting(),
-    RedisKey.queueWaitingLastSeen(),
-    String(capacity),
-    'conn:reserved:',
-    String(CONN_RESERVED_TTL_SEC),
-  )) as string | null;
-  return result;
-}
-
-/** janitor cleanupStaleQueue용. cutoff ms 미만 score를 가진 큐 entry 일괄 조회. */
-export async function getStaleQueueMembers(cutoff: number): Promise<string[]> {
-  return RedisClient.zrangebyscore(RedisKey.queueWaitingLastSeen(), 0, cutoff);
 }
 
 // ── 연결 토큰 관리 ──

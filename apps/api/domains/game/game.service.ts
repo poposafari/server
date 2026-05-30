@@ -1,21 +1,19 @@
 import {
-  acquireOrEnqueue,
   clearUserStateSocketId,
   createConnToken,
   getActivePlayerCount,
   getUserState,
   isActivePlayer,
-  getQueuePosition,
   publishSocketKick,
   setConnReservedGrace,
-  touchQueueHeartbeat,
+  tryAcquireSlot,
 } from '@poposerver/lib/redis';
 import { envConfig } from '@poposerver/lib/utils/env';
 
 const ONLINE_COUNT_CACHE_TTL_MS = 5_000;
 let onlineCache: { count: number; at: number } = { count: 0, at: 0 };
 
-export type ConnectResult = { ready: true; token: string } | { ready: false; position: number };
+export type ConnectResult = { ready: true; token: string } | { ready: false };
 
 export class GameService {
   async issueConnToken(authId: string): Promise<string> {
@@ -39,19 +37,14 @@ export class GameService {
       return { ready: true, token };
     }
 
-    const existingPos = await getQueuePosition(authId);
-    if (existingPos !== null) {
-      await touchQueueHeartbeat(authId);
-      return { ready: false, position: existingPos };
+    const acquired = await tryAcquireSlot(authId, envConfig.SLOT_CAPACITY);
+    if (!acquired) {
+      return { ready: false };
     }
 
-    const result = await acquireOrEnqueue(authId, envConfig.SLOT_CAPACITY);
-    if (result.kind === 'acquired') {
-      const token = await this.issueConnToken(authId);
-      await setConnReservedGrace(authId);
-      return { ready: true, token };
-    }
-    return { ready: false, position: result.position };
+    const token = await this.issueConnToken(authId);
+    await setConnReservedGrace(authId);
+    return { ready: true, token };
   }
 
   async getOnlineCount(): Promise<number> {
