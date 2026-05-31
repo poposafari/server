@@ -9,6 +9,34 @@ import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, AppErrorRes } from '@poposerver/lib/types';
 import { registerRoutes } from './routes';
 
+const PG_DIAGNOSTIC_FIELDS = [
+  'code',
+  'detail',
+  'constraint',
+  'constraint_name',
+  'table',
+  'table_name',
+  'column',
+  'column_name',
+] as const;
+
+function unwrapErrorChain(err: unknown, maxDepth = 5): string {
+  const parts: string[] = [];
+  let cur: unknown = err;
+  let depth = 0;
+  while (cur != null && depth < maxDepth) {
+    const e = cur as Record<string, unknown>;
+    const msg = typeof e.message === 'string' && e.message ? e.message : String(cur);
+    const diag = PG_DIAGNOSTIC_FIELDS.filter((k) => e[k] != null).map(
+      (k) => `${k}=${String(e[k])}`,
+    );
+    parts.push(diag.length ? `${msg} (${diag.join(', ')})` : msg);
+    cur = e.cause;
+    depth += 1;
+  }
+  return parts.join(' ← caused by: ');
+}
+
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
     logger: false,
@@ -93,8 +121,10 @@ export async function buildApp(): Promise<FastifyInstance> {
       errorCode = AppErrorCode.DTO_INVALID;
       message = error.message;
     } else {
-      message = envConfig.NODE_ENV === 'DEV' ? error.message : null;
-      logger.error('[UNHANDLED ERROR]', error);
+      const detail = unwrapErrorChain(error);
+      message = envConfig.NODE_ENV === 'DEV' ? detail : null;
+      const stack = error instanceof Error ? error.stack : undefined;
+      logger.error(`[UNHANDLED ERROR] ${detail}${stack ? `\n${stack}` : ''}`);
     }
 
     const response: AppErrorRes = {
