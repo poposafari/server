@@ -104,13 +104,7 @@ export class SafariService {
 
       // 정책: 최초 진입 시 항상 max까지 스폰 (min은 고려하지 않음).
       const wildCount = targetMap.wild.max;
-      wilds = await generateWildBatch(
-        Number(authId),
-        mapId,
-        wildCount,
-        timeOfDay,
-        weather,
-      );
+      wilds = await generateWildBatch(Number(authId), mapId, wildCount, timeOfDay, weather);
 
       if (wilds.length > 0) {
         const isS000 = mapId === S000_MAP_ID;
@@ -301,6 +295,14 @@ export class SafariService {
       .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)))
       .orderBy(userPokemon.partySlot);
 
+    const [boxCountRow] = await db
+      .select({ count: sql<number>`count(*)`.mapWith(Number) })
+      .from(userPokemon)
+      .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.boxNumber)));
+    if ((boxCountRow?.count ?? 0) >= 900 && partyPokemons.length >= LEVEL_CURVE.PARTY_SLOT_COUNT) {
+      throw new AppError('Pokemon storage is full', 409, AppErrorCode.POKEMON_BOX_FULL);
+    }
+
     const partyIds = partyPokemons.map((p) => p.id);
     let partyBonus = 0;
 
@@ -388,25 +390,47 @@ export class SafariService {
             .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
         }
 
-        const existingBoxPokemon = await tx
-          .select({ boxNumber: userPokemon.boxNumber, gridNumber: userPokemon.gridNumber })
+        const existingPartySlots = await tx
+          .select({ partySlot: userPokemon.partySlot })
           .from(userPokemon)
-          .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.boxNumber)));
+          .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)));
 
-        const occupied = new Set(existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`));
+        const occupiedPartySlots = new Set(existingPartySlots.map((p) => p.partySlot));
 
-        let targetBox = 1;
-        let targetGrid = 0;
-        const MAX_BOX = 30;
-        const GRID_PER_BOX = 30;
+        let targetPartySlot: number | null = null;
+        for (let s = 0; s < LEVEL_CURVE.PARTY_SLOT_COUNT; s++) {
+          if (!occupiedPartySlots.has(s)) {
+            targetPartySlot = s;
+            break;
+          }
+        }
 
-        outer: for (let b = 1; b <= MAX_BOX; b++) {
-          for (let g = 0; g < GRID_PER_BOX; g++) {
-            if (!occupied.has(`${b}:${g}`)) {
-              targetBox = b;
-              targetGrid = g;
-              break outer;
+        let targetBox: number | null = null;
+        let targetGrid: number | null = null;
+
+        if (targetPartySlot === null) {
+          const existingBoxPokemon = await tx
+            .select({ boxNumber: userPokemon.boxNumber, gridNumber: userPokemon.gridNumber })
+            .from(userPokemon)
+            .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.boxNumber)));
+
+          const occupied = new Set(existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`));
+
+          const MAX_BOX = 30;
+          const GRID_PER_BOX = 30;
+
+          outer: for (let b = 1; b <= MAX_BOX; b++) {
+            for (let g = 0; g < GRID_PER_BOX; g++) {
+              if (!occupied.has(`${b}:${g}`)) {
+                targetBox = b;
+                targetGrid = g;
+                break outer;
+              }
             }
+          }
+
+          if (targetBox === null) {
+            throw new AppError('Pokemon storage is full', 409, AppErrorCode.POKEMON_BOX_FULL);
           }
         }
 
@@ -425,7 +449,7 @@ export class SafariService {
             heldItemId: null,
             boxNumber: targetBox,
             gridNumber: targetGrid,
-            partySlot: null,
+            partySlot: targetPartySlot,
             ballId: 1,
             caughtLocation: userState.mapId,
           })
@@ -480,21 +504,14 @@ export class SafariService {
               });
               continue;
             }
-            const gained = calcCaptureExp(
-              pokemonData.baseExp,
-              wild.level,
-              s,
-              member.level,
-            );
+            const gained = calcCaptureExp(pokemonData.baseExp, wild.level, s, member.level);
             const cap = totalExpForLevel(POKEMON_LEVEL_MAX, memberMaster.growthGroup);
             const newExp = Math.min(member.exp + gained, cap);
             const newLevel = levelFromExp(newExp, memberMaster.growthGroup);
             await tx
               .update(userPokemon)
               .set({ exp: newExp, level: newLevel })
-              .where(
-                and(eq(userPokemon.id, member.id), eq(userPokemon.accountId, accountId)),
-              );
+              .where(and(eq(userPokemon.id, member.id), eq(userPokemon.accountId, accountId)));
             partyExpResults.push({
               id: member.id,
               gained,

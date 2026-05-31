@@ -6,6 +6,7 @@ import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, PokemonNatural } from '@poposerver/lib/types';
 import { rollGender, rollSafariShiny, pickOne } from '@poposerver/lib/utils/rng';
 import { getUserState } from '@poposerver/lib/redis';
+import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
 import { FOSSIL_RECIPES } from './fossil.recipe';
 
 const MAX_BOX = 30;
@@ -77,23 +78,44 @@ export class FossilService {
         }
       }
 
-      // box/grid 탐색 (safari catch와 동일)
-      const existingBoxPokemon = await tx
-        .select({ boxNumber: userPokemon.boxNumber, gridNumber: userPokemon.gridNumber })
+      const existingPartySlots = await tx
+        .select({ partySlot: userPokemon.partySlot })
         .from(userPokemon)
-        .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.boxNumber)));
+        .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)));
 
-      const occupied = new Set(existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`));
+      const occupiedPartySlots = new Set(existingPartySlots.map((p) => p.partySlot));
 
-      let targetBox = 1;
-      let targetGrid = 0;
-      outer: for (let b = 1; b <= MAX_BOX; b++) {
-        for (let g = 0; g < GRID_PER_BOX; g++) {
-          if (!occupied.has(`${b}:${g}`)) {
-            targetBox = b;
-            targetGrid = g;
-            break outer;
+      let targetPartySlot: number | null = null;
+      for (let s = 0; s < LEVEL_CURVE.PARTY_SLOT_COUNT; s++) {
+        if (!occupiedPartySlots.has(s)) {
+          targetPartySlot = s;
+          break;
+        }
+      }
+
+      let targetBox: number | null = null;
+      let targetGrid: number | null = null;
+
+      if (targetPartySlot === null) {
+        const existingBoxPokemon = await tx
+          .select({ boxNumber: userPokemon.boxNumber, gridNumber: userPokemon.gridNumber })
+          .from(userPokemon)
+          .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.boxNumber)));
+
+        const occupied = new Set(existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`));
+
+        outer: for (let b = 1; b <= MAX_BOX; b++) {
+          for (let g = 0; g < GRID_PER_BOX; g++) {
+            if (!occupied.has(`${b}:${g}`)) {
+              targetBox = b;
+              targetGrid = g;
+              break outer;
+            }
           }
+        }
+
+        if (targetBox === null) {
+          throw new AppError('Pokemon storage is full', 409, AppErrorCode.POKEMON_BOX_FULL);
         }
       }
 
@@ -112,7 +134,7 @@ export class FossilService {
           heldItemId: null,
           boxNumber: targetBox,
           gridNumber: targetGrid,
-          partySlot: null,
+          partySlot: targetPartySlot,
           ballId: 1,
           caughtLocation,
         })

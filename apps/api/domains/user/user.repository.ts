@@ -1,6 +1,6 @@
 import { db } from '@poposerver/lib/db';
 import { user, userCostume, userPokemon, userItem, userPokedex } from '@poposerver/lib/schema';
-import { eq, and, or, isNotNull, like } from 'drizzle-orm';
+import { eq, and, or, isNotNull, like, sql } from 'drizzle-orm';
 
 export class UserRepository {
   async findByAccountId(accountId: number) {
@@ -139,6 +139,20 @@ export class UserRepository {
       .from(userPokedex)
       .where(eq(userPokedex.accountId, accountId));
 
-    return { profile, equippedCostumes, party, itemSlots, essentialItems, pokedex };
+    const [boxCountRow] = await db
+      .select({ count: sql<number>`count(*)`.mapWith(Number) })
+      .from(userPokemon)
+      .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.boxNumber)));
+    const pokemonBoxCount = boxCountRow?.count ?? 0;
+
+    return {
+      profile,
+      equippedCostumes,
+      party,
+      itemSlots,
+      essentialItems,
+      pokedex,
+      pokemonBoxCount,
+    };
   }
 }
