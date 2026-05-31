@@ -6,7 +6,7 @@ import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode } from '@poposerver/lib/types';
 import { ItemRepository } from './item.repository';
 
-const MAX_ITEM_QUANTITY = 9999;
+const MAX_ITEM_QUANTITY = 9_999_999;
 const MAX_USER_MONEY = 999_999_999;
 
 export class ItemService {
