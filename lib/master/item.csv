@@ -1,161 +1,161 @@
 id,buy,category,comment,purchasable,sell,sellable,tier
 safari-ball,300,pokeball,사파리볼,TRUE,100,TRUE,common
-fire-stone,15000,etc,불꽃의돌,TRUE,1500,TRUE,epic
-water-stone,15000,etc,물의돌,TRUE,1500,TRUE,epic
-thunder-stone,15000,etc,천둥의돌,TRUE,1500,TRUE,epic
-leaf-stone,15000,etc,리프의돌,TRUE,1500,TRUE,epic
-moon-stone,15000,etc,달의돌,TRUE,1500,TRUE,epic
-sun-stone,15000,etc,태양의돌,TRUE,1500,TRUE,epic
-shiny-stone,15000,etc,빛의돌,TRUE,1500,TRUE,epic
-dusk-stone,15000,etc,어둠의돌,TRUE,1500,TRUE,epic
-dawn-stone,15000,etc,각성의돌,TRUE,1500,TRUE,epic
-oval-stone,15000,etc,동글동글돌,TRUE,1500,TRUE,epic
-ice-stone,15000,etc,얼음의돌,TRUE,1500,TRUE,epic
-metal-coat,10000,etc,금속코트,TRUE,1500,TRUE,epic
-up-grade,15000,etc,업그레이드,TRUE,2000,TRUE,epic
-kings-rock,10000,etc,왕의징표석,TRUE,1500,TRUE,epic
-dragon-scale,10000,etc,용의비늘,TRUE,1500,TRUE,epic
-deep-sea-scale,10000,etc,심해의비늘,TRUE,1500,TRUE,epic
-deep-sea-tooth,10000,etc,심해의이빨,TRUE,1500,TRUE,epic
-dubious-disc,15000,etc,괴상한패치,TRUE,2000,TRUE,epic
-magmarizer,15000,etc,마그마부스터,TRUE,2000,TRUE,epic
-electirizer,15000,etc,에레키부스터,TRUE,2000,TRUE,epic
-reaper-cloth,15000,etc,영계의천,TRUE,2000,TRUE,epic
-protector,15000,etc,프로텍터,TRUE,2000,TRUE,epic
-razor-claw,15000,etc,예리한손톱,TRUE,2000,TRUE,epic
-razor-fang,15000,etc,예리한이빨,TRUE,2000,TRUE,epic
-prism-scale,12000,etc,고운비늘,TRUE,1500,TRUE,epic
-whipped-dream,12000,etc,휘핑팝,TRUE,1500,TRUE,epic
-sachet,12000,etc,향기주머니,TRUE,1500,TRUE,epic
-cracked-pot,12000,etc,깨진포트,TRUE,1500,TRUE,epic
-chipped-pot,18000,etc,이빠진포트,TRUE,2500,TRUE,epic
-tart-apple,12000,etc,달콤한사과,TRUE,1500,TRUE,epic
-sweet-apple,12000,etc,새콤한사과,TRUE,1500,TRUE,epic
-flower-sweet,10000,etc,꽃사탕공예,TRUE,1200,TRUE,epic
-clover-sweet,10000,etc,네잎사탕공예,TRUE,1200,TRUE,epic
-strawberry-sweet,10000,etc,딸기사탕공예,TRUE,1200,TRUE,epic
-ribbon-sweet,10000,etc,리본사탕공예,TRUE,1200,TRUE,epic
-berry-sweet,10000,etc,베리사탕공예,TRUE,1200,TRUE,epic
-star-sweet,10000,etc,스타사탕공예,TRUE,1200,TRUE,epic
-love-sweet,10000,etc,하트사탕공예,TRUE,1200,TRUE,epic
-galarica-cuff,18000,etc,가라두구팔찌,TRUE,2500,TRUE,epic
-galarica-wreath,18000,etc,가라두구머리장식,TRUE,2500,TRUE,epic
-linking-cord,18000,etc,연결의끈,TRUE,2500,TRUE,epic
-black-augurite,18000,etc,검은휘석,TRUE,2500,TRUE,epic
-peat-block,12000,etc,피트블록,TRUE,1500,TRUE,epic
-scroll-of-darkness,25000,etc,악의 족자,TRUE,3000,TRUE,legendary
-scroll-of-waters,25000,etc,물의 족자,TRUE,3000,TRUE,legendary
-malicious-armor,12000,etc,저주받은갑옷,TRUE,1500,TRUE,epic
-auspicious-armor,12000,etc,축복받은갑옷,TRUE,1500,TRUE,epic
-syrupy-apple,12000,etc,꿀맛사과,TRUE,1500,TRUE,epic
-unremarkable-teacup,12000,etc,범작찻잔,TRUE,1500,TRUE,epic
-masterpiece-teacup,12000,etc,걸작찻잔,TRUE,1500,TRUE,epic
-metal-alloy,12000,etc,복합금속,TRUE,1500,TRUE,epic
+fire-stone,20000,etc,불꽃의돌,TRUE,200,TRUE,epic
+water-stone,20000,etc,물의돌,TRUE,200,TRUE,epic
+thunder-stone,20000,etc,천둥의돌,TRUE,200,TRUE,epic
+leaf-stone,20000,etc,리프의돌,TRUE,200,TRUE,epic
+moon-stone,20000,etc,달의돌,TRUE,200,TRUE,epic
+sun-stone,20000,etc,태양의돌,TRUE,200,TRUE,epic
+shiny-stone,20000,etc,빛의돌,TRUE,200,TRUE,epic
+dusk-stone,20000,etc,어둠의돌,TRUE,200,TRUE,epic
+dawn-stone,20000,etc,각성의돌,TRUE,200,TRUE,epic
+oval-stone,20000,etc,동글동글돌,TRUE,200,TRUE,epic
+ice-stone,20000,etc,얼음의돌,TRUE,200,TRUE,epic
+metal-coat,20000,etc,금속코트,TRUE,200,TRUE,epic
+up-grade,20000,etc,업그레이드,TRUE,200,TRUE,epic
+kings-rock,20000,etc,왕의징표석,TRUE,200,TRUE,epic
+dragon-scale,20000,etc,용의비늘,TRUE,200,TRUE,epic
+deep-sea-scale,20000,etc,심해의비늘,TRUE,200,TRUE,epic
+deep-sea-tooth,20000,etc,심해의이빨,TRUE,200,TRUE,epic
+dubious-disc,20000,etc,괴상한패치,TRUE,200,TRUE,epic
+magmarizer,20000,etc,마그마부스터,TRUE,200,TRUE,epic
+electirizer,20000,etc,에레키부스터,TRUE,200,TRUE,epic
+reaper-cloth,20000,etc,영계의천,TRUE,200,TRUE,epic
+protector,20000,etc,프로텍터,TRUE,200,TRUE,epic
+razor-claw,20000,etc,예리한손톱,TRUE,200,TRUE,epic
+razor-fang,20000,etc,예리한이빨,TRUE,200,TRUE,epic
+prism-scale,20000,etc,고운비늘,TRUE,200,TRUE,epic
+whipped-dream,20000,etc,휘핑팝,TRUE,200,TRUE,epic
+sachet,20000,etc,향기주머니,TRUE,200,TRUE,epic
+cracked-pot,20000,etc,깨진포트,TRUE,200,TRUE,epic
+chipped-pot,20000,etc,이빠진포트,TRUE,200,TRUE,epic
+tart-apple,20000,etc,달콤한사과,TRUE,200,TRUE,epic
+sweet-apple,20000,etc,새콤한사과,TRUE,200,TRUE,epic
+flower-sweet,20000,etc,꽃사탕공예,TRUE,200,TRUE,epic
+clover-sweet,20000,etc,네잎사탕공예,TRUE,200,TRUE,epic
+strawberry-sweet,20000,etc,딸기사탕공예,TRUE,200,TRUE,epic
+ribbon-sweet,20000,etc,리본사탕공예,TRUE,200,TRUE,epic
+berry-sweet,20000,etc,베리사탕공예,TRUE,200,TRUE,epic
+star-sweet,20000,etc,스타사탕공예,TRUE,200,TRUE,epic
+love-sweet,20000,etc,하트사탕공예,TRUE,200,TRUE,epic
+galarica-cuff,20000,etc,가라두구팔찌,TRUE,200,TRUE,epic
+galarica-wreath,20000,etc,가라두구머리장식,TRUE,200,TRUE,epic
+linking-cord,20000,etc,연결의끈,TRUE,200,TRUE,epic
+black-augurite,20000,etc,검은휘석,TRUE,200,TRUE,epic
+peat-block,20000,etc,피트블록,TRUE,200,TRUE,epic
+scroll-of-darkness,50000,etc,악의 족자,TRUE,200,TRUE,legendary
+scroll-of-waters,50000,etc,물의 족자,TRUE,200,TRUE,legendary
+malicious-armor,30000,etc,저주받은갑옷,TRUE,200,TRUE,epic
+auspicious-armor,30000,etc,축복받은갑옷,TRUE,200,TRUE,epic
+syrupy-apple,20000,etc,꿀맛사과,TRUE,200,TRUE,epic
+unremarkable-teacup,20000,etc,범작찻잔,TRUE,200,TRUE,epic
+masterpiece-teacup,20000,etc,걸작찻잔,TRUE,200,TRUE,epic
+metal-alloy,20000,etc,복합금속,TRUE,200,TRUE,epic
 repel,350,etc,벌레회피스프레이,TRUE,175,TRUE,common
 super-repel,500,etc,실버스프레이,TRUE,250,TRUE,rare
 max-repel,700,etc,골드스프레이,TRUE,350,TRUE,epic
 nugget,999999999,etc,금구슬,TRUE,5000,TRUE,rare
 slowpoke-tail,999999999,etc,맛있는꼬리,TRUE,4900,TRUE,rare
-stardust,999999999,etc,별의모래,TRUE,2000,TRUE,rare
-star-piece,999999999,etc,별의조각,TRUE,9800,TRUE,rare
-tiny-mushroom,999999999,etc,작은버섯,TRUE,300,TRUE,rare
-pearl,999999999,etc,진주,TRUE,1400,TRUE,rare
-big-mushroom,999999999,etc,큰버섯,TRUE,2500,TRUE,rare
-big-pearl,999999999,etc,큰진주,TRUE,7500,TRUE,rare
+stardust,999999999,etc,별의모래,TRUE,1000,TRUE,rare
+star-piece,999999999,etc,별의조각,TRUE,2000,TRUE,rare
+tiny-mushroom,999999999,etc,작은버섯,TRUE,500,TRUE,rare
+pearl,999999999,etc,진주,TRUE,1000,TRUE,rare
+big-mushroom,999999999,etc,큰버섯,TRUE,1500,TRUE,rare
+big-pearl,999999999,etc,큰진주,TRUE,2500,TRUE,rare
 rare-bone,999999999,etc,귀중한뼈,TRUE,5000,TRUE,rare
-honey,999999999,etc,달콤한꿀,TRUE,100,TRUE,rare
+honey,999999999,etc,달콤한꿀,TRUE,500,TRUE,rare
 pretty-wing,999999999,etc,고운깃털,TRUE,200,TRUE,rare
-balm-mushroom,999999999,etc,향기버섯,TRUE,6250,TRUE,rare
-comet-shard,999999999,etc,혜성조각,TRUE,15000,TRUE,rare
+balm-mushroom,999999999,etc,향기버섯,TRUE,500,TRUE,rare
+comet-shard,999999999,etc,혜성조각,TRUE,1500,TRUE,rare
 big-nugget,999999999,etc,큰금구슬,TRUE,10000,TRUE,rare
-pearl-string,999999999,etc,경단진주,TRUE,7500,TRUE,rare
-relic-band,999999999,etc,고대의팔찌,TRUE,100000,TRUE,epic
+pearl-string,999999999,etc,경단진주,TRUE,3500,TRUE,rare
+relic-band,999999999,etc,고대의팔찌,TRUE,50000,TRUE,epic
 relic-copper,999999999,etc,고대의동화,TRUE,2000,TRUE,rare
 relic-silver,999999999,etc,고대의은화,TRUE,5000,TRUE,rare
 relic-gold,999999999,etc,고대의금화,TRUE,10000,TRUE,rare
-relic-crown,999999999,etc,고대의왕관,TRUE,300000,TRUE,epic
-relic-statue,999999999,etc,고대의석상,TRUE,200000,TRUE,epic
-relic-vase,999999999,etc,고대의항아리,TRUE,50000,TRUE,epic
-ability-capsule,30000,etc,특성캡슐,TRUE,3000,TRUE,rare
-ability-patch,50000,etc,특성패치,TRUE,4000,TRUE,rare
-helix-fossil,999999999,etc,조개화석,TRUE,3000,TRUE,rare
-dome-fossil,999999999,etc,껍질화석,TRUE,3000,TRUE,rare
-old-amber,999999999,etc,비밀의호박,TRUE,3000,TRUE,rare
-root-fossil,999999999,etc,뿌리화석,TRUE,3000,TRUE,rare
-claw-fossil,999999999,etc,발톱화석,TRUE,3000,TRUE,rare
-skull-fossil,999999999,etc,두개의화석,TRUE,3000,TRUE,rare
-armor-fossil,999999999,etc,방패의화석,TRUE,3000,TRUE,rare
-cover-fossil,999999999,etc,덮개화석,TRUE,3000,TRUE,rare
-plume-fossil,999999999,etc,깃털화석,TRUE,3000,TRUE,rare
-jaw-fossil,999999999,etc,턱화석,TRUE,3000,TRUE,rare
-sail-fossil,999999999,etc,지느러미화석,TRUE,3000,TRUE,rare
-fossilized-bird,999999999,etc,화석새,TRUE,3000,TRUE,rare
-fossilized-fish,999999999,etc,화석물고기,TRUE,3000,TRUE,rare
-fossilized-drake,999999999,etc,화석용,TRUE,3000,TRUE,rare
-fossilized-dino,999999999,etc,화석긴목,TRUE,3000,TRUE,rare
-fairy-feather,999999999,etc,요정의 깃털 ,TRUE,2000,TRUE,rare
-move_cut,15000,tms_hms,풀배기,FALSE,1500,TRUE,epic
-move_fly,15000,tms_hms,공중날기,FALSE,1500,TRUE,epic
-move_surf,15000,tms_hms,파도타기,FALSE,1500,TRUE,epic
-move_strength,15000,tms_hms,HM04:괴력,FALSE,1500,TRUE,epic
-move_flash,15000,tms_hms,HM05:플래시,FALSE,1500,TRUE,epic
-move_rock-smash,15000,tms_hms,HM06:바위깨기,FALSE,1500,TRUE,epic
-move_waterfall,15000,tms_hms,HM07:폭포오르기,FALSE,1500,TRUE,epic
-move_dive,15000,tms_hms,HM08:다이빙,FALSE,1500,TRUE,epic
-move_mean-look,15000,tms_hms,TM01:검은눈빛,FALSE,1500,TRUE,epic
-move_ancient-power,15000,tms_hms,원시의 힘,FALSE,1500,TRUE,epic
-move_double-hit,15000,tms_hms,더블어택,FALSE,1500,TRUE,epic
-move_dragon-pulse,15000,tms_hms,용의파동,FALSE,1500,TRUE,epic
-move_hyper-drill,15000,tms_hms,하이퍼드릴,FALSE,1500,TRUE,epic
-move_mimic,15000,tms_hms,흉내내기,FALSE,1500,TRUE,epic
-move_rollout,15000,tms_hms,구르기,FALSE,1500,TRUE,epic
-move_stomp,15000,tms_hms,짓밟기,FALSE,1500,TRUE,epic
-move_taunt,15000,tms_hms,도발,FALSE,1500,TRUE,epic
-move_twin-beam,15000,tms_hms,트윈빔,FALSE,1500,TRUE,epic
-bicycle,15000,key,자전거,TRUE,0,TRUE,legendary
-gracidea,999999999,key,그라시데아꽃,TRUE,0,TRUE,legendary
-reveal-glass,999999999,key,비추는거울,TRUE,0,TRUE,legendary
-dna-splicers,999999999,key,유전자쐐기,TRUE,0,TRUE,legendary
-prison-bottle,999999999,key,굴레의항아리,TRUE,0,TRUE,legendary
-n-lunarizer,999999999,key,네크로플러스루나,TRUE,0,TRUE,legendary
-n-solarizer,999999999,key,네크로플러스솔,TRUE,0,TRUE,legendary
-red-nectar,999999999,key,다홍꿀,TRUE,0,TRUE,legendary
-purple-nectar,999999999,key,보라꿀,TRUE,0,TRUE,legendary
-pink-nectar,999999999,key,연분홍꿀,TRUE,0,TRUE,legendary
-yellow-nectar,999999999,key,진노랑꿀,TRUE,0,TRUE,legendary
-rusted-sword,999999999,key,녹슨검,TRUE,0,TRUE,legendary
-rusted-shield,999999999,key,녹슨방패,TRUE,0,TRUE,legendary
-rotom-catalog,999999999,key,로토무카탈로그,TRUE,0,TRUE,legendary
-reins-of-unity,999999999,key,유대의고삐,TRUE,0,TRUE,legendary
-adamant-crystal,999999999,key,큰금강옥,TRUE,0,TRUE,legendary
-lustrous-globe,999999999,key,큰백옥,TRUE,0,TRUE,legendary
-griseous-core,999999999,key,큰백금옥,TRUE,0,TRUE,legendary
-cornerstone-mask,999999999,key,주춧돌의가면,TRUE,0,TRUE,legendary
-wellspring-mask,999999999,key,우물의가면,TRUE,0,TRUE,legendary
-hearthflame-mask,999999999,key,화덕의가면,TRUE,0,TRUE,legendary
-red-orb,999999999,key,주홍구슬,FALSE,0,TRUE,legendary
-blue-orb,999999999,key,쪽빛구슬,TRUE,0,TRUE,legendary
-soothe-bell,999999999,key,평온의 방울,TRUE,0,TRUE,epic
-normal-candy,999999999,candy,노말 사탕,FALSE,0,FALSE,common
-fire-candy,999999999,candy,불 사탕,FALSE,0,FALSE,common
-water-candy,999999999,candy,물 사탕,FALSE,0,FALSE,common
-grass-candy,999999999,candy,풀 사탕,FALSE,0,FALSE,common
-electric-candy,999999999,candy,전기 사탕,FALSE,0,FALSE,common
-ice-candy,999999999,candy,얼음 사탕,FALSE,0,FALSE,common
-fighting-candy,999999999,candy,격투 사탕,FALSE,0,FALSE,common
-poison-candy,999999999,candy,독 사탕,FALSE,0,FALSE,common
-ground-candy,999999999,candy,땅 사탕,FALSE,0,FALSE,common
-flying-candy,999999999,candy,비행 사탕,FALSE,0,FALSE,common
-psychic-candy,999999999,candy,에스퍼 사탕,FALSE,0,FALSE,common
-bug-candy,999999999,candy,벌레 사탕,FALSE,0,FALSE,common
-rock-candy,999999999,candy,바위 사탕,FALSE,0,FALSE,common
-ghost-candy,999999999,candy,고스트 사탕,FALSE,0,FALSE,common
-dragon-candy,999999999,candy,드래곤 사탕,FALSE,0,FALSE,common
-dark-candy,999999999,candy,악 사탕,FALSE,0,FALSE,common
-steel-candy,999999999,candy,강철 사탕,FALSE,0,FALSE,common
-fairy-candy,999999999,candy,페어리 사탕,FALSE,0,FALSE,common
-experience-candy-xs,999999999,candy,경험사탕 XS,FALSE,0,FALSE,common
-experience-candy-s,999999999,candy,경험사탕 S,FALSE,0,FALSE,rare
-experience-candy-m,999999999,candy,경험사탕 M,FALSE,0,FALSE,epic
-experience-candy-l,999999999,candy,경험사탕 L,FALSE,0,FALSE,legendary
-experience-candy-xl,999999999,candy,경험사탕 XL,FALSE,0,FALSE,legendary
+relic-crown,999999999,etc,고대의왕관,TRUE,200000,TRUE,epic
+relic-statue,999999999,etc,고대의석상,TRUE,150000,TRUE,epic
+relic-vase,999999999,etc,고대의항아리,TRUE,70000,TRUE,epic
+ability-capsule,30000,etc,특성캡슐,TRUE,1500,TRUE,rare
+ability-patch,50000,etc,특성패치,TRUE,1500,TRUE,rare
+helix-fossil,999999999,etc,조개화석,TRUE,1000,TRUE,rare
+dome-fossil,999999999,etc,껍질화석,TRUE,1000,TRUE,rare
+old-amber,999999999,etc,비밀의호박,TRUE,1000,TRUE,rare
+root-fossil,999999999,etc,뿌리화석,TRUE,1000,TRUE,rare
+claw-fossil,999999999,etc,발톱화석,TRUE,1000,TRUE,rare
+skull-fossil,999999999,etc,두개의화석,TRUE,1000,TRUE,rare
+armor-fossil,999999999,etc,방패의화석,TRUE,1000,TRUE,rare
+cover-fossil,999999999,etc,덮개화석,TRUE,1000,TRUE,rare
+plume-fossil,999999999,etc,깃털화석,TRUE,1000,TRUE,rare
+jaw-fossil,999999999,etc,턱화석,TRUE,1000,TRUE,rare
+sail-fossil,999999999,etc,지느러미화석,TRUE,1000,TRUE,rare
+fossilized-bird,999999999,etc,화석새,TRUE,1000,TRUE,rare
+fossilized-fish,999999999,etc,화석물고기,TRUE,1000,TRUE,rare
+fossilized-drake,999999999,etc,화석용,TRUE,1000,TRUE,rare
+fossilized-dino,999999999,etc,화석긴목,TRUE,1000,TRUE,rare
+fairy-feather,999999999,etc,요정의 깃털 ,TRUE,1000,TRUE,rare
+move_cut,15000,tms_hms,풀배기,TRUE,1500,TRUE,epic
+move_fly,15000,tms_hms,공중날기,TRUE,1500,TRUE,epic
+move_surf,15000,tms_hms,파도타기,TRUE,1500,TRUE,epic
+move_strength,15000,tms_hms,HM04:괴력,TRUE,1500,TRUE,epic
+move_flash,15000,tms_hms,HM05:플래시,TRUE,1500,TRUE,epic
+move_rock-smash,15000,tms_hms,HM06:바위깨기,TRUE,1500,TRUE,epic
+move_waterfall,15000,tms_hms,HM07:폭포오르기,TRUE,1500,TRUE,epic
+move_dive,15000,tms_hms,HM08:다이빙,TRUE,1500,TRUE,epic
+move_mean-look,15000,tms_hms,TM01:검은눈빛,TRUE,1500,TRUE,epic
+move_ancient-power,15000,tms_hms,원시의 힘,TRUE,1500,TRUE,epic
+move_double-hit,15000,tms_hms,더블어택,TRUE,1500,TRUE,epic
+move_dragon-pulse,15000,tms_hms,용의파동,TRUE,1500,TRUE,epic
+move_hyper-drill,15000,tms_hms,하이퍼드릴,TRUE,1500,TRUE,epic
+move_mimic,15000,tms_hms,흉내내기,TRUE,1500,TRUE,epic
+move_rollout,15000,tms_hms,구르기,TRUE,1500,TRUE,epic
+move_stomp,15000,tms_hms,짓밟기,TRUE,1500,TRUE,epic
+move_taunt,15000,tms_hms,도발,TRUE,1500,TRUE,epic
+move_twin-beam,15000,tms_hms,트윈빔,TRUE,1500,TRUE,epic
+bicycle,15000,key,자전거,TRUE,0,FALSE,legendary
+gracidea,999999999,key,그라시데아꽃,TRUE,0,FALSE,legendary
+reveal-glass,999999999,key,비추는거울,TRUE,0,FALSE,legendary
+dna-splicers,999999999,key,유전자쐐기,TRUE,0,FALSE,legendary
+prison-bottle,999999999,key,굴레의항아리,TRUE,0,FALSE,legendary
+n-lunarizer,999999999,key,네크로플러스루나,TRUE,0,FALSE,legendary
+n-solarizer,999999999,key,네크로플러스솔,TRUE,0,FALSE,legendary
+red-nectar,999999999,key,다홍꿀,TRUE,0,FALSE,legendary
+purple-nectar,999999999,key,보라꿀,TRUE,0,FALSE,legendary
+pink-nectar,999999999,key,연분홍꿀,TRUE,0,FALSE,legendary
+yellow-nectar,999999999,key,진노랑꿀,TRUE,0,FALSE,legendary
+rusted-sword,999999999,key,녹슨검,TRUE,0,FALSE,legendary
+rusted-shield,999999999,key,녹슨방패,TRUE,0,FALSE,legendary
+rotom-catalog,999999999,key,로토무카탈로그,TRUE,0,FALSE,legendary
+reins-of-unity,999999999,key,유대의고삐,TRUE,0,FALSE,legendary
+adamant-crystal,999999999,key,큰금강옥,TRUE,0,FALSE,legendary
+lustrous-globe,999999999,key,큰백옥,TRUE,0,FALSE,legendary
+griseous-core,999999999,key,큰백금옥,TRUE,0,FALSE,legendary
+cornerstone-mask,999999999,key,주춧돌의가면,TRUE,0,FALSE,legendary
+wellspring-mask,999999999,key,우물의가면,TRUE,0,FALSE,legendary
+hearthflame-mask,999999999,key,화덕의가면,TRUE,0,FALSE,legendary
+red-orb,999999999,key,주홍구슬,FALSE,0,FALSE,legendary
+blue-orb,999999999,key,쪽빛구슬,FALSE,0,FALSE,legendary
+soothe-bell,999999999,key,평온의 방울,TRUE,0,FALSE,epic
+normal-candy,999999999,candy,노말 사탕,FALSE,10,FALSE,common
+fire-candy,999999999,candy,불 사탕,FALSE,10,FALSE,common
+water-candy,999999999,candy,물 사탕,FALSE,10,FALSE,common
+grass-candy,999999999,candy,풀 사탕,FALSE,10,FALSE,common
+electric-candy,999999999,candy,전기 사탕,FALSE,10,FALSE,common
+ice-candy,999999999,candy,얼음 사탕,FALSE,10,FALSE,common
+fighting-candy,999999999,candy,격투 사탕,FALSE,10,FALSE,common
+poison-candy,999999999,candy,독 사탕,FALSE,10,FALSE,common
+ground-candy,999999999,candy,땅 사탕,FALSE,10,FALSE,common
+flying-candy,999999999,candy,비행 사탕,FALSE,10,FALSE,common
+psychic-candy,999999999,candy,에스퍼 사탕,FALSE,10,FALSE,common
+bug-candy,999999999,candy,벌레 사탕,FALSE,10,FALSE,common
+rock-candy,999999999,candy,바위 사탕,FALSE,10,FALSE,common
+ghost-candy,999999999,candy,고스트 사탕,FALSE,10,FALSE,common
+dragon-candy,999999999,candy,드래곤 사탕,FALSE,10,FALSE,common
+dark-candy,999999999,candy,악 사탕,FALSE,10,FALSE,common
+steel-candy,999999999,candy,강철 사탕,FALSE,10,FALSE,common
+fairy-candy,999999999,candy,페어리 사탕,FALSE,10,FALSE,common
+experience-candy-xs,999999999,candy,경험사탕 XS,FALSE,10,FALSE,common
+experience-candy-s,999999999,candy,경험사탕 S,FALSE,20,FALSE,rare
+experience-candy-m,999999999,candy,경험사탕 M,FALSE,30,FALSE,epic
+experience-candy-l,999999999,candy,경험사탕 L,FALSE,40,FALSE,legendary
+experience-candy-xl,999999999,candy,경험사탕 XL,FALSE,50,FALSE,legendary
