@@ -17,7 +17,7 @@ const SALT_ROUNDS = 10;
 export class AuthService {
   constructor(private readonly repo: AuthRepository) {}
 
-  async registerLocal(input: AuthLocalInput): Promise<string> {
+  async registerLocal(input: AuthLocalInput): Promise<{ sessionId: string; accountId: number }> {
     const existing = await this.repo.findByProviderAndProviderId(
       UserAuthProvider.LOCAL,
       input.username,
@@ -48,10 +48,13 @@ export class AuthService {
     }
 
     const sessionId = await createSession(String(authRow.id));
-    return sessionId;
+    return { sessionId, accountId: authRow.id };
   }
 
-  async loginOrCreateOAuth(provider: 'google' | 'discord', providerId: string): Promise<string> {
+  async loginOrCreateOAuth(
+    provider: 'google' | 'discord',
+    providerId: string,
+  ): Promise<{ sessionId: string; accountId: number }> {
     const existing = await this.repo.findByProviderAndProviderId(provider, providerId);
 
     if (existing?.deletedAt) {
@@ -91,10 +94,10 @@ export class AuthService {
     // POST /api/game/connect (토큰 발급) 시점에서 처리. (loginLocal과 동일)
     const sessionId = await createSession(String(authId));
     await this.repo.updateLastLoginAt(authId);
-    return sessionId;
+    return { sessionId, accountId: authId };
   }
 
-  async loginLocal(input: LoginLocalInput): Promise<string> {
+  async loginLocal(input: LoginLocalInput): Promise<{ sessionId: string; accountId: number }> {
     const auth = await this.repo.findActiveByProviderIdWithPassword(
       UserAuthProvider.LOCAL,
       input.username,
@@ -116,7 +119,7 @@ export class AuthService {
     const sessionId = await createSession(authId);
     await this.repo.updateLastLoginAt(auth.id);
 
-    return sessionId;
+    return { sessionId, accountId: auth.id };
   }
 
   async invalidateSession(sessionId: string): Promise<void> {

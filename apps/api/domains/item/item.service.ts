@@ -3,7 +3,8 @@ import { db } from '@poposerver/lib/db';
 import { user, userItem, userPokemon } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
-import { AppErrorCode } from '@poposerver/lib/types';
+import { AppErrorCode, AuditAction } from '@poposerver/lib/types';
+import { auditTx } from '@poposerver/lib/utils/audit';
 import { ItemRepository } from './item.repository';
 
 const MAX_ITEM_QUANTITY = 9_999_999;
@@ -16,7 +17,7 @@ export class ItemService {
     return this.repo.findBagByAccountId(Number(authId));
   }
 
-  async buy(authId: string, body: { item: string; quantity: number }) {
+  async buy(authId: string, body: { item: string; quantity: number }, ip?: string) {
     const accountId = Number(authId);
 
     const itemData = MasterData.getItem(body.item);
@@ -86,13 +87,21 @@ export class ItemService {
         .from(userItem)
         .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.item)));
 
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.ITEM_BUY,
+        detail: { item: body.item, quantity: body.quantity, totalCost, money: updatedUser.money },
+        ip: ip ?? null,
+        source: 'api',
+      });
+
       return { money: updatedUser.money, item };
     });
 
     return result;
   }
 
-  async sell(authId: string, body: { item: string; quantity: number }) {
+  async sell(authId: string, body: { item: string; quantity: number }, ip?: string) {
     const accountId = Number(authId);
 
     const itemData = MasterData.getItem(body.item);
@@ -157,6 +166,14 @@ export class ItemService {
         .set({ money: sql`${user.money} + ${totalGain}` })
         .where(eq(user.accountId, accountId))
         .returning({ money: user.money });
+
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.ITEM_SELL,
+        detail: { item: body.item, quantity: body.quantity, totalGain, money: updatedUser.money },
+        ip: ip ?? null,
+        source: 'api',
+      });
 
       return { money: updatedUser.money };
     });

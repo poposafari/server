@@ -3,7 +3,8 @@ import { db } from '@poposerver/lib/db';
 import { userPokemon, userItem } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
-import { AppErrorCode } from '@poposerver/lib/types';
+import { auditTx } from '@poposerver/lib/utils/audit';
+import { AppErrorCode, AuditAction } from '@poposerver/lib/types';
 import { getGameTime } from '@poposerver/lib/redis';
 import {
   EXP_CANDY_VALUE,
@@ -28,7 +29,7 @@ export class PokemonService {
     return this.repo.findBoxMetaByAccountId(Number(authId));
   }
 
-  async evolve(authId: string, body: { id: number; cost: string }) {
+  async evolve(authId: string, body: { id: number; cost: string }, ip?: string) {
     const accountId = Number(authId);
 
     // 1. 소유권 검증
@@ -118,13 +119,26 @@ export class PokemonService {
         .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)))
         .returning();
 
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.POKEMON_EVOLVE,
+        detail: {
+          userPokemonId: body.id,
+          fromPokedexId: pokemon.pokedexId,
+          toPokedexId: newPokedexId,
+          cost: body.cost,
+        },
+        ip: ip ?? null,
+        source: 'api',
+      });
+
       return updated;
     });
 
     return result;
   }
 
-  async sell(authId: string, body: { id: number }) {
+  async sell(authId: string, body: { id: number }, ip?: string) {
     const accountId = Number(authId);
 
     const pokemon = await this.repo.findByIdAndAccount(body.id, accountId);
@@ -163,6 +177,19 @@ export class PokemonService {
             set: { quantity: sql`${userItem.quantity} + ${reward.quantity}` },
           });
       }
+
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.POKEMON_SELL,
+        detail: {
+          userPokemonId: body.id,
+          pokedexId: pokemon.pokedexId,
+          level: pokemon.level,
+          rewards,
+        },
+        ip: ip ?? null,
+        source: 'api',
+      });
     });
 
     return { rewards };
@@ -257,6 +284,7 @@ export class PokemonService {
   async enhance(
     authId: string,
     body: { id: number; candies: { itemId: string; count: number }[] },
+    ip?: string,
   ) {
     const accountId = Number(authId);
 
@@ -325,6 +353,20 @@ export class PokemonService {
           exp: userPokemon.exp,
         });
 
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.POKEMON_ENHANCE,
+        detail: {
+          userPokemonId: body.id,
+          expGain,
+          fromLevel: pokemon.level,
+          toLevel: updated.level,
+          exp: updated.exp,
+        },
+        ip: ip ?? null,
+        source: 'api',
+      });
+
       return { updated, prevLevel: pokemon.level };
     });
 
@@ -337,7 +379,7 @@ export class PokemonService {
     };
   }
 
-  async learnMove(authId: string, body: { id: number; move: string }) {
+  async learnMove(authId: string, body: { id: number; move: string }, ip?: string) {
     const accountId = Number(authId);
 
     // 1. 소유권 검증
@@ -394,6 +436,14 @@ export class PokemonService {
         .set({ skills: newSkills })
         .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)))
         .returning();
+
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.POKEMON_LEARN_MOVE,
+        detail: { userPokemonId: body.id, move: body.move, pokedexId: pokemon.pokedexId },
+        ip: ip ?? null,
+        source: 'api',
+      });
 
       return updated;
     });

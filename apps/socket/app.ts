@@ -28,7 +28,16 @@ import {
   WildDespawnReason,
   removeSafariActive,
   shouldSyncOtherPlayers,
+  auditAsync,
+  AuditAction,
 } from '@poposerver/lib';
+
+function socketIp(socket: Socket): string | null {
+  const fwd = socket.handshake.headers['x-forwarded-for'];
+  if (typeof fwd === 'string' && fwd.length > 0) return fwd.split(',')[0].trim();
+  if (Array.isArray(fwd) && fwd.length > 0) return fwd[0];
+  return socket.handshake.address || null;
+}
 
 const MOVE_DIRECTIONS = ['up', 'down', 'left', 'right'] as const;
 type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
@@ -522,6 +531,14 @@ export class SocketApp {
             weatherDuration: weather?.duration,
           });
           logger.info(`[Socket] change_map: ${userId} -> ${targetMapId} (${x},${y})`);
+
+          void auditAsync({
+            accountId: Number(userId),
+            action: AuditAction.MAP_CHANGE,
+            detail: { from: roomId, to: targetMapId, x, y },
+            ip: socketIp(socket),
+            source: 'socket',
+          });
         } catch (error) {
           logger.error('[Socket] change_map failed:', error);
           socket.emit('change_map_error', { message: 'Change map failed' });
@@ -552,6 +569,15 @@ export class SocketApp {
               isShiny,
             });
           }
+
+          // PET_CHANGE audit는 일단 보류 (펫 변경 빈도가 높아 audit 노이즈 우려). 필요 시 활성화.
+          // void auditAsync({
+          //   accountId: Number(userId),
+          //   action: AuditAction.PET_CHANGE,
+          //   detail: { pokedexId, isShiny, mapId: roomId },
+          //   ip: socketIp(socket),
+          //   source: 'socket',
+          // });
         } catch (error) {
           logger.error(`[Socket] pet-change failed userId=${userId}:`, error);
         }

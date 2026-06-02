@@ -1,14 +1,5 @@
 // --- Global System types ---
 export const GLOBAL_NICKNAME_REGEX = /^[\p{L}\p{N}]+$/u;
-// --- Audit types ---
-export enum AuditAction {
-  NONE = 'NONE',
-  REGISTER_LOCAL = 'REGISTER_LOCAL',
-  LOGIN_LOCAL = 'LOGIN_LOCAL',
-  DELETE_AUTH = 'DELETE_AUTH',
-  LOGOUT = 'LOGOUT',
-  CREATE_USER = 'CREATE_USER',
-}
 
 // --- Game Global types ---
 export enum Weather {

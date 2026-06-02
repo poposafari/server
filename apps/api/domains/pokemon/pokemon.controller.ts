@@ -16,13 +16,13 @@ export class PokemonController {
 
   evolve = async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as { id: number; cost: string };
-    const data = await this.pokemonService.evolve(request.authId, body);
+    const data = await this.pokemonService.evolve(request.authId, body, request.ip);
     return reply.status(200).send({ success: true, data });
   };
 
   sell = async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as { id: number };
-    const data = await this.pokemonService.sell(request.authId, body);
+    const data = await this.pokemonService.sell(request.authId, body, request.ip);
     return reply.status(200).send({ success: true, data });
   };
 
@@ -45,18 +45,26 @@ export class PokemonController {
       }[];
     };
     await this.pokemonService.arrange(request.authId, body);
+    // request.audit = {
+    //   action: AuditAction.POKEMON_ARRANGE,
+    //   detail: {
+    //     changeCount: body.changes.length,
+    //     boxMetaCount: body.boxMeta?.length ?? 0,
+    //     nicknameCount: body.nicknames?.length ?? 0,
+    //   },
+    // };
     return reply.status(200).send({ success: true });
   };
 
   enhance = async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as { id: number; candies: { itemId: string; count: number }[] };
-    const data = await this.pokemonService.enhance(request.authId, body);
+    const data = await this.pokemonService.enhance(request.authId, body, request.ip);
     return reply.status(200).send({ success: true, data });
   };
 
   learnMove = async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as { id: number; move: string };
-    const data = await this.pokemonService.learnMove(request.authId, body);
+    const data = await this.pokemonService.learnMove(request.authId, body, request.ip);
     return reply.status(200).send({ success: true, data });
   };
 }

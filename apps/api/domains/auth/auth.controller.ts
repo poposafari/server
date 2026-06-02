@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { logger } from '@poposerver/lib/utils/logger';
 import { AppError } from '@poposerver/lib/utils/error';
-import { AppErrorCode, AppErrorMessage } from '@poposerver/lib/types';
+import { AppErrorCode, AppErrorMessage, AuditAction } from '@poposerver/lib/types';
 import { envConfig } from '@poposerver/lib/utils/env';
 import {
   consumeOAuthState,
@@ -20,18 +20,28 @@ export class AuthController {
     request: FastifyRequest<{ Body: AuthLocalInput }>,
     reply: FastifyReply,
   ) => {
-    const sessionId = await this.authService.registerLocal(request.body);
+    const { sessionId, accountId } = await this.authService.registerLocal(request.body);
 
     reply.setCookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
+    request.audit = {
+      action: AuditAction.REGISTER_LOCAL,
+      accountId,
+      detail: { username: request.body.username },
+    };
     logger.info(`Register(local) success`);
 
     return reply.status(201).send({ success: true, data: null });
   };
 
   loginLocal = async (request: FastifyRequest<{ Body: LoginLocalInput }>, reply: FastifyReply) => {
-    const sessionId = await this.authService.loginLocal(request.body);
+    const { sessionId, accountId } = await this.authService.loginLocal(request.body);
 
     reply.setCookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
+    request.audit = {
+      action: AuditAction.LOGIN_LOCAL,
+      accountId,
+      detail: { username: request.body.username },
+    };
     logger.info(`Login(local) success`);
 
     return reply.status(200).send({ success: true, data: null });
@@ -49,6 +59,7 @@ export class AuthController {
     await this.authService.logout(request.sessionId);
 
     reply.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
+    request.audit = { action: AuditAction.LOGOUT };
     logger.info(`Logout success: authId=${request.authId}`);
 
     return reply.status(200).send({ success: true, data: null });
@@ -111,12 +122,17 @@ export class AuthController {
 
       const providerName: OAuthProviderName = provider;
       const userInfo = await oauthProviders[providerName].exchangeCode(code);
-      const sessionId = await this.authService.loginOrCreateOAuth(
+      const { sessionId, accountId } = await this.authService.loginOrCreateOAuth(
         providerName,
         userInfo.providerId,
       );
 
       reply.setCookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
+      request.audit = {
+        action: AuditAction.LOGIN_OAUTH,
+        accountId,
+        detail: { provider: providerName, providerId: userInfo.providerId },
+      };
       logger.info(`Login(${providerName}) success: providerId=${userInfo.providerId}`);
       return reply.redirect(envConfig.OAUTH_CLIENT_SUCCESS_URL, 302);
     } catch (e) {
@@ -132,6 +148,7 @@ export class AuthController {
     await this.authService.logout(request.sessionId);
 
     reply.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
+    request.audit = { action: AuditAction.DELETE_AUTH };
     logger.info(`DeleteAuth success: authId=${request.authId}`);
 
     return reply.status(200).send({ success: true, data: null });

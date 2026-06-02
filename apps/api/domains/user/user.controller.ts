@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { AuditAction } from '@poposerver/lib/types';
 import { UserService } from './user.service';
 import { CreateUserInput } from './user.schema';
 
@@ -6,7 +7,12 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   createUser = async (request: FastifyRequest, reply: FastifyReply) => {
-    await this.userService.createUser(request.authId, request.body as CreateUserInput);
+    const body = request.body as CreateUserInput;
+    await this.userService.createUser(request.authId, body);
+    request.audit = {
+      action: AuditAction.CREATE_USER,
+      detail: { nickname: body.nickname, gender: body.gender },
+    };
     return reply.status(201).send({ success: true, data: null });
   };
 

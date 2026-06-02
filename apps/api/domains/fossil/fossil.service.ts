@@ -3,7 +3,8 @@ import { db } from '@poposerver/lib/db';
 import { userItem, userPokemon, userPokedex } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
-import { AppErrorCode, PokemonNatural } from '@poposerver/lib/types';
+import { auditTx } from '@poposerver/lib/utils/audit';
+import { AppErrorCode, AuditAction, PokemonNatural } from '@poposerver/lib/types';
 import { rollGender, rollSafariShiny, pickOne } from '@poposerver/lib/utils/rng';
 import { getUserState } from '@poposerver/lib/redis';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
@@ -14,7 +15,11 @@ const GRID_PER_BOX = 30;
 const FOSSIL_LEVEL = 20;
 
 export class FossilService {
-  async restore(authId: string, id: number): Promise<{ pokemon: typeof userPokemon.$inferSelect }> {
+  async restore(
+    authId: string,
+    id: number,
+    ip?: string,
+  ): Promise<{ pokemon: typeof userPokemon.$inferSelect }> {
     const accountId = Number(authId);
 
     const recipe = FOSSIL_RECIPES[id];
@@ -147,6 +152,20 @@ export class FossilService {
           target: [userPokedex.accountId, userPokedex.pokedexId],
           set: { caughtCount: sql`${userPokedex.caughtCount} + 1` },
         });
+
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.FOSSIL_RESTORE,
+        detail: {
+          recipeId: id,
+          userPokemonId: inserted.id,
+          pokedexId: recipe.pokedexId,
+          level,
+          isShiny,
+        },
+        ip: ip ?? null,
+        source: 'api',
+      });
 
       return inserted;
     });

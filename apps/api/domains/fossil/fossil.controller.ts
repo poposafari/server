@@ -7,7 +7,7 @@ export class FossilController {
 
   restore = async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as RestoreFossilInput;
-    const data = await this.fossilService.restore(request.authId, body.id);
+    const data = await this.fossilService.restore(request.authId, body.id, request.ip);
     return reply.status(200).send({ success: true, data });
   };
 }

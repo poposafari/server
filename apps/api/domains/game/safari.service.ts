@@ -37,6 +37,7 @@ import {
   Weather,
   PokemonTier,
   AppErrorCode,
+  AuditAction,
   UserStartLocation,
   S000_MAP_ID,
   POST_S000_LOCATION,
@@ -44,6 +45,7 @@ import {
   S000_REWARD_QUANTITY,
 } from '@poposerver/lib/types';
 import { AppError } from '@poposerver/lib/utils/error';
+import { auditTx } from '@poposerver/lib/utils/audit';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
 
 type CatchResult = 'caught' | 'fail' | 'flee';
@@ -226,6 +228,7 @@ export class SafariService {
   async catchWild(
     authId: string,
     uid: string,
+    ip?: string,
   ): Promise<{
     result: CatchResult;
     pokemon?: typeof userPokemon.$inferSelect;
@@ -456,6 +459,21 @@ export class SafariService {
           .returning();
 
         insertedPokemon = inserted;
+
+        await auditTx(tx, {
+          accountId,
+          action: AuditAction.POKEMON_CATCH,
+          detail: {
+            userPokemonId: inserted.id,
+            pokedexId: wild.pokedexId,
+            level: wild.level,
+            isShiny: wild.isShiny,
+            mapId,
+            isS000Starter,
+          },
+          ip: ip ?? null,
+          source: 'api',
+        });
 
         await tx
           .insert(userPokedex)

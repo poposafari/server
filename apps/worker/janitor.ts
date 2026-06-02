@@ -1,4 +1,6 @@
+import { sql } from 'drizzle-orm';
 import {
+  db,
   getAllActivePlayers,
   getUserState,
   hasConnReservedGrace,
@@ -6,15 +8,15 @@ import {
   removeActivePlayer,
 } from '@poposerver/lib';
 
-/** janitor 주기 (ms) */
+//janitor 주기 (ms)
 const SLOT_CLEANUP_INTERVAL_MS = 30_000;
 
-/**
- * active:players 누수 정리.
- * `/api/game/connect`가 SADD했지만 30초 grace 안에 소켓 핸드셰이크에 실패한 사용자를 회수한다.
- * 조건: state가 없거나 socketId가 비어있고, conn:reserved grace 키도 없을 때.
- * grace 키는 핸드셰이크 성공 시 DEL되므로, "grace 만료 + state도 없음" = 슬롯 누수.
- */
+// audit_log 보존 주기 (1일 1회)
+const AUDIT_RETENTION_INTERVAL_MS = 24 * 60 * 60 * 1000;
+
+// audit_log 보존 기간(일)
+const AUDIT_RETENTION_DAYS = 60;
+
 export async function cleanupStaleSlots(): Promise<void> {
   const members = await getAllActivePlayers();
   let reclaimed = 0;
@@ -30,7 +32,13 @@ export async function cleanupStaleSlots(): Promise<void> {
   }
 }
 
-/** N ms마다 fn을 호출. 동시 실행을 막고 stopped 플래그로 정지한다. */
+export async function pruneAuditLog(): Promise<void> {
+  await db.execute(
+    sql`DELETE FROM audit_log WHERE created_at < now() - make_interval(days => ${AUDIT_RETENTION_DAYS})`,
+  );
+  logger.info(`[Janitor] pruneAuditLog done (retention=${AUDIT_RETENTION_DAYS}d)`);
+}
+
 function startLoop(name: string, intervalMs: number, fn: () => Promise<void>): () => Promise<void> {
   let running = false;
   let stopped = false;
@@ -59,8 +67,10 @@ function startLoop(name: string, intervalMs: number, fn: () => Promise<void>): (
 
 export function startJanitorLoops(): () => Promise<void> {
   const stopSlot = startLoop('cleanupStaleSlots', SLOT_CLEANUP_INTERVAL_MS, cleanupStaleSlots);
+  const stopAudit = startLoop('pruneAuditLog', AUDIT_RETENTION_INTERVAL_MS, pruneAuditLog);
 
   return async () => {
     await stopSlot();
+    await stopAudit();
   };
 }
