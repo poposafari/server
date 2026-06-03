@@ -193,7 +193,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     } else if ('validation' in error && (error as FastifyError).validation) {
       statusCode = 400;
       errorCode = AppErrorCode.DTO_INVALID;
-      message = error.message;
+      message = envConfig.NODE_ENV === 'DEV' ? error.message : null;
     } else {
       const detail = unwrapErrorChain(error);
       message = envConfig.NODE_ENV === 'DEV' ? detail : null;
