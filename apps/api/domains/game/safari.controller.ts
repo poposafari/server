@@ -4,11 +4,9 @@ import { SafariService } from './safari.service';
 
 export class SafariController {
   constructor(private readonly service: SafariService) {}
-
   enter = async (request: FastifyRequest, reply: FastifyReply) => {
     const { mapId, needEntry } = request.body as { mapId: string; needEntry: boolean };
-    const data = await this.service.enter(request.authId!, mapId, needEntry);
-    // request.audit = { action: AuditAction.SAFARI_ENTER, detail: { mapId, needEntry } };
+    const data = await this.service.enter(request.authId!, mapId, needEntry, request.ip);
     return reply.status(200).send({ success: true, data });
   };
 

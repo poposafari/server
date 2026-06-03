@@ -127,7 +127,11 @@ export class UserRepository {
       .where(
         and(
           eq(userItem.accountId, accountId),
-          or(eq(userItem.itemId, 'safari-ball'), like(userItem.itemId, '%-candy')),
+          or(
+            eq(userItem.itemId, 'safari-ball'),
+            eq(userItem.itemId, 'safari-zone-ticket'),
+            like(userItem.itemId, '%-candy'),
+          ),
         ),
       );
 

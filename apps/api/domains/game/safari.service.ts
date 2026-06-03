@@ -51,11 +51,14 @@ import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
 type CatchResult = 'caught' | 'fail' | 'flee';
 type FleeResult = 'flee' | 'stay';
 
+const SAFARI_ZONE_TICKET_ID = 'safari-zone-ticket';
+
 export class SafariService {
   async enter(
     authId: string,
     mapId: string,
     needEntry: boolean,
+    ip?: string,
   ): Promise<{
     mapData: { wilds: SafariWild[]; items: SafariItem[] };
     entry?: { x: number; y: number };
@@ -89,6 +92,15 @@ export class SafariService {
       if (!row || !row.hasStarter) {
         throw new AppError('No starter selection available', 400, AppErrorCode.NO_STARTER);
       }
+    }
+
+    // 1-c. 입장권 차감: plaza에서 NPC를 통해 새로 입장(needEntry)할 때만 1개 소모한다.
+    //   - door로 사파리 맵 간 이동 / 시작 시 preload는 needEntry=false라 차감되지 않는다.
+    //   - 이미 safari('s')에 있는 상태의 호출도 제외(방어).
+    //   - s000(스타터 존)은 hasStarter 게이트만 적용하고 입장권은 받지 않는다.
+    //   Redis wild/item 스폰 전에 수행하여, 입장권이 없으면 부수효과 없이 실패한다.
+    if (needEntry && currentPrefix === 'p' && mapId !== S000_MAP_ID) {
+      await this.consumeSafariZoneTicket(Number(authId), mapId, ip);
     }
 
     // 2. 기존 wild 인덱스와 items 존재 여부로 첫 진입 / 재진입 구분
@@ -573,6 +585,47 @@ export class SafariService {
       await this.consumeSafariBall(accountId, safariBall.quantity);
       return { result };
     }
+  }
+
+  private async consumeSafariZoneTicket(
+    accountId: number,
+    mapId: string,
+    ip?: string,
+  ): Promise<void> {
+    await db.transaction(async (tx) => {
+      const [ticket] = await tx
+        .select({ quantity: userItem.quantity })
+        .from(userItem)
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, SAFARI_ZONE_TICKET_ID)))
+        .for('update');
+
+      if (!ticket || ticket.quantity <= 0) {
+        throw new AppError('No safari zone ticket', 400, AppErrorCode.SAFARI_TICKET_NOT_FOUND);
+      }
+
+      if (ticket.quantity === 1) {
+        await tx
+          .delete(userItem)
+          .where(
+            and(eq(userItem.accountId, accountId), eq(userItem.itemId, SAFARI_ZONE_TICKET_ID)),
+          );
+      } else {
+        await tx
+          .update(userItem)
+          .set({ quantity: sql`${userItem.quantity} - 1` })
+          .where(
+            and(eq(userItem.accountId, accountId), eq(userItem.itemId, SAFARI_ZONE_TICKET_ID)),
+          );
+      }
+
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.SAFARI_ENTER,
+        detail: { mapId, ticketConsumed: true },
+        ip: ip ?? null,
+        source: 'api',
+      });
+    });
   }
 
   private async consumeSafariBall(accountId: number, currentQuantity: number): Promise<void> {
