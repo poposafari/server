@@ -7,6 +7,7 @@ import {
   deleteSession,
   deleteUserState,
   getSession,
+  isActivePlayer,
   publishSocketKick,
 } from '@poposerver/lib/redis';
 import { AuthRepository } from './auth.repository';
@@ -147,6 +148,10 @@ export class AuthService {
         409,
         AppErrorCode.ACCOUNT_ALREADY_DELETED,
       );
+    }
+
+    if (await isActivePlayer(authId)) {
+      throw new AppError(AppErrorMessage.ACCOUNT_IN_USE, 409, AppErrorCode.ACCOUNT_IN_USE);
     }
 
     await this.repo.softDelete(numericId);
