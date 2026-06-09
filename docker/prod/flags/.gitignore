@@ -1,0 +1,4 @@
+# 점검 flag(maintenance)는 런타임 상태 — 디렉토리만 추적하고 flag 파일은 커밋하지 않는다.
+*
+!.gitkeep
+!.gitignore
