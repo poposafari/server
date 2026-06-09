@@ -6,7 +6,7 @@ export const userBoxMeta = pgTable(
   {
     accountId: integer('account_id')
       .notNull()
-      .references(() => account.id),
+      .references(() => account.id, { onDelete: 'cascade' }),
     boxNumber: smallint('box_number').notNull(),
     wallpaper: smallint('wallpaper').notNull().default(0),
     name: varchar('name', { length: 20 }).notNull().default(''),

@@ -7,7 +7,7 @@ export const user = pgTable(
   {
     accountId: integer('account_id')
       .primaryKey()
-      .references(() => account.id),
+      .references(() => account.id, { onDelete: 'cascade' }),
     nickname: varchar('nickname', { length: 14 }).notNull().unique(),
     money: integer('money').notNull().default(0),
     playtime: integer('playtime').notNull().default(0),

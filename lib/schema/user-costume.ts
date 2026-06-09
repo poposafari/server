@@ -6,7 +6,7 @@ export const userCostume = pgTable(
   {
     accountId: integer('account_id')
       .notNull()
-      .references(() => account.id),
+      .references(() => account.id, { onDelete: 'cascade' }),
     costumeId: varchar('costume_id', { length: 20 }).notNull(),
     isEquipped: boolean('is_equipped').notNull().default(false),
   },

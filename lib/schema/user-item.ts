@@ -7,7 +7,7 @@ export const userItem = pgTable(
   {
     accountId: integer('account_id')
       .notNull()
-      .references(() => account.id),
+      .references(() => account.id, { onDelete: 'cascade' }),
     itemId: varchar('item_id', { length: 64 }).notNull(),
     quantity: integer('quantity').notNull().default(1),
     register: boolean('register').notNull().default(false),

@@ -19,7 +19,7 @@ export const userPokemon = pgTable(
     id: serial('id').primaryKey(),
     accountId: integer('account_id')
       .notNull()
-      .references(() => account.id),
+      .references(() => account.id, { onDelete: 'cascade' }),
     pokedexId: varchar('pokedex_id', { length: 20 }).notNull(),
     level: smallint('level').notNull().default(1),
     exp: integer('exp').notNull().default(0),

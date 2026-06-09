@@ -7,7 +7,7 @@ export const userPokedex = pgTable(
   {
     accountId: integer('account_id')
       .notNull()
-      .references(() => account.id),
+      .references(() => account.id, { onDelete: 'cascade' }),
     pokedexId: varchar('pokedex_id', { length: 10 }).notNull(),
     caughtCount: integer('caught_count').notNull().default(1),
     registeredAt: timestamp('registered_at', { withTimezone: true }).notNull().defaultNow(),
