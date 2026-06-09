@@ -1,7 +1,7 @@
 import { eq, sql, and, inArray, notInArray } from 'drizzle-orm';
 import { db } from './db';
 import { user, userCostume, userTownMap } from './schema';
-import { getUserState, deleteUserState } from './redis';
+import { getUserState, deleteUserState, setUserStateCreatedAt } from './redis';
 import { logger } from './utils/logger';
 
 export interface PersistUserStateOptions {
@@ -20,10 +20,10 @@ export async function persistUserStateFromRedisToDb(
   const x = Number(state.x) || 0;
   const y = Number(state.y) || 0;
 
+  const now = Date.now();
   let deltaSeconds = 0;
   if (state.createdAt) {
     const sessionStart = new Date(state.createdAt).getTime();
-    const now = Date.now();
     deltaSeconds = Math.max(0, Math.floor((now - sessionStart) / 1000));
   }
 
@@ -85,6 +85,10 @@ export async function persistUserStateFromRedisToDb(
     }
   });
 
-  if (deleteFromRedis) await deleteUserState(authId);
+  if (deleteFromRedis) {
+    await deleteUserState(authId);
+  } else {
+    await setUserStateCreatedAt(authId, new Date(now).toISOString());
+  }
   logger.debug(`[persistUserState] Saved state for authId=${authId}`);
 }

@@ -150,6 +150,11 @@ export async function clearUserStateSocketId(authId: string): Promise<void> {
   await RedisClient.hset(key, 'socketId', '');
 }
 
+export async function setUserStateCreatedAt(authId: string, createdAt: string): Promise<void> {
+  const key = RedisKey.userState(authId);
+  await RedisClient.hset(key, 'createdAt', createdAt);
+}
+
 const USER_STATE_KEY_PREFIX = 'user:';
 const USER_STATE_KEY_SUFFIX = ':state';
 
