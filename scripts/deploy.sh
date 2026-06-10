@@ -19,7 +19,8 @@ if [ -n "$INTERNAL_TOKEN" ]; then
   echo "[0.5/8] broadcasting maintenance to active sockets"
   docker exec poposerver_api wget -qO- \
     --header="X-Internal-Token: ${INTERNAL_TOKEN}" \
-    --post-data="" \
+    --header="Content-Type: application/json" \
+    --post-data="{}" \
     http://127.0.0.1:9000/api/__internal/maintenance/broadcast || \
     echo "  WARN: broadcast failed (계속 진행)"
   sleep 3   # 클라이언트들이 MaintenancePhase로 전환할 시간 확보

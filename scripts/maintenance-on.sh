@@ -22,7 +22,8 @@ echo "[1/2] maintenance flag ON (api/socket → 503)"
 if [ -n "$INTERNAL_TOKEN" ]; then
   if docker exec poposerver_api wget -qO- \
        --header="X-Internal-Token: ${INTERNAL_TOKEN}" \
-       --post-data="" \
+       --header="Content-Type: application/json" \
+       --post-data="{}" \
        http://127.0.0.1:9000/api/__internal/maintenance/broadcast >/dev/null 2>&1; then
     echo "[2/2] active sockets kicked"
   else
