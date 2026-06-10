@@ -43,6 +43,8 @@ import {
   POST_S000_LOCATION,
   S000_REWARD_ITEM_ID,
   S000_REWARD_QUANTITY,
+  S000_REWARD_TICKET_ID,
+  S000_REWARD_TICKET_QUANTITY,
 } from '@poposerver/lib/types';
 import { AppError } from '@poposerver/lib/utils/error';
 import { auditTx } from '@poposerver/lib/utils/audit';
@@ -502,6 +504,21 @@ export class SafariService {
             target: [userItem.accountId, userItem.itemId],
             set: { quantity: sql`${userItem.quantity} + ${candyQuantity}` },
           });
+
+        if (isS000Starter && S000_REWARD_TICKET_QUANTITY > 0) {
+          await tx
+            .insert(userItem)
+            .values({
+              accountId,
+              itemId: S000_REWARD_TICKET_ID,
+              quantity: S000_REWARD_TICKET_QUANTITY,
+            })
+            .onConflictDoUpdate({
+              target: [userItem.accountId, userItem.itemId],
+              set: { quantity: sql`${userItem.quantity} + ${S000_REWARD_TICKET_QUANTITY}` },
+            });
+          rewards.push({ itemId: S000_REWARD_TICKET_ID, quantity: S000_REWARD_TICKET_QUANTITY });
+        }
 
         // 경험사탕 드롭 (S000 스타터는 제외)
         if (!isS000Starter) {

@@ -196,6 +196,8 @@ export const S000_MAP_ID = 's000';
 export const POST_S000_LOCATION: UserLocationData = { map: 'p001', x: 50, y: 30 };
 export const S000_REWARD_ITEM_ID = 'safari-ball';
 export const S000_REWARD_QUANTITY = 30;
+export const S000_REWARD_TICKET_ID = 'safari-zone-ticket';
+export const S000_REWARD_TICKET_QUANTITY = 5;
 
 export const STARTER_POKEDEX_IDS: readonly string[] = [
   '0001',
