@@ -109,3 +109,11 @@ for c in $CONTAINERS; do
 done
 
 echo "[OK] health check done (mem ${mem_pct}%)"
+
+# ── 5) 외부 dead-man's switch heartbeat (Healthchecks.io) ──
+# 스크립트가 '끝까지 완주'했을 때만 ping을 쏜다. 박스나 cron이 통째로 죽으면 ping이 끊겨
+# Healthchecks.io가 'down'으로 #alerts에 알린다 — 이 스크립트(박스 안)가 못 알리는
+# 하드다운(OOM 등)을 박스 밖 SaaS가 backstop하는 자리(맨 위 주석의 "외부 uptime SaaS").
+# inbound가 아니라 outbound ping이라 Cloudflare 봇 차단과 무관하다.
+# HC_PING_URL은 .env.backup(비커밋)에서 로드 — URL 자체가 비밀이라 git에 안 남긴다.
+[ -n "${HC_PING_URL:-}" ] && curl -fsS -m 10 --retry 3 "$HC_PING_URL" >/dev/null 2>&1 || true
