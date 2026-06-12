@@ -33,9 +33,26 @@ STATE_DIR="${HEALTH_STATE_DIR:-/tmp/poposafari-health}"   # 전이 추적용 fla
 
 mkdir -p "$STATE_DIR"
 
+# JSON 본문은 문자열 치환이 아니라 jq로 인코딩한다 — 메시지에 ", \, 개행, docker stats
+# 출력 등 어떤 문자가 와도 JSON이 안 깨진다(과거: 문자열 끼워넣기로 400 Bad Request 발생).
+# 전송 실패 시 조용히 삼키지 말고 http코드+payload+Discord응답을 stderr로 남겨 진단 가능하게.
 notify() {
-  [ -n "${DISCORD_WEBHOOK_ALERTS:-}" ] && curl -fsS -X POST -H "Content-Type: application/json" \
-    -d "{\"content\":\"$1\"}" "$DISCORD_WEBHOOK_ALERTS" >/dev/null || true
+  [ -n "${DISCORD_WEBHOOK_ALERTS:-}" ] || return 0
+  local payload resp_body code
+  if command -v jq >/dev/null 2>&1; then
+    payload=$(jq -nc --arg c "$1" '{content:$c}')
+  else                                   # jq 폴백: 최소 이스케이프(\ 와 " 만)
+    local esc=${1//\\/\\\\}; esc=${esc//\"/\\\"}
+    payload="{\"content\":\"$esc\"}"
+  fi
+  resp_body=$(curl -s -w '\n%{http_code}' -X POST -H "Content-Type: application/json" \
+    -d "$payload" "$DISCORD_WEBHOOK_ALERTS" 2>/dev/null || echo $'\n000')
+  code=${resp_body##*$'\n'}
+  case "$code" in
+    2*) : ;;
+    *)  echo "[notify FAIL] http=$code payload=$payload resp=${resp_body%$'\n'*}" >&2 ;;
+  esac
+  return 0
 }
 
 # host 자원 경보 시 '어느 컨테이너가 범인인가'를 한 줄로 첨부 — docker stats 1회 스냅샷.
