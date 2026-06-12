@@ -12,6 +12,8 @@ legacy*
 docker/prod/nginx/ssl/
 !.env.prod.example
 !.env.backup.example
+!.env.smoke.example
+load-test/out/
 # docs
 .pnpm-store
 # Artillery 부하 테스트용 refresh token 목록 (비밀에 해당)
