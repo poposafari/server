@@ -111,25 +111,41 @@ class MasterDataService {
   }
 
   private loadMapJson(baseDir: string): void {
-    const mapRaw = JSON.parse(fs.readFileSync(path.join(baseDir, 'map.json'), 'utf-8'));
+    const mapDir = path.join(baseDir, 'map');
     const entryRaw = JSON.parse(fs.readFileSync(path.join(baseDir, 'map-entry.json'), 'utf-8'));
 
-    for (const [id, data] of Object.entries<any>(mapRaw)) {
+    const files = fs
+      .readdirSync(mapDir)
+      .filter((f) => f.endsWith('.json'))
+      .sort();
+
+    for (const file of files) {
+      const id = path.basename(file, '.json');
+      const data = JSON.parse(fs.readFileSync(path.join(mapDir, file), 'utf-8'));
       const entry = entryRaw[id] ? { x: entryRaw[id].x, y: entryRaw[id].y } : null;
       if (data.type === 'safari' && data.wild) {
-        const { levelMin, levelMax } = data.wild;
-        if (
-          typeof levelMin !== 'number' ||
-          typeof levelMax !== 'number' ||
-          !Number.isInteger(levelMin) ||
-          !Number.isInteger(levelMax) ||
-          levelMin < 1 ||
-          levelMax > 100 ||
-          levelMin > levelMax
-        ) {
-          throw new Error(
-            `Invalid wild level range for map ${id}: levelMin=${levelMin}, levelMax=${levelMax}`,
-          );
+        const TIMES = ['dawn', 'day', 'dusk', 'night'] as const;
+        const WEATHERS = ['sunny', 'rainy', 'stormy', 'foggy'] as const;
+        for (const t of TIMES) {
+          for (const w of WEATHERS) {
+            const pool = data.wild[t]?.[w] ?? [];
+            for (const entry of pool) {
+              const { id: pid, levelMin, levelMax } = entry;
+              if (
+                typeof levelMin !== 'number' ||
+                typeof levelMax !== 'number' ||
+                !Number.isInteger(levelMin) ||
+                !Number.isInteger(levelMax) ||
+                levelMin < 1 ||
+                levelMax > 100 ||
+                levelMin > levelMax
+              ) {
+                throw new Error(
+                  `Invalid wild level range for map ${id} (${t}/${w}, id=${pid}): levelMin=${levelMin}, levelMax=${levelMax}`,
+                );
+              }
+            }
+          }
         }
       }
       this.maps.set(id, {

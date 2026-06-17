@@ -607,7 +607,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 442,"['pressure', 'infiltrator']",화강돌,[],[],[],[],4,1.0,0.2,0.5,0.6,0.5,['move_flash'],['land'],epic,ghost,dark,108.0,medium_fast,170
 443,"['sand-veil', 'rough-skin']",딥상어동,['candy_50'],['0444'],[],[],4,0.7,0.14,0.5,0.35,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],rare,dragon,ground,20.5,slow,60
 444,"['sand-veil', 'rough-skin']",한바이트,['candy_100'],['0445'],[],[],4,1.4,0.14,0.5,0.45,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],rare,dragon,ground,56.0,slow,144
-445,"['sand-veil', 'rough-skin']",한카리아스,[],[],[],[],4,1.9,0.14,0.5,0.6,0.5,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['land'],Epic,dragon,ground,95.0,slow,270
+445,"['sand-veil', 'rough-skin']",한카리아스,[],[],[],[],4,1.9,0.14,0.5,0.6,0.5,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['land'],epic,dragon,ground,95.0,slow,270
 0445-mega,['sand-force'],한카리아스,[],[],[],[],4,1.9,0.14,0.5,0.6,0.5,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['land'],epic,dragon,ground,95.0,slow,270
 446,"['pickup', 'thick-fat', 'gluttony']",먹고자,['friendship_220'],['0143'],[],[],4,0.6,0.16,0.12,0.45,0.88,"['move_surf', 'move_rock-smash', 'move_strength']",['land'],rare,normal,,105.0,slow,78
 447,"['steadfast', 'inner-focus', 'ptierster']",리오르,['friendship_220+time_day'],['0448'],[],[],4,0.7,0.23,0.12,0.45,0.88,"['move_rock-smash', 'move_strength']",['land'],rare,fighting,,20.2,medium_slow,57

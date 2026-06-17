@@ -284,7 +284,7 @@ describe('POST /api/game/safari/enter', () => {
     expect(body.data['s001'].items).toBeInstanceOf(Array);
   });
 
-  it('야생 포켓몬 레벨이 맵의 levelMin~levelMax 범위 내 (s001=5~10)', async () => {
+  it('야생 포켓몬 레벨이 종(엔트리)별 levelMin~levelMax 범위 내', async () => {
     const sid = await registerAndGetSid();
     await createUserAndSetState(sid);
 
@@ -298,12 +298,27 @@ describe('POST /api/game/safari/enter', () => {
     expect(res.statusCode).toBe(200);
     const body = res.json();
 
+    // s001의 모든 시간×날씨 풀 엔트리에서 레벨 범위 경계를 실제 마스터 데이터로부터 도출
+    const s001 = MasterData.getMap('s001')!;
+    const times = ['dawn', 'day', 'dusk', 'night'] as const;
+    const weathers = ['sunny', 'rainy', 'stormy', 'foggy'] as const;
+    let lo = Infinity;
+    let hi = -Infinity;
+    for (const t of times) {
+      for (const w of weathers) {
+        for (const e of s001.wild[t][w]) {
+          lo = Math.min(lo, e.levelMin);
+          hi = Math.max(hi, e.levelMax);
+        }
+      }
+    }
+
     for (const mapId of Object.keys(body.data)) {
       for (const wild of body.data[mapId].wilds) {
         expect(wild.level).toBeDefined();
         expect(typeof wild.level).toBe('number');
-        expect(wild.level).toBeGreaterThanOrEqual(5);
-        expect(wild.level).toBeLessThanOrEqual(10);
+        expect(wild.level).toBeGreaterThanOrEqual(lo);
+        expect(wild.level).toBeLessThanOrEqual(hi);
       }
     }
   });

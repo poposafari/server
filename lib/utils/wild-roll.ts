@@ -8,7 +8,9 @@ import {
   Weather,
   PokemonNatural,
   S000_MAP_ID,
+  S000_STARTER_LEVEL,
   STARTER_POKEDEX_IDS,
+  type MapWildEntry,
   type MapWildWeather,
 } from '../types';
 import { MasterData } from './master-data';
@@ -21,8 +23,7 @@ export function randomWildTtlSec(): number {
 /**
  * 사파리 맵의 wild 풀에서 count개를 롤링해 SafariWild[]를 생성.
  * Redis 쓰기 없이 pure하게 반환. 호출자가 addWild로 저장한다.
- *
- * 야생 레벨은 맵의 wild.levelMin~levelMax 균등 랜덤.
+
  *
  * @param accountId DB 조회용 (caughtCount 프리필)
  * @param mapId 대상 사파리 맵 id
@@ -42,20 +43,27 @@ export async function generateWildBatch(
   const targetMap = MasterData.getMap(mapId);
   if (!targetMap) return [];
 
-  const selectedPokedexIds: string[] =
+  const selected: { pokedexId: string; levelMin: number; levelMax: number }[] =
     mapId === S000_MAP_ID
-      ? [...STARTER_POKEDEX_IDS]
+      ? STARTER_POKEDEX_IDS.map((id) => ({
+          pokedexId: id,
+          levelMin: S000_STARTER_LEVEL,
+          levelMax: S000_STARTER_LEVEL,
+        }))
       : (() => {
           const wildPool = targetMap.wild[timeOfDay]?.[weather as keyof MapWildWeather] ?? [];
           if (wildPool.length === 0) return [];
-          const ids = wildPool.map((e) => e.id);
           const weights = wildPool.map((e) => e.weight);
-          return pickWeightedMany<string>(ids, weights, count);
+          return pickWeightedMany<MapWildEntry>(wildPool, weights, count).map((e) => ({
+            pokedexId: e.id,
+            levelMin: e.levelMin,
+            levelMax: e.levelMax,
+          }));
         })();
 
-  if (selectedPokedexIds.length === 0) return [];
+  if (selected.length === 0) return [];
 
-  const uniquePokedexIds = Array.from(new Set(selectedPokedexIds));
+  const uniquePokedexIds = Array.from(new Set(selected.map((s) => s.pokedexId)));
   const pokedexRows = uniquePokedexIds.length
     ? await db
         .select({
@@ -72,12 +80,12 @@ export async function generateWildBatch(
     : [];
   const caughtCountMap = new Map(pokedexRows.map((r) => [r.pokedexId, r.caughtCount]));
 
-  return selectedPokedexIds.map((pokedexId) => {
+  return selected.map(({ pokedexId, levelMin, levelMax }) => {
     const pokemonData = MasterData.getPokemon(pokedexId);
     const gender = pokemonData ? rollGender(pokemonData.rateMale, pokemonData.rateFemale) : 0;
     const nature = pickOne(PokemonNatural);
     const ability = pokemonData?.ability.length ? pickOne(pokemonData.ability) : '';
-    const wildLevel = randomInt(targetMap.wild.levelMin, targetMap.wild.levelMax);
+    const wildLevel = randomInt(levelMin, levelMax);
     return {
       uid: crypto.randomUUID(),
       pokedexId,

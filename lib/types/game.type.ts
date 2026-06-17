@@ -46,6 +46,8 @@ export enum MapWildState {
 export interface MapWildEntry {
   id: string;
   weight: number;
+  levelMin: number;
+  levelMax: number;
 }
 
 export interface MapWildWeather {
@@ -58,8 +60,6 @@ export interface MapWildWeather {
 export interface MapWildData {
   min: number;
   max: number;
-  levelMin: number;
-  levelMax: number;
   dawn: MapWildWeather;
   day: MapWildWeather;
   dusk: MapWildWeather;
@@ -198,6 +198,7 @@ export const S000_REWARD_ITEM_ID = 'safari-ball';
 export const S000_REWARD_QUANTITY = 30;
 export const S000_REWARD_TICKET_ID = 'safari-zone-ticket';
 export const S000_REWARD_TICKET_QUANTITY = 5;
+export const S000_STARTER_LEVEL = 5;
 
 export const STARTER_POKEDEX_IDS: readonly string[] = [
   '0001',
