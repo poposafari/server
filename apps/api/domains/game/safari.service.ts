@@ -708,7 +708,7 @@ export class SafariService {
     else if (wild.rock) fleeMul = 2.0;
 
     const finalFlee = Math.min(pokemonData.rateFlee * fleeMul, 0.9);
-    const fled = Math.random() < finalFlee;
+    const fled = mapId === S000_MAP_ID ? false : Math.random() < finalFlee;
 
     if (fled) {
       wild.caught = 2;
