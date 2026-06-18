@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PC_STORAGE } from '@poposerver/lib/constants/pc';
 
 export const evolveSchema = z.object({
   id: z.number().int().positive(),
@@ -42,8 +43,8 @@ export const arrangeSchema = z.object({
     .array(
       z.object({
         id: z.number().int().positive(),
-        boxNumber: z.number().int().min(1).max(30).nullable(),
-        gridNumber: z.number().int().min(0).max(29).nullable(),
+        boxNumber: z.number().int().min(1).max(PC_STORAGE.MAX_BOX).nullable(),
+        gridNumber: z.number().int().min(0).max(PC_STORAGE.GRID_PER_BOX - 1).nullable(),
         partySlot: z.number().int().min(0).max(5).nullable(),
       }),
     )
@@ -51,12 +52,12 @@ export const arrangeSchema = z.object({
   boxMeta: z
     .array(
       z.object({
-        boxNumber: z.number().int().min(1).max(30),
+        boxNumber: z.number().int().min(1).max(PC_STORAGE.MAX_BOX),
         wallpaper: z.number().int().min(0).max(32),
         name: z.string().max(20),
       }),
     )
-    .max(30)
+    .max(PC_STORAGE.MAX_BOX)
     .optional(),
   nicknames: z
     .array(

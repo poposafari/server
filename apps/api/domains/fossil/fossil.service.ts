@@ -8,10 +8,9 @@ import { AppErrorCode, AuditAction, PokemonNatural } from '@poposerver/lib/types
 import { rollGender, rollSafariShiny, pickOne } from '@poposerver/lib/utils/rng';
 import { getUserState } from '@poposerver/lib/redis';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
+import { PC_STORAGE } from '@poposerver/lib/constants/pc';
 import { FOSSIL_RECIPES } from './fossil.recipe';
 
-const MAX_BOX = 30;
-const GRID_PER_BOX = 30;
 const FOSSIL_LEVEL = 20;
 
 export class FossilService {
@@ -109,8 +108,8 @@ export class FossilService {
 
         const occupied = new Set(existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`));
 
-        outer: for (let b = 1; b <= MAX_BOX; b++) {
-          for (let g = 0; g < GRID_PER_BOX; g++) {
+        outer: for (let b = 1; b <= PC_STORAGE.MAX_BOX; b++) {
+          for (let g = 0; g < PC_STORAGE.GRID_PER_BOX; g++) {
             if (!occupied.has(`${b}:${g}`)) {
               targetBox = b;
               targetGrid = g;

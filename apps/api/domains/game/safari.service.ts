@@ -49,6 +49,7 @@ import {
 import { AppError } from '@poposerver/lib/utils/error';
 import { auditTx } from '@poposerver/lib/utils/audit';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
+import { PC_STORAGE, PC_BOX_CAPACITY } from '@poposerver/lib/constants/pc';
 
 type CatchResult = 'caught' | 'fail' | 'flee';
 type FleeResult = 'flee' | 'stay';
@@ -316,7 +317,10 @@ export class SafariService {
       .select({ count: sql<number>`count(*)`.mapWith(Number) })
       .from(userPokemon)
       .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.boxNumber)));
-    if ((boxCountRow?.count ?? 0) >= 900 && partyPokemons.length >= LEVEL_CURVE.PARTY_SLOT_COUNT) {
+    if (
+      (boxCountRow?.count ?? 0) >= PC_BOX_CAPACITY &&
+      partyPokemons.length >= LEVEL_CURVE.PARTY_SLOT_COUNT
+    ) {
       throw new AppError('Pokemon storage is full', 409, AppErrorCode.POKEMON_BOX_FULL);
     }
 
@@ -433,11 +437,8 @@ export class SafariService {
 
           const occupied = new Set(existingBoxPokemon.map((p) => `${p.boxNumber}:${p.gridNumber}`));
 
-          const MAX_BOX = 30;
-          const GRID_PER_BOX = 30;
-
-          outer: for (let b = 1; b <= MAX_BOX; b++) {
-            for (let g = 0; g < GRID_PER_BOX; g++) {
+          outer: for (let b = 1; b <= PC_STORAGE.MAX_BOX; b++) {
+            for (let g = 0; g < PC_STORAGE.GRID_PER_BOX; g++) {
               if (!occupied.has(`${b}:${g}`)) {
                 targetBox = b;
                 targetGrid = g;
