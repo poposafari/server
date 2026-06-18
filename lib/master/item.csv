@@ -51,6 +51,7 @@ auspicious-armor,30000,etc,축복받은갑옷,TRUE,200,TRUE,epic
 syrupy-apple,20000,etc,꿀맛사과,TRUE,200,TRUE,epic
 unremarkable-teacup,20000,etc,범작찻잔,TRUE,200,TRUE,epic
 masterpiece-teacup,20000,etc,걸작찻잔,TRUE,200,TRUE,epic
+leek,20000,etc,대파,TRUE,200,TRUE,epic
 metal-alloy,20000,etc,복합금속,TRUE,200,TRUE,epic
 repel,350,etc,벌레회피스프레이,TRUE,175,TRUE,common
 super-repel,500,etc,실버스프레이,TRUE,250,TRUE,rare
@@ -113,6 +114,11 @@ move_rollout,15000,tms_hms,구르기,TRUE,1500,TRUE,epic
 move_stomp,15000,tms_hms,짓밟기,TRUE,1500,TRUE,epic
 move_taunt,15000,tms_hms,도발,TRUE,1500,TRUE,epic
 move_twin-beam,15000,tms_hms,트윈빔,TRUE,1500,TRUE,epic
+move_rage-fist,15000,tms_hms,분노의주먹,TRUE,1500,TRUE,epic
+move_barb-barrage,15000,tms_hms,독침천발,TRUE,1500,TRUE,epic
+move_psyshield-bash,15000,tms_hms,배리어러시,TRUE,1500,TRUE,epic
+move_double-edge,15000,tms_hms,이판사판태클,TRUE,1500,TRUE,epic
+move_dragon-cheer,15000,tms_hms,드래곤옐,TRUE,1500,TRUE,epic
 bicycle,15000,key,자전거,TRUE,0,FALSE,legendary
 gracidea,999999999,key,그라시데아꽃,TRUE,0,FALSE,legendary
 reveal-glass,999999999,key,비추는거울,TRUE,0,FALSE,legendary
@@ -137,24 +143,24 @@ hearthflame-mask,999999999,key,화덕의가면,TRUE,0,FALSE,legendary
 red-orb,999999999,key,주홍구슬,FALSE,0,FALSE,legendary
 blue-orb,999999999,key,쪽빛구슬,FALSE,0,FALSE,legendary
 soothe-bell,999999999,key,평온의 방울,TRUE,0,FALSE,epic
-normal-candy,999999999,candy,노말 사탕,FALSE,10,FALSE,common
-fire-candy,999999999,candy,불 사탕,FALSE,10,FALSE,common
-water-candy,999999999,candy,물 사탕,FALSE,10,FALSE,common
-grass-candy,999999999,candy,풀 사탕,FALSE,10,FALSE,common
-electric-candy,999999999,candy,전기 사탕,FALSE,10,FALSE,common
-ice-candy,999999999,candy,얼음 사탕,FALSE,10,FALSE,common
-fighting-candy,999999999,candy,격투 사탕,FALSE,10,FALSE,common
-poison-candy,999999999,candy,독 사탕,FALSE,10,FALSE,common
-ground-candy,999999999,candy,땅 사탕,FALSE,10,FALSE,common
-flying-candy,999999999,candy,비행 사탕,FALSE,10,FALSE,common
-psychic-candy,999999999,candy,에스퍼 사탕,FALSE,10,FALSE,common
-bug-candy,999999999,candy,벌레 사탕,FALSE,10,FALSE,common
-rock-candy,999999999,candy,바위 사탕,FALSE,10,FALSE,common
-ghost-candy,999999999,candy,고스트 사탕,FALSE,10,FALSE,common
-dragon-candy,999999999,candy,드래곤 사탕,FALSE,10,FALSE,common
-dark-candy,999999999,candy,악 사탕,FALSE,10,FALSE,common
-steel-candy,999999999,candy,강철 사탕,FALSE,10,FALSE,common
-fairy-candy,999999999,candy,페어리 사탕,FALSE,10,FALSE,common
+normal-candy,999999999,candy,노말 사탕,FALSE,10,TRUE,common
+fire-candy,999999999,candy,불 사탕,FALSE,10,TRUE,common
+water-candy,999999999,candy,물 사탕,FALSE,10,TRUE,common
+grass-candy,999999999,candy,풀 사탕,FALSE,10,TRUE,common
+electric-candy,999999999,candy,전기 사탕,FALSE,10,TRUE,common
+ice-candy,999999999,candy,얼음 사탕,FALSE,10,TRUE,common
+fighting-candy,999999999,candy,격투 사탕,FALSE,10,TRUE,common
+poison-candy,999999999,candy,독 사탕,FALSE,10,TRUE,common
+ground-candy,999999999,candy,땅 사탕,FALSE,10,TRUE,common
+flying-candy,999999999,candy,비행 사탕,FALSE,10,TRUE,common
+psychic-candy,999999999,candy,에스퍼 사탕,FALSE,10,TRUE,common
+bug-candy,999999999,candy,벌레 사탕,FALSE,10,TRUE,common
+rock-candy,999999999,candy,바위 사탕,FALSE,10,TRUE,common
+ghost-candy,999999999,candy,고스트 사탕,FALSE,10,TRUE,common
+dragon-candy,999999999,candy,드래곤 사탕,FALSE,10,TRUE,common
+dark-candy,999999999,candy,악 사탕,FALSE,10,TRUE,common
+steel-candy,999999999,candy,강철 사탕,FALSE,10,TRUE,common
+fairy-candy,999999999,candy,페어리 사탕,FALSE,10,TRUE,common
 experience-candy-xs,999999999,candy,경험사탕 XS,FALSE,10,FALSE,common
 experience-candy-s,999999999,candy,경험사탕 S,FALSE,20,FALSE,rare
 experience-candy-m,999999999,candy,경험사탕 M,FALSE,30,FALSE,epic
