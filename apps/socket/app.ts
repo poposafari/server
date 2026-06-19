@@ -45,8 +45,7 @@ type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
 export const MOVE_TYPES = ['walk', 'running', 'ride', 'surf', 'jump'] as const;
 export type MoveType = (typeof MOVE_TYPES)[number];
 
-/** Tick 시스템: 이동 브로드캐스트를 이 주기(ms)마다 묶어서 전송. 20Hz = 최대 약 50ms 지연 */
-const TICK_RATE_MS = 50;
+const TICK_RATE_MS = 33;
 
 /** Tick 버퍼에 담기는 이동 데이터 (users_moved 이벤트 payload와 동일한 필드) */
 export interface MoveBufferEntry {
