@@ -45,6 +45,8 @@ import {
   S000_REWARD_QUANTITY,
   S000_REWARD_TICKET_ID,
   S000_REWARD_TICKET_QUANTITY,
+  SAFARI_ENTRY_BALL_ID,
+  SAFARI_ENTRY_BALL_QUANTITY,
 } from '@poposerver/lib/types';
 import { AppError } from '@poposerver/lib/utils/error';
 import { auditTx } from '@poposerver/lib/utils/audit';
@@ -97,13 +99,14 @@ export class SafariService {
       }
     }
 
-    // 1-c. 입장권 차감: plaza에서 NPC를 통해 새로 입장(needEntry)할 때만 1개 소모한다.
-    //   - door로 사파리 맵 간 이동 / 시작 시 preload는 needEntry=false라 차감되지 않는다.
+    // 1-c. 입장권 차감 + 사파리볼 지급: plaza에서 NPC를 통해 새로 입장(needEntry)할 때만
+    //   입장권 1개를 소모하고, 그 대가로 사파리볼 30개를 무료 지급한다(같은 트랜잭션, 원자적).
+    //   - door로 사파리 맵 간 이동 / 시작 시 preload는 needEntry=false라 차감/지급되지 않는다.
     //   - 이미 safari('s')에 있는 상태의 호출도 제외(방어).
-    //   - s000(스타터 존)은 hasStarter 게이트만 적용하고 입장권은 받지 않는다.
+    //   - s000(스타터 존)은 hasStarter 게이트만 적용하고 입장권/사파리볼은 받지 않는다.
     //   Redis wild/item 스폰 전에 수행하여, 입장권이 없으면 부수효과 없이 실패한다.
     if (needEntry && currentPrefix === 'p' && mapId !== S000_MAP_ID) {
-      await this.consumeSafariZoneTicket(Number(authId), mapId, ip);
+      await this.consumeTicketAndGrantBalls(Number(authId), mapId, ip);
     }
 
     // 2. 기존 wild 인덱스와 items 존재 여부로 첫 진입 / 재진입 구분
@@ -605,7 +608,7 @@ export class SafariService {
     }
   }
 
-  private async consumeSafariZoneTicket(
+  private async consumeTicketAndGrantBalls(
     accountId: number,
     mapId: string,
     ip?: string,
@@ -636,10 +639,22 @@ export class SafariService {
           );
       }
 
+      await tx
+        .insert(userItem)
+        .values({ accountId, itemId: SAFARI_ENTRY_BALL_ID, quantity: SAFARI_ENTRY_BALL_QUANTITY })
+        .onConflictDoUpdate({
+          target: [userItem.accountId, userItem.itemId],
+          set: { quantity: sql`${userItem.quantity} + ${SAFARI_ENTRY_BALL_QUANTITY}` },
+        });
+
       await auditTx(tx, {
         accountId,
         action: AuditAction.SAFARI_ENTER,
-        detail: { mapId, ticketConsumed: true },
+        detail: {
+          mapId,
+          ticketConsumed: true,
+          ballsGranted: SAFARI_ENTRY_BALL_QUANTITY,
+        },
         ip: ip ?? null,
         source: 'api',
       });

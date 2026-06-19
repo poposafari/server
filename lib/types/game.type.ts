@@ -200,6 +200,9 @@ export const S000_REWARD_TICKET_ID = 'safari-zone-ticket';
 export const S000_REWARD_TICKET_QUANTITY = 5;
 export const S000_STARTER_LEVEL = 5;
 
+export const SAFARI_ENTRY_BALL_ID = 'safari-ball';
+export const SAFARI_ENTRY_BALL_QUANTITY = 30;
+
 export const STARTER_POKEDEX_IDS: readonly string[] = [
   '0001',
   '0004',
