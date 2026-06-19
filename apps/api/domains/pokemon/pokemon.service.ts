@@ -1,6 +1,6 @@
 import { eq, and, sql } from 'drizzle-orm';
 import { db } from '@poposerver/lib/db';
-import { userPokemon, userItem } from '@poposerver/lib/schema';
+import { userPokemon, userItem, userPokedex } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
 import { auditTx } from '@poposerver/lib/utils/audit';
@@ -118,6 +118,14 @@ export class PokemonService {
         .set({ pokedexId: newPokedexId })
         .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)))
         .returning();
+
+      await tx
+        .insert(userPokedex)
+        .values({ accountId, pokedexId: newPokedexId, caughtCount: 1 })
+        .onConflictDoUpdate({
+          target: [userPokedex.accountId, userPokedex.pokedexId],
+          set: { caughtCount: sql`${userPokedex.caughtCount} + 1` },
+        });
 
       await auditTx(tx, {
         accountId,
