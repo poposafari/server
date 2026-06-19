@@ -15,7 +15,7 @@ import {
 import { getGameTime } from '@poposerver/lib';
 import { generateWildBatch, randomWildTtlSec } from '@poposerver/lib/utils/wild-roll';
 
-const SPAWN_TICK_MS = 30_000;
+const SPAWN_TICK_MS = 10_000;
 const CONCURRENCY = 10;
 
 /** safari:active에 올라있는 각 (authId, mapId) 쌍에 대해 wild 개체수가 max 미만이면 max까지 보충한다. */
@@ -90,13 +90,7 @@ async function processPair(
 
   const need = max - liveCount;
 
-  const newWilds = await generateWildBatch(
-    Number(authId),
-    mapId,
-    need,
-    timeOfDay,
-    weather,
-  );
+  const newWilds = await generateWildBatch(Number(authId), mapId, need, timeOfDay, weather);
   if (newWilds.length === 0) return 'skipped';
 
   for (const w of newWilds) {
