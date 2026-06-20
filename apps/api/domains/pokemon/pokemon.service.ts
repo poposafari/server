@@ -4,7 +4,7 @@ import { userPokemon, userItem, userPokedex } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
 import { auditTx } from '@poposerver/lib/utils/audit';
-import { AppErrorCode, AuditAction } from '@poposerver/lib/types';
+import { AppErrorCode, AuditAction, PokemonGender } from '@poposerver/lib/types';
 import { getGameTime } from '@poposerver/lib/redis';
 import {
   EXP_CANDY_VALUE,
@@ -61,6 +61,7 @@ export class PokemonService {
       const candyMatch = part.match(/^candy_(\d+)$/);
       const friendshipMatch = part.match(/^friendship_(\d+)$/);
       const timeMatch = part.match(/^time_(day|night|dawn|dusk)$/);
+      const genderMatch = part.match(/^(male|female)$/);
 
       if (candyMatch) {
         const candyCount = Number(candyMatch[1]);
@@ -78,6 +79,12 @@ export class PokemonService {
         }
         if (cachedGameTime !== requiredPeriod) {
           throw new AppError('Time condition not met', 400, AppErrorCode.EVOLUTION_COST_NOT_ENOUGH);
+        }
+      } else if (genderMatch) {
+        const requiredGender =
+          genderMatch[1] === 'male' ? PokemonGender.MALE : PokemonGender.FEMALE;
+        if (pokemon.gender !== requiredGender) {
+          throw new AppError('Gender condition not met', 400, AppErrorCode.EVOLUTION_COST_NOT_ENOUGH);
         }
       } else {
         itemCost.set(part, (itemCost.get(part) ?? 0) + 1);
