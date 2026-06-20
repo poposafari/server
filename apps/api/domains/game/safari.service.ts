@@ -720,7 +720,7 @@ export class SafariService {
 
     let fleeMul = 1.0;
     if (wild.bait) fleeMul = 0.5;
-    else if (wild.rock) fleeMul = 2.0;
+    else if (wild.rock) fleeMul = 1.25;
 
     const finalFlee = Math.min(pokemonData.rateFlee * fleeMul, 0.9);
     const fled = mapId === S000_MAP_ID ? false : Math.random() < finalFlee;
@@ -751,7 +751,7 @@ export class SafariService {
       fleeMul = 0.5;
     } else if (rock) {
       captureMul = 1.5;
-      fleeMul = 2.0;
+      fleeMul = 1.25;
     }
 
     const finalCapture = Math.min(
