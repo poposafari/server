@@ -131,7 +131,7 @@ export class SafariService {
         const now = Date.now();
         const pipeline = RedisClient.pipeline();
         for (const w of wilds) {
-          if (isS000) {
+          if (isS000 || w.isShiny) {
             w.expiresAt = undefined;
             pipeline.set(
               RedisKey.safariWild(authId, mapId, w.uid),

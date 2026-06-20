@@ -94,7 +94,8 @@ async function processPair(
   if (newWilds.length === 0) return 'skipped';
 
   for (const w of newWilds) {
-    const expiresAt = await addWild(authId, mapId, w, randomWildTtlSec());
+    const ttlSec = w.isShiny ? null : randomWildTtlSec();
+    const expiresAt = await addWild(authId, mapId, w, ttlSec);
     w.expiresAt = expiresAt;
     await publishWildSpawn({ authId, mapId, wild: w });
   }

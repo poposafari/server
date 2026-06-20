@@ -574,16 +574,20 @@ export async function addWild(
   authId: string,
   mapId: string,
   wild: SafariWild,
-  ttlSec: number,
-): Promise<number> {
-  // Redis에 저장할 때는 expiresAt을 포함하지 않는다 (TTL이 단일 진실 공급원)
+  ttlSec: number | null,
+): Promise<number | undefined> {
   const { expiresAt: _ignored, ...payload } = wild;
   void _ignored;
+  const key = RedisKey.safariWild(authId, mapId, wild.uid);
   const pipeline = RedisClient.pipeline();
-  pipeline.set(RedisKey.safariWild(authId, mapId, wild.uid), JSON.stringify(payload), 'EX', ttlSec);
+  if (ttlSec === null) {
+    pipeline.set(key, JSON.stringify(payload));
+  } else {
+    pipeline.set(key, JSON.stringify(payload), 'EX', ttlSec);
+  }
   pipeline.sadd(RedisKey.safariWildIds(authId, mapId), wild.uid);
   await pipeline.exec();
-  return Date.now() + ttlSec * 1000;
+  return ttlSec === null ? undefined : Date.now() + ttlSec * 1000;
 }
 
 export async function getWild(
