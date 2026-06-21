@@ -1,5 +1,5 @@
 id,buy,category,comment,purchasable,sell,sellable,tier
-safari-ball,200,pokeball,사파리볼,TRUE,100,TRUE,common
+safari-ball,200,pokeball,사파리볼,TRUE,10,TRUE,common
 safari-zone-ticket,400,etc,사파리존입장권,TRUE,0,FALSE,rare
 fire-stone,20000,etc,불꽃의돌,TRUE,2000,TRUE,epic
 water-stone,20000,etc,물의돌,TRUE,2000,TRUE,epic
