@@ -461,6 +461,7 @@ export class SafariService {
             accountId,
             pokedexId: wild.pokedexId,
             level: wild.level,
+            exp: totalExpForLevel(wild.level, pokemonData.growthGroup),
             gender: wild.gender,
             isShiny: wild.isShiny,
             nickname: null,
@@ -557,7 +558,12 @@ export class SafariService {
             }
             const gained = calcCaptureExp(pokemonData.baseExp, wild.level, s, member.level);
             const cap = totalExpForLevel(POKEMON_LEVEL_MAX, memberMaster.growthGroup);
-            const newExp = Math.min(member.exp + gained, cap);
+
+            const baseExp = Math.max(
+              member.exp,
+              totalExpForLevel(member.level, memberMaster.growthGroup),
+            );
+            const newExp = Math.min(baseExp + gained, cap);
             const newLevel = levelFromExp(newExp, memberMaster.growthGroup);
             await tx
               .update(userPokemon)

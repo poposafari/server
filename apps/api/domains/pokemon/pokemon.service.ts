@@ -84,7 +84,11 @@ export class PokemonService {
         const requiredGender =
           genderMatch[1] === 'male' ? PokemonGender.MALE : PokemonGender.FEMALE;
         if (pokemon.gender !== requiredGender) {
-          throw new AppError('Gender condition not met', 400, AppErrorCode.EVOLUTION_COST_NOT_ENOUGH);
+          throw new AppError(
+            'Gender condition not met',
+            400,
+            AppErrorCode.EVOLUTION_COST_NOT_ENOUGH,
+          );
         }
       } else {
         itemCost.set(part, (itemCost.get(part) ?? 0) + 1);
@@ -355,7 +359,8 @@ export class PokemonService {
         }
       }
 
-      const newExp = Math.min(pokemon.exp + expGain, capExp);
+      const baseExp = Math.max(pokemon.exp, totalExpForLevel(pokemon.level, group));
+      const newExp = Math.min(baseExp + expGain, capExp);
       const newLevel = levelFromExp(newExp, group);
 
       const [updated] = await tx

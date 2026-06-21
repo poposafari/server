@@ -7,6 +7,7 @@ import { auditTx } from '@poposerver/lib/utils/audit';
 import { AppErrorCode, AuditAction, PokemonNatural } from '@poposerver/lib/types';
 import { rollGender, rollSafariShiny, pickOne } from '@poposerver/lib/utils/rng';
 import { getUserState } from '@poposerver/lib/redis';
+import { totalExpForLevel } from '@poposerver/lib/utils/exp-curve';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
 import { PC_STORAGE } from '@poposerver/lib/constants/pc';
 import { FOSSIL_RECIPES } from './fossil.recipe';
@@ -129,6 +130,7 @@ export class FossilService {
           accountId,
           pokedexId: recipe.pokedexId,
           level,
+          exp: totalExpForLevel(level, pokemonData.growthGroup),
           gender,
           isShiny,
           nickname: null,
