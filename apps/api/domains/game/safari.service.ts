@@ -361,20 +361,17 @@ export class SafariService {
         );
 
     // 결과에 따른 Redis 업데이트
-    if (result === 'fail') {
-      wild.caught = 0;
-      wild.bait = false;
-      wild.rock = false;
-      await updateWild(authId, mapId, wild);
-    } else if (result === 'caught') {
+
+    if (result === 'caught') {
       wild.caught = 1;
       // 즉시 디스폰: 키 삭제 + 디스폰 통지
       await deleteWild(authId, mapId, wild.uid);
       await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'caught' });
-    } else {
+    } else if (result === 'flee') {
       wild.caught = 2;
       await deleteWild(authId, mapId, wild.uid);
       await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
+    } else if (result === 'fail') {
     }
 
     // DB 트랜잭션
@@ -726,7 +723,7 @@ export class SafariService {
 
     let fleeMul = 1.0;
     if (wild.bait) fleeMul = 0.5;
-    else if (wild.rock) fleeMul = 1.25;
+    else if (wild.rock) fleeMul = 1.5;
 
     const finalFlee = Math.min(pokemonData.rateFlee * fleeMul, 0.9);
     const fled = mapId === S000_MAP_ID ? false : Math.random() < finalFlee;
@@ -757,7 +754,7 @@ export class SafariService {
       fleeMul = 0.5;
     } else if (rock) {
       captureMul = 1.5;
-      fleeMul = 1.25;
+      fleeMul = 1.5;
     }
 
     const finalCapture = Math.min(
