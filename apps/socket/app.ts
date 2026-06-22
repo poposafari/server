@@ -598,20 +598,19 @@ export class SocketApp {
           if (roomId && this.moveBuffer.has(roomId)) {
             this.moveBuffer.get(roomId)!.delete(userId);
           }
+
+          const currentState = await getUserState(userId);
+          const isOwner = currentState?.socketId === socket.id;
+
           const pos = this.userPositions.get(userId);
-          if (pos) {
+          if (pos && isOwner && currentState?.mapId === roomId) {
             await updateUserStatePosition(userId, {
               x: String(pos.x),
               y: String(pos.y),
               lastMoveTime: new Date().toISOString(),
             });
-            this.userPositions.delete(userId);
           }
-
-          // 소유권 확인: 현재 user:state의 socketId가 이 소켓인지 먼저 검사.
-          // 킥된 소켓이면 socketId가 '' 또는 새 소켓 ID이므로 불일치 → state 보존.
-          const currentState = await getUserState(userId);
-          const isOwner = currentState?.socketId === socket.id;
+          this.userPositions.delete(userId);
 
           await persistUserStateFromRedisToDb(userId, { deleteFromRedis: isOwner });
 
