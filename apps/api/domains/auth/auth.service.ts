@@ -99,7 +99,7 @@ export class AuthService {
   }
 
   async loginLocal(input: LoginLocalInput): Promise<{ sessionId: string; accountId: number }> {
-    const auth = await this.repo.findActiveByProviderIdWithPassword(
+    const auth = await this.repo.findByProviderIdWithPassword(
       UserAuthProvider.LOCAL,
       input.username,
     );
@@ -110,6 +110,14 @@ export class AuthService {
     const isValid = await bcrypt.compare(input.password, auth.password || '');
     if (!isValid) {
       throw new AppError(AppErrorMessage.FAILED_ACCOUNT, 401, AppErrorCode.FAILED_ACCOUNT);
+    }
+
+    if (auth.deletedAt) {
+      throw new AppError(
+        AppErrorMessage.ACCOUNT_ALREADY_DELETED,
+        401,
+        AppErrorCode.ACCOUNT_ALREADY_DELETED,
+      );
     }
 
     const authId = String(auth.id);
