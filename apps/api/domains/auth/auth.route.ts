@@ -20,8 +20,8 @@ export default async function authRoutes(app: FastifyInstance) {
   app.post('/login/local', {
     config: {
       rateLimit: {
-        max: 5,
-        timeWindow: '15 minutes',
+        max: 10,
+        timeWindow: '5 minutes',
       },
     },
     preHandler: [zodValidate(loginLocalSchema)],

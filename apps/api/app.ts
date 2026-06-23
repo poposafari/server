@@ -80,14 +80,17 @@ export async function buildApp(): Promise<FastifyInstance> {
     await app.register(rateLimit, {
       max: 60,
       timeWindow: '1 minute',
-      errorResponseBuilder: () => ({
-        success: false,
-        error: {
-          code: 'RATE_LIMIT_EXCEEDED',
-          message: 'Too many requests. Please try again after 1 minute.',
-          status: 429,
-        },
-      }),
+
+      errorResponseBuilder: (_req, context) => {
+        const retryAfter = Math.max(1, Math.ceil(context.ttl / 60000));
+        return {
+          statusCode: 429,
+          code: 'EXCEED_REQUEST',
+          error: 'Too Many Requests',
+          message: `Too many requests. Please try again after ${retryAfter} minute(s).`,
+          retryAfter,
+        };
+      },
     });
   }
 
