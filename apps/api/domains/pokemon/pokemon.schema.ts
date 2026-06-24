@@ -7,7 +7,10 @@ export const evolveSchema = z.object({
 });
 
 export const sellSchema = z.object({
-  id: z.number().int().positive(),
+  ids: z
+    .array(z.number().int().positive())
+    .min(1)
+    .max(PC_STORAGE.MAX_BOX * PC_STORAGE.GRID_PER_BOX),
 });
 
 export const EXP_CANDY_ITEM_IDS = [

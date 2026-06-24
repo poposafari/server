@@ -44,6 +44,18 @@ export class PokemonRepository {
       .where(and(inArray(userPokemon.id, ids), eq(userPokemon.accountId, accountId)));
   }
 
+  async findRowsByIdsAndAccount(ids: number[], accountId: number) {
+    return db
+      .select({
+        id: userPokemon.id,
+        pokedexId: userPokemon.pokedexId,
+        level: userPokemon.level,
+        partySlot: userPokemon.partySlot,
+      })
+      .from(userPokemon)
+      .where(and(inArray(userPokemon.id, ids), eq(userPokemon.accountId, accountId)));
+  }
+
   async findBoxMetaByAccountId(accountId: number) {
     return db
       .select({

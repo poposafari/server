@@ -1,4 +1,4 @@
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 import { db } from '@poposerver/lib/db';
 import { userPokemon, userItem, userPokedex } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
@@ -157,35 +157,63 @@ export class PokemonService {
     return result;
   }
 
-  async sell(authId: string, body: { id: number }, ip?: string) {
+  async sell(authId: string, body: { ids: number[] }, ip?: string) {
     const accountId = Number(authId);
+    const ids = [...new Set(body.ids)];
 
-    const pokemon = await this.repo.findByIdAndAccount(body.id, accountId);
-    if (!pokemon) {
+    const pokemons = await this.repo.findRowsByIdsAndAccount(ids, accountId);
+    if (pokemons.length !== ids.length) {
       throw new AppError('Pokemon not found', 404, AppErrorCode.POKEMON_NOT_FOUND);
     }
 
-    if (pokemon.partySlot !== null) {
+    if (pokemons.some((p) => p.partySlot !== null)) {
       throw new AppError('Cannot sell a party pokemon', 400, AppErrorCode.POKEMON_IN_PARTY);
     }
 
-    const masterPokemon = MasterData.getPokemon(pokemon.pokedexId);
-    if (!masterPokemon) {
-      throw new AppError('Pokemon master data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
+    // 마리당 보상을 계산하면서, 클라이언트에 돌려줄 보상은 itemId 기준으로 합산한다.
+    const rewardTotals = new Map<string, number>();
+    const auditEntries: {
+      userPokemonId: number;
+      pokedexId: string;
+      level: number;
+      rewards: { itemId: string; quantity: number }[];
+    }[] = [];
+
+    for (const pokemon of pokemons) {
+      const masterPokemon = MasterData.getPokemon(pokemon.pokedexId);
+      if (!masterPokemon) {
+        throw new AppError(
+          'Pokemon master data not found',
+          500,
+          AppErrorCode.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      const typeCandy = {
+        itemId: `${masterPokemon.type1}-candy`,
+        quantity: LEVEL_CURVE.SELL_CANDY_BY_TIER[masterPokemon.tier],
+      };
+      const expCandy = pickSellExpCandy(masterPokemon.tier, pokemon.level);
+      const rewards = [typeCandy, expCandy];
+
+      for (const reward of rewards) {
+        rewardTotals.set(reward.itemId, (rewardTotals.get(reward.itemId) ?? 0) + reward.quantity);
+      }
+
+      auditEntries.push({
+        userPokemonId: pokemon.id,
+        pokedexId: pokemon.pokedexId,
+        level: pokemon.level,
+        rewards,
+      });
     }
 
-    const typeCandy = {
-      itemId: `${masterPokemon.type1}-candy`,
-      quantity: LEVEL_CURVE.SELL_CANDY_BY_TIER[masterPokemon.tier],
-    };
-    const expCandy = pickSellExpCandy(masterPokemon.tier, pokemon.level);
-
-    const rewards = [typeCandy, expCandy];
+    const rewards = [...rewardTotals].map(([itemId, quantity]) => ({ itemId, quantity }));
 
     await db.transaction(async (tx) => {
       await tx
         .delete(userPokemon)
-        .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)));
+        .where(and(inArray(userPokemon.id, ids), eq(userPokemon.accountId, accountId)));
 
       for (const reward of rewards) {
         await tx
@@ -197,18 +225,15 @@ export class PokemonService {
           });
       }
 
-      await auditTx(tx, {
-        accountId,
-        action: AuditAction.POKEMON_SELL,
-        detail: {
-          userPokemonId: body.id,
-          pokedexId: pokemon.pokedexId,
-          level: pokemon.level,
-          rewards,
-        },
-        ip: ip ?? null,
-        source: 'api',
-      });
+      for (const entry of auditEntries) {
+        await auditTx(tx, {
+          accountId,
+          action: AuditAction.POKEMON_SELL,
+          detail: entry,
+          ip: ip ?? null,
+          source: 'api',
+        });
+      }
     });
 
     return { rewards };
