@@ -581,8 +581,8 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 420,['chlorophyll'],체리버,['candy_35'],['0421'],[],[],4,0.4,0.6,0.5,0.35,0.5,['move_flash'],['land'],common,grass,,3.3,medium_fast,55
 421,['flower-gift'],체리꼬,[],[],[],[],4,0.5,0.23,0.5,0.45,0.5,['move_flash'],['land'],rare,grass,,9.3,medium_fast,158
 0421-sunshine,['flower-gift'],체리꼬,[],[],[],[],4,,0.23,0.5,0.45,0.5,['move_flash'],['land'],rare,grass,,,medium_fast,158
-0422-west,"['sticky-hold', 'storm-drain', 'sand-force']",깝질무,['candy_50'],['0423'],[],[],4,,0.6,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']","['land','water']",common,water,,,medium_fast,65
-0422-east,"['sticky-hold', 'storm-drain', 'sand-force']",깝질무,['candy_50'],['0423'],[],[],4,,0.6,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']","['land','water']",common,water,,,medium_fast,65
+0422-west,"['sticky-hold', 'storm-drain', 'sand-force']",깝질무,['candy_50'],['0423-west'],[],[],4,,0.6,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']","['land','water']",common,water,,,medium_fast,65
+0422-east,"['sticky-hold', 'storm-drain', 'sand-force']",깝질무,['candy_50'],['0423-east'],[],[],4,,0.6,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']","['land','water']",common,water,,,medium_fast,65
 0423-west,"['sticky-hold', 'storm-drain', 'sand-force']",트리토돈,[],[],[],[],4,,0.23,0.5,0.45,0.5,"['move_surf', 'move_flash', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive']","['land','water']",rare,water,ground,,medium_fast,166
 0423-east,"['sticky-hold', 'storm-drain', 'sand-force']",트리토돈,[],[],[],[],4,,0.23,0.5,0.45,0.5,"['move_surf', 'move_flash', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive']","['land','water']",rare,water,ground,,medium_fast,166
 424,"['technician', 'pickup', 'skill-link']",겟핸보숭,[],[],[],[],4,1.2,0.14,0.5,0.45,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],rare,normal,,20.3,fast,169
@@ -780,10 +780,10 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 582,"['ice-body', 'snow-cloak', 'weak-armor']",바닐프티,['candy_50'],['0583'],[],[],5,0.4,0.8,0.5,0.35,0.5,[],"['land','water']",common,ice,,5.7,slow,61
 583,"['ice-body', 'snow-cloak', 'weak-armor']",바닐리치,['candy_75'],['0584'],[],[],5,1.1,0.38,0.5,0.45,0.5,[],"['land','water']",rare,ice,,41.0,slow,138
 584,"['ice-body', 'snow-warning', 'weak-armor']",배바닐라,[],[],[],[],5,1.3,0.14,0.5,0.6,0.5,[],"['land','water']",epic,ice,,57.5,slow,241
-0585-spring,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],common,normal,grass,,medium_fast,67
-0585-summer,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],common,normal,grass,,medium_fast,67
-0585-autumn,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],common,normal,grass,,medium_fast,67
-0585-winter,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],common,normal,grass,,medium_fast,67
+0585-spring,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-spring'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],common,normal,grass,,medium_fast,67
+0585-summer,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-summer'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],common,normal,grass,,medium_fast,67
+0585-autumn,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-autumn'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],common,normal,grass,,medium_fast,67
+0585-winter,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-winter'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],common,normal,grass,,medium_fast,67
 0586-spring,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],rare,normal,grass,,medium_fast,166
 0586-summer,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],rare,normal,grass,,medium_fast,166
 0586-autumn,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],rare,normal,grass,,medium_fast,166
@@ -888,16 +888,16 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 667,"['rivalry', 'unnerve', 'moxie']",레오꼬,['candy_40'],['0668'],[],[],6,0.6,0.69,0.88,0.35,0.12,"['move_rock-smash', 'move_strength']",['land'],common,fire,normal,13.5,medium_slow,74
 668,"['rivalry', 'unnerve', 'moxie']",화염레오,[],[],[],[],6,1.5,0.2,0.88,0.45,0.12,"['move_rock-smash', 'move_strength']",['land'],rare,fire,normal,81.5,medium_slow,177
 0668-mega,[],화염레오,[],[],[],[],6,1.5,0.2,0.88,0.45,0.12,[],['land'],rare,fire,normal,93.3,medium_slow,177
-0669-red,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670'],[],[],6,,0.7,1.0,0.35,0.0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
-0669-yellow,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670'],[],[],6,,0.7,1.0,0.35,0.0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
-0669-orange,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670'],[],[],6,,0.7,1.0,0.35,0.0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
-0669-blue,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670'],[],[],6,,0.7,1.0,0.35,0.0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
-0669-white,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670'],[],[],6,,0.7,1.0,0.35,0.0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
-0670-red,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671'],[],[],6,,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
-0670-yellow,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671'],[],[],6,,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
-0670-orange,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671'],[],[],6,,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
-0670-blue,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671'],[],[],6,,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
-0670-white,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671'],[],[],6,,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
+0669-red,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-red'],[],[],6,,0.7,1.0,0.35,0.0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
+0669-yellow,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-yellow'],[],[],6,,0.7,1.0,0.35,0.0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
+0669-orange,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-orange'],[],[],6,,0.7,1.0,0.35,0.0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
+0669-blue,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-blue'],[],[],6,,0.7,1.0,0.35,0.0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
+0669-white,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-white'],[],[],6,,0.7,1.0,0.35,0.0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
+0670-red,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-red'],[],[],6,,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
+0670-yellow,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-yellow'],[],[],6,,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
+0670-orange,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-orange'],[],[],6,,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
+0670-blue,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-blue'],[],[],6,,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
+0670-white,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-white'],[],[],6,,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
 0670-eternal,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671'],[],[],6,0.2,0.38,1.0,0.45,0.0,['move_flash'],"['land','water']",rare,fairy,,0.9,medium_fast,130
 0670-mega,[],플라엣테,['shiny-stone'],['0671'],[],[],6,0.2,0.38,1.0,0.45,0.0,[],"['land','water']",rare,fairy,,100.8,medium_fast,130
 0671-red,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1.0,0.6,0.0,"['move_flash', 'move_defog']","['land','water']",epic,fairy,,,medium_fast,248
