@@ -258,6 +258,7 @@ export class SafariService {
       exp: number;
       leveledUp: boolean;
     }>;
+    partyFriendship?: Array<{ id: number; friendship: number }>;
   }> {
     const accountId = Number(authId);
 
@@ -330,14 +331,9 @@ export class SafariService {
     const partyIds = partyPokemons.map((p) => p.id);
     let partyBonus = 0;
 
-    if (partyIds.length > 0) {
-      await db
-        .update(userPokemon)
-        .set({
-          friendship: sql`LEAST(${userPokemon.friendship} + 2, 255)`,
-        })
-        .where(and(eq(userPokemon.accountId, accountId), inArray(userPokemon.id, partyIds)));
+    let partyFriendship: Array<{ id: number; friendship: number }> = [];
 
+    if (partyIds.length > 0) {
       const bonusData = partyPokemons.map((p) => {
         const masterPokemon = MasterData.getPokemon(String(p.pokedexId));
         return {
@@ -576,6 +572,14 @@ export class SafariService {
           }
         }
 
+        if (partyIds.length > 0) {
+          partyFriendship = await tx
+            .update(userPokemon)
+            .set({ friendship: sql`LEAST(${userPokemon.friendship} + 2, 255)` })
+            .where(and(eq(userPokemon.accountId, accountId), inArray(userPokemon.id, partyIds)))
+            .returning({ id: userPokemon.id, friendship: userPokemon.friendship });
+        }
+
         if (isS000Starter) {
           await tx
             .update(user)
@@ -604,6 +608,7 @@ export class SafariService {
         pokemon: insertedPokemon!,
         rewards,
         partyExp: partyExpResults,
+        partyFriendship,
       };
     } else {
       await this.consumeSafariBall(accountId, safariBall.quantity);
