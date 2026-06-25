@@ -201,7 +201,8 @@ export const S000_REWARD_TICKET_QUANTITY = 5;
 export const S000_STARTER_LEVEL = 5;
 
 export const SAFARI_ENTRY_BALL_ID = 'safari-ball';
-export const SAFARI_ENTRY_BALL_QUANTITY = 30;
+// 입장 시 무료 사파리볼 미지급(0). 볼은 상점 구매(buy-only) 모델. 티켓은 순수 입장권.
+export const SAFARI_ENTRY_BALL_QUANTITY = 0;
 
 export const STARTER_POKEDEX_IDS: readonly string[] = [
   '0001',
