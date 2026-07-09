@@ -1,4 +1,13 @@
-import { pgTable, integer, varchar, char, boolean, smallint, timestamp, check } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  integer,
+  varchar,
+  char,
+  boolean,
+  smallint,
+  timestamp,
+  check,
+} from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { account } from './account';
 
@@ -18,7 +27,5 @@ export const user = pgTable(
     lastY: integer('last_y').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [
-    check('ck_user_money', sql`${table.money} >= 0`),
-  ],
+  (table) => [check('ck_user_money', sql`${table.money} >= 0`)],
 );

@@ -1,4 +1,12 @@
-export type TierKey = 'common' | 'rare' | 'epic' | 'legendary';
+export type TierKey =
+  | 'common'
+  | 'uncommon'
+  | 'rare'
+  | 'super-rare'
+  | 'ultra-rare'
+  | 'epic'
+  | 'unique'
+  | 'legendary';
 
 export const LEVEL_CURVE = {
   // ── 포켓몬 레벨 ──
@@ -11,9 +19,13 @@ export const LEVEL_CURVE = {
   PARTY_SHINY_BONUS: 0.05,
   PARTY_TIER_BONUS: {
     common: 0,
-    rare: 0.01,
-    epic: 0.02,
-    legendary: 0.03,
+    uncommon: 0.01,
+    rare: 0.02,
+    'super-rare': 0.03,
+    'ultra-rare': 0.04,
+    epic: 0.05,
+    unique: 0.06,
+    legendary: 0.07,
   } as Record<TierKey, number>,
   PARTY_SLOT_COUNT: 6,
   CAPTURE_RATE_CAP: 0.999,
@@ -26,22 +38,34 @@ export const LEVEL_CURVE = {
   // ── 캔디 보상 ──
   CANDY_BY_TIER: {
     common: 1,
+    uncommon: 2,
     rare: 3,
-    epic: 5,
+    'super-rare': 4,
+    'ultra-rare': 5,
+    epic: 6,
+    unique: 8,
     legendary: 10,
   } as Record<string, number>,
 
   // ── 판매 보상 ──
   SELL_CANDY_BY_TIER: {
     common: 1,
+    uncommon: 1,
     rare: 2,
+    'super-rare': 2,
+    'ultra-rare': 3,
     epic: 3,
-    legendary: 4,
+    unique: 4,
+    legendary: 5,
   } as Record<TierKey, number>,
   SELL_EXP_CANDY_QTY_BY_TIER: {
     common: 1,
+    uncommon: 1,
     rare: 2,
+    'super-rare': 2,
+    'ultra-rare': 3,
     epic: 3,
-    legendary: 4,
+    unique: 4,
+    legendary: 5,
   } as Record<TierKey, number>,
 };

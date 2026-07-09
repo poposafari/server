@@ -88,7 +88,15 @@ export interface MapData {
 }
 
 // --- Pokemon types ---
-export type PokemonTier = 'common' | 'rare' | 'epic' | 'legendary';
+export type PokemonTier =
+  | 'common'
+  | 'uncommon'
+  | 'rare'
+  | 'super-rare'
+  | 'ultra-rare'
+  | 'epic'
+  | 'unique'
+  | 'legendary';
 export type PokemonSpawnTile = 'land' | 'water';
 export type GrowthGroup =
   | 'fast'
