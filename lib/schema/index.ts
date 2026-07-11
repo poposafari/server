@@ -7,3 +7,4 @@ export { userItem } from './user-item';
 export { userPokedex } from './user-pokedex';
 export { userBoxMeta } from './user-box-meta';
 export { auditLog } from './audit-log';
+export { session } from './session';

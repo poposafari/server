@@ -5,7 +5,7 @@ import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
 import { auditTx } from '@poposerver/lib/utils/audit';
 import { AppErrorCode, AuditAction, PokemonGender } from '@poposerver/lib/types';
-import { getGameTime } from '@poposerver/lib/redis';
+import { getGameTime } from '@poposerver/lib/state';
 import {
   EXP_CANDY_VALUE,
   POKEMON_LEVEL_MAX,

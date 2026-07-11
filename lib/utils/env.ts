@@ -19,14 +19,8 @@ const envSchema = z.object({
   DB_PASSWORD: z.string().min(1, 'Database password is required'),
   DB_DATABASE: z.string().min(1, 'Database name is required'),
 
-  // Redis
-  REDIS_HOST: z.string().min(1, 'Redis host is required'),
-  REDIS_PORT: z.coerce.number().default(6379),
-  REDIS_PASSWORD: z.string().optional(),
-
-  // SERVICES
+  // SERVICE — 통합 모놀리스는 한 포트로 REST + WebSocket을 모두 서빙한다.
   API_PORT: z.coerce.number(),
-  SOCKET_PORT: z.coerce.number(),
 
   /** PROD에서 전역/인증 레이트 리밋 적용 여부. 스테이징 부하 테스트 시 false로 끌 수 있음. env는 문자열이므로 "true"/"false" 명시 파싱 (z.coerce.boolean은 "false"를 truthy로 true로 만듦) */
   RATE_LIMIT_ENABLED: z.string().transform((s) => s === 'true' || s === '1'),

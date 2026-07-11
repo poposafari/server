@@ -28,7 +28,7 @@ MEM_PCT="${MEM_PCT:-75}"                         # 메모리 사용률 경보 �
 CPU_RATIO="${CPU_RATIO:-1.0}"                    # 코어당 5분 load 임계 (1.0 = 코어 수만큼 = 포화)
 DISK_PCT="${DISK_PCT:-80}"                       # 디스크 사용률 경보 임계
 DISK_PATHS="${DISK_PATHS:-/ /mnt/pgdata}"        # 감시할 마운트
-CONTAINERS="${HEALTH_CONTAINERS:-poposerver_nginx poposerver_api poposerver_socket poposerver_worker poposerver_postgres poposerver_redis}"
+CONTAINERS="${HEALTH_CONTAINERS:-poposerver_nginx poposerver_server poposerver_postgres}"
 STATE_DIR="${HEALTH_STATE_DIR:-/tmp/poposafari-health}"   # 전이 추적용 flag (재부팅 시 리셋=의도)
 
 mkdir -p "$STATE_DIR"

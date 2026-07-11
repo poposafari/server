@@ -7,7 +7,7 @@ import {
   consumeOAuthState,
   createOAuthState,
   type OAuthProviderName,
-} from '@poposerver/lib/redis';
+} from '@poposerver/lib/state';
 import { AuthService } from './auth.service';
 import { AuthLocalInput, LoginLocalInput } from './auth.schema';
 import { isOAuthProviderName, oauthProviders } from './oauth/oauth.provider';

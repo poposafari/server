@@ -1,30 +1,22 @@
-import crypto from 'crypto';
 import { sql, eq, and, inArray, isNotNull } from 'drizzle-orm';
 import { db } from '@poposerver/lib/db';
 import { user, userItem, userPokemon, userPokedex } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import {
-  getGameTime,
   getUserState,
   updateUserStateMap,
   deleteAllSafariData,
   SafariWild,
   SafariItem,
-  addWild,
   getWild,
   updateWild,
   deleteWild,
   getAllWildsWithCleanup,
-  listWildIds,
   setSafariItems,
   getSafariItems,
   addSafariActive,
   publishWildDespawn,
-  RedisClient,
-  RedisKey,
-} from '@poposerver/lib/redis';
-import { generateWildBatch, randomWildTtlSec } from '@poposerver/lib/utils/wild-roll';
-import { randomInt, pickWeightedMany } from '@poposerver/lib/utils/rng';
+} from '@poposerver/lib/state';
 import {
   POKEMON_LEVEL_MAX,
   calcCaptureExp,
@@ -33,8 +25,6 @@ import {
 } from '@poposerver/lib/utils/exp-curve';
 import { pickExpCandyDrop } from '@poposerver/lib/utils/exp-candy-drop';
 import {
-  TimeOfDay,
-  Weather,
   PokemonTier,
   AppErrorCode,
   AuditAction,
@@ -52,6 +42,7 @@ import { AppError } from '@poposerver/lib/utils/error';
 import { auditTx } from '@poposerver/lib/utils/audit';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
 import { PC_STORAGE, PC_BOX_CAPACITY } from '@poposerver/lib/constants/pc';
+import { ensureSafariBucket } from './safari-world';
 
 type CatchResult = 'caught' | 'fail' | 'flee';
 type FleeResult = 'flee' | 'stay';
@@ -104,75 +95,12 @@ export class SafariService {
       await this.consumeTicketAndGrantBalls(Number(authId), mapId, ip);
     }
 
-    // 2. 기존 wild 인덱스와 items 존재 여부로 첫 진입 / 재진입 구분
-    const existingWildIds = await listWildIds(authId, mapId);
-    const existingItems = await getSafariItems(authId, mapId);
-    const isFirstEntry = existingWildIds.length === 0 && existingItems === null;
-
-    let wilds: SafariWild[];
-    let items: SafariItem[];
-
-    if (isFirstEntry) {
-      const gameTime = await getGameTime();
-      const timeOfDay = (gameTime?.phase ?? TimeOfDay.DAY) as TimeOfDay;
-      const weather: Weather = Weather.SUNNY; // TODO: 날씨 시스템 구현 후 교체
-
-      // 정책: 최초 진입 시 항상 max까지 스폰 (min은 고려하지 않음).
-      const wildCount = targetMap.wild.max;
-      wilds = await generateWildBatch(Number(authId), mapId, wildCount, timeOfDay, weather);
-
-      if (wilds.length > 0) {
-        const isS000 = mapId === S000_MAP_ID;
-        const now = Date.now();
-        const pipeline = RedisClient.pipeline();
-        for (const w of wilds) {
-          if (isS000 || w.isShiny) {
-            w.expiresAt = undefined;
-            pipeline.set(
-              RedisKey.safariWild(authId, mapId, w.uid),
-              JSON.stringify({ ...w, expiresAt: undefined }),
-            );
-          } else {
-            const ttlSec = randomWildTtlSec();
-            w.expiresAt = now + ttlSec * 1000;
-            pipeline.set(
-              RedisKey.safariWild(authId, mapId, w.uid),
-              JSON.stringify({ ...w, expiresAt: undefined }),
-              'EX',
-              ttlSec,
-            );
-          }
-        }
-        pipeline.sadd(RedisKey.safariWildIds(authId, mapId), ...wilds.map((w) => w.uid));
-        pipeline.sadd(RedisKey.safariVisited(authId), mapId);
-        await pipeline.exec();
-      } else {
-        // pool이 비어 wild가 0개여도 방문 기록은 남긴다
-        await RedisClient.sadd(RedisKey.safariVisited(authId), mapId);
-      }
-
-      // 아이템 생성
-      const itemPool = targetMap.item.spawn ?? [];
-      const itemCount = itemPool.length > 0 ? randomInt(targetMap.item.min, targetMap.item.max) : 0;
-      const selectedItemIds = pickWeightedMany(
-        itemPool.map((e) => e.id),
-        itemPool.map((e) => e.weight),
-        itemCount,
-      );
-      items = selectedItemIds.map((itemId) => ({
-        uid: crypto.randomUUID(),
-        itemId,
-        picked: false,
-      }));
-      await setSafariItems(authId, mapId, items);
-
-      await addSafariActive(authId, mapId);
-    } else {
-      wilds = await getAllWildsWithCleanup(authId, mapId);
-      items = existingItems ?? [];
-      // safari:active 인덱스가 어떤 이유로든 빠져있을 수 있으니 idempotent하게 보장
-      await addSafariActive(authId, mapId);
-    }
+    // 2. 버킷 생성(첫 진입)/유지(재진입)를 ensureSafariBucket에 위임 — 소켓 조인과 공유하는 유일한 생성 지점.
+    await ensureSafariBucket(authId, mapId);
+    const wilds = await getAllWildsWithCleanup(authId, mapId);
+    const items = (await getSafariItems(authId, mapId)) ?? [];
+    // safari:active 인덱스가 어떤 이유로든 빠져있을 수 있으니 idempotent하게 보장
+    await addSafariActive(authId, mapId);
 
     const mapData = { wilds, items };
 

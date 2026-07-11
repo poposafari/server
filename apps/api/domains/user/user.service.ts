@@ -5,7 +5,7 @@ import {
   PokemonGender,
   UserStartLocation,
 } from '@poposerver/lib/types';
-import { setUserState } from '@poposerver/lib/redis';
+import { setUserState } from '@poposerver/lib/state';
 import { eq } from 'drizzle-orm';
 import { db } from '@poposerver/lib/db';
 import { userTownMap } from '@poposerver/lib/schema';

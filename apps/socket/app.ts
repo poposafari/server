@@ -1,36 +1,44 @@
-import { Redis } from 'ioredis';
-import { createServer, Server as HttpServer } from 'http';
+import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import {
   addSafariActive,
   addUserToRoom,
+  Broadcaster,
   clearConnReservedGrace,
+  clearUserStateSocketId,
   consumeConnToken,
   envConfig,
   extractPetState,
   getRoomMemberStates,
   getUserState,
-  isValidChangeMapTarget,
   logger,
   persistUserStateFromRedisToDb,
   petChangeReqSchema,
   removeActivePlayer,
   removeUserFromRoom,
+  setUserStateSocketId,
+  setUserStateVisitedMaps,
   updateUserStateMap,
   updateUserStatePet,
   updateUserStatePosition,
-  deleteUserState,
   getGameTime,
   GameTimeState,
   getMapWeather,
   WeatherState,
   SafariWild,
+  SafariItem,
   WildDespawnReason,
   removeSafariActive,
+  snapshotWilds,
+  snapshotItems,
   shouldSyncOtherPlayers,
   auditAsync,
   AuditAction,
 } from '@poposerver/lib';
+import { ensureSafariBucket } from '../api/domains/game/safari-world';
+
+/** init_ok / change_map_ok에 실리는 사파리 스냅샷(클라 렌더 재조정의 권위 소스). */
+type SafariSnapshot = { wilds: SafariWild[]; items: SafariItem[] };
 
 function socketIp(socket: Socket): string | null {
   const fwd = socket.handshake.headers['x-forwarded-for'];
@@ -64,8 +72,7 @@ export interface SocketData {
   roomId?: string;
 }
 
-export class SocketApp {
-  private httpServer: HttpServer;
+export class SocketApp implements Broadcaster {
   private io: SocketIOServer;
 
   /** [Tick 시스템] 맵(roomId)별 → 유저별 이동 버퍼. 틱마다 한 번에 브로드캐스트 후 비움 */
@@ -76,9 +83,8 @@ export class SocketApp {
   private userPositions: Map<string, { x: number; y: number }> = new Map();
   // private tickSeq = 0;
 
-  constructor(private readonly redis: Redis) {
-    this.httpServer = createServer();
-    this.io = new SocketIOServer(this.httpServer, {
+  constructor(httpServer: HttpServer) {
+    this.io = new SocketIOServer(httpServer, {
       cors: {
         origin: envConfig.CORS_ORIGIN || '*',
         methods: ['GET', 'POST'],
@@ -108,28 +114,20 @@ export class SocketApp {
           }));
           this.io.to(roomId).emit('users_moved', { updates });
         }
-        await this.syncPositionsToRedis(usersMap);
+        await this.syncPositionsToState(usersMap);
         usersMap.clear();
       }
     }, TICK_RATE_MS);
   }
 
-  /** 버퍼에 있는 유저 좌표를 Redis에 pipeline으로 일괄 기록 */
-  private async syncPositionsToRedis(usersMap: Map<string, MoveBufferEntry>): Promise<void> {
-    const pipeline = this.redis.pipeline();
+  private async syncPositionsToState(usersMap: Map<string, MoveBufferEntry>): Promise<void> {
     for (const [userId, entry] of usersMap) {
-      const key = `user:${userId}:state`;
-      pipeline.hset(
-        key,
-        'x',
-        String(entry.x),
-        'y',
-        String(entry.y),
-        'lastMoveTime',
-        entry.lastMoveTime,
-      );
+      await updateUserStatePosition(userId, {
+        x: String(entry.x),
+        y: String(entry.y),
+        lastMoveTime: entry.lastMoveTime,
+      });
     }
-    await pipeline.exec();
   }
 
   private async authMiddleware(socket: Socket, next: (err?: Error) => void) {
@@ -149,13 +147,6 @@ export class SocketApp {
     next();
   }
 
-  listen() {
-    this.httpServer.listen(envConfig.SOCKET_PORT, () => {
-      logger.info(`SOCKET Server is running on port ${envConfig.SOCKET_PORT}`);
-    });
-  }
-
-  /** Redis kick 신호 수신 시 호출: targetSocketId가 있으면 해당 소켓만, 없으면 authId 전체 kick */
   kick(authId: string, targetSocketId?: string): void {
     if (targetSocketId) {
       const socket = this.io.sockets.sockets.get(targetSocketId);
@@ -238,14 +229,7 @@ export class SocketApp {
       clearInterval(this.tickInterval);
       this.tickInterval = null;
     }
-    return new Promise<void>((resolve, reject) => {
-      this.io.close(() => {
-        this.httpServer.close((err: any) => {
-          if (err) return reject(err);
-          resolve();
-        });
-      });
-    });
+    this.io.disconnectSockets(true);
   }
 
   private initEvents() {
@@ -259,7 +243,6 @@ export class SocketApp {
           // 핸드셰이크 성공 → 슬롯 grace 종료. janitor가 stale로 판정하지 않게 한다.
           await clearConnReservedGrace(authId);
 
-          const stateKey = `user:${authId}:state`;
           const existingState = await getUserState(authId);
 
           if (existingState && existingState.socketId && existingState.socketId !== socket.id) {
@@ -274,7 +257,7 @@ export class SocketApp {
           }
 
           if (existingState) {
-            await this.redis.hset(stateKey, 'socketId', socket.id);
+            await setUserStateSocketId(authId, socket.id);
           }
         })().catch((err) => {
           logger.error(`[Socket] connection fallback failed: socketId=${socket.id}`, err);
@@ -316,6 +299,7 @@ export class SocketApp {
 
           if (mapId.startsWith('s')) {
             await addSafariActive(authId, mapId);
+            await ensureSafariBucket(authId, mapId);
           }
           logger.info(`[Socket] init addUserToRoom done: socketId=${socket.id}`);
 
@@ -343,6 +327,9 @@ export class SocketApp {
 
           const gameTime = await getGameTime();
           const weather = await getMapWeather(mapId);
+          const safari: SafariSnapshot | undefined = mapId.startsWith('s')
+            ? { wilds: snapshotWilds(authId, mapId), items: snapshotItems(authId, mapId) }
+            : undefined;
           socket.emit('init_ok', {
             userId: authId,
             nickname: existingState.nickname,
@@ -358,6 +345,7 @@ export class SocketApp {
             weather: weather?.weather ?? 'sunny',
             weatherStartedAt: weather?.startedAt,
             weatherDuration: weather?.duration,
+            safari,
           });
           logger.info(`[Socket] init success: ${socket.id} userId=${authId}`);
         } catch (error) {
@@ -476,6 +464,7 @@ export class SocketApp {
 
           if (targetMapId.startsWith('s')) {
             await addSafariActive(userId, targetMapId);
+            await ensureSafariBucket(userId, targetMapId);
           }
 
           const roomStates = syncToOthers ? await getRoomMemberStates(targetMapId) : [];
@@ -489,7 +478,7 @@ export class SocketApp {
             const visited: string[] = state.visitedMaps ? JSON.parse(state.visitedMaps) : [];
             if (!visited.includes(targetMapId)) {
               visited.push(targetMapId);
-              await this.redis.hset(`user:${userId}:state`, 'visitedMaps', JSON.stringify(visited));
+              await setUserStateVisitedMaps(userId, JSON.stringify(visited));
             }
           }
 
@@ -521,6 +510,12 @@ export class SocketApp {
           }
 
           const weather = await getMapWeather(targetMapId);
+          const safari: SafariSnapshot | undefined = targetMapId.startsWith('s')
+            ? {
+                wilds: snapshotWilds(userId, targetMapId),
+                items: snapshotItems(userId, targetMapId),
+              }
+            : undefined;
           socket.emit('change_map_ok', {
             mapId: targetMapId,
             x,
@@ -528,6 +523,7 @@ export class SocketApp {
             weather: weather?.weather ?? 'sunny',
             weatherStartedAt: weather?.startedAt,
             weatherDuration: weather?.duration,
+            safari,
           });
           logger.info(`[Socket] change_map: ${userId} -> ${targetMapId} (${x},${y})`);
 
@@ -586,11 +582,10 @@ export class SocketApp {
         logger.info(`Client disconnected: ${socket.id} (Reason: ${reason})`);
         const { authId: disconnAuthId, userId, roomId } = data;
 
-        // init 전(Title 등)에서 disconnect된 경우: user:state의 socketId만 정리
         if (!userId && disconnAuthId) {
           const currentState = await getUserState(disconnAuthId);
           if (currentState?.socketId === socket.id) {
-            await this.redis.hset(`user:${disconnAuthId}:state`, 'socketId', '');
+            await clearUserStateSocketId(disconnAuthId);
           }
         }
 

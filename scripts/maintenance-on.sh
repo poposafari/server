@@ -20,7 +20,7 @@ echo "[1/2] maintenance flag ON (api/socket → 503)"
 
 # 2) 활성 소켓 전원 kick → 클라가 로그아웃되어 로그인 화면으로
 if [ -n "$INTERNAL_TOKEN" ]; then
-  if docker exec poposerver_api wget -qO- \
+  if docker exec poposerver_server wget -qO- \
        --header="X-Internal-Token: ${INTERNAL_TOKEN}" \
        --header="Content-Type: application/json" \
        --post-data="{}" \

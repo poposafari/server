@@ -11,14 +11,13 @@ import {
   S000_MAP_ID,
   TimeOfDay,
   Weather,
+  getGameTime,
 } from '@poposerver/lib';
-import { getGameTime } from '@poposerver/lib';
 import { generateWildBatch, randomWildTtlSec } from '@poposerver/lib/utils/wild-roll';
 
 const SPAWN_TICK_MS = 10_000;
 const CONCURRENCY = 10;
 
-/** safari:active에 올라있는 각 (authId, mapId) 쌍에 대해 wild 개체수가 max 미만이면 max까지 보충한다. */
 export async function runWildSpawnCycle(concurrency: number = CONCURRENCY): Promise<void> {
   const start = Date.now();
   const pairs = await getSafariActive();
@@ -81,8 +80,6 @@ async function processPair(
     return 'skipped';
   }
 
-  // GET + PTTL 파이프라인으로 살아있는 wild만 집계 (stale 인덱스 자동 정리 포함).
-  // listWildIds는 만료된 uid를 포함해서 개체수를 부풀릴 수 있으므로 쓰지 않는다.
   const liveWilds = await getAllWildsWithCleanup(authId, mapId);
   const liveCount = liveWilds.length;
   const max = targetMap.wild.max;

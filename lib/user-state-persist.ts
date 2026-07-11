@@ -1,7 +1,7 @@
 import { eq, sql, and, inArray, notInArray } from 'drizzle-orm';
 import { db } from './db';
 import { user, userCostume, userTownMap } from './schema';
-import { getUserState, deleteUserState, setUserStateCreatedAt } from './redis';
+import { getUserState, deleteUserState, setUserStateCreatedAt } from './state';
 import { logger } from './utils/logger';
 
 export interface PersistUserStateOptions {

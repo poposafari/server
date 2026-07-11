@@ -27,54 +27,24 @@ services:
     deploy:
       resources:
         limits:
-          # Lean 2 런칭값(4GB · 동접 50~80). MVP 워킹셋엔 1GB로 충분(shared_buffers 기본 25%=256MB).
+          # 세션이 Postgres로 이전됨(매 요청 SELECT 1). 워킹셋 여유 위해 1GB 유지.
           # TODO(9-0): 1주차 docker stats 실측 baseline + 30~50% margin으로 교체
           memory: 1024M
 
-  redis:
-    image: redis:alpine
-    container_name: poposerver_redis
-    restart: unless-stopped
-    expose:
-      - '6379'
-    # 호스트 loopback에만 publish — SSH tunnel 통한 DBA 접근용. 0.0.0.0 노출 금지
-    ports:
-      - '127.0.0.1:6379:6379'
-    # OOM 안전 ③: Redis는 활성 게임 상태의 source of truth라 evict 금지(noeviction).
-    #   maxmemory(200mb)에 닿으면 쓰기를 거부(에러)할 뿐 키를 버리지 않는다 → 게임 상태 유실 방지.
-    #   mem_limit(256M)보다 낮게 잡아 컨테이너 커널 OOM-kill 전에 Redis가 먼저 한계를 인지하게 함.
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --notify-keyspace-events Ex --maxmemory 200mb --maxmemory-policy noeviction
-    volumes:
-      - redis_data:/data
-    networks:
-      - poposerver_prod
-    healthcheck:
-      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
-      interval: 2s
-      timeout: 3s
-      retries: 10
-      start_period: 5s
-    deploy:
-      resources:
-        limits:
-          memory: 256M # TODO(8-0): replace with measured baseline + 30~50% margin
-
-  api:
+  # 통합 모놀리스: 한 프로세스가 REST(Fastify) + WebSocket(Socket.IO) + 게임 루프를 모두 담당.
+  # nginx가 api. / socket. 서브도메인을 이 단일 upstream(172.28.0.10:9000)으로 라우팅한다.
+  server:
     image: ghcr.io/seophohoho/poposerver:${IMAGE_TAG:-latest}
-    container_name: poposerver_api
+    container_name: poposerver_server
     restart: unless-stopped
-    # OOM 안전 ①: --max-old-space-size를 mem_limit(512M)의 ~75%로. V8에 힙 천장을 알려줘
-    #   GC가 한계 전에 적극 동작하게 → 힙이 컨테이너 limit을 넘겨 커널 OOM-kill 당하는 사고 방지.
-    command: ['node', '--max-old-space-size=384', '--heapsnapshot-near-heap-limit=1', 'dist/apps/api/main.js']
+    # OOM 안전: --max-old-space-size를 mem_limit(1024M)의 ~75%로. 4-in-1 통합이라 헤드룸 확대.
+    command: ['node', '--max-old-space-size=768', '--heapsnapshot-near-heap-limit=1', 'dist/apps/server/main.js']
     env_file: .env.prod
     environment:
       NODE_ENV: PROD
       DB_HOST: postgres
-      REDIS_HOST: redis
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     networks:
       poposerver_prod:
@@ -88,87 +58,9 @@ services:
     deploy:
       resources:
         limits:
-          # Lean 2 런칭값. heap 384M(--max-old-space-size) + native/buffer 여유 → 512M.
+          # 구 api(512)+socket(512)+worker(256)+flush(256) 4프로세스를 1로 통합 → heap 768 + 네이티브/버퍼 여유.
           # TODO(9-0): 1주차 실측 baseline + 30~50% margin으로 교체
-          memory: 512M
-
-  socket:
-    image: ghcr.io/seophohoho/poposerver:${IMAGE_TAG:-latest}
-    container_name: poposerver_socket
-    restart: unless-stopped
-    # OOM 안전 ①: 힙 천장 = mem_limit(512M)의 ~75%. (퍼시스턴트 소켓 커넥션 보유라 헤드룸 동일 적용)
-    command: ['node', '--max-old-space-size=384', '--heapsnapshot-near-heap-limit=1', 'dist/apps/socket/main.js']
-    env_file: .env.prod
-    environment:
-      NODE_ENV: PROD
-      DB_HOST: postgres
-      REDIS_HOST: redis
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      poposerver_prod:
-        ipv4_address: 172.28.0.11
-    deploy:
-      resources:
-        limits:
-          # Lean 2 런칭값. heap 384M + 헤드룸 → 512M.
-          # TODO(9-0): 1주차 실측 baseline + 30~50% margin으로 교체
-          memory: 512M
-
-  flush:
-    image: ghcr.io/seophohoho/poposerver:${IMAGE_TAG:-latest}
-    container_name: poposerver_flush
-    restart: unless-stopped
-    # OOM 안전 ①: 힙 천장 = mem_limit(256M)의 ~75%. (cron 구동, 베이스라인 낮음)
-    command: ['node', '--max-old-space-size=192', '--heapsnapshot-near-heap-limit=1', 'dist/apps/flush/main.js']
-    env_file: .env.prod
-    environment:
-      NODE_ENV: PROD
-      DB_HOST: postgres
-      REDIS_HOST: redis
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      poposerver_prod:
-        ipv4_address: 172.28.0.12
-    deploy:
-      resources:
-        limits:
-          # Lean 2 런칭값. heap 192M + 헤드룸 → 256M.
-          # TODO(9-0): 1주차 실측 baseline + 30~50% margin으로 교체
-          memory: 256M
-
-  worker:
-    image: ghcr.io/seophohoho/poposerver:${IMAGE_TAG:-latest}
-    container_name: poposerver_worker
-    restart: unless-stopped
-    # OOM 안전 ①: 힙 천장 = mem_limit(256M)의 ~75%. (cron 구동, 베이스라인 낮음)
-    command: ['node', '--max-old-space-size=192', '--heapsnapshot-near-heap-limit=1', 'dist/apps/worker/main.js']
-    env_file: .env.prod
-    environment:
-      NODE_ENV: PROD
-      DB_HOST: postgres
-      REDIS_HOST: redis
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      poposerver_prod:
-        ipv4_address: 172.28.0.13
-    deploy:
-      resources:
-        limits:
-          # Lean 2 런칭값. heap 192M + 헤드룸 → 256M.
-          # TODO(9-0): 1주차 실측 baseline + 30~50% margin으로 교체
-          memory: 256M
+          memory: 1024M
 
   nginx:
     image: nginx:alpine
@@ -189,17 +81,13 @@ services:
       # client/.github/workflows/deploy.yml의 atomic swap 타겟과 동일 경로여야 함
       - /var/www/poposafari:/var/www/poposafari:ro
     depends_on:
-      - api
-      - socket
+      - server
     networks:
       - poposerver_prod
     deploy:
       resources:
         limits:
           memory: 64M # TODO(8-0): replace with measured baseline + 30~50% margin
-
-volumes:
-  redis_data:
 
 networks:
   poposerver_prod:

@@ -58,7 +58,6 @@ export interface MapWildWeather {
 }
 
 export interface MapWildData {
-  min: number;
   max: number;
   dawn: MapWildWeather;
   day: MapWildWeather;

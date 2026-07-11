@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, AppErrorMessage } from '@poposerver/lib/types';
-import { getSession } from '@poposerver/lib/redis';
+import { getSession } from '@poposerver/lib/state';
 import { SESSION_COOKIE_NAME } from '@poposerver/lib/utils/cookie';
 
 declare module 'fastify' {

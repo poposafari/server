@@ -7,7 +7,7 @@ import {
   publishSocketKick,
   setConnReservedGrace,
   tryAcquireSlot,
-} from '@poposerver/lib/redis';
+} from '@poposerver/lib/state';
 import { envConfig } from '@poposerver/lib/utils/env';
 
 const ONLINE_COUNT_CACHE_TTL_MS = 5_000;

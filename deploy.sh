@@ -2,8 +2,8 @@
 # 프로젝트 루트에서 실행. docker/prod 기준 전체 또는 지정 서비스만 재빌드·재기동.
 # 사용: ./deploy.sh              → 전체 up -d --build
 #       ./deploy.sh down         → 전체 down
-#       ./deploy.sh api          → api만 재빌드·재기동
-#       ./deploy.sh socket nginx → socket, nginx만
+#       ./deploy.sh server       → server만 재빌드·재기동
+#       ./deploy.sh server nginx → server, nginx만
 # 프로파일링: ./deploy-profile.sh (별도 스크립트)
 
 set -e
@@ -11,13 +11,13 @@ set -e
 COMPOSE_FILE="docker/prod/docker-compose.yml"
 ENV_FILE="docker/prod/.env.prod"
 
-VALID_SERVICES="api socket worker nginx postgres redis"
+VALID_SERVICES="server nginx postgres"
 
 usage() {
   echo "Usage: $0 [down | SERVICE...]"
   echo "  down       : stop and remove all services"
   echo "  No args    : rebuild and start all services"
-  echo "  SERVICE... : rebuild and start only listed services (e.g. api socket nginx)"
+  echo "  SERVICE... : rebuild and start only listed services (e.g. server nginx)"
   echo "  Valid: $VALID_SERVICES"
   exit 1
 }

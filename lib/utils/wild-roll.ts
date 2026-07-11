@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { and, eq, inArray } from 'drizzle-orm';
 import { db } from '../db';
 import { userPokedex } from '../schema';
-import { SafariWild, SAFARI_WILD_TTL_MIN_SEC, SAFARI_WILD_TTL_MAX_SEC } from '../redis';
+import { SafariWild, SAFARI_WILD_TTL_MIN_SEC, SAFARI_WILD_TTL_MAX_SEC } from '../state';
 import {
   TimeOfDay,
   Weather,

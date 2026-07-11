@@ -22,7 +22,7 @@ COPY lib ./lib
 RUN pnpm run build
 
 ENV NODE_ENV=PROD
-EXPOSE 9000 9010
+EXPOSE 9000
 
-# 기본은 API; compose에서 socket/worker는 command로 덮어씀
-CMD ["node", "--heapsnapshot-near-heap-limit=1", "dist/apps/api/main.js"]
+# 통합 모놀리스: REST + WebSocket + 게임 루프 단일 프로세스
+CMD ["node", "--heapsnapshot-near-heap-limit=1", "dist/apps/server/main.js"]

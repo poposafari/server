@@ -3,7 +3,7 @@ import { envConfig } from '@poposerver/lib/utils/env';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, AppErrorMessage } from '@poposerver/lib/types';
 import { logger } from '@poposerver/lib/utils/logger';
-import type { OAuthProviderName } from '@poposerver/lib/redis';
+import type { OAuthProviderName } from '@poposerver/lib/state';
 
 export interface OAuthUserInfo {
   providerId: string;

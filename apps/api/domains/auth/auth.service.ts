@@ -9,7 +9,7 @@ import {
   getSession,
   isActivePlayer,
   publishSocketKick,
-} from '@poposerver/lib/redis';
+} from '@poposerver/lib/state';
 import { AuthRepository } from './auth.repository';
 import { AuthLocalInput, LoginLocalInput } from './auth.schema';
 
