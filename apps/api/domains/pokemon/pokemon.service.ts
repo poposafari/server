@@ -4,7 +4,8 @@ import { userPokemon, userItem, userPokedex } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
 import { auditTx } from '@poposerver/lib/utils/audit';
-import { AppErrorCode, AuditAction, PokemonGender } from '@poposerver/lib/types';
+import { AppErrorCode, AuditAction, PokemonGender, PokemonTier } from '@poposerver/lib/types';
+import { MAX_UPGRADE_TIER, nextTier, resolveTier, tierRank } from '@poposerver/lib/utils/tier';
 import { getGameTime } from '@poposerver/lib/state';
 import {
   EXP_CANDY_VALUE,
@@ -51,6 +52,14 @@ export class PokemonService {
     }
 
     const newPokedexId = masterPokemon.evolNext[costIndex];
+
+    let nextTierField: string | null = pokemon.tier;
+    if (pokemon.tier) {
+      const evolvedMaster = MasterData.getPokemon(newPokedexId);
+      if (evolvedMaster && tierRank(evolvedMaster.tier) >= tierRank(pokemon.tier as PokemonTier)) {
+        nextTierField = null;
+      }
+    }
 
     const parts = body.cost.split('+').map((p) => p.trim());
     const itemCost = new Map<string, number>();
@@ -123,10 +132,9 @@ export class PokemonService {
         }
       }
 
-      // pokedexId 변경
       const [updated] = await tx
         .update(userPokemon)
-        .set({ pokedexId: newPokedexId })
+        .set({ pokedexId: newPokedexId, tier: nextTierField })
         .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)))
         .returning();
 
@@ -146,6 +154,88 @@ export class PokemonService {
           fromPokedexId: pokemon.pokedexId,
           toPokedexId: newPokedexId,
           cost: body.cost,
+        },
+        ip: ip ?? null,
+        source: 'api',
+      });
+
+      return updated;
+    });
+
+    return result;
+  }
+
+  async upgrade(authId: string, body: { id: number }, ip?: string) {
+    const accountId = Number(authId);
+
+    const pokemon = await this.repo.findByIdAndAccount(body.id, accountId);
+    if (!pokemon) {
+      throw new AppError('Pokemon not found', 404, AppErrorCode.POKEMON_NOT_FOUND);
+    }
+
+    if (pokemon.level < POKEMON_LEVEL_MAX) {
+      throw new AppError(
+        'Pokemon must be at max level to upgrade',
+        400,
+        AppErrorCode.POKEMON_LEVEL_NOT_ENOUGH,
+      );
+    }
+
+    const masterPokemon = MasterData.getPokemon(pokemon.pokedexId);
+    if (!masterPokemon) {
+      throw new AppError('Pokemon master data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    const currentTier = resolveTier(pokemon.tier, masterPokemon.tier);
+    const upgraded = nextTier(currentTier);
+
+    if (!upgraded || tierRank(upgraded) > tierRank(MAX_UPGRADE_TIER)) {
+      throw new AppError('Pokemon already at max tier', 400, AppErrorCode.POKEMON_TIER_MAX);
+    }
+
+    const candyId = `${masterPokemon.type1}-candy`;
+    const candyCost = LEVEL_CURVE.UPGRADE_CANDY_BY_TIER[upgraded];
+    if (candyCost === undefined) {
+      throw new AppError('Upgrade cost not defined', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    const result = await db.transaction(async (tx) => {
+      const [item] = await tx
+        .select({ quantity: userItem.quantity })
+        .from(userItem)
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyId)));
+
+      if (!item || item.quantity < candyCost) {
+        throw new AppError('Not enough candy', 400, AppErrorCode.CANDY_NOT_ENOUGH);
+      }
+
+      if (item.quantity === candyCost) {
+        await tx
+          .delete(userItem)
+          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyId)));
+      } else {
+        await tx
+          .update(userItem)
+          .set({ quantity: sql`${userItem.quantity} - ${candyCost}` })
+          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, candyId)));
+      }
+
+      const [updated] = await tx
+        .update(userPokemon)
+        .set({ tier: upgraded })
+        .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)))
+        .returning();
+
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.POKEMON_UPGRADE,
+        detail: {
+          userPokemonId: body.id,
+          pokedexId: pokemon.pokedexId,
+          fromTier: currentTier,
+          toTier: upgraded,
+          candyId,
+          candyCost,
         },
         ip: ip ?? null,
         source: 'api',

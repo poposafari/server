@@ -20,6 +20,12 @@ export class PokemonController {
     return reply.status(200).send({ success: true, data });
   };
 
+  upgrade = async (request: FastifyRequest, reply: FastifyReply) => {
+    const body = request.body as { id: number };
+    const data = await this.pokemonService.upgrade(request.authId, body, request.ip);
+    return reply.status(200).send({ success: true, data });
+  };
+
   sell = async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as { ids: number[] };
     const data = await this.pokemonService.sell(request.authId, body, request.ip);

@@ -22,6 +22,7 @@ export class PokemonRepository {
         gender: userPokemon.gender,
         isShiny: userPokemon.isShiny,
         nickname: userPokemon.nickname,
+        tier: userPokemon.tier,
         abilityId: userPokemon.abilityId,
         natureId: userPokemon.natureId,
         skills: userPokemon.skills,

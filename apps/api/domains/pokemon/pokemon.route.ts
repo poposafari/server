@@ -10,6 +10,7 @@ import {
   evolveSchema,
   learnMoveSchema,
   sellSchema,
+  upgradeSchema,
 } from './pokemon.schema';
 
 export default async function pokemonRoutes(app: FastifyInstance) {
@@ -30,6 +31,11 @@ export default async function pokemonRoutes(app: FastifyInstance) {
   app.post('/evolve', {
     preHandler: [sessionAuthGuard, zodValidate(evolveSchema)],
     handler: controller.evolve,
+  });
+
+  app.post('/upgrade', {
+    preHandler: [sessionAuthGuard, zodValidate(upgradeSchema)],
+    handler: controller.upgrade,
   });
 
   app.post('/sell', {

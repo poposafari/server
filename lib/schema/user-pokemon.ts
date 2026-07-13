@@ -27,6 +27,7 @@ export const userPokemon = pgTable(
     gender: smallint('gender').notNull(),
     isShiny: boolean('is_shiny').notNull().default(false),
     nickname: varchar('nickname', { length: 50 }),
+    tier: varchar('tier', { length: 20 }),
     abilityId: varchar('ability_id', { length: 50 }).notNull(),
     natureId: varchar('nature_id', { length: 50 }).notNull(),
     skills: jsonb('skills').notNull().default([]),

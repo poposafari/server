@@ -47,6 +47,15 @@ export const LEVEL_CURVE = {
     legendary: 10,
   } as Record<string, number>,
 
+  UPGRADE_CANDY_BY_TIER: {
+    uncommon: 25,
+    rare: 50,
+    'super-rare': 100,
+    'ultra-rare': 200,
+    epic: 400,
+    unique: 800,
+  } as Partial<Record<TierKey, number>>,
+
   // ── 판매 보상 ──
   SELL_CANDY_BY_TIER: {
     common: 1,

@@ -24,6 +24,7 @@ import {
   totalExpForLevel,
 } from '@poposerver/lib/utils/exp-curve';
 import { pickExpCandyDrop } from '@poposerver/lib/utils/exp-candy-drop';
+import { resolveTier } from '@poposerver/lib/utils/tier';
 import {
   PokemonTier,
   AppErrorCode,
@@ -235,6 +236,7 @@ export class SafariService {
         level: userPokemon.level,
         exp: userPokemon.exp,
         isShiny: userPokemon.isShiny,
+        tier: userPokemon.tier,
       })
       .from(userPokemon)
       .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)))
@@ -262,7 +264,7 @@ export class SafariService {
         return {
           level: p.level,
           isShiny: p.isShiny,
-          tier: (masterPokemon?.tier ?? 'common') as PokemonTier,
+          tier: resolveTier(p.tier, (masterPokemon?.tier ?? 'common') as PokemonTier),
         };
       });
 
