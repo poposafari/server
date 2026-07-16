@@ -1,5 +1,6 @@
 import { db } from '@poposerver/lib/db';
 import { user, userCostume, userPokemon, userItem, userPokedex } from '@poposerver/lib/schema';
+import { SAFARI_TICKET_REGEN_INTERVAL_MS } from '@poposerver/lib/constants/safari-ticket';
 import { eq, and, or, isNotNull, like, sql } from 'drizzle-orm';
 
 export class UserRepository {
@@ -38,6 +39,7 @@ export class UserRepository {
         lastMapId,
         lastX,
         lastY,
+        safariTicketRegenAt: new Date(Date.now() - SAFARI_TICKET_REGEN_INTERVAL_MS),
       });
 
       await tx.insert(userCostume).values(
@@ -68,6 +70,7 @@ export class UserRepository {
         lastMapId: user.lastMapId,
         lastX: user.lastX,
         lastY: user.lastY,
+        safariTicketRegenAt: user.safariTicketRegenAt,
       })
       .from(user)
       .where(eq(user.accountId, accountId))

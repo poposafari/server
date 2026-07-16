@@ -46,5 +46,11 @@ export interface UserGameDataRes {
     }[];
     pokemonBoxCount: number;
     visitedMaps: string[];
+    safariTicket: {
+      available: number;
+      cap: number;
+      nextTicketAt: number | null;
+      nextTicketInMs: number | null;
+    };
   };
 }

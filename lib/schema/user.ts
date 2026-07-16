@@ -25,6 +25,9 @@ export const user = pgTable(
     lastMapId: char('last_map_id', { length: 4 }).notNull(),
     lastX: integer('last_x').notNull(),
     lastY: integer('last_y').notNull(),
+    safariTicketRegenAt: timestamp('safari_ticket_regen_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [check('ck_user_money', sql`${table.money} >= 0`)],

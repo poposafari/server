@@ -5,6 +5,11 @@ import { MasterData } from '@poposerver/lib/utils/master-data';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, AuditAction } from '@poposerver/lib/types';
 import { auditTx } from '@poposerver/lib/utils/audit';
+import {
+  SAFARI_TICKET_ITEM_ID,
+  computeSafariTicketState,
+  advanceSafariTicketAnchor,
+} from '@poposerver/lib/constants/safari-ticket';
 import { ItemRepository } from './item.repository';
 
 const MAX_ITEM_QUANTITY = 9_999_999;
@@ -15,6 +20,90 @@ export class ItemService {
 
   async getBag(authId: string) {
     return this.repo.findBagByAccountId(Number(authId));
+  }
+
+  async getSafariTicketStatus(authId: string) {
+    const accountId = Number(authId);
+
+    const [row] = await db
+      .select({ regenAt: user.safariTicketRegenAt })
+      .from(user)
+      .where(eq(user.accountId, accountId));
+    if (!row) {
+      throw new AppError('User not found', 404, AppErrorCode.USER_NOT_FOUND);
+    }
+
+    return computeSafariTicketState(row.regenAt, new Date());
+  }
+
+  async claimSafariTicket(authId: string, ip?: string) {
+    const accountId = Number(authId);
+
+    return db.transaction(async (tx) => {
+      const [row] = await tx
+        .select({ regenAt: user.safariTicketRegenAt })
+        .from(user)
+        .where(eq(user.accountId, accountId))
+        .for('update');
+      if (!row) {
+        throw new AppError('User not found', 404, AppErrorCode.USER_NOT_FOUND);
+      }
+
+      const now = new Date();
+      const state = computeSafariTicketState(row.regenAt, now);
+      if (state.available <= 0) {
+        throw new AppError(
+          'No safari ticket to claim yet',
+          400,
+          AppErrorCode.SAFARI_TICKET_NOT_READY,
+        );
+      }
+
+      const claimed = state.available;
+
+      const [existing] = await tx
+        .select({ quantity: userItem.quantity })
+        .from(userItem)
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, SAFARI_TICKET_ITEM_ID)));
+      const newQty = (existing?.quantity ?? 0) + claimed;
+      if (newQty > MAX_ITEM_QUANTITY) {
+        throw new AppError(
+          'Item quantity limit exceeded',
+          400,
+          AppErrorCode.ITEM_QUANTITY_LIMIT_EXCEEDED,
+        );
+      }
+
+      await tx
+        .insert(userItem)
+        .values({ accountId, itemId: SAFARI_TICKET_ITEM_ID, quantity: claimed })
+        .onConflictDoUpdate({
+          target: [userItem.accountId, userItem.itemId],
+          set: { quantity: sql`${userItem.quantity} + ${claimed}` },
+        });
+
+      const newAnchor = advanceSafariTicketAnchor(row.regenAt, now, claimed);
+      await tx
+        .update(user)
+        .set({ safariTicketRegenAt: newAnchor })
+        .where(eq(user.accountId, accountId));
+
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.SAFARI_TICKET_CLAIM,
+        detail: { claimed, quantity: newQty },
+        ip: ip ?? null,
+        source: 'api',
+      });
+
+      const nextState = computeSafariTicketState(newAnchor, now);
+      return {
+        claimed,
+        itemId: SAFARI_TICKET_ITEM_ID,
+        quantity: newQty,
+        ...nextState,
+      };
+    });
   }
 
   async buy(authId: string, body: { item: string; quantity: number }, ip?: string) {

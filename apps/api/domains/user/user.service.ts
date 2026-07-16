@@ -6,6 +6,7 @@ import {
   UserStartLocation,
 } from '@poposerver/lib/types';
 import { setUserState } from '@poposerver/lib/state';
+import { computeSafariTicketState } from '@poposerver/lib/constants/safari-ticket';
 import { eq } from 'drizzle-orm';
 import { db } from '@poposerver/lib/db';
 import { userTownMap } from '@poposerver/lib/schema';
@@ -84,8 +85,9 @@ export class UserService {
       throw new AppError(AppErrorMessage.USER_NOT_FOUND, 404, AppErrorCode.USER_NOT_FOUND);
     }
 
-    const { profile, equippedCostumes, party, itemSlots, essentialItems, pokedex, pokemonBoxCount } =
-      result;
+    const { equippedCostumes, party, itemSlots, essentialItems, pokedex, pokemonBoxCount } = result;
+    const { safariTicketRegenAt, ...profile } = result.profile;
+    const safariTicket = computeSafariTicketState(safariTicketRegenAt, new Date());
 
     const visitedMapRows = await db
       .select({ mapId: userTownMap.mapId })
@@ -119,6 +121,7 @@ export class UserService {
       pokedex,
       pokemonBoxCount,
       visitedMaps: visitedMapIds,
+      safariTicket,
     };
   }
 }

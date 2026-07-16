@@ -23,6 +23,16 @@ export default async function itemRoutes(app: FastifyInstance) {
     handler: controller.getBag,
   });
 
+  app.get('/safari-ticket', {
+    preHandler: [sessionAuthGuard],
+    handler: controller.getSafariTicketStatus,
+  });
+
+  app.post('/safari-ticket/claim', {
+    preHandler: [sessionAuthGuard],
+    handler: controller.claimSafariTicket,
+  });
+
   app.post('/buy', {
     preHandler: [sessionAuthGuard, zodValidate(buyItemSchema)],
     handler: controller.buy,

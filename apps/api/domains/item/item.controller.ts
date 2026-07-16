@@ -10,6 +10,16 @@ export class ItemController {
     return reply.status(200).send({ success: true, data });
   };
 
+  getSafariTicketStatus = async (request: FastifyRequest, reply: FastifyReply) => {
+    const data = await this.itemService.getSafariTicketStatus(request.authId);
+    return reply.status(200).send({ success: true, data });
+  };
+
+  claimSafariTicket = async (request: FastifyRequest, reply: FastifyReply) => {
+    const data = await this.itemService.claimSafariTicket(request.authId, request.ip);
+    return reply.status(200).send({ success: true, data });
+  };
+
   buy = async (request: FastifyRequest, reply: FastifyReply) => {
     const body = request.body as { item: string; quantity: number };
     const data = await this.itemService.buy(request.authId, body, request.ip);
