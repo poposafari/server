@@ -34,6 +34,7 @@ import {
   shouldSyncOtherPlayers,
   auditAsync,
   AuditAction,
+  MasterData,
 } from '@poposerver/lib';
 import { ensureSafariBucket } from '../api/domains/game/safari-world';
 
@@ -421,11 +422,19 @@ export class SocketApp implements Broadcaster {
           return;
         }
 
-        const x = typeof payload?.x === 'number' ? payload.x : Number(payload?.x);
-        const y = typeof payload?.y === 'number' ? payload.y : Number(payload?.y);
+        let x = typeof payload?.x === 'number' ? payload.x : Number(payload?.x);
+        let y = typeof payload?.y === 'number' ? payload.y : Number(payload?.y);
         if (Number.isNaN(x) || Number.isNaN(y)) {
           socket.emit('change_map_error', { message: 'Invalid spawn coordinates' });
           return;
+        }
+
+        if ((payload as { fly?: boolean })?.fly === true && targetMapId.startsWith('s')) {
+          const entry = MasterData.getMap(targetMapId)?.entry;
+          if (entry) {
+            x = entry.x;
+            y = entry.y;
+          }
         }
 
         // if (!isValidChangeMapTarget(targetMapId, x, y)) {
