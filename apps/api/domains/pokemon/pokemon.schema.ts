@@ -51,11 +51,16 @@ export const arrangeSchema = z.object({
       z.object({
         id: z.number().int().positive(),
         boxNumber: z.number().int().min(1).max(PC_STORAGE.MAX_BOX).nullable(),
-        gridNumber: z.number().int().min(0).max(PC_STORAGE.GRID_PER_BOX - 1).nullable(),
+        gridNumber: z
+          .number()
+          .int()
+          .min(0)
+          .max(PC_STORAGE.GRID_PER_BOX - 1)
+          .nullable(),
         partySlot: z.number().int().min(0).max(5).nullable(),
       }),
     )
-    .max(100),
+    .max(PC_STORAGE.MAX_BOX * PC_STORAGE.GRID_PER_BOX),
   boxMeta: z
     .array(
       z.object({
