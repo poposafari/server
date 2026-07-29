@@ -45,7 +45,12 @@ async function runDaily(): Promise<void> {
   await pruneExpiredSessions();
 }
 
-function startLoop(name: string, intervalMs: number, fn: () => Promise<void>): () => Promise<void> {
+function startLoop(
+  name: string,
+  intervalMs: number,
+  fn: () => Promise<void>,
+  runOnStart = false,
+): () => Promise<void> {
   let running = false;
   let stopped = false;
 
@@ -62,7 +67,9 @@ function startLoop(name: string, intervalMs: number, fn: () => Promise<void>): (
   };
 
   const timer = setInterval(tick, intervalMs);
-  logger.info(`[Janitor] ${name} loop started: every ${intervalMs}ms`);
+
+  if (runOnStart) void tick();
+  logger.info(`[Janitor] ${name} loop started: every ${intervalMs}ms (runOnStart=${runOnStart})`);
 
   return async () => {
     stopped = true;
@@ -73,7 +80,8 @@ function startLoop(name: string, intervalMs: number, fn: () => Promise<void>): (
 
 export function startJanitorLoops(): () => Promise<void> {
   const stopSlot = startLoop('cleanupStaleSlots', SLOT_CLEANUP_INTERVAL_MS, cleanupStaleSlots);
-  const stopDaily = startLoop('dailyPrune', DAILY_INTERVAL_MS, runDaily);
+
+  const stopDaily = startLoop('dailyPrune', DAILY_INTERVAL_MS, runDaily, true);
 
   return async () => {
     await stopSlot();
