@@ -87,7 +87,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 64M # TODO(8-0): replace with measured baseline + 30~50% margin
+          # 실측(2026-08-08 Phase 1): 1000 동접에서 nginx RSS 75.0MB, 67.6 KB/conn.
+          # 64M 이었다면 800 부근에서 OOM. docs/artillery/phase1_idle_ramp_20260808.md
+          memory: 128M
 
 networks:
   poposerver_prod:
