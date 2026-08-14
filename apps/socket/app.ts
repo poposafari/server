@@ -97,7 +97,11 @@ export class SocketApp implements Broadcaster {
 
     this.io.use(this.authMiddleware.bind(this));
     this.initEvents();
-    this.startTickLoop();
+
+    if (envConfig.MOVE_BROADCAST_MODE === 'tick') {
+      this.startTickLoop();
+    }
+    logger.info(`[Socket] move broadcast mode = ${envConfig.MOVE_BROADCAST_MODE}`);
   }
 
   /**
@@ -119,6 +123,33 @@ export class SocketApp implements Broadcaster {
         usersMap.clear();
       }
     }, TICK_RATE_MS);
+  }
+
+  /**
+   * [tick 모드] 이동을 방별 버퍼에 덮어쓴다. 같은 틱 안의 연속 이동은 마지막 것만 남는다.
+   * 실제 emit/state 반영은 startTickLoop이 담당.
+   */
+  private dispatchMoveBuffered(roomId: string, userId: string, entry: MoveBufferEntry): void {
+    if (!this.moveBuffer.has(roomId)) this.moveBuffer.set(roomId, new Map());
+    this.moveBuffer.get(roomId)!.set(userId, entry);
+  }
+
+  /**
+   * [immediate 모드] 틱 도입 전 동작 재현 — move 이벤트 수신 즉시 해당 방에 브로드캐스트하고
+   * 좌표를 state에 기록한다. payload 형태는 tick 모드와 동일(updates 배열, 길이 1)이라
+   * 클라이언트는 수정 없이 그대로 동작한다.
+   */
+  private dispatchMoveImmediate(roomId: string, userId: string, entry: MoveBufferEntry): void {
+    if (shouldSyncOtherPlayers(roomId)) {
+      this.io.to(roomId).emit('users_moved', { updates: [{ userId, ...entry }] });
+    }
+    void updateUserStatePosition(userId, {
+      x: String(entry.x),
+      y: String(entry.y),
+      lastMoveTime: entry.lastMoveTime,
+    }).catch((err) =>
+      logger.error(`[Socket] immediate position sync failed userId=${userId}`, err),
+    );
   }
 
   private async syncPositionsToState(usersMap: Map<string, MoveBufferEntry>): Promise<void> {
@@ -397,15 +428,19 @@ export class SocketApp implements Broadcaster {
         }
         this.userPositions.set(userId, pos);
 
-        const now = new Date().toISOString();
-        if (!this.moveBuffer.has(roomId)) this.moveBuffer.set(roomId, new Map());
-        this.moveBuffer.get(roomId)!.set(userId, {
+        const entry: MoveBufferEntry = {
           x: pos.x,
           y: pos.y,
           direction: direction as MoveDirection,
           moveType,
-          lastMoveTime: now,
-        });
+          lastMoveTime: new Date().toISOString(),
+        };
+
+        if (envConfig.MOVE_BROADCAST_MODE === 'immediate') {
+          this.dispatchMoveImmediate(roomId, userId, entry);
+        } else {
+          this.dispatchMoveBuffered(roomId, userId, entry);
+        }
       });
 
       socket.on('change_map', async (payload: { targetMapId?: string; x?: number; y?: number }) => {

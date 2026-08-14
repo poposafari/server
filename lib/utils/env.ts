@@ -28,6 +28,13 @@ const envSchema = z.object({
   /** 동시 게임 접속 슬롯 최대치. 초과 시 신규 진입은 FIFO 큐로 들어간다. */
   SLOT_CAPACITY: z.coerce.number().int().positive().default(50),
 
+  /**
+   * 이동 브로드캐스트 방식. 부하 테스트 비교용 스위치.
+   * - 'tick'      : 주기적으로(틱, 기본은 33ms. 중간중간에 설정 ㄱㄴ)마다 방 단위로 모아서 1회 emit (현행 기본값)
+   * - 'immediate' : move 이벤트 수신 즉시 해당 방에 emit (틱 도입 전 동작 재현)
+   */
+  MOVE_BROADCAST_MODE: z.enum(['tick', 'immediate']).default('tick'),
+
   // CORS
   CORS_ORIGIN: z.string().optional(),
 
