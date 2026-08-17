@@ -8,6 +8,7 @@ import { logger } from '@poposerver/lib/utils/logger';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, AppErrorRes, AuditAction } from '@poposerver/lib/types';
 import { auditAsync, redactBody } from '@poposerver/lib/utils/audit';
+import { loadtestMetrics } from '@poposerver/lib/utils/loadtest-metrics';
 import { registerRoutes } from './routes';
 
 declare module 'fastify' {
@@ -165,6 +166,11 @@ export async function buildApp(): Promise<FastifyInstance> {
   app.get('/health', async () => {
     return { message: 'Poposafari server is running' };
   });
+
+  // ── 부하 테스트 계측 (LOADTEST_METRICS=true 일 때만 노출) ──
+  if (envConfig.LOADTEST_METRICS) {
+    app.get('/loadtest/metrics', async () => loadtestMetrics.snapshot());
+  }
 
   // ── 라우트 등록 ──
   await registerRoutes(app);

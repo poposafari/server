@@ -35,6 +35,7 @@ import {
   auditAsync,
   AuditAction,
   MasterData,
+  loadtestMetrics,
 } from '@poposerver/lib';
 import { ensureSafariBucket } from '../api/domains/game/safari-world';
 
@@ -54,7 +55,6 @@ type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
 export const MOVE_TYPES = ['walk', 'running', 'ride', 'surf', 'jump'] as const;
 export type MoveType = (typeof MOVE_TYPES)[number];
 
-const TICK_RATE_MS = 33;
 
 /** Tick 버퍼에 담기는 이동 데이터 (users_moved 이벤트 payload와 동일한 필드) */
 export interface MoveBufferEntry {
@@ -98,10 +98,15 @@ export class SocketApp implements Broadcaster {
     this.io.use(this.authMiddleware.bind(this));
     this.initEvents();
 
+    loadtestMetrics.start();
+    loadtestMetrics.setRoomProvider(() => this.roomSizes());
+
     if (envConfig.MOVE_BROADCAST_MODE === 'tick') {
       this.startTickLoop();
     }
-    logger.info(`[Socket] move broadcast mode = ${envConfig.MOVE_BROADCAST_MODE}`);
+    logger.info(
+      `[Socket] move broadcast mode = ${envConfig.MOVE_BROADCAST_MODE} (tick ${envConfig.TICK_RATE_MS}ms), loadtest metrics = ${envConfig.LOADTEST_METRICS}`,
+    );
   }
 
   /**
@@ -110,19 +115,34 @@ export class SocketApp implements Broadcaster {
    */
   private startTickLoop(): void {
     this.tickInterval = setInterval(async () => {
+      const startedAt = performance.now();
+      let nonEmpty = false;
       for (const [roomId, usersMap] of this.moveBuffer) {
         if (usersMap.size === 0) continue;
+        nonEmpty = true;
         if (shouldSyncOtherPlayers(roomId)) {
           const updates = Array.from(usersMap.entries()).map(([userId, entry]) => ({
             userId,
             ...entry,
           }));
           this.io.to(roomId).emit('users_moved', { updates });
+          loadtestMetrics.countEmit(updates.length);
         }
         await this.syncPositionsToState(usersMap);
         usersMap.clear();
       }
-    }, TICK_RATE_MS);
+      loadtestMetrics.countTick(nonEmpty, performance.now() - startedAt);
+    }, envConfig.TICK_RATE_MS);
+  }
+
+  /** 계측용 — 소켓 id 방(자기 자신 방)을 제외한 실제 맵 방의 인원 수 */
+  private roomSizes(): { sockets: number; rooms: Record<string, number> } {
+    const rooms: Record<string, number> = {};
+    for (const [roomId, members] of this.io.sockets.adapter.rooms) {
+      if (this.io.sockets.sockets.has(roomId)) continue;
+      rooms[roomId] = members.size;
+    }
+    return { sockets: this.io.sockets.sockets.size, rooms };
   }
 
   /**
@@ -142,6 +162,7 @@ export class SocketApp implements Broadcaster {
   private dispatchMoveImmediate(roomId: string, userId: string, entry: MoveBufferEntry): void {
     if (shouldSyncOtherPlayers(roomId)) {
       this.io.to(roomId).emit('users_moved', { updates: [{ userId, ...entry }] });
+      loadtestMetrics.countEmit(1);
     }
     void updateUserStatePosition(userId, {
       x: String(entry.x),
@@ -390,6 +411,7 @@ export class SocketApp implements Broadcaster {
         const userId = data.userId;
         const roomId = data.roomId;
         if (!userId || !roomId) return;
+        loadtestMetrics.countMove();
 
         let parsed: { direction?: string; moveType?: string };
         if (typeof payload === 'string') {

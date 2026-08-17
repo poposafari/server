@@ -13,3 +13,4 @@ export { MasterData } from './utils/master-data';
 export { SESSION_COOKIE_NAME, sessionCookieOptions } from './utils/cookie';
 export { everyMinutes } from './utils/cron';
 export { auditTx, auditAsync, redactBody } from './utils/audit';
+export { loadtestMetrics } from './utils/loadtest-metrics';

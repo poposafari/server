@@ -35,6 +35,15 @@ const envSchema = z.object({
    */
   MOVE_BROADCAST_MODE: z.enum(['tick', 'immediate']).default('tick'),
 
+  /** tick 모드의 브로드캐스트 주기(ms). 부하 테스트에서 33 / 100 등으로 바꿔 비교한다. */
+  TICK_RATE_MS: z.coerce.number().int().positive().default(33),
+
+  /** 부하 테스트용 내부 계측(/loadtest/metrics) 활성화. PROD 기본 off. */
+  LOADTEST_METRICS: z
+    .string()
+    .default('false')
+    .transform((s) => s === 'true' || s === '1'),
+
   // CORS
   CORS_ORIGIN: z.string().optional(),
 
