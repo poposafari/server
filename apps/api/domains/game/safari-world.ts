@@ -10,7 +10,8 @@ import {
 } from '@poposerver/lib/state';
 import { generateWildBatch, randomWildTtlSec } from '@poposerver/lib/utils/wild-roll';
 import { randomInt, pickWeightedMany } from '@poposerver/lib/utils/rng';
-import { TimeOfDay, Weather, S000_MAP_ID } from '@poposerver/lib/types';
+import { auditWildSpawn, auditSafariItemSpawn } from '@poposerver/lib/utils/audit-safari';
+import { TimeOfDay, Weather, S000_MAP_ID, AuditSource } from '@poposerver/lib/types';
 
 /**
  * (authId, mapId) 사파리 버킷이 없으면 max까지 야생 + 아이템을 생성한다. 이미 있으면 no-op.
@@ -24,7 +25,12 @@ import { TimeOfDay, Weather, S000_MAP_ID } from '@poposerver/lib/types';
  *
  * @returns 새로 생성했으면 true, 이미 존재해 skip했으면 false.
  */
-export async function ensureSafariBucket(authId: string, mapId: string): Promise<boolean> {
+export async function ensureSafariBucket(
+  authId: string,
+  mapId: string,
+  auditSource: AuditSource = 'api',
+  ip?: string | null,
+): Promise<boolean> {
   if (!mapId.startsWith('s')) return false;
 
   const existingWildIds = await listWildIds(authId, mapId);
@@ -54,6 +60,8 @@ export async function ensureSafariBucket(authId: string, mapId: string): Promise
     w.expiresAt = await addWild(authId, mapId, w, ttlSec);
   }
 
+  auditWildSpawn({ authId, mapId, wilds, origin: 'first_entry', source: auditSource, ip });
+
   // 아이템 생성
   const itemPool = targetMap.item.spawn ?? [];
   const itemCount = itemPool.length > 0 ? randomInt(targetMap.item.min, targetMap.item.max) : 0;
@@ -68,6 +76,8 @@ export async function ensureSafariBucket(authId: string, mapId: string): Promise
     picked: false,
   }));
   await setSafariItems(authId, mapId, items);
+
+  auditSafariItemSpawn({ authId, mapId, items, source: auditSource, ip });
 
   return true;
 }

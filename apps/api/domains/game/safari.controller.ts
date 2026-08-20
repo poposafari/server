@@ -42,8 +42,11 @@ export class SafariController {
   };
 
   exit = async (request: FastifyRequest, reply: FastifyReply) => {
-    const data = await this.service.exit(request.authId!);
-    // request.audit = { action: AuditAction.SAFARI_EXIT, detail: { mapId: data.mapId } };
+    const { fromMapId, ...data } = await this.service.exit(request.authId!);
+    request.audit = {
+      action: AuditAction.SAFARI_EXIT,
+      detail: { mapId: fromMapId, to: data.mapId },
+    };
     return reply.status(200).send({ success: true, data });
   };
 }

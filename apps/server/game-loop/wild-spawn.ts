@@ -14,6 +14,7 @@ import {
   getGameTime,
 } from '@poposerver/lib';
 import { generateWildBatch, randomWildTtlSec } from '@poposerver/lib/utils/wild-roll';
+import { auditWildSpawn } from '@poposerver/lib/utils/audit-safari';
 
 const SPAWN_TICK_MS = 10_000;
 const CONCURRENCY = 10;
@@ -96,6 +97,8 @@ async function processPair(
     w.expiresAt = expiresAt;
     await publishWildSpawn({ authId, mapId, wild: w });
   }
+
+  auditWildSpawn({ authId, mapId, wilds: newWilds, origin: 'top_up', source: 'worker' });
 
   return newWilds.length;
 }

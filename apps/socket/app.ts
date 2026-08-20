@@ -55,7 +55,6 @@ type MoveDirection = (typeof MOVE_DIRECTIONS)[number];
 export const MOVE_TYPES = ['walk', 'running', 'ride', 'surf', 'jump'] as const;
 export type MoveType = (typeof MOVE_TYPES)[number];
 
-
 /** Tick 버퍼에 담기는 이동 데이터 (users_moved 이벤트 payload와 동일한 필드) */
 export interface MoveBufferEntry {
   x: number;
@@ -298,11 +297,13 @@ export class SocketApp implements Broadcaster {
 
           const existingState = await getUserState(authId);
 
+          let kickedPrevious = false;
           if (existingState && existingState.socketId && existingState.socketId !== socket.id) {
             const oldSocket = this.io.sockets.sockets.get(existingState.socketId);
             if (oldSocket) {
               oldSocket.emit('kicked', { message: 'Logged in from another device.' });
               oldSocket.disconnect(true);
+              kickedPrevious = true;
               logger.info(
                 `[Socket] connection fallback kick: ${existingState.socketId} (authId: ${authId})`,
               );
@@ -312,6 +313,24 @@ export class SocketApp implements Broadcaster {
           if (existingState) {
             await setUserStateSocketId(authId, socket.id);
           }
+
+          // SOCKET_DISCONNECT와 짝을 이뤄 세션 길이를 계산한다.
+          // 기록 시점은 핸드셰이크 성공 직후(init 성공 여부와 무관) — disconnect도 같은 범위를
+          // 커버하므로 두 이벤트의 모수가 일치한다.
+          void auditAsync({
+            accountId: Number(authId),
+            action: AuditAction.SOCKET_CONNECT,
+            detail: {
+              socketId: socket.id,
+              mapId: existingState?.mapId ?? null,
+              // false면 /game/connect가 만든 state가 없는 상태로 붙은 것 → init이 실패한다.
+              hasState: !!existingState,
+              // true면 같은 계정의 이전 연결을 밀어내고 들어온 접속(다중 로그인).
+              kickedPrevious,
+            },
+            ip: socketIp(socket),
+            source: 'socket',
+          });
         })().catch((err) => {
           logger.error(`[Socket] connection fallback failed: socketId=${socket.id}`, err);
         });
@@ -352,7 +371,7 @@ export class SocketApp implements Broadcaster {
 
           if (mapId.startsWith('s')) {
             await addSafariActive(authId, mapId);
-            await ensureSafariBucket(authId, mapId);
+            await ensureSafariBucket(authId, mapId, 'socket', socketIp(socket));
           }
           logger.info(`[Socket] init addUserToRoom done: socketId=${socket.id}`);
 
@@ -530,7 +549,7 @@ export class SocketApp implements Broadcaster {
 
           if (targetMapId.startsWith('s')) {
             await addSafariActive(userId, targetMapId);
-            await ensureSafariBucket(userId, targetMapId);
+            await ensureSafariBucket(userId, targetMapId, 'socket', socketIp(socket));
           }
 
           const roomStates = syncToOthers ? await getRoomMemberStates(targetMapId) : [];
@@ -647,6 +666,7 @@ export class SocketApp implements Broadcaster {
       socket.on('disconnect', async (reason) => {
         logger.info(`Client disconnected: ${socket.id} (Reason: ${reason})`);
         const { authId: disconnAuthId, userId, roomId } = data;
+        let ownedSlot: boolean | null = null;
 
         if (!userId && disconnAuthId) {
           const currentState = await getUserState(disconnAuthId);
@@ -662,6 +682,7 @@ export class SocketApp implements Broadcaster {
 
           const currentState = await getUserState(userId);
           const isOwner = currentState?.socketId === socket.id;
+          ownedSlot = isOwner;
 
           const pos = this.userPositions.get(userId);
           if (pos && isOwner && currentState?.mapId === roomId) {
@@ -676,8 +697,6 @@ export class SocketApp implements Broadcaster {
           await persistUserStateFromRedisToDb(userId, { deleteFromRedis: isOwner });
 
           if (isOwner) {
-            // 슬롯 회수. ownership 가드를 통과한 경우에만 — 킥당한 소켓이 SREM하면
-            // 같은 authId의 새 연결까지 영향받기 때문.
             await removeActivePlayer(userId);
           }
 
@@ -690,6 +709,36 @@ export class SocketApp implements Broadcaster {
               await removeSafariActive(userId, roomId);
             }
           }
+        }
+
+        const auditAuthId = userId ?? disconnAuthId;
+        if (auditAuthId) {
+          void auditAsync({
+            accountId: Number(auditAuthId),
+            action: AuditAction.SOCKET_DISCONNECT,
+            detail: {
+              reason,
+              socketId: socket.id,
+              mapId: roomId ?? null,
+              // ownedSlot = 이 disconnect가 "현재 살아있는 세션"의 종료인지 여부.
+              //   user state의 socketId는 "이 계정의 진짜 연결은 이 소켓"이라는 표식이다.
+              //   같은 계정이 다른 기기로 접속하면 connection 핸들러가 옛 소켓을 킥하고
+              //   socketId를 새 소켓 id로 덮어쓴다. 그 뒤 킥당한 옛 소켓의 disconnect가
+              //   뒤늦게 도착하면 socketId는 이미 새 소켓 → isOwner=false가 된다.
+              //   true  = 정상 이탈(창 닫기 / 네트워크 끊김 / 로그아웃)
+              //   false = 다중 로그인으로 킥당한 옛 연결의 뒷정리
+              //           (이 경우 슬롯 회수를 하면 방금 접속한 새 세션이 죽는다)
+              //   null  = 계산 자체를 안 함(= initialized false)
+              ownedSlot,
+              // initialized = init 이벤트가 끝까지 성공했는지 여부.
+              //   authId는 핸드셰이크(연결 토큰 검증)에서, userId는 init 성공 끝에서 세팅된다.
+              //   true  = 게임에 정상 입장한 뒤 끊김
+              //   false = 핸드셰이크만 통과하고 init 전에 끊김(로딩 중 이탈 / init 실패)
+              initialized: !!userId,
+            },
+            ip: socketIp(socket),
+            source: 'socket',
+          });
         }
       });
 

@@ -355,25 +355,49 @@ export class PokemonService {
     const nicknameIds = (body.nicknames ?? []).map((n) => n.id).filter((id) => !ids.includes(id));
     const allIds = [...ids, ...nicknameIds];
 
-    if (nicknameIds.length > 0) {
-      const ownedNicknames = await this.repo.findByIdsAndAccount(nicknameIds, accountId);
-      if (ownedNicknames.length !== nicknameIds.length) {
+    const before = new Map<
+      number,
+      {
+        boxNumber: number | null;
+        gridNumber: number | null;
+        partySlot: number | null;
+        nickname: string | null;
+      }
+    >();
+
+    if (allIds.length > 0) {
+      const owned = await this.repo.findPlacementsByIdsAndAccount(allIds, accountId);
+      if (owned.length !== allIds.length) {
         throw new AppError('Pokemon not found', 404, AppErrorCode.POKEMON_NOT_FOUND);
       }
+      for (const p of owned) before.set(p.id, p);
     }
 
     if (ids.length > 0) {
-      const owned = await this.repo.findByIdsAndAccount(ids, accountId);
-      if (owned.length !== ids.length) {
-        throw new AppError('Pokemon not found', 404, AppErrorCode.POKEMON_NOT_FOUND);
-      }
-
       const partyInChanges = body.changes.filter((c) => c.partySlot !== null);
       const unchangedParty = await this.repo.countPartyExcluding(accountId, ids);
       if (partyInChanges.length + unchangedParty > 6) {
         throw new AppError('Party limit exceeded', 400, AppErrorCode.PARTY_LIMIT_EXCEEDED);
       }
     }
+
+    const movedCount = body.changes.filter((c) => {
+      const prev = before.get(c.id);
+      if (!prev) return true;
+      return (
+        prev.boxNumber !== c.boxNumber ||
+        prev.gridNumber !== c.gridNumber ||
+        prev.partySlot !== c.partySlot
+      );
+    }).length;
+
+    const nicknameChangedCount = (body.nicknames ?? []).filter((n) => {
+      const prev = before.get(n.id);
+      if (!prev) return true;
+      return (prev.nickname ?? null) !== (n.nickname ?? null);
+    }).length;
+
+    const boxMetaCount = body.boxMeta?.length ?? 0;
 
     await db.transaction(async (tx) => {
       // 포켓몬 위치 변경
@@ -413,6 +437,13 @@ export class PokemonService {
         }
       }
     });
+
+    return {
+      changed: movedCount > 0 || nicknameChangedCount > 0 || boxMetaCount > 0,
+      movedCount,
+      nicknameChangedCount,
+      boxMetaCount,
+    };
   }
 
   async enhance(

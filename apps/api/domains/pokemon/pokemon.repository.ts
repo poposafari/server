@@ -45,6 +45,19 @@ export class PokemonRepository {
       .where(and(inArray(userPokemon.id, ids), eq(userPokemon.accountId, accountId)));
   }
 
+  async findPlacementsByIdsAndAccount(ids: number[], accountId: number) {
+    return db
+      .select({
+        id: userPokemon.id,
+        boxNumber: userPokemon.boxNumber,
+        gridNumber: userPokemon.gridNumber,
+        partySlot: userPokemon.partySlot,
+        nickname: userPokemon.nickname,
+      })
+      .from(userPokemon)
+      .where(and(inArray(userPokemon.id, ids), eq(userPokemon.accountId, accountId)));
+  }
+
   async findRowsByIdsAndAccount(ids: number[], accountId: number) {
     return db
       .select({

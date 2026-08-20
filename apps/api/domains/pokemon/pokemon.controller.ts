@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
+import { AuditAction } from '@poposerver/lib/types';
 import { PokemonService } from './pokemon.service';
 
 export class PokemonController {
@@ -50,15 +51,18 @@ export class PokemonController {
         nickname: string | null;
       }[];
     };
-    await this.pokemonService.arrange(request.authId, body);
-    // request.audit = {
-    //   action: AuditAction.POKEMON_ARRANGE,
-    //   detail: {
-    //     changeCount: body.changes.length,
-    //     boxMetaCount: body.boxMeta?.length ?? 0,
-    //     nicknameCount: body.nicknames?.length ?? 0,
-    //   },
-    // };
+    const summary = await this.pokemonService.arrange(request.authId, body);
+    if (summary.changed) {
+      request.audit = {
+        action: AuditAction.POKEMON_ARRANGE,
+        detail: {
+          changeCount: body.changes.length,
+          movedCount: summary.movedCount,
+          boxMetaCount: summary.boxMetaCount,
+          nicknameChangedCount: summary.nicknameChangedCount,
+        },
+      };
+    }
     return reply.status(200).send({ success: true });
   };
 

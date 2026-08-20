@@ -40,13 +40,14 @@ import {
   SAFARI_ENTRY_BALL_QUANTITY,
 } from '@poposerver/lib/types';
 import { AppError } from '@poposerver/lib/utils/error';
-import { auditTx } from '@poposerver/lib/utils/audit';
+import { auditTx, auditAsync } from '@poposerver/lib/utils/audit';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
 import { PC_STORAGE, PC_BOX_CAPACITY } from '@poposerver/lib/constants/pc';
 import { ensureSafariBucket } from './safari-world';
 
 type CatchResult = 'caught' | 'fail' | 'flee';
 type FleeResult = 'flee' | 'stay';
+type CatchFailReason = 'break_out' | 'flee' | 'expired';
 
 const SAFARI_ZONE_TICKET_ID = 'safari-zone-ticket';
 
@@ -97,7 +98,7 @@ export class SafariService {
     }
 
     // 2. 버킷 생성(첫 진입)/유지(재진입)를 ensureSafariBucket에 위임 — 소켓 조인과 공유하는 유일한 생성 지점.
-    await ensureSafariBucket(authId, mapId);
+    await ensureSafariBucket(authId, mapId, 'api', ip);
     const wilds = await getAllWildsWithCleanup(authId, mapId);
     const items = (await getSafariItems(authId, mapId)) ?? [];
     // safari:active 인덱스가 어떤 이유로든 빠져있을 수 있으니 idempotent하게 보장
@@ -214,6 +215,9 @@ export class SafariService {
     const wild = await getWild(authId, mapId, uid);
     if (!wild) {
       await this.consumeSafariBall(accountId, safariBall.quantity);
+
+      this.auditCatchAttempt(accountId, mapId, uid, null, ip);
+      this.auditCatchFail(accountId, mapId, uid, null, 'expired', ip);
       return { result: 'flee' };
     }
     if (wild.caught === 1) {
@@ -271,6 +275,8 @@ export class SafariService {
       partyBonus = this.calculatePartyBonus(bonusData);
     }
 
+    this.auditCatchAttempt(accountId, mapId, uid, wild, ip, partyBonus);
+
     const result: CatchResult = isS000Starter
       ? 'caught'
       : this.calculateCatchResult(
@@ -292,7 +298,9 @@ export class SafariService {
       wild.caught = 2;
       await deleteWild(authId, mapId, wild.uid);
       await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
+      this.auditCatchFail(accountId, mapId, uid, wild, 'flee', ip);
     } else if (result === 'fail') {
+      this.auditCatchFail(accountId, mapId, uid, wild, 'break_out', ip);
     }
 
     // DB 트랜잭션
@@ -541,6 +549,57 @@ export class SafariService {
     }
   }
 
+  private auditCatchAttempt(
+    accountId: number,
+    mapId: string,
+    uid: string,
+    wild: SafariWild | null,
+    ip?: string,
+    partyBonus?: number,
+  ): void {
+    void auditAsync({
+      accountId,
+      action: AuditAction.POKEMON_CATCH_ATTEMPT,
+      detail: {
+        mapId,
+        wildUid: uid,
+        pokedexId: wild?.pokedexId ?? null,
+        level: wild?.level ?? null,
+        isShiny: wild?.isShiny ?? null,
+        bait: wild?.bait ?? null,
+        rock: wild?.rock ?? null,
+        partyBonus: partyBonus ?? null,
+      },
+      ip: ip ?? null,
+      source: 'api',
+    });
+  }
+
+  private auditCatchFail(
+    accountId: number,
+    mapId: string,
+    uid: string,
+    wild: SafariWild | null,
+    reason: CatchFailReason,
+    ip?: string,
+  ): void {
+    void auditAsync({
+      accountId,
+      action: AuditAction.POKEMON_CATCH_FAIL,
+      detail: {
+        mapId,
+        wildUid: uid,
+        pokedexId: wild?.pokedexId ?? null,
+        level: wild?.level ?? null,
+        isShiny: wild?.isShiny ?? null,
+        reason,
+        fled: reason !== 'break_out',
+      },
+      ip: ip ?? null,
+      source: 'api',
+    });
+  }
+
   private async consumeTicketAndGrantBalls(
     accountId: number,
     mapId: string,
@@ -716,11 +775,15 @@ export class SafariService {
     return sum / LEVEL_CURVE.PARTY_SLOT_COUNT;
   }
 
-  async exit(authId: string): Promise<{ mapId: string; entry: { x: number; y: number } }> {
+  async exit(
+    authId: string,
+  ): Promise<{ mapId: string; entry: { x: number; y: number }; fromMapId: string }> {
     const userState = await getUserState(authId);
     if (!userState || !userState.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
+
+    const fromMapId = userState.mapId;
 
     await deleteAllSafariData(authId);
 
@@ -733,6 +796,6 @@ export class SafariService {
       lastMoveTime: String(Date.now()),
     });
 
-    return { mapId: 'p001', entry };
+    return { mapId: 'p001', entry, fromMapId };
   }
 }
