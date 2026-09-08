@@ -3,6 +3,11 @@ services:
     image: postgres:15-alpine
     container_name: poposerver_postgres
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
     # docker bridge 내부 통신
     expose:
       - '5432'
@@ -37,8 +42,19 @@ services:
     image: ghcr.io/seophohoho/poposerver:${IMAGE_TAG:-latest}
     container_name: poposerver_server
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '20m'
+        max-file: '5'
     # OOM 안전: --max-old-space-size를 mem_limit(1024M)의 ~75%로. 4-in-1 통합이라 헤드룸 확대.
-    command: ['node', '--max-old-space-size=768', '--heapsnapshot-near-heap-limit=1', 'dist/apps/server/main.js']
+    command:
+      [
+        'node',
+        '--max-old-space-size=768',
+        '--heapsnapshot-near-heap-limit=1',
+        'dist/apps/server/main.js',
+      ]
     env_file: .env.prod
     environment:
       NODE_ENV: PROD
@@ -66,6 +82,11 @@ services:
     image: nginx:alpine
     container_name: poposerver_nginx
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '50m'
+        max-file: '5'
     ports:
       - '80:80'
       - '443:443'
