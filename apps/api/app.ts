@@ -66,6 +66,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     origin: envConfig.CORS_ORIGIN || '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    maxAge: 86400,
   });
 
   // ── 보안 헤더 ──
