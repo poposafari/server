@@ -13,7 +13,7 @@ const client = postgres({
   database: envConfig.DB_DATABASE,
 });
 
-export const db = drizzle(client, { schema });
+export const db = drizzle(client, { schema, logger: envConfig.NODE_ENV === 'DEV' });
 
 export const connectDB = async (serviceName: string) => {
   try {
