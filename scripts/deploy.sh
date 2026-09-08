@@ -42,13 +42,32 @@ echo "[3/9] recreate app container (PG·nginx 무손상)"
 #                   (모놀리스 전환 1회성 청소용. 이후 steady-state에선 no-op)
 IMAGE_TAG=$IMAGE_TAG $COMPOSE up -d --no-deps --remove-orphans server
 
-echo "[3.5/9] nginx config apply (검증 후 무중단 reload)"
-# nginx config(nginx.conf/conf.d)는 bind-mount라 git pull로 이미 갱신됨.
-# 컨테이너 재생성 대신 reload로 무중단 반영 + nginx -t로 잘못된 config는 배포 중단(set -e).
+echo "[3.5/9] nginx config apply"
+# conf.d/ssl은 디렉터리 bind-mount라 git pull이 컨테이너에 그대로 보인다 → reload로 무중단 반영.
+# 반면 nginx.conf는 단일 파일 bind-mount라 도커가 inode를 고정한다. git pull은 파일을
+# 새로 쓰고 rename하므로 inode가 바뀌고, 컨테이너는 옛 파일을 계속 본다(2026-09-08 실측:
+# 호스트엔 새 log_format이 있는데 `docker exec ... nginx -T`는 옛 포맷 출력).
+# → 호스트와 컨테이너의 nginx.conf 해시를 비교해 다를 때만 재생성한다.
 if docker ps --format '{{.Names}}' | grep -q '^poposerver_nginx$'; then
-  docker exec poposerver_nginx nginx -t          # config 문법 검증 (실패 시 set -e로 배포 중단)
-  docker exec poposerver_nginx nginx -s reload    # 무중단 reload (연결 drop 없음)
-  echo "  nginx reloaded"
+  HOST_NGINX_CONF=$(md5sum docker/prod/nginx/nginx.conf | cut -d' ' -f1)
+  CTR_NGINX_CONF=$(docker exec poposerver_nginx md5sum /etc/nginx/nginx.conf 2>/dev/null | cut -d' ' -f1 || echo "unknown")
+
+  if [ "$HOST_NGINX_CONF" != "$CTR_NGINX_CONF" ]; then
+    echo "  nginx.conf changed — validating before recreate"
+    # 재생성 전 검증. 깨진 config로 재생성하면 nginx가 crash-loop에 빠져 사이트가 통째로 죽는다.
+    # reload와 달리 되돌릴 컨테이너가 없으므로 일회용 컨테이너로 먼저 nginx -t를 돌린다.
+    docker run --rm \
+      -v "$PWD/docker/prod/nginx/nginx.conf:/etc/nginx/nginx.conf:ro" \
+      -v "$PWD/docker/prod/nginx/conf.d:/etc/nginx/conf.d:ro" \
+      -v "$PWD/docker/prod/nginx/ssl:/etc/nginx/ssl:ro" \
+      nginx:alpine nginx -t
+    $COMPOSE up -d --no-deps --force-recreate nginx
+    echo "  nginx recreated (수초 다운타임)"
+  else
+    docker exec poposerver_nginx nginx -t
+    docker exec poposerver_nginx nginx -s reload
+    echo "  nginx reloaded (무중단)"
+  fi
 else
   # 최초 배포/cutover에서 nginx가 없던 경우만 생성
   echo "  nginx not running — creating from compose"
