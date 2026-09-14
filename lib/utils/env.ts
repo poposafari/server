@@ -19,6 +19,8 @@ const envSchema = z.object({
   DB_PASSWORD: z.string().min(1, 'Database password is required'),
   DB_DATABASE: z.string().min(1, 'Database name is required'),
 
+  DB_POOL_MAX: z.coerce.number().int().positive().default(10),
+
   // SERVICE — 통합 모놀리스는 한 포트로 REST + WebSocket을 모두 서빙한다.
   API_PORT: z.coerce.number(),
 

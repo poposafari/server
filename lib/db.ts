@@ -11,6 +11,7 @@ const client = postgres({
   user: envConfig.DB_USERNAME,
   password: envConfig.DB_PASSWORD,
   database: envConfig.DB_DATABASE,
+  max: envConfig.DB_POOL_MAX,
 });
 
 export const db = drizzle(client, { schema, logger: envConfig.NODE_ENV === 'DEV' });
