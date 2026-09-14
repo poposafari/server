@@ -12,7 +12,7 @@ CONFIG="${BACKUP_ENV:-/home/ubuntu/poposafari/server/docker/prod/.env.backup}"
 AWS="${AWS_BIN:-/usr/bin/aws}"
 PROFILE="${R2_PROFILE:-r2}"
 ENDPOINT="${R2_ENDPOINT:?R2_ENDPOINT not set — docker/prod/.env.backup 확인}"
-BUCKET="${R2_BUCKET:-poposafari-backups}"
+BUCKET="${R2_BUCKET:-poposafari-db-backups}"
 MAX_AGE="${MAX_AGE:-28800}"   # 8시간 (주기 6h + 여유 2h)
 
 notify() {

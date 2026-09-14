@@ -287,7 +287,7 @@ export class SafariService {
           partyBonus,
         );
 
-    // 결과에 따른 Redis 업데이트
+    // 결과에 따른 힙 메모리 업데이트
 
     if (result === 'caught') {
       wild.caught = 1;

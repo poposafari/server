@@ -4,9 +4,9 @@
 # 설계: 날짜+시각이 박힌 파일명(s3://.../pg/2026-06-08T0600Z.sql.gz)으로 매번 새 키.
 #       덮어쓰기 없음(버저닝 불필요), 7일 만료는 R2 Lifecycle이 서버 측에서 처리.
 #       → 6시간 주기 x 7일 = 상시 28개. RPO 6h는 유지하고 되돌릴 창만 30일→7일로 좁혔다.
-#         근거: audit_log를 별도 파이프라인(R2 analytics)으로 분리하면서 이 백업의 역할이
+#         근거: audit_log를 별도 경로(archive-audit.sh → R2 audit/)로 분리하면서 이 백업의 역할이
 #         "게임 자산의 시점 복구"로 좁아졌다. 이력 보관은 더 이상 이 백업의 일이 아니다.
-# 제외: audit_log(=analytics 파이프라인이 정본. 여기 두면 같은 로그를 28벌 중복 보관)
+# 제외: audit_log(=R2 audit/ 가 정본. 여기 두면 같은 로그를 28벌 중복 보관)
 #       session (=살아있는 인증 토큰. 백업 사본 수만큼 토큰 스냅샷이 흩어진다)
 #       ⚠️ --exclude-table-data 이므로 '테이블 정의는 남고 데이터만' 빠진다.
 #          --exclude-table 로 바꾸면 복원 후 테이블이 없어 로그인이 즉시 500으로 죽는다.
@@ -27,7 +27,7 @@ AWS="${AWS_BIN:-/usr/bin/aws}"
 export AWS_REQUEST_CHECKSUM_CALCULATION=when_required   # R2 체크섬 호환 (CLI v2 호환 이슈 회피)
 PROFILE="${R2_PROFILE:-r2}"
 ENDPOINT="${R2_ENDPOINT:?R2_ENDPOINT not set — docker/prod/.env.backup 확인}"
-BUCKET="${R2_BUCKET:-poposafari-backups}"
+BUCKET="${R2_BUCKET:-poposafari-db-backups}"
 PG_CONTAINER="${PG_CONTAINER:-poposerver_postgres}"
 MIN_SIZE="${MIN_SIZE:-100000}"   # 100KB 하한 (게임 성장에 맞춰 상향)
 #   ⚠️ audit_log/session 제외 후 덤프가 더 작아진다. 하한을 안 낮추면 정상 백업이
