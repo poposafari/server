@@ -60,7 +60,7 @@ export class UserService {
       );
     } catch (error: any) {
       if (error.code === '23505') {
-        if (error.constraint?.includes('nickname')) {
+        if (error.constraint_name?.includes('nickname')) {
           throw new AppError(
             AppErrorMessage.NICKNAME_ALREADY_EXISTS,
             409,
