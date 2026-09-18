@@ -688,7 +688,6 @@ export class SafariService {
 
     const mapId = userState.mapId;
     const wild = await getWild(authId, mapId, uid);
-    // 기획: TTL 만료로 Redis에 야생이 이미 없으면 bait/rock도 즉시 flee로 응답.
     if (!wild) {
       return { result: 'flee' };
     }

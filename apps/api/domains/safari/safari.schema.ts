@@ -7,17 +7,11 @@ export const enterSafariSchema = z.object({
 
 export type EnterSafariInput = z.infer<typeof enterSafariSchema>;
 
-export const pickItemSchema = z.object({
+export const safariTargetParamsSchema = z.object({
   uid: z.string().uuid(),
 });
 
-export type PickItemInput = z.infer<typeof pickItemSchema>;
-
-export const catchWildSchema = z.object({
-  uid: z.string().uuid(),
-});
-
-export type CatchWildInput = z.infer<typeof catchWildSchema>;
+export type SafariTargetParams = z.infer<typeof safariTargetParamsSchema>;
 
 export const catchWildResultSchema = z.object({
   result: z.enum(['caught', 'fail', 'flee']),
@@ -33,15 +27,3 @@ export const catchWildResultSchema = z.object({
 });
 
 export type CatchWildResult = z.infer<typeof catchWildResultSchema>;
-
-export const baitWildSchema = z.object({
-  uid: z.string().uuid(),
-});
-
-export type BaitWildInput = z.infer<typeof baitWildSchema>;
-
-export const rockWildSchema = z.object({
-  uid: z.string().uuid(),
-});
-
-export type RockWildInput = z.infer<typeof rockWildSchema>;

@@ -37,7 +37,7 @@ import {
   MasterData,
   loadtestMetrics,
 } from '@poposerver/lib';
-import { ensureSafariBucket } from '../api/domains/game/safari-world';
+import { ensureSafariBucket } from '../api/domains/safari/safari-world';
 
 /** init_ok / change_map_ok에 실리는 사파리 스냅샷(클라 렌더 재조정의 권위 소스). */
 type SafariSnapshot = { wilds: SafariWild[]; items: SafariItem[] };
@@ -108,10 +108,6 @@ export class SocketApp implements Broadcaster {
     );
   }
 
-  /**
-   * [Tick] TICK_RATE_MS마다 각 방의 버퍼를 모아 users_moved로 한 번에 브로드캐스트 후
-   * 변경된 좌표를 Redis에 일괄 기록 (pipeline).
-   */
   private startTickLoop(): void {
     this.tickInterval = setInterval(async () => {
       const startedAt = performance.now();
@@ -323,7 +319,7 @@ export class SocketApp implements Broadcaster {
             detail: {
               socketId: socket.id,
               mapId: existingState?.mapId ?? null,
-              // false면 /game/connect가 만든 state가 없는 상태로 붙은 것 → init이 실패한다.
+              // false면 /game/connections가 만든 state가 없는 상태로 붙은 것 → init이 실패한다.
               hasState: !!existingState,
               // true면 같은 계정의 이전 연결을 밀어내고 들어온 접속(다중 로그인).
               kickedPrevious,

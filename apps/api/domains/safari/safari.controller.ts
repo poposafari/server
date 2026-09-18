@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { AuditAction } from '@poposerver/lib/types';
 import { SafariService } from './safari.service';
+import { SafariTargetParams } from './safari.schema';
 
 export class SafariController {
   constructor(private readonly service: SafariService) {}
@@ -11,7 +12,7 @@ export class SafariController {
   };
 
   pickItem = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { uid } = request.body as { uid: string };
+    const { uid } = request.params as SafariTargetParams;
     const data = await this.service.pickItem(request.authId!, uid);
     request.audit = {
       action: AuditAction.SAFARI_PICK_ITEM,
@@ -22,20 +23,20 @@ export class SafariController {
 
   // catchWild: 트랜잭션 결합 기록(service의 auditTx). request.audit 세팅하지 않음(중복 방지).
   catchWild = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { uid } = request.body as { uid: string };
+    const { uid } = request.params as SafariTargetParams;
     const data = await this.service.catchWild(request.authId!, uid, request.ip);
     return reply.status(200).send({ success: true, data });
   };
 
   baitWild = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { uid } = request.body as { uid: string };
+    const { uid } = request.params as SafariTargetParams;
     const data = await this.service.baitWild(request.authId!, uid);
     request.audit = { action: AuditAction.SAFARI_BAIT, detail: { uid, result: data.result } };
     return reply.status(200).send({ success: true, data });
   };
 
   rockWild = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { uid } = request.body as { uid: string };
+    const { uid } = request.params as SafariTargetParams;
     const data = await this.service.rockWild(request.authId!, uid);
     request.audit = { action: AuditAction.SAFARI_ROCK, detail: { uid, result: data.result } };
     return reply.status(200).send({ success: true, data });
