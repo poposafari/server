@@ -1,3 +1,5 @@
+import 'express-async-errors';
+import http from 'http';
 import { connectDB } from '@poposerver/lib/db';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { envConfig } from '@poposerver/lib/utils/env';
@@ -16,8 +18,9 @@ async function boot() {
     await connectDB('SERVER');
     await MasterData.load('SERVER');
 
-    const app = await buildApp();
-    const socketApp = new SocketApp(app.server);
+    const app = buildApp();
+    const server = http.createServer(app);
+    const socketApp = new SocketApp(server);
     registerBroadcaster(socketApp);
 
     const stopWeather = startWeatherClock();
@@ -26,7 +29,10 @@ async function boot() {
     const stopJanitor = startJanitorLoops();
     const stopFlush = startPositionFlushLoop();
 
-    await app.listen({ port: envConfig.API_PORT, host: '0.0.0.0' });
+    await new Promise<void>((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(envConfig.API_PORT, '0.0.0.0', resolve);
+    });
     logger.info(`SERVER (REST + WebSocket) running on port ${envConfig.API_PORT}`);
 
     let shuttingDown = false;
@@ -43,7 +49,11 @@ async function boot() {
 
         await flushAllPositions();
         await socketApp.close();
-        await app.close();
+        await new Promise<void>((resolve) => {
+          server.close(() => resolve());
+          server.closeIdleConnections();
+          setTimeout(() => server.closeAllConnections(), 5000).unref();
+        });
         logger.info('[Bye] Cleanup finished.');
         process.exit(0);
       } catch (error) {

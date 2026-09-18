@@ -1,66 +1,63 @@
-import { FastifyInstance } from 'fastify';
+import { Router } from 'express';
 import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { zodValidate } from '../../hooks/validate.hook';
 import {
+  buyItemSchema,
+  giveHoldSchema,
+  heldItemParamsSchema,
   itemParamsSchema,
   sellItemSchema,
-  buyItemSchema,
-  heldItemParamsSchema,
-  giveHoldSchema,
   updateItemSchema,
 } from './item.schema';
 import { ItemController } from './item.controller';
 import { ItemService } from './item.service';
 import { ItemRepository } from './item.repository';
 
-export default async function itemRoutes(app: FastifyInstance) {
-  const repo = new ItemRepository();
-  const service = new ItemService(repo);
-  const controller = new ItemController(service);
+const router = Router();
 
-  app.get('/users/me/items', {
-    preHandler: [sessionAuthGuard],
-    handler: controller.getBag,
-  });
+const repo = new ItemRepository();
+const service = new ItemService(repo);
+const controller = new ItemController(service);
 
-  app.get('/users/me/safari-ticket', {
-    preHandler: [sessionAuthGuard],
-    handler: controller.getSafariTicketStatus,
-  });
+router.get('/users/me/items', sessionAuthGuard, controller.getBag);
 
-  app.post('/users/me/safari-ticket/claim', {
-    preHandler: [sessionAuthGuard],
-    handler: controller.claimSafariTicket,
-  });
+router.get('/users/me/safari-ticket', sessionAuthGuard, controller.getSafariTicketStatus);
 
-  app.post('/users/me/items/:itemId/buy', {
-    preHandler: [sessionAuthGuard, zodValidate({ params: itemParamsSchema, body: buyItemSchema })],
-    handler: controller.buy,
-  });
+router.post('/users/me/safari-ticket/claim', sessionAuthGuard, controller.claimSafariTicket);
 
-  app.post('/users/me/items/:itemId/sell', {
-    preHandler: [sessionAuthGuard, zodValidate({ params: itemParamsSchema, body: sellItemSchema })],
-    handler: controller.sell,
-  });
+router.post(
+  '/users/me/items/:itemId/buy',
+  sessionAuthGuard,
+  zodValidate({ params: itemParamsSchema, body: buyItemSchema }),
+  controller.buy,
+);
 
-  app.put('/users/me/pokemons/:id/held-item', {
-    preHandler: [
-      sessionAuthGuard,
-      zodValidate({ params: heldItemParamsSchema, body: giveHoldSchema }),
-    ],
-    handler: controller.giveHold,
-  });
+router.post(
+  '/users/me/items/:itemId/sell',
+  sessionAuthGuard,
+  zodValidate({ params: itemParamsSchema, body: sellItemSchema }),
+  controller.sell,
+);
 
-  app.delete('/users/me/pokemons/:id/held-item', {
-    preHandler: [sessionAuthGuard, zodValidate({ params: heldItemParamsSchema })],
-    handler: controller.takeHold,
-  });
+router.put(
+  '/users/me/pokemons/:id/held-item',
+  sessionAuthGuard,
+  zodValidate({ params: heldItemParamsSchema, body: giveHoldSchema }),
+  controller.giveHold,
+);
 
-  app.patch('/users/me/items/:itemId', {
-    preHandler: [
-      sessionAuthGuard,
-      zodValidate({ params: itemParamsSchema, body: updateItemSchema }),
-    ],
-    handler: controller.update,
-  });
-}
+router.delete(
+  '/users/me/pokemons/:id/held-item',
+  sessionAuthGuard,
+  zodValidate({ params: heldItemParamsSchema }),
+  controller.takeHold,
+);
+
+router.patch(
+  '/users/me/items/:itemId',
+  sessionAuthGuard,
+  zodValidate({ params: itemParamsSchema, body: updateItemSchema }),
+  controller.update,
+);
+
+export default router;

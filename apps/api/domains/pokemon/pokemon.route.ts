@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { Router } from 'express';
 import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { zodValidate } from '../../hooks/validate.hook';
 import { PokemonController } from './pokemon.controller';
@@ -13,57 +13,56 @@ import {
   sellSchema,
 } from './pokemon.schema';
 
-export default async function pokemonRoutes(app: FastifyInstance) {
-  const repo = new PokemonRepository();
-  const service = new PokemonService(repo);
-  const controller = new PokemonController(service);
+const router = Router();
 
-  app.get('/users/me/pokemons', {
-    preHandler: [sessionAuthGuard],
-    handler: controller.getBox,
-  });
+const repo = new PokemonRepository();
+const service = new PokemonService(repo);
+const controller = new PokemonController(service);
 
-  app.get('/users/me/boxes', {
-    preHandler: [sessionAuthGuard],
-    handler: controller.getBoxMeta,
-  });
+router.get('/users/me/pokemons', sessionAuthGuard, controller.getBox);
 
-  app.post('/users/me/pokemons/:id/evolve', {
-    preHandler: [
-      sessionAuthGuard,
-      zodValidate({ params: pokemonParamsSchema, body: evolveSchema }),
-    ],
-    handler: controller.evolve,
-  });
+router.get('/users/me/boxes', sessionAuthGuard, controller.getBoxMeta);
 
-  app.post('/users/me/pokemons/:id/upgrade', {
-    preHandler: [sessionAuthGuard, zodValidate({ params: pokemonParamsSchema })],
-    handler: controller.upgrade,
-  });
+router.post(
+  '/users/me/pokemons/:id/evolve',
+  sessionAuthGuard,
+  zodValidate({ params: pokemonParamsSchema, body: evolveSchema }),
+  controller.evolve,
+);
 
-  app.post('/users/me/pokemons/sell', {
-    preHandler: [sessionAuthGuard, zodValidate({ body: sellSchema })],
-    handler: controller.sell,
-  });
+router.post(
+  '/users/me/pokemons/:id/upgrade',
+  sessionAuthGuard,
+  zodValidate({ params: pokemonParamsSchema }),
+  controller.upgrade,
+);
 
-  app.patch('/users/me/pokemons', {
-    preHandler: [sessionAuthGuard, zodValidate({ body: arrangeSchema })],
-    handler: controller.arrange,
-  });
+router.post(
+  '/users/me/pokemons/sell',
+  sessionAuthGuard,
+  zodValidate({ body: sellSchema }),
+  controller.sell,
+);
 
-  app.post('/users/me/pokemons/:id/enhance', {
-    preHandler: [
-      sessionAuthGuard,
-      zodValidate({ params: pokemonParamsSchema, body: enhanceSchema }),
-    ],
-    handler: controller.enhance,
-  });
+router.patch(
+  '/users/me/pokemons',
+  sessionAuthGuard,
+  zodValidate({ body: arrangeSchema }),
+  controller.arrange,
+);
 
-  app.post('/users/me/pokemons/:id/moves', {
-    preHandler: [
-      sessionAuthGuard,
-      zodValidate({ params: pokemonParamsSchema, body: learnMoveSchema }),
-    ],
-    handler: controller.learnMove,
-  });
-}
+router.post(
+  '/users/me/pokemons/:id/enhance',
+  sessionAuthGuard,
+  zodValidate({ params: pokemonParamsSchema, body: enhanceSchema }),
+  controller.enhance,
+);
+
+router.post(
+  '/users/me/pokemons/:id/moves',
+  sessionAuthGuard,
+  zodValidate({ params: pokemonParamsSchema, body: learnMoveSchema }),
+  controller.learnMove,
+);
+
+export default router;

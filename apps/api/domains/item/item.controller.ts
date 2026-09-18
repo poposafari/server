@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { Request, Response } from 'express';
 import { AuditAction } from '@poposerver/lib/types';
 import { ItemService } from './item.service';
 import { HeldItemParams, ItemParams } from './item.schema';
@@ -6,70 +6,66 @@ import { HeldItemParams, ItemParams } from './item.schema';
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
-  getBag = async (request: FastifyRequest, reply: FastifyReply) => {
-    const data = await this.itemService.getBag(request.authId);
-    return reply.status(200).send({ success: true, data });
+  getBag = async (req: Request, res: Response) => {
+    const data = await this.itemService.getBag(req.authId);
+    return res.status(200).json({ success: true, data });
   };
 
-  getSafariTicketStatus = async (request: FastifyRequest, reply: FastifyReply) => {
-    const data = await this.itemService.getSafariTicketStatus(request.authId);
-    return reply.status(200).send({ success: true, data });
+  getSafariTicketStatus = async (req: Request, res: Response) => {
+    const data = await this.itemService.getSafariTicketStatus(req.authId);
+    return res.status(200).json({ success: true, data });
   };
 
-  claimSafariTicket = async (request: FastifyRequest, reply: FastifyReply) => {
-    const data = await this.itemService.claimSafariTicket(request.authId, request.ip);
-    return reply.status(200).send({ success: true, data });
+  claimSafariTicket = async (req: Request, res: Response) => {
+    const data = await this.itemService.claimSafariTicket(req.authId, req.ip);
+    return res.status(200).json({ success: true, data });
   };
 
-  buy = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { itemId } = request.params as ItemParams;
-    const { quantity } = request.body as { quantity: number };
-    const data = await this.itemService.buy(request.authId, { item: itemId, quantity }, request.ip);
-    return reply.status(200).send({ success: true, data });
+  buy = async (req: Request, res: Response) => {
+    const { itemId } = req.params as unknown as ItemParams;
+    const { quantity } = req.body as { quantity: number };
+    const data = await this.itemService.buy(req.authId, { item: itemId, quantity }, req.ip);
+    return res.status(200).json({ success: true, data });
   };
 
-  sell = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { itemId } = request.params as ItemParams;
-    const { quantity } = request.body as { quantity: number };
-    const data = await this.itemService.sell(
-      request.authId,
-      { item: itemId, quantity },
-      request.ip,
-    );
-    return reply.status(200).send({ success: true, data });
+  sell = async (req: Request, res: Response) => {
+    const { itemId } = req.params as unknown as ItemParams;
+    const { quantity } = req.body as { quantity: number };
+    const data = await this.itemService.sell(req.authId, { item: itemId, quantity }, req.ip);
+    return res.status(200).json({ success: true, data });
   };
 
-  giveHold = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { id } = request.params as HeldItemParams;
-    const { heldItem } = request.body as { heldItem: string };
+  giveHold = async (req: Request, res: Response) => {
+    const { id } = req.params as unknown as HeldItemParams;
+    const { heldItem } = req.body as { heldItem: string };
     const body = { userPokemonId: id, heldItem };
-    const data = await this.itemService.giveHold(request.authId, body);
-    request.audit = {
+    const data = await this.itemService.giveHold(req.authId, body);
+    req.audit = {
       action: AuditAction.ITEM_GIVE_HOLD,
       detail: { userPokemonId: body.userPokemonId, heldItem: body.heldItem },
     };
-    return reply.status(200).send({ success: true, data });
+    return res.status(200).json({ success: true, data });
   };
 
-  takeHold = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { id } = request.params as HeldItemParams;
+  takeHold = async (req: Request, res: Response) => {
+    const { id } = req.params as unknown as HeldItemParams;
     const body = { id };
-    const data = await this.itemService.takeHold(request.authId, body);
-    request.audit = {
+    const data = await this.itemService.takeHold(req.authId, body);
+    req.audit = {
       action: AuditAction.ITEM_TAKE_HOLD,
       detail: { userPokemonId: body.id },
     };
-    return reply.status(200).send({ success: true, data });
+    return res.status(200).json({ success: true, data });
   };
 
-  update = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { itemId } = request.params as ItemParams;
-    const { register } = request.body as { register: boolean };
-    const data = await this.itemService.setRegister(request.authId, itemId, register);
-    request.audit = {
+  update = async (req: Request, res: Response) => {
+    const { itemId } = req.params as unknown as ItemParams;
+    const { register } = req.body as { register: boolean };
+    const data = await this.itemService.setRegister(req.authId, itemId, register);
+    req.audit = {
       action: register ? AuditAction.ITEM_REGISTER : AuditAction.ITEM_UNREGISTER,
       detail: { itemId },
     };
-    return reply.status(200).send({ success: true, data });
+    return res.status(200).json({ success: true, data });
   };
 }

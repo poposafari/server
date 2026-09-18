@@ -1,41 +1,50 @@
-import { FastifyInstance } from 'fastify';
+import { Router } from 'express';
 import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { zodValidate } from '../../hooks/validate.hook';
 import { SafariController } from './safari.controller';
 import { SafariService } from './safari.service';
 import { enterSafariSchema, safariTargetParamsSchema } from './safari.schema';
 
-export default async function safariRoutes(app: FastifyInstance) {
-  const service = new SafariService();
-  const controller = new SafariController(service);
+const router = Router();
 
-  app.post('/safari/enter', {
-    preHandler: [sessionAuthGuard, zodValidate({ body: enterSafariSchema })],
-    handler: controller.enter,
-  });
+const service = new SafariService();
+const controller = new SafariController(service);
 
-  app.post('/safari/items/:uid/pick', {
-    preHandler: [sessionAuthGuard, zodValidate({ params: safariTargetParamsSchema })],
-    handler: controller.pickItem,
-  });
+router.post(
+  '/safari/enter',
+  sessionAuthGuard,
+  zodValidate({ body: enterSafariSchema }),
+  controller.enter,
+);
 
-  app.post('/safari/wilds/:uid/catch', {
-    preHandler: [sessionAuthGuard, zodValidate({ params: safariTargetParamsSchema })],
-    handler: controller.catchWild,
-  });
+router.post(
+  '/safari/items/:uid/pick',
+  sessionAuthGuard,
+  zodValidate({ params: safariTargetParamsSchema }),
+  controller.pickItem,
+);
 
-  app.post('/safari/wilds/:uid/bait', {
-    preHandler: [sessionAuthGuard, zodValidate({ params: safariTargetParamsSchema })],
-    handler: controller.baitWild,
-  });
+router.post(
+  '/safari/wilds/:uid/catch',
+  sessionAuthGuard,
+  zodValidate({ params: safariTargetParamsSchema }),
+  controller.catchWild,
+);
 
-  app.post('/safari/wilds/:uid/rock', {
-    preHandler: [sessionAuthGuard, zodValidate({ params: safariTargetParamsSchema })],
-    handler: controller.rockWild,
-  });
+router.post(
+  '/safari/wilds/:uid/bait',
+  sessionAuthGuard,
+  zodValidate({ params: safariTargetParamsSchema }),
+  controller.baitWild,
+);
 
-  app.post('/safari/exit', {
-    preHandler: [sessionAuthGuard],
-    handler: controller.exit,
-  });
-}
+router.post(
+  '/safari/wilds/:uid/rock',
+  sessionAuthGuard,
+  zodValidate({ params: safariTargetParamsSchema }),
+  controller.rockWild,
+);
+
+router.post('/safari/exit', sessionAuthGuard, controller.exit);
+
+export default router;

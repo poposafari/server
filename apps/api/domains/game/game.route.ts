@@ -1,19 +1,15 @@
-import { FastifyInstance } from 'fastify';
+import { Router } from 'express';
 import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { GameController } from './game.controller';
 import { GameService } from './game.service';
 
-export default async function gameRoutes(app: FastifyInstance) {
-  const service = new GameService();
-  const controller = new GameController(service);
+const router = Router();
 
-  app.post('/game/connections', {
-    preHandler: [sessionAuthGuard],
-    handler: controller.connect,
-  });
+const service = new GameService();
+const controller = new GameController(service);
 
-  app.get('/game/online-count', {
-    preHandler: [sessionAuthGuard],
-    handler: controller.getOnlineCount,
-  });
-}
+router.post('/game/connections', sessionAuthGuard, controller.connect);
+
+router.get('/game/online-count', sessionAuthGuard, controller.getOnlineCount);
+
+export default router;

@@ -1,115 +1,103 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { Request, Response } from 'express';
 import { logger } from '@poposerver/lib/utils/logger';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, AppErrorMessage, AuditAction } from '@poposerver/lib/types';
 import { envConfig } from '@poposerver/lib/utils/env';
-import {
-  consumeOAuthState,
-  createOAuthState,
-  type OAuthProviderName,
-} from '@poposerver/lib/state';
+import { consumeOAuthState, createOAuthState, type OAuthProviderName } from '@poposerver/lib/state';
 import { AuthService } from './auth.service';
 import { AuthLocalInput, LoginLocalInput } from './auth.schema';
 import { isOAuthProviderName, oauthProviders } from './oauth/oauth.provider';
-import { SESSION_COOKIE_NAME, sessionCookieOptions } from '@poposerver/lib/utils/cookie';
+import {
+  SESSION_COOKIE_NAME,
+  clearSessionCookieOptions,
+  sessionCookieOptions,
+} from '@poposerver/lib/utils/cookie';
 
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  registerLocal = async (
-    request: FastifyRequest<{ Body: AuthLocalInput }>,
-    reply: FastifyReply,
-  ) => {
-    const { sessionId, accountId } = await this.authService.registerLocal(request.body);
+  registerLocal = async (req: Request<unknown, unknown, AuthLocalInput>, res: Response) => {
+    const { sessionId, accountId } = await this.authService.registerLocal(req.body);
 
-    reply.setCookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
-    request.audit = {
+    res.cookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
+    req.audit = {
       action: AuditAction.REGISTER_LOCAL,
       accountId,
-      detail: { username: request.body.username },
+      detail: { username: req.body.username },
     };
     logger.info(`Register(local) success`);
 
-    return reply.status(201).send({ success: true, data: null });
+    return res.status(201).json({ success: true, data: null });
   };
 
-  loginLocal = async (request: FastifyRequest<{ Body: LoginLocalInput }>, reply: FastifyReply) => {
-    const { sessionId, accountId } = await this.authService.loginLocal(request.body);
+  loginLocal = async (req: Request<unknown, unknown, LoginLocalInput>, res: Response) => {
+    const { sessionId, accountId } = await this.authService.loginLocal(req.body);
 
-    reply.setCookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
-    request.audit = {
+    res.cookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
+    req.audit = {
       action: AuditAction.LOGIN_LOCAL,
       accountId,
-      detail: { username: request.body.username },
+      detail: { username: req.body.username },
     };
     logger.info(`Login(local) success`);
 
-    return reply.status(201).send({ success: true, data: null });
+    return res.status(201).json({ success: true, data: null });
   };
 
-  invalidateSession = async (request: FastifyRequest, reply: FastifyReply) => {
-    await this.authService.invalidateSession(request.sessionId);
+  invalidateSession = async (req: Request, res: Response) => {
+    await this.authService.invalidateSession(req.sessionId);
 
-    reply.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
+    res.clearCookie(SESSION_COOKIE_NAME, clearSessionCookieOptions);
 
-    return reply.status(200).send({ success: true, data: null });
+    return res.status(200).json({ success: true, data: null });
   };
 
-  logout = async (request: FastifyRequest, reply: FastifyReply) => {
-    await this.authService.logout(request.sessionId);
+  logout = async (req: Request, res: Response) => {
+    await this.authService.logout(req.sessionId);
 
-    reply.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
-    request.audit = { action: AuditAction.LOGOUT };
-    logger.info(`Logout success: authId=${request.authId}`);
+    res.clearCookie(SESSION_COOKIE_NAME, clearSessionCookieOptions);
+    req.audit = { action: AuditAction.LOGOUT };
+    logger.info(`Logout success: authId=${req.authId}`);
 
-    return reply.status(200).send({ success: true, data: null });
+    return res.status(200).json({ success: true, data: null });
   };
 
-  check = async (_request: FastifyRequest, reply: FastifyReply) => {
-    reply.header('Cache-Control', 'no-store');
-    return reply.status(200).send({ success: true, data: null });
+  check = async (_req: Request, res: Response) => {
+    res.header('Cache-Control', 'no-store');
+    return res.status(200).json({ success: true, data: null });
   };
 
-  oauthAuthorize = async (
-    request: FastifyRequest<{ Params: { provider: string } }>,
-    reply: FastifyReply,
-  ) => {
-    const { provider } = request.params;
+  oauthAuthorize = async (req: Request<{ provider: string }>, res: Response) => {
+    const { provider } = req.params;
     if (!isOAuthProviderName(provider)) {
-      return reply.status(404).send({
+      return res.status(404).json({
         success: false,
         error: { code: 'UNKNOWN_PROVIDER', message: 'Unknown OAuth provider', status: 404 },
       });
     }
     const state = await createOAuthState(provider);
     const url = oauthProviders[provider].buildAuthorizeUrl(state);
-    return reply.redirect(url, 302);
+    return res.redirect(302, url);
   };
 
   oauthCallback = async (
-    request: FastifyRequest<{
-      Params: { provider: string };
-      Querystring: { code?: string; state?: string; error?: string };
-    }>,
-    reply: FastifyReply,
+    req: Request<
+      { provider: string },
+      unknown,
+      unknown,
+      { code?: string; state?: string; error?: string }
+    >,
+    res: Response,
   ) => {
-    const { provider } = request.params;
-    const { code, state, error } = request.query;
+    const { provider } = req.params;
+    const { code, state, error } = req.query;
 
     try {
       if (!isOAuthProviderName(provider)) {
-        throw new AppError(
-          AppErrorMessage.OAUTH_CANCELED,
-          400,
-          AppErrorCode.OAUTH_CANCELED,
-        );
+        throw new AppError(AppErrorMessage.OAUTH_CANCELED, 400, AppErrorCode.OAUTH_CANCELED);
       }
       if (error || !code || !state) {
-        throw new AppError(
-          AppErrorMessage.OAUTH_CANCELED,
-          400,
-          AppErrorCode.OAUTH_CANCELED,
-        );
+        throw new AppError(AppErrorMessage.OAUTH_CANCELED, 400, AppErrorCode.OAUTH_CANCELED);
       }
 
       const stored = await consumeOAuthState(state);
@@ -128,29 +116,29 @@ export class AuthController {
         userInfo.providerId,
       );
 
-      reply.setCookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
-      request.audit = {
+      res.cookie(SESSION_COOKIE_NAME, sessionId, sessionCookieOptions);
+      req.audit = {
         action: AuditAction.LOGIN_OAUTH,
         accountId,
         detail: { provider: providerName, providerId: userInfo.providerId },
       };
       logger.info(`Login(${providerName}) success: providerId=${userInfo.providerId}`);
-      return reply.redirect(envConfig.OAUTH_CLIENT_SUCCESS_URL, 302);
+      return res.redirect(302, envConfig.OAUTH_CLIENT_SUCCESS_URL);
     } catch (e) {
       const errorCode = e instanceof AppError ? e.code : AppErrorCode.INTERNAL_SERVER_ERROR;
       logger.warn(`OAuth callback failed (${provider}): ${errorCode}`);
       const failureUrl = `${envConfig.OAUTH_CLIENT_FAILURE_URL}?code=${encodeURIComponent(errorCode)}`;
-      return reply.redirect(failureUrl, 302);
+      return res.redirect(302, failureUrl);
     }
   };
 
-  deleteAuth = async (request: FastifyRequest, reply: FastifyReply) => {
-    await this.authService.softDeleteAuth(request.authId, request.sessionId);
+  deleteAuth = async (req: Request, res: Response) => {
+    await this.authService.softDeleteAuth(req.authId, req.sessionId);
 
-    reply.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
-    request.audit = { action: AuditAction.DELETE_AUTH };
-    logger.info(`DeleteAuth success: authId=${request.authId}`);
+    res.clearCookie(SESSION_COOKIE_NAME, clearSessionCookieOptions);
+    req.audit = { action: AuditAction.DELETE_AUTH };
+    logger.info(`DeleteAuth success: authId=${req.authId}`);
 
-    return reply.status(204).send();
+    return res.status(204).send();
   };
 }

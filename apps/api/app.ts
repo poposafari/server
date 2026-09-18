@@ -1,21 +1,16 @@
-import Fastify, { FastifyError, FastifyInstance } from 'fastify';
-import cors from '@fastify/cors';
-import helmet from '@fastify/helmet';
-import cookie from '@fastify/cookie';
-import rateLimit from '@fastify/rate-limit';
+import express, { Express, NextFunction, Request, Response } from 'express';
+import { STATUS_CODES } from 'http';
+import cors from 'cors';
+import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { envConfig } from '@poposerver/lib/utils/env';
 import { logger } from '@poposerver/lib/utils/logger';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode, AppErrorRes, AuditAction } from '@poposerver/lib/types';
 import { auditAsync, redactBody } from '@poposerver/lib/utils/audit';
 import { loadtestMetrics } from '@poposerver/lib/utils/loadtest-metrics';
+import { createLimiter } from './hooks/rate-limit.hook';
 import { registerRoutes } from './routes';
-
-declare module 'fastify' {
-  interface FastifyRequest {
-    audit?: { action: AuditAction; detail?: Record<string, unknown>; accountId?: number | null };
-  }
-}
 
 const AUDIT_ERROR_CODES = new Set<AppErrorCode>([
   AppErrorCode.FAILED_ACCOUNT,
@@ -26,6 +21,8 @@ const AUDIT_ERROR_CODES = new Set<AppErrorCode>([
   AppErrorCode.ITEM_NOT_OWNED,
 ]);
 const MUTATION_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+const BODY_LIMIT = '1mb';
 
 const PG_DIAGNOSTIC_FIELDS = [
   'code',
@@ -55,172 +52,144 @@ function unwrapErrorChain(err: unknown, maxDepth = 5): string {
   return parts.join(' ← caused by: ');
 }
 
-export async function buildApp(): Promise<FastifyInstance> {
-  const app = Fastify({
-    logger: false,
-    trustProxy: true,
+function requestLogger(req: Request, res: Response, next: NextFunction) {
+  logger.debug(`→ ${req.method} ${req.originalUrl}`);
+  res.on('finish', () => {
+    logger.info(`← ${req.method} ${req.originalUrl} ${res.statusCode}`);
   });
+  next();
+}
 
-  await app.register(cors, {
-    origin: envConfig.CORS_ORIGIN || '*',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    maxAge: 86400,
-  });
-
-  // ── 보안 헤더 ──
-  await app.register(helmet, {
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-  });
-
-  // ── 쿠키 파싱 ──
-  await app.register(cookie);
-
-  // ── 레이트 리밋 (조건부) ──
-  if (envConfig.RATE_LIMIT_ENABLED) {
-    await app.register(rateLimit, {
-      max: 60,
-      timeWindow: '1 minute',
-
-      errorResponseBuilder: (_req, context) => {
-        const retryAfter = Math.max(1, Math.ceil(context.ttl / 60000));
-        return {
-          statusCode: 429,
-          code: 'EXCEED_REQUEST',
-          error: 'Too Many Requests',
-          message: `Too many requests. Please try again after ${retryAfter} minute(s).`,
-          retryAfter,
-        };
-      },
-    });
-  }
-
-  // ── 요청 로깅 hook ──
-  app.addHook('onRequest', (request, _reply, done) => {
-    logger.debug(`→ ${request.method} ${request.url}`);
-    done();
-  });
-
-  app.addHook('onResponse', (request, reply, done) => {
-    logger.info(`← ${request.method} ${request.url} ${reply.statusCode}`);
-    done();
-  });
-
-  app.addHook('onResponse', async (request, reply) => {
-    const a = request.audit;
+function auditOnFinish(req: Request, res: Response, next: NextFunction) {
+  res.on('finish', () => {
+    const a = req.audit;
     if (!a) return;
-    if (reply.statusCode >= 400) return;
-    const fallbackId = request.authId ? Number(request.authId) : null;
-    await auditAsync({
+    if (res.statusCode >= 400) return;
+    const fallbackId = req.authId ? Number(req.authId) : null;
+    auditAsync({
       accountId: a.accountId !== undefined ? a.accountId : fallbackId,
       action: a.action,
-      status: reply.statusCode,
+      status: res.statusCode,
       detail: a.detail,
-      ip: request.ip,
-      userAgent: request.headers['user-agent'] ?? null,
+      ip: req.ip,
+      userAgent: req.headers['user-agent'] ?? null,
       source: 'api',
-    });
+    }).catch((e) => logger.error('[Audit] onFinish record failed', e));
   });
+  next();
+}
 
-  app.addHook('onError', async (request, _reply, error) => {
-    try {
-      if (!MUTATION_METHODS.has(request.method)) return;
+function recordSecurityAudit(req: Request, error: unknown, statusCode: number) {
+  if (!MUTATION_METHODS.has(req.method)) return;
+  if (!(error instanceof AppError)) return;
+  if (!AUDIT_ERROR_CODES.has(error.code)) return;
 
-      let statusCode: number;
-      let errorCode: AppErrorCode;
-      if (error instanceof AppError) {
-        statusCode = error.statusCode;
-        errorCode = error.code;
-      } else if ('validation' in error && (error as FastifyError).validation) {
-        statusCode = 400;
-        errorCode = AppErrorCode.DTO_INVALID;
-      } else {
-        return;
-      }
+  auditAsync({
+    accountId: req.authId ? Number(req.authId) : null,
+    action:
+      error.code === AppErrorCode.FAILED_ACCOUNT
+        ? AuditAction.LOGIN_FAILED
+        : AuditAction.REQUEST_REJECTED,
+    status: statusCode,
+    detail: {
+      method: req.method,
+      url: req.originalUrl,
+      errorCode: error.code,
+      body: redactBody(req.body),
+    },
+    ip: req.ip,
+    userAgent: req.headers['user-agent'] ?? null,
+    source: 'api',
+  }).catch((auditErr) => logger.error('[Audit] error security record failed', auditErr));
+}
 
-      if (!AUDIT_ERROR_CODES.has(errorCode)) return;
+function notFoundHandler(req: Request, res: Response) {
+  const response: AppErrorRes = {
+    success: false,
+    error: {
+      code: AppErrorCode.NOT_FOUND,
+      message:
+        envConfig.NODE_ENV === 'DEV' ? `Route ${req.method} ${req.originalUrl} not found` : null,
+      status: 404,
+    },
+  };
+  res.status(404).json(response);
+}
 
-      await auditAsync({
-        accountId: request.authId ? Number(request.authId) : null,
-        action:
-          errorCode === AppErrorCode.FAILED_ACCOUNT
-            ? AuditAction.LOGIN_FAILED
-            : AuditAction.REQUEST_REJECTED,
-        status: statusCode,
-        detail: {
-          method: request.method,
-          url: request.url,
-          errorCode,
-          body: redactBody(request.body),
-        },
-        ip: request.ip,
-        userAgent: request.headers['user-agent'] ?? null,
-        source: 'api',
-      });
-    } catch (auditErr) {
-      logger.error('[Audit] onError security record failed', auditErr);
-    }
+function errorHandler(error: Error, req: Request, res: Response, _next: NextFunction) {
+  const isAppError = error instanceof AppError;
+  const statusCode = isAppError ? error.statusCode : 500;
+
+  if (!isAppError) {
+    const detail = unwrapErrorChain(error);
+    logger.error(`[UNHANDLED ERROR] ${detail}${error.stack ? `\n${error.stack}` : ''}`);
+  }
+
+  recordSecurityAudit(req, error, statusCode);
+
+  if (res.headersSent) return;
+
+  res.status(statusCode).json({
+    statusCode,
+    ...(isAppError && { code: error.code }),
+    error: STATUS_CODES[statusCode] ?? 'Internal Server Error',
+    message: error.message,
   });
+}
+
+export function buildApp(): Express {
+  const app = express();
+
+  app.set('etag', false);
+  app.set('trust proxy', true);
+
+  app.use(
+    cors({
+      origin: envConfig.CORS_ORIGIN || '*',
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      maxAge: 86400,
+    }),
+  );
+
+  // ── 보안 헤더 ──
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+  // ── 쿠키 파싱 ──
+  app.use(cookieParser());
+
+  // ── 본문 파싱 ──
+  app.use(express.json({ limit: BODY_LIMIT }));
+
+  // ── 레이트 리밋 (조건부) ──
+  app.use(createLimiter({ windowMs: 60 * 1000, max: envConfig.RATE_LIMIT_GLOBAL_MAX }));
+
+  // ── 요청 로깅 ──
+  app.use(requestLogger);
+
+  // ── 감사 로그 ──
+  app.use(auditOnFinish);
 
   // ── Health check ──
-  app.get('/health', async () => {
-    return { message: 'Poposafari server is running' };
+  app.get('/health', (_req: Request, res: Response) => {
+    res.json({ message: 'Poposafari server is running' });
   });
 
   // ── 부하 테스트 계측 (LOADTEST_METRICS=true 일 때만 노출) ──
   if (envConfig.LOADTEST_METRICS) {
-    app.get('/loadtest/metrics', async () => loadtestMetrics.snapshot());
+    app.get('/loadtest/metrics', (_req: Request, res: Response) => {
+      res.json(loadtestMetrics.snapshot());
+    });
   }
 
   // ── 라우트 등록 ──
-  await registerRoutes(app);
+  registerRoutes(app);
 
   // ── Not Found 핸들러 ──
-  app.setNotFoundHandler((request, reply) => {
-    const response: AppErrorRes = {
-      success: false,
-      error: {
-        code: AppErrorCode.NOT_FOUND,
-        message:
-          envConfig.NODE_ENV === 'DEV' ? `Route ${request.method} ${request.url} not found` : null,
-        status: 404,
-      },
-    };
-    reply.status(404).send(response);
-  });
+  app.use(notFoundHandler);
 
   // ── 전역 에러 핸들러 ──
-  app.setErrorHandler((error: FastifyError | AppError | Error, _request, reply) => {
-    let statusCode = 500;
-    let errorCode = AppErrorCode.INTERNAL_SERVER_ERROR;
-    let message: string | null = 'Internal Server Error';
-
-    if (error instanceof AppError) {
-      statusCode = error.statusCode;
-      errorCode = error.code;
-      message = envConfig.NODE_ENV === 'DEV' ? error.message : null;
-    } else if ('validation' in error && (error as FastifyError).validation) {
-      statusCode = 400;
-      errorCode = AppErrorCode.DTO_INVALID;
-      message = envConfig.NODE_ENV === 'DEV' ? error.message : null;
-    } else {
-      const detail = unwrapErrorChain(error);
-      message = envConfig.NODE_ENV === 'DEV' ? detail : null;
-      const stack = error instanceof Error ? error.stack : undefined;
-      logger.error(`[UNHANDLED ERROR] ${detail}${stack ? `\n${stack}` : ''}`);
-    }
-
-    const response: AppErrorRes = {
-      success: false,
-      error: {
-        code: errorCode,
-        message,
-        status: statusCode,
-      },
-    };
-
-    reply.status(statusCode).send(response);
-  });
+  app.use(errorHandler);
 
   return app;
 }

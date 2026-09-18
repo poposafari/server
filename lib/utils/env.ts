@@ -27,6 +27,9 @@ const envSchema = z.object({
   /** PROD에서 전역/인증 레이트 리밋 적용 여부. 스테이징 부하 테스트 시 false로 끌 수 있음. env는 문자열이므로 "true"/"false" 명시 파싱 (z.coerce.boolean은 "false"를 truthy로 true로 만듦) */
   RATE_LIMIT_ENABLED: z.string().transform((s) => s === 'true' || s === '1'),
 
+  /** 전역 레이트 리밋 상한(IP 기준, 1분). dev에서 스모크 테스트가 한 IP로 수백 건을 쏘므로 올려 둔다. 기본값은 운영 설정과 같다. */
+  RATE_LIMIT_GLOBAL_MAX: z.coerce.number().int().positive().default(60),
+
   /** 동시 게임 접속 슬롯 최대치. 초과 시 신규 진입은 FIFO 큐로 들어간다. */
   SLOT_CAPACITY: z.coerce.number().int().positive().default(50),
 

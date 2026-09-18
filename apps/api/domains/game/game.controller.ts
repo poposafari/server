@@ -1,17 +1,17 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { Request, Response } from 'express';
 import { GameService } from './game.service';
 
 export class GameController {
   constructor(private readonly service: GameService) {}
 
-  connect = async (request: FastifyRequest, reply: FastifyReply) => {
-    const authId = request.authId!;
+  connect = async (req: Request, res: Response) => {
+    const authId = req.authId!;
     const result = await this.service.connect(authId);
-    return reply.status(200).send({ success: true, data: result });
+    return res.status(200).json({ success: true, data: result });
   };
 
-  getOnlineCount = async (_request: FastifyRequest, reply: FastifyReply) => {
+  getOnlineCount = async (_req: Request, res: Response) => {
     const count = await this.service.getOnlineCount();
-    return reply.status(200).send({ success: true, data: { count } });
+    return res.status(200).json({ success: true, data: { count } });
   };
 }

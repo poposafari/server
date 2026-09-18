@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { Router } from 'express';
 import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { zodValidate } from '../../hooks/validate.hook';
 import { UserController } from './user.controller';
@@ -6,18 +6,19 @@ import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
 import { createUserSchema } from './user.schema';
 
-export default async function userRoutes(app: FastifyInstance) {
-  const userRepo = new UserRepository();
-  const userService = new UserService(userRepo);
-  const userController = new UserController(userService);
+const router = Router();
 
-  app.post('/users', {
-    preHandler: [sessionAuthGuard, zodValidate({ body: createUserSchema })],
-    handler: userController.createUser,
-  });
+const userRepo = new UserRepository();
+const userService = new UserService(userRepo);
+const userController = new UserController(userService);
 
-  app.get('/users/me', {
-    preHandler: [sessionAuthGuard],
-    handler: userController.getMe,
-  });
-}
+router.post(
+  '/users',
+  sessionAuthGuard,
+  zodValidate({ body: createUserSchema }),
+  userController.createUser,
+);
+
+router.get('/users/me', sessionAuthGuard, userController.getMe);
+
+export default router;

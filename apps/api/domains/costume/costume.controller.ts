@@ -1,11 +1,11 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { Request, Response } from 'express';
 import { CostumeService } from './costume.service';
 
 export class CostumeController {
   constructor(private readonly costumeService: CostumeService) {}
 
-  getAll = async (request: FastifyRequest, reply: FastifyReply) => {
-    const data = await this.costumeService.getAll(request.authId);
-    return reply.status(200).send({ success: true, data });
+  getAll = async (req: Request, res: Response) => {
+    const data = await this.costumeService.getAll(req.authId);
+    return res.status(200).json({ success: true, data });
   };
 }

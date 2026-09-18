@@ -1,4 +1,4 @@
-import { CookieSerializeOptions } from '@fastify/cookie';
+import { CookieOptions } from 'express';
 import { envConfig } from './env';
 
 const cookieDomain = (() => {
@@ -10,11 +10,16 @@ const cookieDomain = (() => {
 
 export const SESSION_COOKIE_NAME = 'sid';
 
-export const sessionCookieOptions: CookieSerializeOptions = {
+export const sessionCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: envConfig.NODE_ENV === 'PROD',
   sameSite: envConfig.NODE_ENV === 'PROD' ? 'strict' : 'lax',
-  maxAge: 7 * 24 * 60 * 60, // 7일 (초 단위)
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7일 (Express res.cookie는 밀리초 단위)
   path: '/',
   ...(cookieDomain && { domain: cookieDomain }),
+};
+
+export const clearSessionCookieOptions: CookieOptions = {
+  ...sessionCookieOptions,
+  maxAge: undefined,
 };

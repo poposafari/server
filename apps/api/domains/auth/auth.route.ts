@@ -1,71 +1,42 @@
-import { FastifyInstance } from 'fastify';
+import { Router } from 'express';
 import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { zodValidate } from '../../hooks/validate.hook';
+import { createLimiter } from '../../hooks/rate-limit.hook';
 import { authLocalSchema, loginLocalSchema } from './auth.schema';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthRepository } from './auth.repository';
 
-export default async function authRoutes(app: FastifyInstance) {
-  const authRepository = new AuthRepository();
-  const authService = new AuthService(authRepository);
-  const authController = new AuthController(authService);
+const router = Router();
 
-  // 인증 불필요
-  app.post('/accounts', {
-    preHandler: [zodValidate({ body: authLocalSchema })],
-    handler: authController.registerLocal,
-  });
+const authRepository = new AuthRepository();
+const authService = new AuthService(authRepository);
+const authController = new AuthController(authService);
 
-  app.post('/sessions', {
-    config: {
-      rateLimit: {
-        max: 10,
-        timeWindow: '5 minutes',
-      },
-    },
-    preHandler: [zodValidate({ body: loginLocalSchema })],
-    handler: authController.loginLocal,
-  });
+const loginLimiter = createLimiter({ windowMs: 5 * 60 * 1000, max: 10 });
+const oauthLimiter = createLimiter({ windowMs: 15 * 60 * 1000, max: 20 });
 
-  app.get('/auth/oauth/:provider/authorize', {
-    config: {
-      rateLimit: {
-        max: 20,
-        timeWindow: '15 minutes',
-      },
-    },
-    handler: authController.oauthAuthorize,
-  });
+// 인증 불필요
+router.post('/accounts', zodValidate({ body: authLocalSchema }), authController.registerLocal);
 
-  app.get('/auth/oauth/:provider/callback', {
-    config: {
-      rateLimit: {
-        max: 20,
-        timeWindow: '15 minutes',
-      },
-    },
-    handler: authController.oauthCallback,
-  });
+router.post(
+  '/sessions',
+  loginLimiter,
+  zodValidate({ body: loginLocalSchema }),
+  authController.loginLocal,
+);
 
-  // 인증 필요
-  app.post('/auth/invalidate-session', {
-    preHandler: [sessionAuthGuard],
-    handler: authController.invalidateSession,
-  });
+router.get('/auth/oauth/:provider/authorize', oauthLimiter, authController.oauthAuthorize);
 
-  app.post('/auth/logout', {
-    preHandler: [sessionAuthGuard],
-    handler: authController.logout,
-  });
+router.get('/auth/oauth/:provider/callback', oauthLimiter, authController.oauthCallback);
 
-  app.get('/sessions/current', {
-    preHandler: [sessionAuthGuard],
-    handler: authController.check,
-  });
+// 인증 필요
+router.post('/auth/invalidate-session', sessionAuthGuard, authController.invalidateSession);
 
-  app.delete('/accounts/me', {
-    preHandler: [sessionAuthGuard],
-    handler: authController.deleteAuth,
-  });
-}
+router.post('/auth/logout', sessionAuthGuard, authController.logout);
+
+router.get('/sessions/current', sessionAuthGuard, authController.check);
+
+router.delete('/accounts/me', sessionAuthGuard, authController.deleteAuth);
+
+export default router;
