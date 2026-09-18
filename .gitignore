@@ -6,7 +6,6 @@ node_modules
 dist
 coverage
 legacy*
-# docs
 .cursor
 # prod SSL (Cloudflare Origin Certificate)
 docker/prod/nginx/ssl/
@@ -14,9 +13,6 @@ docker/prod/nginx/ssl/
 !.env.backup.example
 !.env.smoke.example
 load-test/out/
-# docs
 .pnpm-store
-# Artillery 부하 테스트용 refresh token 목록 (비밀에 해당)
-docs
 # 프로파일 수집 결과 (collect-profile.sh)
 profile

@@ -1,5 +1,3 @@
-// 힙/Postgres seam이 공유하는 상태 타입. (구 lib/redis.ts의 인터페이스를 이관)
-
 export interface UserState {
   mapId: string;
   x: string;

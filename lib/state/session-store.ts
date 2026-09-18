@@ -1,5 +1,4 @@
 // 세션 — Postgres durable 스토어. 재시작 생존 → 배포마다 재로그인 없음.
-// 구 Redis session:{uuid} (setex 7일) 대체. 시그니처 보존(createSession/getSession/deleteSession).
 
 import { and, eq, gt, lt, sql } from 'drizzle-orm';
 import { db } from '../db';
@@ -37,7 +36,6 @@ export async function deleteSession(sessionId: string): Promise<void> {
   await db.delete(session).where(eq(session.id, sessionId));
 }
 
-/** 만료 세션 정리 (janitor). Redis TTL 자동만료를 대체. */
 export async function pruneExpiredSessions(): Promise<void> {
   await db.delete(session).where(lt(session.expiresAt, sql`now()`));
   logger.info('[Janitor] pruneExpiredSessions done');

@@ -1,5 +1,4 @@
 // 사파리 존 야생/아이템/방문/active — 힙 스토어.
-// TTL 자동만료(Redis keyspace notification) 대신 게임 루프의 1초 despawn 스캔(scanExpiredWilds)이 만료를 처리.
 // 버킷 수명은 "사파리존 소속"에 묶인다 — disconnect는 유지, 명시적 퇴장(deleteAllSafariData)에서만 삭제.
 
 import { SafariItem, SafariWild } from './types';
@@ -98,7 +97,6 @@ export function snapshotWilds(authId: string, mapId: string): SafariWild[] {
   return out;
 }
 
-/** 기존 개체가 있을 때만 갱신(구 Redis XX). TTL은 유지(KEEPTTL). 존재하면 true. */
 export async function updateWild(
   authId: string,
   mapId: string,

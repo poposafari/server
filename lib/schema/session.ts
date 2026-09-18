@@ -1,7 +1,6 @@
 import { pgTable, uuid, integer, timestamp, index } from 'drizzle-orm/pg-core';
 import { account } from './account';
 
-// 세션 — durable. 배포/재시작에도 로그인 유지(재로그인 없음). 구 Redis session:{uuid}.
 export const session = pgTable(
   'session',
   {

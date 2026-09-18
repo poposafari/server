@@ -38,8 +38,6 @@ IMAGE_TAG=$IMAGE_TAG $COMPOSE pull server
 
 echo "[3/9] recreate app container (PG·nginx 무손상)"
 # --no-deps       : postgres를 up 대상/재생성에서 제외 → 데이터 컨테이너 무손상
-# --remove-orphans: 구 api/socket/worker/redis(신 compose에 없는 서비스) 정리 안전망
-#                   (모놀리스 전환 1회성 청소용. 이후 steady-state에선 no-op)
 IMAGE_TAG=$IMAGE_TAG $COMPOSE up -d --no-deps --remove-orphans server
 
 echo "[3.5/9] nginx config apply"

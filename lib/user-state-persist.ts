@@ -27,7 +27,6 @@ export async function persistUserStateFromRedisToDb(
     deltaSeconds = Math.max(0, Math.floor((now - sessionStart) / 1000));
   }
 
-  // Redis에서 costume 파싱
   const costume: { costumeId: string }[] = state.costume ? JSON.parse(state.costume) : [];
 
   await db.transaction(async (tx) => {

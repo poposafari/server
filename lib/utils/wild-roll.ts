@@ -22,7 +22,6 @@ export function randomWildTtlSec(): number {
 
 /**
  * 사파리 맵의 wild 풀에서 count개를 롤링해 SafariWild[]를 생성.
- * Redis 쓰기 없이 pure하게 반환. 호출자가 addWild로 저장한다.
 
  *
  * @param accountId DB 조회용 (caughtCount 프리필)
