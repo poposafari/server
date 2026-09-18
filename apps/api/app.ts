@@ -23,7 +23,6 @@ const AUDIT_ERROR_CODES = new Set<AppErrorCode>([
   AppErrorCode.SESSION_MISSING,
   AppErrorCode.SESSION_EXPIRED,
   AppErrorCode.OAUTH_INVALID_STATE,
-  AppErrorCode.POKEMON_NOT_OWNED,
   AppErrorCode.ITEM_NOT_OWNED,
 ]);
 const MUTATION_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);

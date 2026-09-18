@@ -9,7 +9,7 @@ export default async function townMapRoutes(app: FastifyInstance) {
   const service = new TownMapService(repo);
   const controller = new TownMapController(service);
 
-  app.get('/', {
+  app.get('/users/me/visited-maps', {
     preHandler: [sessionAuthGuard],
     handler: controller.getAll,
   });

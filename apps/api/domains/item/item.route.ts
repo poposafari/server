@@ -2,12 +2,12 @@ import { FastifyInstance } from 'fastify';
 import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { zodValidate } from '../../hooks/validate.hook';
 import {
+  itemParamsSchema,
   sellItemSchema,
   buyItemSchema,
+  heldItemParamsSchema,
   giveHoldSchema,
-  takeHoldSchema,
-  registerItemSchema,
-  unregisterItemSchema,
+  updateItemSchema,
 } from './item.schema';
 import { ItemController } from './item.controller';
 import { ItemService } from './item.service';
@@ -18,48 +18,49 @@ export default async function itemRoutes(app: FastifyInstance) {
   const service = new ItemService(repo);
   const controller = new ItemController(service);
 
-  app.get('/bag', {
+  app.get('/users/me/items', {
     preHandler: [sessionAuthGuard],
     handler: controller.getBag,
   });
 
-  app.get('/safari-ticket', {
+  app.get('/users/me/safari-ticket', {
     preHandler: [sessionAuthGuard],
     handler: controller.getSafariTicketStatus,
   });
 
-  app.post('/safari-ticket/claim', {
+  app.post('/users/me/safari-ticket/claim', {
     preHandler: [sessionAuthGuard],
     handler: controller.claimSafariTicket,
   });
 
-  app.post('/buy', {
-    preHandler: [sessionAuthGuard, zodValidate(buyItemSchema)],
+  app.post('/users/me/items/:itemId/buy', {
+    preHandler: [sessionAuthGuard, zodValidate({ params: itemParamsSchema, body: buyItemSchema })],
     handler: controller.buy,
   });
 
-  app.post('/sell', {
-    preHandler: [sessionAuthGuard, zodValidate(sellItemSchema)],
+  app.post('/users/me/items/:itemId/sell', {
+    preHandler: [sessionAuthGuard, zodValidate({ params: itemParamsSchema, body: sellItemSchema })],
     handler: controller.sell,
   });
 
-  app.post('/give-hold', {
-    preHandler: [sessionAuthGuard, zodValidate(giveHoldSchema)],
+  app.put('/users/me/pokemons/:id/held-item', {
+    preHandler: [
+      sessionAuthGuard,
+      zodValidate({ params: heldItemParamsSchema, body: giveHoldSchema }),
+    ],
     handler: controller.giveHold,
   });
 
-  app.post('/take-hold', {
-    preHandler: [sessionAuthGuard, zodValidate(takeHoldSchema)],
+  app.delete('/users/me/pokemons/:id/held-item', {
+    preHandler: [sessionAuthGuard, zodValidate({ params: heldItemParamsSchema })],
     handler: controller.takeHold,
   });
 
-  app.post('/register', {
-    preHandler: [sessionAuthGuard, zodValidate(registerItemSchema)],
-    handler: controller.register,
-  });
-
-  app.post('/unregister', {
-    preHandler: [sessionAuthGuard, zodValidate(unregisterItemSchema)],
-    handler: controller.unregister,
+  app.patch('/users/me/items/:itemId', {
+    preHandler: [
+      sessionAuthGuard,
+      zodValidate({ params: itemParamsSchema, body: updateItemSchema }),
+    ],
+    handler: controller.update,
   });
 }

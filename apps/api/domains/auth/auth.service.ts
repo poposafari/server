@@ -92,7 +92,7 @@ export class AuthService {
     }
 
     // 기존 접속자 킥은 여기서 하지 않음.
-    // POST /api/game/connect (토큰 발급) 시점에서 처리. (loginLocal과 동일)
+    // POST /api/game/connections (토큰 발급) 시점에서 처리. (loginLocal과 동일)
     const sessionId = await createSession(String(authId));
     await this.repo.updateLastLoginAt(authId);
     return { sessionId, accountId: authId };
@@ -123,7 +123,7 @@ export class AuthService {
     const authId = String(auth.id);
 
     // 기존 접속자 킥은 여기서 하지 않음.
-    // POST /api/game/connect (토큰 발급) 시점에서 처리.
+    // POST /api/game/connections (토큰 발급) 시점에서 처리.
 
     const sessionId = await createSession(authId);
     await this.repo.updateLastLoginAt(auth.id);

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-export const restoreFossilSchema = z.object({
-  id: z.number().int().min(1).max(15),
+export const restoreFossilParamsSchema = z.object({
+  fossilId: z.coerce.number().int().min(1).max(15),
 });
 
-export type RestoreFossilInput = z.infer<typeof restoreFossilSchema>;
+export type RestoreFossilParams = z.infer<typeof restoreFossilParamsSchema>;

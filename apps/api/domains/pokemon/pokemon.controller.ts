@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { AuditAction } from '@poposerver/lib/types';
 import { PokemonService } from './pokemon.service';
+import { PokemonParams } from './pokemon.schema';
 
 export class PokemonController {
   constructor(private readonly pokemonService: PokemonService) {}
@@ -16,14 +17,15 @@ export class PokemonController {
   };
 
   evolve = async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as { id: number; cost: string };
-    const data = await this.pokemonService.evolve(request.authId, body, request.ip);
+    const { id } = request.params as PokemonParams;
+    const { cost } = request.body as { cost: string };
+    const data = await this.pokemonService.evolve(request.authId, { id, cost }, request.ip);
     return reply.status(200).send({ success: true, data });
   };
 
   upgrade = async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as { id: number };
-    const data = await this.pokemonService.upgrade(request.authId, body, request.ip);
+    const { id } = request.params as PokemonParams;
+    const data = await this.pokemonService.upgrade(request.authId, { id }, request.ip);
     return reply.status(200).send({ success: true, data });
   };
 
@@ -67,14 +69,16 @@ export class PokemonController {
   };
 
   enhance = async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as { id: number; candies: { itemId: string; count: number }[] };
-    const data = await this.pokemonService.enhance(request.authId, body, request.ip);
+    const { id } = request.params as PokemonParams;
+    const { candies } = request.body as { candies: { itemId: string; count: number }[] };
+    const data = await this.pokemonService.enhance(request.authId, { id, candies }, request.ip);
     return reply.status(200).send({ success: true, data });
   };
 
   learnMove = async (request: FastifyRequest, reply: FastifyReply) => {
-    const body = request.body as { id: number; move: string };
-    const data = await this.pokemonService.learnMove(request.authId, body, request.ip);
-    return reply.status(200).send({ success: true, data });
+    const { id } = request.params as PokemonParams;
+    const { move } = request.body as { move: string };
+    const data = await this.pokemonService.learnMove(request.authId, { id, move }, request.ip);
+    return reply.status(201).send({ success: true, data });
   };
 }

@@ -44,7 +44,7 @@ export class AuthController {
     };
     logger.info(`Login(local) success`);
 
-    return reply.status(200).send({ success: true, data: null });
+    return reply.status(201).send({ success: true, data: null });
   };
 
   invalidateSession = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -66,6 +66,7 @@ export class AuthController {
   };
 
   check = async (_request: FastifyRequest, reply: FastifyReply) => {
+    reply.header('Cache-Control', 'no-store');
     return reply.status(200).send({ success: true, data: null });
   };
 
@@ -145,12 +146,11 @@ export class AuthController {
 
   deleteAuth = async (request: FastifyRequest, reply: FastifyReply) => {
     await this.authService.softDeleteAuth(request.authId, request.sessionId);
-    await this.authService.logout(request.sessionId);
 
     reply.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
     request.audit = { action: AuditAction.DELETE_AUTH };
     logger.info(`DeleteAuth success: authId=${request.authId}`);
 
-    return reply.status(200).send({ success: true, data: null });
+    return reply.status(204).send();
   };
 }

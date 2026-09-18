@@ -3,16 +3,25 @@ import { ZodSchema } from 'zod';
 import { AppError } from '@poposerver/lib/utils/error';
 import { AppErrorCode } from '@poposerver/lib/types';
 
-export function zodValidate(schema: ZodSchema) {
+function parseOrThrow(schema: ZodSchema, value: unknown) {
+  const result = schema.safeParse(value);
+  if (!result.success) {
+    throw new AppError(
+      result.error.issues.map((i) => i.message).join(', '),
+      400,
+      AppErrorCode.DTO_INVALID,
+    );
+  }
+  return result.data;
+}
+
+export function zodValidate(schemas: { body?: ZodSchema; params?: ZodSchema }) {
   return async function (request: FastifyRequest, _reply: FastifyReply) {
-    const result = schema.safeParse(request.body);
-    if (!result.success) {
-      throw new AppError(
-        result.error.issues.map((i) => i.message).join(', '),
-        400,
-        AppErrorCode.DTO_INVALID,
-      );
+    if (schemas.params) {
+      request.params = parseOrThrow(schemas.params, request.params);
     }
-    request.body = result.data;
+    if (schemas.body) {
+      request.body = parseOrThrow(schemas.body, request.body);
+    }
   };
 }

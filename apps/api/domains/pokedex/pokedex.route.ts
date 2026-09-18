@@ -9,7 +9,7 @@ export default async function pokedexRoutes(app: FastifyInstance) {
   const service = new PokedexService(repo);
   const controller = new PokedexController(service);
 
-  app.get('/', {
+  app.get('/users/me/pokedex', {
     preHandler: [sessionAuthGuard],
     handler: controller.getAll,
   });

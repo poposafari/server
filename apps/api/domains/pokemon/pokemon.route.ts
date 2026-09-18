@@ -9,8 +9,8 @@ import {
   enhanceSchema,
   evolveSchema,
   learnMoveSchema,
+  pokemonParamsSchema,
   sellSchema,
-  upgradeSchema,
 } from './pokemon.schema';
 
 export default async function pokemonRoutes(app: FastifyInstance) {
@@ -18,43 +18,52 @@ export default async function pokemonRoutes(app: FastifyInstance) {
   const service = new PokemonService(repo);
   const controller = new PokemonController(service);
 
-  app.get('/box', {
+  app.get('/users/me/pokemons', {
     preHandler: [sessionAuthGuard],
     handler: controller.getBox,
   });
 
-  app.get('/box/meta', {
+  app.get('/users/me/boxes', {
     preHandler: [sessionAuthGuard],
     handler: controller.getBoxMeta,
   });
 
-  app.post('/evolve', {
-    preHandler: [sessionAuthGuard, zodValidate(evolveSchema)],
+  app.post('/users/me/pokemons/:id/evolve', {
+    preHandler: [
+      sessionAuthGuard,
+      zodValidate({ params: pokemonParamsSchema, body: evolveSchema }),
+    ],
     handler: controller.evolve,
   });
 
-  app.post('/upgrade', {
-    preHandler: [sessionAuthGuard, zodValidate(upgradeSchema)],
+  app.post('/users/me/pokemons/:id/upgrade', {
+    preHandler: [sessionAuthGuard, zodValidate({ params: pokemonParamsSchema })],
     handler: controller.upgrade,
   });
 
-  app.post('/sell', {
-    preHandler: [sessionAuthGuard, zodValidate(sellSchema)],
+  app.post('/users/me/pokemons/sell', {
+    preHandler: [sessionAuthGuard, zodValidate({ body: sellSchema })],
     handler: controller.sell,
   });
 
-  app.patch('/box/arrange', {
-    preHandler: [sessionAuthGuard, zodValidate(arrangeSchema)],
+  app.patch('/users/me/pokemons', {
+    preHandler: [sessionAuthGuard, zodValidate({ body: arrangeSchema })],
     handler: controller.arrange,
   });
 
-  app.post('/enhance', {
-    preHandler: [sessionAuthGuard, zodValidate(enhanceSchema)],
+  app.post('/users/me/pokemons/:id/enhance', {
+    preHandler: [
+      sessionAuthGuard,
+      zodValidate({ params: pokemonParamsSchema, body: enhanceSchema }),
+    ],
     handler: controller.enhance,
   });
 
-  app.post('/learn-move', {
-    preHandler: [sessionAuthGuard, zodValidate(learnMoveSchema)],
+  app.post('/users/me/pokemons/:id/moves', {
+    preHandler: [
+      sessionAuthGuard,
+      zodValidate({ params: pokemonParamsSchema, body: learnMoveSchema }),
+    ],
     handler: controller.learnMove,
   });
 }

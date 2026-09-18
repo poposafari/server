@@ -9,7 +9,7 @@ export default async function costumeRoutes(app: FastifyInstance) {
   const service = new CostumeService(repo);
   const controller = new CostumeController(service);
 
-  app.get('/', {
+  app.get('/users/me/costumes', {
     preHandler: [sessionAuthGuard],
     handler: controller.getAll,
   });

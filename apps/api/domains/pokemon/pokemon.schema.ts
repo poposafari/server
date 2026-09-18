@@ -1,13 +1,14 @@
 import { z } from 'zod';
 import { PC_STORAGE } from '@poposerver/lib/constants/pc';
 
-export const evolveSchema = z.object({
-  id: z.number().int().positive(),
-  cost: z.string().min(1),
+export const pokemonParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
 });
 
-export const upgradeSchema = z.object({
-  id: z.number().int().positive(),
+export type PokemonParams = z.infer<typeof pokemonParamsSchema>;
+
+export const evolveSchema = z.object({
+  cost: z.string().min(1),
 });
 
 export const sellSchema = z.object({
@@ -26,7 +27,6 @@ export const EXP_CANDY_ITEM_IDS = [
 ] as const;
 
 export const enhanceSchema = z.object({
-  id: z.number().int().positive(),
   candies: z
     .array(
       z.object({
@@ -41,7 +41,6 @@ export const enhanceSchema = z.object({
 export type EnhanceInput = z.infer<typeof enhanceSchema>;
 
 export const learnMoveSchema = z.object({
-  id: z.number().int().positive(),
   move: z.string().startsWith('move_'),
 });
 

@@ -287,7 +287,14 @@ export class ItemService {
         .from(userPokemon)
         .where(and(eq(userPokemon.id, body.userPokemonId), eq(userPokemon.accountId, accountId)));
       if (!pkm) {
-        throw new AppError('Pokemon not owned', 403, AppErrorCode.POKEMON_NOT_OWNED);
+        throw new AppError('Pokemon not found', 404, AppErrorCode.POKEMON_NOT_FOUND);
+      }
+      if (pkm.heldItemId === body.heldItem) {
+        return {
+          pokemonId: body.userPokemonId,
+          heldItem: body.heldItem,
+          previousHeld: null,
+        };
       }
 
       const [owned] = await tx
@@ -344,7 +351,7 @@ export class ItemService {
         .from(userPokemon)
         .where(and(eq(userPokemon.id, body.id), eq(userPokemon.accountId, accountId)));
       if (!pkm) {
-        throw new AppError('Pokemon not owned', 403, AppErrorCode.POKEMON_NOT_OWNED);
+        throw new AppError('Pokemon not found', 404, AppErrorCode.POKEMON_NOT_FOUND);
       }
       if (!pkm.heldItemId) {
         throw new AppError('Pokemon has no held item', 400, AppErrorCode.POKEMON_NO_HELD_ITEM);
@@ -369,10 +376,10 @@ export class ItemService {
     });
   }
 
-  async register(authId: string, body: { itemId: string }) {
+  async setRegister(authId: string, itemId: string, register: boolean) {
     const accountId = Number(authId);
 
-    const itemData = MasterData.getItem(body.itemId);
+    const itemData = MasterData.getItem(itemId);
     if (!itemData) {
       throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
     }
@@ -382,34 +389,8 @@ export class ItemService {
 
     const updated = await db
       .update(userItem)
-      .set({ register: true })
-      .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.itemId)))
-      .returning({
-        itemId: userItem.itemId,
-        quantity: userItem.quantity,
-        register: userItem.register,
-      });
-    if (updated.length === 0) {
-      throw new AppError('Item not owned', 400, AppErrorCode.ITEM_NOT_OWNED);
-    }
-    return updated[0];
-  }
-
-  async unregister(authId: string, body: { itemId: string }) {
-    const accountId = Number(authId);
-
-    const itemData = MasterData.getItem(body.itemId);
-    if (!itemData) {
-      throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
-    }
-    if (itemData.category !== 'key') {
-      throw new AppError('Item is not registerable', 400, AppErrorCode.ITEM_NOT_REGISTERABLE);
-    }
-
-    const updated = await db
-      .update(userItem)
-      .set({ register: false })
-      .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, body.itemId)))
+      .set({ register })
+      .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)))
       .returning({
         itemId: userItem.itemId,
         quantity: userItem.quantity,

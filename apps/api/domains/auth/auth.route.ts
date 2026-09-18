@@ -12,23 +12,23 @@ export default async function authRoutes(app: FastifyInstance) {
   const authController = new AuthController(authService);
 
   // 인증 불필요
-  app.post('/register/local', {
-    preHandler: [zodValidate(authLocalSchema)],
+  app.post('/accounts', {
+    preHandler: [zodValidate({ body: authLocalSchema })],
     handler: authController.registerLocal,
   });
 
-  app.post('/login/local', {
+  app.post('/sessions', {
     config: {
       rateLimit: {
         max: 10,
         timeWindow: '5 minutes',
       },
     },
-    preHandler: [zodValidate(loginLocalSchema)],
+    preHandler: [zodValidate({ body: loginLocalSchema })],
     handler: authController.loginLocal,
   });
 
-  app.get('/oauth/:provider/authorize', {
+  app.get('/auth/oauth/:provider/authorize', {
     config: {
       rateLimit: {
         max: 20,
@@ -38,7 +38,7 @@ export default async function authRoutes(app: FastifyInstance) {
     handler: authController.oauthAuthorize,
   });
 
-  app.get('/oauth/:provider/callback', {
+  app.get('/auth/oauth/:provider/callback', {
     config: {
       rateLimit: {
         max: 20,
@@ -49,22 +49,22 @@ export default async function authRoutes(app: FastifyInstance) {
   });
 
   // 인증 필요
-  app.post('/invalidate-session', {
+  app.post('/auth/invalidate-session', {
     preHandler: [sessionAuthGuard],
     handler: authController.invalidateSession,
   });
 
-  app.post('/logout', {
+  app.post('/auth/logout', {
     preHandler: [sessionAuthGuard],
     handler: authController.logout,
   });
 
-  app.post('/check', {
+  app.get('/sessions/current', {
     preHandler: [sessionAuthGuard],
     handler: authController.check,
   });
 
-  app.delete('/delete', {
+  app.delete('/accounts/me', {
     preHandler: [sessionAuthGuard],
     handler: authController.deleteAuth,
   });

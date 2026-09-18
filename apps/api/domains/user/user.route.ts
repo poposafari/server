@@ -11,12 +11,12 @@ export default async function userRoutes(app: FastifyInstance) {
   const userService = new UserService(userRepo);
   const userController = new UserController(userService);
 
-  app.post('/create', {
-    preHandler: [sessionAuthGuard, zodValidate(createUserSchema)],
+  app.post('/users', {
+    preHandler: [sessionAuthGuard, zodValidate({ body: createUserSchema })],
     handler: userController.createUser,
   });
 
-  app.get('/me', {
+  app.get('/users/me', {
     preHandler: [sessionAuthGuard],
     handler: userController.getMe,
   });
