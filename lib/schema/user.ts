@@ -6,6 +6,7 @@ import {
   boolean,
   smallint,
   timestamp,
+  date,
   check,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
@@ -20,6 +21,9 @@ export const user = pgTable(
     nickname: varchar('nickname', { length: 14 }).notNull().unique(),
     money: integer('money').notNull().default(0),
     playtime: integer('playtime').notNull().default(0),
+    exp: integer('exp').notNull().default(0),
+    dailyCaptureCount: smallint('daily_capture_count').notNull().default(0),
+    dailyCaptureDate: date('daily_capture_date', { mode: 'string' }),
     hasStarter: boolean('has_starter').notNull().default(true),
     gender: smallint('gender').notNull(),
     lastMapId: char('last_map_id', { length: 4 }).notNull(),
@@ -30,5 +34,8 @@ export const user = pgTable(
       .defaultNow(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (table) => [check('ck_user_money', sql`${table.money} >= 0`)],
+  (table) => [
+    check('ck_user_money', sql`${table.money} >= 0`),
+    check('ck_user_exp', sql`${table.exp} >= 0 AND ${table.exp} <= 744876`),
+  ],
 );

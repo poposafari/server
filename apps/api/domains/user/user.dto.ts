@@ -15,12 +15,18 @@ export interface UserGameDataRes {
       lastMapId: string;
       lastX: number;
       lastY: number;
+      trainer: {
+        level: number;
+        exp: number;
+        expMax: number;
+      };
     };
     equippedCostumes: { costumeId: string }[];
     party: {
       id: number;
       pokedexId: number;
       level: number;
+      exp: number;
       friendship: number;
       gender: number;
       isShiny: boolean;
@@ -36,6 +42,11 @@ export interface UserGameDataRes {
       caughtAt: string;
     }[];
     itemSlots: {
+      itemId: string;
+      quantity: number;
+      register: boolean;
+    }[];
+    essentialItems: {
       itemId: string;
       quantity: number;
       register: boolean;

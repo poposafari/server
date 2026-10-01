@@ -8,6 +8,7 @@ export enum AuditAction {
   LOGOUT = 'LOGOUT',
   DELETE_AUTH = 'DELETE_AUTH',
   CREATE_USER = 'CREATE_USER',
+  USER_LEVEL_UP = 'USER_LEVEL_UP',
 
   // item
   ITEM_BUY = 'ITEM_BUY',

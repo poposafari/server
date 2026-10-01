@@ -23,6 +23,16 @@ import {
   levelFromExp,
   totalExpForLevel,
 } from '@poposerver/lib/utils/exp-curve';
+import {
+  bumpDailyCaptureCount,
+  grantUserExp,
+  type UserExpGrantResult,
+} from '@poposerver/lib/utils/user-exp';
+import {
+  applyDailyCaptureMultiplier,
+  calcUserCaptureExp,
+  userLevelFromExp,
+} from '@poposerver/lib/utils/user-exp-curve';
 import { pickExpCandyDrop } from '@poposerver/lib/utils/exp-candy-drop';
 import { resolveTier } from '@poposerver/lib/utils/tier';
 import {
@@ -184,6 +194,7 @@ export class SafariService {
       leveledUp: boolean;
     }>;
     partyFriendship?: Array<{ id: number; friendship: number }>;
+    userExp?: UserExpGrantResult;
   }> {
     const accountId = Number(authId);
 
@@ -323,6 +334,7 @@ export class SafariService {
         exp: number;
         leveledUp: boolean;
       }> = [];
+      let userExpResult: UserExpGrantResult;
       const rewards: Array<{ itemId: string; quantity: number }> = [];
       if (candyQuantity > 0) {
         rewards.push({ itemId: candyId, quantity: candyQuantity });
@@ -505,6 +517,19 @@ export class SafariService {
           }
         }
 
+        const { nth, exp: userTotalExp } = await bumpDailyCaptureCount(tx, accountId, new Date());
+        const baseUserExp = calcUserCaptureExp(
+          pokemonData.tier,
+          wild.level,
+          userLevelFromExp(userTotalExp),
+        );
+        userExpResult = await grantUserExp(
+          tx,
+          accountId,
+          applyDailyCaptureMultiplier(baseUserExp, nth),
+          'capture',
+        );
+
         if (partyIds.length > 0) {
           partyFriendship = await tx
             .update(userPokemon)
@@ -542,6 +567,7 @@ export class SafariService {
         rewards,
         partyExp: partyExpResults,
         partyFriendship,
+        userExp: userExpResult!,
       };
     } else {
       await this.consumeSafariBall(accountId, safariBall.quantity);

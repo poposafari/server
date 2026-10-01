@@ -7,6 +7,7 @@ import {
 } from '@poposerver/lib/types';
 import { setUserState } from '@poposerver/lib/state';
 import { computeSafariTicketState } from '@poposerver/lib/constants/safari-ticket';
+import { userExpProgress } from '@poposerver/lib/utils/user-exp-curve';
 import { eq } from 'drizzle-orm';
 import { db } from '@poposerver/lib/db';
 import { userTownMap } from '@poposerver/lib/schema';
@@ -86,7 +87,8 @@ export class UserService {
     }
 
     const { equippedCostumes, party, itemSlots, essentialItems, pokedex, pokemonBoxCount } = result;
-    const { safariTicketRegenAt, ...profile } = result.profile;
+    const { safariTicketRegenAt, exp, ...profileRest } = result.profile;
+    const profile = { ...profileRest, trainer: userExpProgress(exp) };
     const safariTicket = computeSafariTicketState(safariTicketRegenAt, new Date());
 
     const visitedMapRows = await db

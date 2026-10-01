@@ -66,6 +66,7 @@ export class UserRepository {
         gender: user.gender,
         money: user.money,
         playtime: user.playtime,
+        exp: user.exp,
         hasStarter: user.hasStarter,
         lastMapId: user.lastMapId,
         lastX: user.lastX,
