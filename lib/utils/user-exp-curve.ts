@@ -6,6 +6,7 @@ import {
   USER_EXP_CURVE_P,
   USER_LEVEL_MAX,
   USER_LEVEL_MIN,
+  WILD_CATCH_LEVEL_CAP_OFFSET,
 } from '../constants/user-level';
 import type { PokemonTier } from '../types';
 
@@ -56,6 +57,10 @@ export function calcUserCaptureExp(
   const Lu = Math.max(USER_LEVEL_MIN, Math.floor(userLevel));
   const scale = Math.pow((2 * Lw + 10) / (Lw + Lu + 10), USER_CAPTURE_EXP_EXPONENT);
   return Math.floor(((coef * Lw) / 5) * scale + 1);
+}
+
+export function isWithinCatchLevelCap(wildLevel: number, userLevel: number): boolean {
+  return wildLevel <= userLevel + WILD_CATCH_LEVEL_CAP_OFFSET;
 }
 
 export function dailyCaptureMultiplier(nth: number): number {

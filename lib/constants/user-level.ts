@@ -3,6 +3,8 @@ import type { PokemonTier } from '../types';
 export const USER_LEVEL_MIN = 1;
 export const USER_LEVEL_MAX = 100;
 
+export const WILD_CATCH_LEVEL_CAP_OFFSET = 15;
+
 export const USER_EXP_CURVE_A = 76;
 export const USER_EXP_CURVE_P = 2;
 

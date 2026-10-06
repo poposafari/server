@@ -14,7 +14,7 @@ export const safariTargetParamsSchema = z.object({
 export type SafariTargetParams = z.infer<typeof safariTargetParamsSchema>;
 
 export const catchWildResultSchema = z.object({
-  result: z.enum(['caught', 'fail', 'flee']),
+  result: z.enum(['caught', 'fail', 'flee', 'level_cap']),
   pokemon: z.any().optional(),
   rewards: z
     .array(

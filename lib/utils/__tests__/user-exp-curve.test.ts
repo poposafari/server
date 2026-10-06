@@ -3,6 +3,7 @@ import {
   applyDailyCaptureMultiplier,
   calcUserCaptureExp,
   dailyCaptureMultiplier,
+  isWithinCatchLevelCap,
   userExpProgress,
   userLevelFromExp,
   userTotalExpForLevel,
@@ -133,6 +134,20 @@ describe('user-exp-curve', () => {
     });
     test('101회~ 0', () => {
       expect(applyDailyCaptureMultiplier(108, 101)).toBe(0);
+    });
+  });
+
+  describe('isWithinCatchLevelCap', () => {
+    test('사용자 Lv + 15 까지는 포획 가능 (경계 포함)', () => {
+      expect(isWithinCatchLevelCap(35, 20)).toBe(true);
+      expect(isWithinCatchLevelCap(16, 1)).toBe(true);
+    });
+    test('사용자 Lv + 16 부터는 포획 불가', () => {
+      expect(isWithinCatchLevelCap(36, 20)).toBe(false);
+      expect(isWithinCatchLevelCap(17, 1)).toBe(false);
+    });
+    test('사용자보다 낮은 야생은 항상 포획 가능', () => {
+      expect(isWithinCatchLevelCap(1, 50)).toBe(true);
     });
   });
 

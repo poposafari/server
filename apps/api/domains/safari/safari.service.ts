@@ -31,6 +31,7 @@ import {
 import {
   applyDailyCaptureMultiplier,
   calcUserCaptureExp,
+  isWithinCatchLevelCap,
   userLevelFromExp,
 } from '@poposerver/lib/utils/user-exp-curve';
 import { pickExpCandyDrop } from '@poposerver/lib/utils/exp-candy-drop';
@@ -183,7 +184,7 @@ export class SafariService {
     uid: string,
     ip?: string,
   ): Promise<{
-    result: CatchResult;
+    result: CatchResult | 'level_cap';
     pokemon?: typeof userPokemon.$inferSelect;
     rewards?: Array<{ itemId: string; quantity: number }>;
     partyExp?: Array<{
@@ -214,14 +215,11 @@ export class SafariService {
       throw new AppError('No safari balls', 400, AppErrorCode.SAFARI_BALL_NOT_FOUND);
     }
 
-    let isS000Starter = false;
-    if (mapId === S000_MAP_ID) {
-      const [row] = await db
-        .select({ hasStarter: user.hasStarter })
-        .from(user)
-        .where(eq(user.accountId, accountId));
-      isS000Starter = !!row?.hasStarter;
-    }
+    const [userRow] = await db
+      .select({ hasStarter: user.hasStarter, exp: user.exp })
+      .from(user)
+      .where(eq(user.accountId, accountId));
+    const isS000Starter = mapId === S000_MAP_ID && !!userRow?.hasStarter;
 
     const wild = await getWild(authId, mapId, uid);
     if (!wild) {
@@ -241,6 +239,13 @@ export class SafariService {
     const pokemonData = MasterData.getPokemon(wild.pokedexId);
     if (!pokemonData) {
       throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    if (
+      !isS000Starter &&
+      !isWithinCatchLevelCap(wild.level, userLevelFromExp(userRow?.exp ?? 0))
+    ) {
+      return { result: 'level_cap' };
     }
 
     // 파티 포켓몬 보너스 (응답/보너스 계산 모두 슬롯 순서를 따른다)
