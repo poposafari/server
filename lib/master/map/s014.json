@@ -61,6 +61,78 @@
       {
         "id": "masterpiece-teacup",
         "weight": 3
+      },
+      {
+        "id": "normal-gummi",
+        "weight": 1
+      },
+      {
+        "id": "fire-gummi",
+        "weight": 1
+      },
+      {
+        "id": "water-gummi",
+        "weight": 1
+      },
+      {
+        "id": "grass-gummi",
+        "weight": 1
+      },
+      {
+        "id": "electric-gummi",
+        "weight": 1
+      },
+      {
+        "id": "ice-gummi",
+        "weight": 1
+      },
+      {
+        "id": "fighting-gummi",
+        "weight": 1
+      },
+      {
+        "id": "poison-gummi",
+        "weight": 1
+      },
+      {
+        "id": "ground-gummi",
+        "weight": 1
+      },
+      {
+        "id": "flying-gummi",
+        "weight": 1
+      },
+      {
+        "id": "psychic-gummi",
+        "weight": 1
+      },
+      {
+        "id": "bug-gummi",
+        "weight": 1
+      },
+      {
+        "id": "rock-gummi",
+        "weight": 1
+      },
+      {
+        "id": "ghost-gummi",
+        "weight": 1
+      },
+      {
+        "id": "dragon-gummi",
+        "weight": 1
+      },
+      {
+        "id": "dark-gummi",
+        "weight": 1
+      },
+      {
+        "id": "steel-gummi",
+        "weight": 1
+      },
+      {
+        "id": "fairy-gummi",
+        "weight": 1
       }
     ]
   },
