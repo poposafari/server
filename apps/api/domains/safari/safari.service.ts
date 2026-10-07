@@ -61,6 +61,8 @@ type FleeResult = 'flee' | 'stay';
 type CatchFailReason = 'break_out' | 'flee' | 'expired';
 
 const SAFARI_ZONE_TICKET_ID = 'safari-zone-ticket';
+const GUMMI_MATCH_CAPTURE_MUL = 1.5;
+const GUMMI_MISMATCH_CAPTURE_MUL = 1.15;
 
 export class SafariService {
   async enter(
@@ -298,7 +300,9 @@ export class SafariService {
       : this.calculateCatchResult(
           pokemonData.rateCapture,
           pokemonData.rateFlee,
-          wild.bait,
+          wild.bait
+            ? this.gummiCaptureMul(wild.bait, [pokemonData.type1, pokemonData.type2])
+            : null,
           wild.rock,
           partyBonus,
         );
@@ -699,19 +703,99 @@ export class SafariService {
     }
   }
 
-  async baitWild(authId: string, uid: string): Promise<{ result: FleeResult }> {
-    return this.applyBaitOrRock(authId, uid, 'bait');
+  async baitWild(
+    authId: string,
+    uid: string,
+    itemId: string,
+    ip?: string,
+  ): Promise<{ result: FleeResult; itemId: string; quantity: number }> {
+    const accountId = Number(authId);
+
+    const itemData = MasterData.getItem(itemId);
+    if (!itemData || itemData.category !== 'gummi') {
+      throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
+    }
+
+    const userState = await getUserState(authId);
+    if (!userState || !userState.mapId.startsWith('s')) {
+      throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
+    }
+
+    const mapId = userState.mapId;
+    const wild = await getWild(authId, mapId, uid);
+    if (!wild) {
+      return { result: 'flee', itemId, quantity: await this.getItemQuantity(accountId, itemId) };
+    }
+    if (wild.caught === 1) {
+      throw new AppError('Already caught', 409, AppErrorCode.SAFARI_WILD_ALREADY_CAUGHT);
+    }
+    if (wild.caught === 2) {
+      throw new AppError('Already fled', 409, AppErrorCode.SAFARI_WILD_ALREADY_FLED);
+    }
+    if (wild.bait !== null) {
+      throw new AppError('Already baited', 409, AppErrorCode.SAFARI_WILD_ALREADY_BAITED);
+    }
+
+    const pokemonData = MasterData.getPokemon(wild.pokedexId);
+    if (!pokemonData) {
+      throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    const finalFlee = Math.min(pokemonData.rateFlee, LEVEL_CURVE.FLEE_RATE_CAP);
+    const fled = mapId === S000_MAP_ID ? false : Math.random() < finalFlee;
+    const result: FleeResult = fled ? 'flee' : 'stay';
+
+    const quantity = await db.transaction(async (tx) => {
+      const [owned] = await tx
+        .select({ quantity: userItem.quantity })
+        .from(userItem)
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)))
+        .for('update');
+
+      if (!owned || owned.quantity <= 0) {
+        throw new AppError(
+          'Insufficient item quantity',
+          400,
+          AppErrorCode.ITEM_INSUFFICIENT_QUANTITY,
+        );
+      }
+
+      if (owned.quantity === 1) {
+        await tx
+          .delete(userItem)
+          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)));
+      } else {
+        await tx
+          .update(userItem)
+          .set({ quantity: sql`${userItem.quantity} - 1` })
+          .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)));
+      }
+
+      await auditTx(tx, {
+        accountId,
+        action: AuditAction.SAFARI_BAIT,
+        detail: { mapId, wildUid: uid, pokedexId: wild.pokedexId, itemId, result },
+        ip: ip ?? null,
+        source: 'api',
+      });
+
+      return owned.quantity - 1;
+    });
+
+    if (fled) {
+      wild.caught = 2;
+      await deleteWild(authId, mapId, wild.uid);
+      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
+    } else {
+      wild.bait = itemId;
+      wild.rock = false;
+      await updateWild(authId, mapId, wild);
+    }
+
+    return { result, itemId, quantity };
   }
 
   async rockWild(authId: string, uid: string): Promise<{ result: FleeResult }> {
-    return this.applyBaitOrRock(authId, uid, 'rock');
-  }
-
-  private async applyBaitOrRock(
-    authId: string,
-    uid: string,
-    kind: 'bait' | 'rock',
-  ): Promise<{ result: FleeResult }> {
     const userState = await getUserState(authId);
     if (!userState || !userState.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
@@ -729,24 +813,15 @@ export class SafariService {
       throw new AppError('Already fled', 409, AppErrorCode.SAFARI_WILD_ALREADY_FLED);
     }
 
-    if (kind === 'bait') {
-      wild.bait = true;
-      wild.rock = false;
-    } else {
-      wild.bait = false;
-      wild.rock = true;
-    }
+    wild.bait = null;
+    wild.rock = true;
 
     const pokemonData = MasterData.getPokemon(wild.pokedexId);
     if (!pokemonData) {
       throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
     }
 
-    let fleeMul = 1.0;
-    if (wild.bait) fleeMul = 0.5;
-    else if (wild.rock) fleeMul = 1.5;
-
-    const finalFlee = Math.min(pokemonData.rateFlee * fleeMul, 0.9);
+    const finalFlee = Math.min(pokemonData.rateFlee * 1.5, 0.9);
     const fled = mapId === S000_MAP_ID ? false : Math.random() < finalFlee;
 
     if (fled) {
@@ -760,19 +835,31 @@ export class SafariService {
     return { result: fled ? 'flee' : 'stay' };
   }
 
+  private async getItemQuantity(accountId: number, itemId: string): Promise<number> {
+    const [row] = await db
+      .select({ quantity: userItem.quantity })
+      .from(userItem)
+      .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, itemId)));
+    return row?.quantity ?? 0;
+  }
+
+  private gummiCaptureMul(itemId: string, wildTypes: Array<string | null>): number {
+    const gummiType = itemId.replace(/-gummi$/, '');
+    return wildTypes.includes(gummiType) ? GUMMI_MATCH_CAPTURE_MUL : GUMMI_MISMATCH_CAPTURE_MUL;
+  }
+
   private calculateCatchResult(
     rateCapture: number,
     rateFlee: number,
-    bait: boolean,
+    baitCaptureMul: number | null,
     rock: boolean,
     partyBonus: number,
   ): CatchResult {
     let captureMul = 1.0;
     let fleeMul = 1.0;
 
-    if (bait) {
-      captureMul = 0.5;
-      fleeMul = 0.5;
+    if (baitCaptureMul !== null) {
+      captureMul = baitCaptureMul;
     } else if (rock) {
       captureMul = 1.5;
       fleeMul = 1.5;

@@ -37,7 +37,7 @@ export interface SafariWild {
   nature: string;
   ability: string;
   caught: number; // 0=WILD, 1=CAUGHT, 2=FLED
-  bait: boolean;
+  bait: string | null;
   rock: boolean;
   caughtCount: number;
   expiresAt?: number;

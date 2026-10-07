@@ -94,7 +94,7 @@ export async function generateWildBatch(
       nature,
       ability,
       caught: 0,
-      bait: false,
+      bait: null,
       rock: false,
       caughtCount: caughtCountMap.get(pokedexId) ?? 0,
     };

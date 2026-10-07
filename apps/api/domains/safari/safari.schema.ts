@@ -13,6 +13,12 @@ export const safariTargetParamsSchema = z.object({
 
 export type SafariTargetParams = z.infer<typeof safariTargetParamsSchema>;
 
+export const baitWildSchema = z.object({
+  itemId: z.string().regex(/^[a-z]+-gummi$/),
+});
+
+export type BaitWildInput = z.infer<typeof baitWildSchema>;
+
 export const catchWildResultSchema = z.object({
   result: z.enum(['caught', 'fail', 'flee', 'level_cap']),
   pokemon: z.any().optional(),

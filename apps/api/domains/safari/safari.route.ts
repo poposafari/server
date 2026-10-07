@@ -3,7 +3,7 @@ import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { zodValidate } from '../../hooks/validate.hook';
 import { SafariController } from './safari.controller';
 import { SafariService } from './safari.service';
-import { enterSafariSchema, safariTargetParamsSchema } from './safari.schema';
+import { baitWildSchema, enterSafariSchema, safariTargetParamsSchema } from './safari.schema';
 
 const router = Router();
 
@@ -34,7 +34,7 @@ router.post(
 router.post(
   '/safari/wilds/:uid/bait',
   sessionAuthGuard,
-  zodValidate({ params: safariTargetParamsSchema }),
+  zodValidate({ params: safariTargetParamsSchema, body: baitWildSchema }),
   controller.baitWild,
 );
 

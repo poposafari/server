@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { AuditAction } from '@poposerver/lib/types';
 import { SafariService } from './safari.service';
-import { SafariTargetParams } from './safari.schema';
+import { BaitWildInput, SafariTargetParams } from './safari.schema';
 
 export class SafariController {
   constructor(private readonly service: SafariService) {}
@@ -30,8 +30,8 @@ export class SafariController {
 
   baitWild = async (req: Request, res: Response) => {
     const { uid } = req.params as unknown as SafariTargetParams;
-    const data = await this.service.baitWild(req.authId!, uid);
-    req.audit = { action: AuditAction.SAFARI_BAIT, detail: { uid, result: data.result } };
+    const { itemId } = req.body as BaitWildInput;
+    const data = await this.service.baitWild(req.authId!, uid, itemId, req.ip);
     return res.status(200).json({ success: true, data });
   };
 
