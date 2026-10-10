@@ -3,7 +3,12 @@ import { sessionAuthGuard } from '../../hooks/session-auth.hook';
 import { zodValidate } from '../../hooks/validate.hook';
 import { SafariController } from './safari.controller';
 import { SafariService } from './safari.service';
-import { baitWildSchema, enterSafariSchema, safariTargetParamsSchema } from './safari.schema';
+import {
+  enterSafariSchema,
+  feedWildSchema,
+  safariTargetParamsSchema,
+  useItemWildSchema,
+} from './safari.schema';
 
 const router = Router();
 
@@ -32,17 +37,17 @@ router.post(
 );
 
 router.post(
-  '/safari/wilds/:uid/bait',
+  '/safari/wilds/:uid/feed',
   sessionAuthGuard,
-  zodValidate({ params: safariTargetParamsSchema, body: baitWildSchema }),
-  controller.baitWild,
+  zodValidate({ params: safariTargetParamsSchema, body: feedWildSchema }),
+  controller.feedWild,
 );
 
 router.post(
-  '/safari/wilds/:uid/rock',
+  '/safari/wilds/:uid/use',
   sessionAuthGuard,
-  zodValidate({ params: safariTargetParamsSchema }),
-  controller.rockWild,
+  zodValidate({ params: safariTargetParamsSchema, body: useItemWildSchema }),
+  controller.useItemWild,
 );
 
 router.post('/safari/exit', sessionAuthGuard, controller.exit);

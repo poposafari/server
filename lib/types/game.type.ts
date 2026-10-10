@@ -19,7 +19,15 @@ export enum TimeOfDay {
 }
 
 // --- Item types ---
-export type ItemCategory = 'pokeball' | 'berry' | 'key' | 'tms_hms' | 'etc' | 'sellable' | 'gummi';
+export type ItemCategory =
+  | 'pokeball'
+  | 'berry'
+  | 'key'
+  | 'tms_hms'
+  | 'etc'
+  | 'sellable'
+  | 'gummi'
+  | 'tool';
 export type ItemTier = 'common' | 'rare' | 'epic' | 'legendary';
 
 export interface ItemData {

@@ -859,17 +859,35 @@ await expectStatus(
   404,
 );
 if (wildUid2) {
-  const b = await req('POST', `/safari/wilds/${wildUid2}/bait`);
+  for (const itemId of ['normal-gummi', 'mud', 'balm']) {
+    sql(
+      `insert into user_item(account_id,item_id,quantity) values(${accountId},'${itemId}',5) on conflict (account_id,item_id) do update set quantity=5`,
+    );
+  }
+  const b = await req('POST', `/safari/wilds/${wildUid2}/feed`, { itemId: 'normal-gummi' });
   record(
-    '먹이 주기(bait) [POST /safari/wilds/:uid/bait]',
+    '먹이 주기(feed) [POST /safari/wilds/:uid/feed]',
     b.status === 200 && typeof b.body?.data?.result === 'string',
     `status=${b.status} result=${b.body?.data?.result ?? ''}`,
   );
-  const rk = await req('POST', `/safari/wilds/${wildUid2}/rock`);
+  const mud = await req('POST', `/safari/wilds/${wildUid2}/use`, { itemId: 'mud' });
   record(
-    '돌 던지기(rock) [POST /safari/wilds/:uid/rock]',
-    [200, 404, 409].includes(rk.status),
-    `status=${rk.status} result=${rk.body?.data?.result ?? ''}`,
+    '진흙 사용(mud) [POST /safari/wilds/:uid/use]',
+    [200, 409].includes(mud.status),
+    `status=${mud.status} result=${mud.body?.data?.result ?? ''}`,
+  );
+  const balm = await req('POST', `/safari/wilds/${wildUid2}/use`, { itemId: 'balm' });
+  record(
+    '진정환 사용(balm) [POST /safari/wilds/:uid/use]',
+    [200, 409].includes(balm.status),
+    `status=${balm.status} result=${balm.body?.data?.result ?? ''}`,
+  );
+  await expectStatus(
+    '도구 사용에 구미 id 거부',
+    'POST',
+    `/safari/wilds/${wildUid2}/use`,
+    { itemId: 'normal-gummi' },
+    400,
   );
   const ballBefore = qty(accountId, 'safari-ball');
   const c = await req('POST', `/safari/wilds/${wildUid2}/catch`);

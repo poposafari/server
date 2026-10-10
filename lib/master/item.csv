@@ -184,3 +184,5 @@ dragon-gummi,500,gummi,드래곤 구미,TRUE,80,TRUE,rare
 dark-gummi,500,gummi,악 구미,TRUE,80,TRUE,rare
 steel-gummi,500,gummi,강철 구미,TRUE,80,TRUE,rare
 fairy-gummi,500,gummi,페어리 구미,TRUE,80,TRUE,rare
+mud,500,tool,진흙,TRUE,80,TRUE,rare
+balm,700,tool,진정환,TRUE,80,TRUE,rare

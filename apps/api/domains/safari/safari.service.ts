@@ -63,6 +63,11 @@ type CatchFailReason = 'break_out' | 'flee' | 'expired';
 const SAFARI_ZONE_TICKET_ID = 'safari-zone-ticket';
 const GUMMI_MATCH_CAPTURE_MUL = 1.5;
 const GUMMI_MISMATCH_CAPTURE_MUL = 1.15;
+const MUD_CAPTURE_MUL = 1.5;
+const MUD_FLEE_MUL = 1.5;
+const BALM_FLEE_MUL = 0.7;
+
+type ToolItemId = 'mud' | 'balm';
 
 export class SafariService {
   async enter(
@@ -243,10 +248,7 @@ export class SafariService {
       throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
     }
 
-    if (
-      !isS000Starter &&
-      !isWithinCatchLevelCap(wild.level, userLevelFromExp(userRow?.exp ?? 0))
-    ) {
+    if (!isS000Starter && !isWithinCatchLevelCap(wild.level, userLevelFromExp(userRow?.exp ?? 0))) {
       return { result: 'level_cap' };
     }
 
@@ -300,10 +302,11 @@ export class SafariService {
       : this.calculateCatchResult(
           pokemonData.rateCapture,
           pokemonData.rateFlee,
-          wild.bait
-            ? this.gummiCaptureMul(wild.bait, [pokemonData.type1, pokemonData.type2])
+          wild.feed
+            ? this.gummiCaptureMul(wild.feed, [pokemonData.type1, pokemonData.type2])
             : null,
-          wild.rock,
+          wild.mud,
+          wild.balm,
           partyBonus,
         );
 
@@ -320,6 +323,8 @@ export class SafariService {
       await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
       this.auditCatchFail(accountId, mapId, uid, wild, 'flee', ip);
     } else if (result === 'fail') {
+      wild.turn += 1;
+      await updateWild(authId, mapId, wild);
       this.auditCatchFail(accountId, mapId, uid, wild, 'break_out', ip);
     }
 
@@ -601,8 +606,9 @@ export class SafariService {
         pokedexId: wild?.pokedexId ?? null,
         level: wild?.level ?? null,
         isShiny: wild?.isShiny ?? null,
-        bait: wild?.bait ?? null,
-        rock: wild?.rock ?? null,
+        feed: wild?.feed ?? null,
+        mud: wild?.mud ?? null,
+        balm: wild?.balm ?? null,
         partyBonus: partyBonus ?? null,
       },
       ip: ip ?? null,
@@ -703,7 +709,7 @@ export class SafariService {
     }
   }
 
-  async baitWild(
+  async feedWild(
     authId: string,
     uid: string,
     itemId: string,
@@ -732,8 +738,8 @@ export class SafariService {
     if (wild.caught === 2) {
       throw new AppError('Already fled', 409, AppErrorCode.SAFARI_WILD_ALREADY_FLED);
     }
-    if (wild.bait !== null) {
-      throw new AppError('Already baited', 409, AppErrorCode.SAFARI_WILD_ALREADY_BAITED);
+    if (wild.feed !== null) {
+      throw new AppError('Already fed', 409, AppErrorCode.SAFARI_WILD_ALREADY_FED);
     }
 
     const pokemonData = MasterData.getPokemon(wild.pokedexId);
@@ -741,11 +747,116 @@ export class SafariService {
       throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
     }
 
-    const finalFlee = Math.min(pokemonData.rateFlee, LEVEL_CURVE.FLEE_RATE_CAP);
+    const finalFlee = Math.min(
+      pokemonData.rateFlee * this.wildFleeMul(wild.mud, wild.balm),
+      LEVEL_CURVE.FLEE_RATE_CAP,
+    );
     const fled = mapId === S000_MAP_ID ? false : Math.random() < finalFlee;
     const result: FleeResult = fled ? 'flee' : 'stay';
 
-    const quantity = await db.transaction(async (tx) => {
+    const quantity = await this.consumeWildItem(
+      accountId,
+      itemId,
+      AuditAction.SAFARI_FEED,
+      { mapId, wildUid: uid, pokedexId: wild.pokedexId, itemId, result },
+      ip,
+    );
+
+    if (fled) {
+      wild.caught = 2;
+      await deleteWild(authId, mapId, wild.uid);
+      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
+    } else {
+      wild.feed = itemId;
+      wild.turn += 1;
+      await updateWild(authId, mapId, wild);
+    }
+
+    return { result, itemId, quantity };
+  }
+
+  async useItemWild(
+    authId: string,
+    uid: string,
+    itemId: ToolItemId,
+    ip?: string,
+  ): Promise<{ result: FleeResult; itemId: string; quantity: number }> {
+    const accountId = Number(authId);
+
+    const itemData = MasterData.getItem(itemId);
+    if (!itemData || itemData.category !== 'tool') {
+      throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
+    }
+
+    const userState = await getUserState(authId);
+    if (!userState || !userState.mapId.startsWith('s')) {
+      throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
+    }
+
+    const mapId = userState.mapId;
+    const wild = await getWild(authId, mapId, uid);
+    if (!wild) {
+      return { result: 'flee', itemId, quantity: await this.getItemQuantity(accountId, itemId) };
+    }
+    if (wild.caught === 1) {
+      throw new AppError('Already caught', 409, AppErrorCode.SAFARI_WILD_ALREADY_CAUGHT);
+    }
+    if (wild.caught === 2) {
+      throw new AppError('Already fled', 409, AppErrorCode.SAFARI_WILD_ALREADY_FLED);
+    }
+    if (itemId === 'mud' && wild.mud) {
+      throw new AppError('Already mudded', 409, AppErrorCode.SAFARI_WILD_ALREADY_MUDDED);
+    }
+    if (itemId === 'balm' && wild.balm) {
+      throw new AppError('Already balmed', 409, AppErrorCode.SAFARI_WILD_ALREADY_BALMED);
+    }
+
+    const pokemonData = MasterData.getPokemon(wild.pokedexId);
+    if (!pokemonData) {
+      throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    const finalFlee = Math.min(
+      pokemonData.rateFlee *
+        this.wildFleeMul(itemId === 'mud' || wild.mud, itemId === 'balm' || wild.balm),
+      LEVEL_CURVE.FLEE_RATE_CAP,
+    );
+    const fled = mapId === S000_MAP_ID ? false : Math.random() < finalFlee;
+    const result: FleeResult = fled ? 'flee' : 'stay';
+
+    const quantity = await this.consumeWildItem(
+      accountId,
+      itemId,
+      AuditAction.SAFARI_USE_ITEM,
+      { mapId, wildUid: uid, pokedexId: wild.pokedexId, itemId, result },
+      ip,
+    );
+
+    if (fled) {
+      wild.caught = 2;
+      await deleteWild(authId, mapId, wild.uid);
+      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
+    } else {
+      if (itemId === 'mud') {
+        wild.mud = true;
+      } else {
+        wild.balm = true;
+      }
+      wild.turn += 1;
+      await updateWild(authId, mapId, wild);
+    }
+
+    return { result, itemId, quantity };
+  }
+
+  private async consumeWildItem(
+    accountId: number,
+    itemId: string,
+    action: AuditAction,
+    detail: Record<string, unknown>,
+    ip?: string,
+  ): Promise<number> {
+    return db.transaction(async (tx) => {
       const [owned] = await tx
         .select({ quantity: userItem.quantity })
         .from(userItem)
@@ -773,66 +884,18 @@ export class SafariService {
 
       await auditTx(tx, {
         accountId,
-        action: AuditAction.SAFARI_BAIT,
-        detail: { mapId, wildUid: uid, pokedexId: wild.pokedexId, itemId, result },
+        action,
+        detail,
         ip: ip ?? null,
         source: 'api',
       });
 
       return owned.quantity - 1;
     });
-
-    if (fled) {
-      wild.caught = 2;
-      await deleteWild(authId, mapId, wild.uid);
-      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
-    } else {
-      wild.bait = itemId;
-      wild.rock = false;
-      await updateWild(authId, mapId, wild);
-    }
-
-    return { result, itemId, quantity };
   }
 
-  async rockWild(authId: string, uid: string): Promise<{ result: FleeResult }> {
-    const userState = await getUserState(authId);
-    if (!userState || !userState.mapId.startsWith('s')) {
-      throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
-    }
-
-    const mapId = userState.mapId;
-    const wild = await getWild(authId, mapId, uid);
-    if (!wild) {
-      return { result: 'flee' };
-    }
-    if (wild.caught === 1) {
-      throw new AppError('Already caught', 409, AppErrorCode.SAFARI_WILD_ALREADY_CAUGHT);
-    }
-    if (wild.caught === 2) {
-      throw new AppError('Already fled', 409, AppErrorCode.SAFARI_WILD_ALREADY_FLED);
-    }
-
-    wild.bait = null;
-    wild.rock = true;
-
-    const pokemonData = MasterData.getPokemon(wild.pokedexId);
-    if (!pokemonData) {
-      throw new AppError('Pokemon data not found', 500, AppErrorCode.INTERNAL_SERVER_ERROR);
-    }
-
-    const finalFlee = Math.min(pokemonData.rateFlee * 1.5, 0.9);
-    const fled = mapId === S000_MAP_ID ? false : Math.random() < finalFlee;
-
-    if (fled) {
-      wild.caught = 2;
-      await deleteWild(authId, mapId, wild.uid);
-      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
-    } else {
-      await updateWild(authId, mapId, wild);
-    }
-
-    return { result: fled ? 'flee' : 'stay' };
+  private wildFleeMul(mud: boolean, balm: boolean): number {
+    return (mud ? MUD_FLEE_MUL : 1) * (balm ? BALM_FLEE_MUL : 1);
   }
 
   private async getItemQuantity(accountId: number, itemId: string): Promise<number> {
@@ -851,19 +914,13 @@ export class SafariService {
   private calculateCatchResult(
     rateCapture: number,
     rateFlee: number,
-    baitCaptureMul: number | null,
-    rock: boolean,
+    feedCaptureMul: number | null,
+    mud: boolean,
+    balm: boolean,
     partyBonus: number,
   ): CatchResult {
-    let captureMul = 1.0;
-    let fleeMul = 1.0;
-
-    if (baitCaptureMul !== null) {
-      captureMul = baitCaptureMul;
-    } else if (rock) {
-      captureMul = 1.5;
-      fleeMul = 1.5;
-    }
+    const captureMul = (feedCaptureMul ?? 1) * (mud ? MUD_CAPTURE_MUL : 1);
+    const fleeMul = this.wildFleeMul(mud, balm);
 
     const finalCapture = Math.min(
       rateCapture * captureMul + partyBonus,
