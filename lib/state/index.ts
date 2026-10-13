@@ -5,6 +5,7 @@ export * from './user-state';
 export * from './room';
 export * from './game-time';
 export * from './weather';
+export * from './moon-phase';
 export * from './connection';
 export * from './session-store';
 export * from './wild-store';
