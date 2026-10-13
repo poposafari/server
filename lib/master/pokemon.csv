@@ -136,8 +136,8 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 0080_galar,"['quick-draw', 'own-tempo', 'regenerator']",야도란,[],[],[],[],1,1.6,0.23,0.5,0.25,0.5,"['move_surf', 'move_waterfall', 'move_dive']","['land','water']",super-rare,poison,psychic,70.5,medium_fast,172
 81,"['magnet-pull', 'sturdy', 'analytic']",코일,['candy_50'],['0082'],[],[],1,0.3,0.6,0,0.35,0,['move_flash'],['land'],uncommon,electric,steel,6,medium_fast,65
 82,"['magnet-pull', 'sturdy', 'analytic']",레어코일,['thunder-stone'],['0462'],[],[],1,1,0.19,0,0.25,0,['move_flash'],['land'],super-rare,electric,steel,60,medium_fast,163
-83,"['keen-eye', 'inner-focus', 'defiant']",파오리,[],['0865'],[],[],1,,0.14,0.5,0.45,0.5,"['move_defog', 'move_cut', 'move_fly']",['land'],uncommon,normal,flying,,medium_fast,132
-0083_galar,"['steadfast', 'scrappy']",파오리,['leak'],['0865'],[],[],1,,0.14,0.5,0.45,0.5,"['move_defog', 'move_rock-smash']",['land'],uncommon,fighting,,,medium_fast,132
+83,"['keen-eye', 'inner-focus', 'defiant']",파오리,[],['0865'],[],[],1,,0.14,0.5,0.45,0.5,"['move_defog', 'move_cut', 'move_fly']",['land'],uncommon,normal,flying,15,medium_fast,132
+0083_galar,"['steadfast', 'scrappy']",파오리,['leak'],['0865'],[],[],1,,0.14,0.5,0.45,0.5,"['move_defog', 'move_rock-smash']",['land'],uncommon,fighting,,42,medium_fast,132
 84,"['run-away', 'early-bird', 'tangled-feet']",두두,['candy_50'],['0085'],[],[],1,1.4,0.6,0.5,0.35,0.5,['move_fly'],['land'],common,normal,flying,39.2,medium_fast,62
 85,"['run-away', 'early-bird', 'tangled-feet']",두트리오,[],[],[],[],1,1.8,0.14,0.5,0.25,0.5,['move_fly'],['land'],rare,normal,flying,85.2,medium_fast,165
 86,"['thick-fat', 'hydration', 'ice-body']",쥬쥬,['candy_50'],['0087'],[],[],1,1.1,0.6,0.5,0.35,0.5,"['move_surf', 'move_strength', 'move_waterfall', 'move_dive']","['land','water']",uncommon,water,,90,medium_fast,65
@@ -197,9 +197,9 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 127,"['hyper-cutter', 'mold-breaker', 'moxie']",쁘사이저,[],[],[],[],1,1.5,0.14,0.5,0.45,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],super-rare,bug,,55,slow,175
 0127-mega,['aerilate'],쁘사이저,[],[],[],[],1,1.7,0.14,0.5,0.45,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],super-rare,bug,flying,59,slow,175
 128,"['intimidate', 'anger-point', 'sheer-force']",켄타로스,[],[],[],[],1,1.4,0.14,0,0.6,1,"['move_surf', 'move_rock-smash', 'move_strength']",['land'],super-rare,normal,,88.4,slow,172
-0128-combat_paldea,"['intimidate', 'anger-point', 'cud-chew']",켄타로스,[],[],[],[],1,,0.14,0,0.6,1,['move_surf'],['land'],ultra-rare,fighting,,,slow,172
-0128-blaze_paldea,"['intimidate', 'anger-point', 'cud-chew']",켄타로스,[],[],[],[],1,,0.14,0,0.6,1,[],['land'],ultra-rare,fighting,fire,,slow,172
-0128-aqua_paldea,"['intimidate', 'anger-point', 'cud-chew']",켄타로스,[],[],[],[],1,,0.14,0,0.6,1,['move_surf'],['land'],ultra-rare,fighting,water,,slow,172
+0128-combat_paldea,"['intimidate', 'anger-point', 'cud-chew']",켄타로스,[],[],[],[],1,,0.14,0,0.6,1,['move_surf'],['land'],ultra-rare,fighting,,115,slow,172
+0128-blaze_paldea,"['intimidate', 'anger-point', 'cud-chew']",켄타로스,[],[],[],[],1,,0.14,0,0.6,1,[],['land'],ultra-rare,fighting,fire,85,slow,172
+0128-aqua_paldea,"['intimidate', 'anger-point', 'cud-chew']",켄타로스,[],[],[],[],1,,0.14,0,0.6,1,['move_surf'],['land'],ultra-rare,fighting,water,110,slow,172
 129,"['swift-swim', 'rattled']",잉어킹,['candy_100'],['0130'],[],[],1,0.9,0.8,0.5,0.35,0.5,[],['water'],common,water,,10,slow,40
 130,"['intimidate', 'moxie']",갸라도스,[],[],[],[],1,6.5,0.14,0.5,0.6,0.5,"['move_surf', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive']",['water'],epic,water,flying,235,slow,189
 0130-mega,['mold-breaker'],갸라도스,[],[],[],[],1,6.5,0.14,0.5,0.6,0.5,"['move_surf', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive']",['water'],epic,water,dark,305,slow,189
@@ -290,34 +290,34 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 199,"['oblivious', 'own-tempo', 'regenerator']",야도킹,[],[],[],[],2,2,0.2,0.5,0.6,0.5,"['move_surf', 'move_flash', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive']","['land','water']",ultra-rare,water,psychic,79.5,medium_fast,172
 0199_galar,"['curious_medicine', 'own-tempo', 'regenerator']",야도킹,[],[],[],[],2,1.8,0.2,0.5,0.6,0.5,"['move_surf', 'move_waterfall', 'move_dive']","['land','water']",ultra-rare,poison,psychic,79.5,medium_fast,172
 200,['levitate'],무우마,['dusk-stone'],['0429'],[],[],2,0.7,0.14,0.5,0.45,0.5,"['move_mean-look', 'move_flash']","['land','water']",rare,ghost,,1,fast,87
-0201-a,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-b,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-c,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-d,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-e,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-f,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-g,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-h,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-i,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-j,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-k,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-l,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-n,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-m,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-o,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-p,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-q,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-r,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-s,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-t,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-u,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-v,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-w,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-x,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-y,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-z,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-3F,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
-0201-21,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,,medium_fast,118
+0201-a,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-b,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-c,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-d,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-e,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-f,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-g,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-h,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-i,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-j,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-k,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-l,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-n,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-m,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-o,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-p,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-q,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-r,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-s,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-t,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-u,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-v,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-w,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-x,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-y,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-z,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-3F,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
+0201-21,['levitate'],안농,[],[],[],[],2,,0.55,0,0.45,0,[],"['land','water']",rare,psychic,,5,medium_fast,118
 202,"['shadow-tag', 'telepathy']",마자용,[],[],[],[],2,1.3,0.14,0.5,0.25,0.5,[],['land'],rare,psychic,,28.5,medium_fast,142
 203,"['inner-focus', 'early-bird', 'sap-sipper']",키링키,['move_twin-beam'],['0981'],[],[],2,1.5,0.19,0.5,0.25,0.5,"['move_mean-look', 'move_flash', 'move_rock-smash', 'move_strength']",['land'],rare,normal,psychic,41.5,medium_fast,159
 204,"['sturdy', 'overcoat']",피콘,['candy_50'],['0205'],[],[],2,0.6,0.6,0.5,0.35,0.5,"['move_rock-smash', 'move_strength']",['land'],common,bug,,7.2,medium_fast,58
@@ -440,7 +440,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 304,"['sturdy', 'rock-head', 'heavy_metal']",가보리,['candy_50'],['0305'],[],[],3,0.4,0.57,0.5,0.35,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],rare,steel,rock,60,slow,66
 305,"['sturdy', 'rock-head', 'heavy_metal']",갱도라,['candy_150'],['0306'],[],[],3,0.9,0.28,0.5,0.25,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],super-rare,steel,rock,120,slow,151
 306,"['sturdy', 'rock-head', 'heavy_metal']",보스로라,[],[],[],[],3,2.1,0.14,0.5,0.6,0.5,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['land'],epic,steel,rock,360,slow,239
-0306-mega,['filter'],보스로라,[],[],[],[],3,,0.14,0.5,0.6,0.5,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['land'],unique,steel,,,slow,239
+0306-mega,['filter'],보스로라,[],[],[],[],3,,0.14,0.5,0.6,0.5,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['land'],unique,steel,,395,slow,239
 307,"['pure-power', 'telepathy']",요가랑,['candy_75'],['0308'],[],[],3,0.6,0.57,0.5,0.35,0.5,"['move_flash', 'move_rock-smash', 'move_strength']",['land'],rare,fighting,psychic,11.2,medium_fast,56
 308,"['pure-power', 'telepathy']",요가램,[],[],[],[],3,1.3,0.28,0.5,0.25,0.5,"['move_flash', 'move_rock-smash', 'move_strength']",['land'],super-rare,fighting,psychic,31.5,medium_fast,144
 0308-mega,['pure-power'],요가램,[],[],[],[],3,1.3,0.28,0.5,0.25,0.5,"['move_flash', 'move_rock-smash', 'move_strength']",['land'],rare,fighting,psychic,31.5,medium_fast,144
@@ -538,7 +538,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 384,['air-lock'],레쿠쟈,[],[],[],[],3,7,0.03,0,0.75,0,"['move_surf', 'move_defog', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive', 'move_fly']","['land','water']",legendary,dragon,flying,206.5,slow,306
 0384-mega,['delta-stream'],레쿠쟈,[],[],[],[],3,10.8,0.03,0,0.75,0,"['move_surf', 'move_defog', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive', 'move_fly']","['land','water']",legendary,dragon,flying,392,slow,306
 385,['serene-grace'],지라치,[],[],[],[],3,0.3,0.01,0,0.75,0,['move_flash'],"['land','water']",legendary,steel,psychic,1.1,slow,270
-386,['pressure'],테오키스,[],[],[],[],3,,0.01,0,0.75,0,"['move_flash', 'move_cut', 'move_rock-smash', 'move_strength']","['land','water']",legendary,psychic,,,slow,270
+386,['pressure'],테오키스,[],[],[],[],3,,0.01,0,0.75,0,"['move_flash', 'move_cut', 'move_rock-smash', 'move_strength']","['land','water']",legendary,psychic,,60.8,slow,270
 0386-attack,['pressure'],테오키스,[],[],[],[],3,1.7,0.01,0,0.75,0,"['move_flash', 'move_cut', 'move_rock-smash', 'move_strength']","['land','water']",legendary,psychic,,60.8,slow,270
 0386-defense,['pressure'],테오키스,[],[],[],[],3,1.7,0.01,0,0.75,0,"['move_flash', 'move_cut', 'move_rock-smash', 'move_strength']","['land','water']",legendary,psychic,,60.8,slow,270
 0386-speed,['pressure'],테오키스,[],[],[],[],3,1.7,0.01,0,0.75,0,"['move_flash', 'move_cut', 'move_rock-smash', 'move_strength']","['land','water']",legendary,psychic,,60.8,slow,270
@@ -569,7 +569,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 410,"['sturdy', 'soundproof']",방패톱스,['candy_40'],['0411'],[],[],4,0.5,0.14,0.12,0.35,0.88,"['move_rock-smash', 'move_strength']",['land'],rare,rock,steel,57,fluctuating,70
 411,"['sturdy', 'soundproof']",바리톱스,[],[],[],[],4,1.3,0.14,0.12,0.45,0.88,"['move_rock-smash', 'move_strength']",['land'],super-rare,rock,steel,149.5,fluctuating,173
 412,"['shed-skin', 'overcoat']",도롱충이,"['candy_20+female', 'candy_20+male']","['0413', '0414']",[],[],4,0.2,0.38,0.5,0.35,0.5,[],['land'],common,bug,,3.4,medium_fast,45
-413,"['anticipation', 'overcoat']",도롱마담,[],[],[],[],4,,0.14,1,0.45,0,['move_flash'],['land'],rare,bug,grass,,medium_fast,148
+413,"['anticipation', 'overcoat']",도롱마담,[],[],[],[],4,,0.14,1,0.45,0,['move_flash'],['land'],rare,bug,grass,6.5,medium_fast,148
 0413-sandy,"['anticipation', 'overcoat']",도롱마담,[],[],[],[],4,0.5,0.14,1,0.45,0,['move_flash'],['land'],rare,bug,ground,6.5,medium_fast,148
 0413-trash,"['anticipation', 'overcoat']",도롱마담,[],[],[],[],4,0.5,0.14,1,0.45,0,['move_flash'],['land'],rare,bug,steel,6.5,medium_fast,148
 414,"['swarm', 'tinted-lens']",나메일,[],[],[],[],4,0.9,0.14,0,0.45,1,"['move_flash', 'move_defog']","['land','water']",rare,bug,flying,23.3,medium_fast,148
@@ -580,11 +580,11 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 419,"['swift-swim', 'water-veil']",플로젤,[],[],[],[],4,1.1,0.23,0.5,0.35,0.5,"['move_surf', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive']","['land','water']",super-rare,water,,33.5,medium_fast,173
 420,['chlorophyll'],체리버,['candy_35'],['0421'],[],[],4,0.4,0.6,0.5,0.35,0.5,['move_flash'],['land'],common,grass,,3.3,medium_fast,55
 421,['flower-gift'],체리꼬,[],[],[],[],4,0.5,0.23,0.5,0.45,0.5,['move_flash'],['land'],rare,grass,,9.3,medium_fast,158
-0421-sunshine,['flower-gift'],체리꼬,[],[],[],[],4,,0.23,0.5,0.45,0.5,['move_flash'],['land'],rare,grass,,,medium_fast,158
-0422-west,"['sticky-hold', 'storm-drain', 'sand-force']",깝질무,['candy_50'],['0423-west'],[],[],4,,0.6,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']","['land','water']",uncommon,water,,,medium_fast,65
-0422-east,"['sticky-hold', 'storm-drain', 'sand-force']",깝질무,['candy_50'],['0423-east'],[],[],4,,0.6,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']","['land','water']",uncommon,water,,,medium_fast,65
-0423-west,"['sticky-hold', 'storm-drain', 'sand-force']",트리토돈,[],[],[],[],4,,0.23,0.5,0.45,0.5,"['move_surf', 'move_flash', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive']","['land','water']",super-rare,water,ground,,medium_fast,166
-0423-east,"['sticky-hold', 'storm-drain', 'sand-force']",트리토돈,[],[],[],[],4,,0.23,0.5,0.45,0.5,"['move_surf', 'move_flash', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive']","['land','water']",super-rare,water,ground,,medium_fast,166
+0421-sunshine,['flower-gift'],체리꼬,[],[],[],[],4,,0.23,0.5,0.45,0.5,['move_flash'],['land'],rare,grass,,9.3,medium_fast,158
+0422-west,"['sticky-hold', 'storm-drain', 'sand-force']",깝질무,['candy_50'],['0423-west'],[],[],4,,0.6,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']","['land','water']",uncommon,water,,6.3,medium_fast,65
+0422-east,"['sticky-hold', 'storm-drain', 'sand-force']",깝질무,['candy_50'],['0423-east'],[],[],4,,0.6,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']","['land','water']",uncommon,water,,6.3,medium_fast,65
+0423-west,"['sticky-hold', 'storm-drain', 'sand-force']",트리토돈,[],[],[],[],4,,0.23,0.5,0.45,0.5,"['move_surf', 'move_flash', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive']","['land','water']",super-rare,water,ground,29.9,medium_fast,166
+0423-east,"['sticky-hold', 'storm-drain', 'sand-force']",트리토돈,[],[],[],[],4,,0.23,0.5,0.45,0.5,"['move_surf', 'move_flash', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive']","['land','water']",super-rare,water,ground,29.9,medium_fast,166
 424,"['technician', 'pickup', 'skill-link']",겟핸보숭,[],[],[],[],4,1.2,0.14,0.5,0.45,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],super-rare,normal,,20.3,fast,169
 425,"['aftermath', 'unburden', 'flare-boost']",흔들풍손,['candy_70'],['0426'],[],[],4,0.4,0.39,0.5,0.35,0.5,"['move_flash', 'move_defog', 'move_cut', 'move_fly']","['land','water']",uncommon,ghost,flying,1.2,erratic,70
 426,"['aftermath', 'unburden', 'flare-boost']",둥실라이드,[],[],[],[],4,1.2,0.19,0.5,0.45,0.5,"['move_flash', 'move_defog', 'move_cut', 'move_fly']","['land','water']",super-rare,ghost,flying,15,erratic,174
@@ -663,13 +663,13 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 485,"['flash-fire', 'flame-body']",히드런,[],[],[],[],4,1.7,0.01,0.5,0.75,0.5,"['move_rock-smash', 'move_strength']",['land'],legendary,fire,steel,430,slow,270
 0485-mega,[],히드런,[],[],[],[],4,2.8,0.01,0.5,0.75,0.5,[],['land'],legendary,fire,steel,570,slow,270
 486,['slow-start'],레지기가스,[],[],[],[],4,3.7,0.01,0,0.75,0,"['move_rock-smash', 'move_strength']",['land'],legendary,normal,,420,slow,302
-487,"['pressure', 'telepathy']",기라티나,[],[],[],[],4,,0.01,0,0.75,0,"['move_defog', 'move_cut', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,ghost,dragon,,slow,306
+487,"['pressure', 'telepathy']",기라티나,[],[],[],[],4,,0.01,0,0.75,0,"['move_defog', 'move_cut', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,ghost,dragon,750,slow,306
 0487-origin,['levitate'],기라티나,[],[],[],[],4,6.9,0.01,0,0.75,0,"['move_defog', 'move_cut', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,ghost,dragon,650,slow,306
 488,['levitate'],크레세리아,[],[],[],[],4,1.5,0.01,1,0.75,0,['move_flash'],"['land','water']",legendary,psychic,,85.6,slow,270
 489,['hydration'],피오네,[],[],[],[],4,0.4,0.03,0,0.75,0,"['move_surf', 'move_waterfall', 'move_dive']",['water'],legendary,water,,3.1,slow,216
 490,['hydration'],마나피,[],[],[],[],4,0.3,0.01,0,0.75,0,"['move_surf', 'move_flash', 'move_waterfall', 'move_dive']",['water'],legendary,water,,1.4,slow,270
 491,['bad-dreams'],다크라이,[],[],[],[],4,1.5,0.01,0,0.75,0,"['move_flash', 'move_cut', 'move_rock-smash', 'move_strength']","['land','water']",legendary,dark,,50.5,slow,270
-492,['natural-cure'],쉐이미,[],[],[],[],4,,0.03,0,0.75,0,['move_flash'],['land'],legendary,grass,,,medium_slow,270
+492,['natural-cure'],쉐이미,[],[],[],[],4,,0.03,0,0.75,0,['move_flash'],['land'],legendary,grass,,2.1,medium_slow,270
 0492-sky,['serene-grace'],쉐이미,[],[],[],[],4,0.4,0.03,0,0.75,0,['move_flash'],"['land','water']",legendary,grass,flying,5.2,medium_slow,270
 493,['multitype'],아르세우스,[],[],[],[],4,3.2,0.01,0,0.75,0,"['move_surf', 'move_flash', 'move_defog', 'move_cut', 'move_rock-smash', 'move_strength', 'move_waterfall', 'move_dive', 'move_fly']","['land','water']",legendary,normal,,320,slow,324
 494,['victory-star'],비크티니,[],[],[],[],5,0.4,0.01,0,0.75,0,"['move_flash', 'move_rock-smash']",['land'],legendary,psychic,fire,4,slow,270
@@ -734,7 +734,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 548,"['chlorophyll', 'own-tempo', 'leaf-guard']",치릴리,['sun-stone'],['0549'],[],[],5,0.5,0.6,1,0.35,0,"['move_flash', 'move_cut']",['land'],common,grass,,6.6,medium_fast,56
 549,"['chlorophyll', 'own-tempo', 'leaf-guard']",드레디어,[],[],[],[],5,1.1,0.23,1,0.45,0,"['move_flash', 'move_cut']",['land'],super-rare,grass,,16.3,medium_fast,168
 0549_hisui,"['chlorophyll', 'hustle', 'leaf-guard']",드레디어,[],[],[],[],5,1.2,0.23,1,0.45,0,"['move_defog', 'move_rock-smash']",['land'],super-rare,grass,fighting,19.2,medium_fast,168
-550,"['reckless', 'adaptability', 'mold-breaker']",배쓰나이,[],[],[],[],5,,0.08,0.5,0.45,0.5,"['move_surf', 'move_cut', 'move_waterfall', 'move_dive']",['water'],super-rare,water,,,medium_fast,161
+550,"['reckless', 'adaptability', 'mold-breaker']",배쓰나이,[],[],[],[],5,,0.08,0.5,0.45,0.5,"['move_surf', 'move_cut', 'move_waterfall', 'move_dive']",['water'],super-rare,water,,18,medium_fast,161
 0550-blue-striped,"['rock-head', 'adaptability', 'mold-breaker']",배쓰나이,[],[],[],[],5,1,0.08,0.5,0.45,0.5,"['move_surf', 'move_cut', 'move_waterfall', 'move_dive']",['water'],super-rare,water,,18,medium_fast,161
 0550-white-striped,"['rattled', 'adaptability', 'mold-breaker']",배쓰나이,['move_double-edge'],['0902'],[],[],5,1,0.08,0.5,0.45,0.5,"['move_surf', 'move_waterfall']",['water'],super-rare,water,,18,medium_fast,161
 551,"['intimidate', 'moxie', 'anger-point']",깜눈크,['candy_50'],['0552'],[],[],5,0.7,0.57,0.5,0.35,0.5,"['move_mean-look', 'move_cut']",['land'],common,ground,dark,15.2,medium_slow,58
@@ -742,9 +742,9 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 553,"['intimidate', 'moxie', 'anger-point']",악비아르,[],[],[],[],5,1.5,0.14,0.5,0.6,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],ultra-rare,ground,dark,96.3,medium_slow,234
 554,"['hustle', 'inner-focus']",달막화,['candy_50'],['0555'],[],[],5,0.6,0.38,0.5,0.45,0.5,"['move_rock-smash', 'move_strength']",['land'],rare,fire,,37.5,medium_slow,63
 0554_galar,"['hustle', 'inner-focus']",달막화,['candy_50'],['0555_galar'],[],[],5,0.7,0.38,0.5,0.45,0.5,[],['land'],rare,ice,,40,medium_slow,63
-555,"['sheer-force', 'zen_mode']",불비달마,[],[],[],[],5,,0.19,0.5,0.6,0.5,"['move_rock-smash', 'move_strength']",['land'],super-rare,fire,,,medium_slow,168
+555,"['sheer-force', 'zen_mode']",불비달마,[],[],[],[],5,,0.19,0.5,0.6,0.5,"['move_rock-smash', 'move_strength']",['land'],super-rare,fire,,92.9,medium_slow,168
 0555-zen,"['sheer-force', 'zen_mode']",불비달마,[],[],[],[],5,1.3,0.19,0.5,0.6,0.5,"['move_rock-smash', 'move_strength']",['land'],super-rare,fire,psychic,92.9,medium_slow,168
-0555_galar,"['gorilla-tactics', 'zen_mode']",불비달마,[],[],[],[],5,,0.19,0.5,0.6,0.5,[],['land'],super-rare,ice,,,medium_slow,168
+0555_galar,"['gorilla-tactics', 'zen_mode']",불비달마,[],[],[],[],5,,0.19,0.5,0.6,0.5,[],['land'],super-rare,ice,,120,medium_slow,168
 0555_galar-zen,"['gorilla-tactics', 'zen_mode']",불비달마,[],[],[],[],5,1.7,0.19,0.5,0.6,0.5,[],['land'],super-rare,ice,fire,120,medium_slow,168
 556,"['water-absorb', 'chlorophyll', 'storm-drain']",마라카치,[],[],[],[],5,1,0.8,0.5,0.35,0.5,[],['land'],uncommon,grass,,28,medium_fast,161
 557,"['sturdy', 'shell-armor', 'weak-armor']",돌살이,['candy_50'],['0558'],[],[],5,0.3,0.6,0.5,0.35,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],uncommon,bug,rock,14.5,medium_fast,65
@@ -780,14 +780,14 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 582,"['ice-body', 'snow-cloak', 'weak-armor']",바닐프티,['candy_50'],['0583'],[],[],5,0.4,0.8,0.5,0.35,0.5,[],"['land','water']",common,ice,,5.7,slow,61
 583,"['ice-body', 'snow-cloak', 'weak-armor']",바닐리치,['candy_75'],['0584'],[],[],5,1.1,0.38,0.5,0.45,0.5,[],"['land','water']",super-rare,ice,,41,slow,138
 584,"['ice-body', 'snow-warning', 'weak-armor']",배바닐라,[],[],[],[],5,1.3,0.14,0.5,0.6,0.5,[],"['land','water']",ultra-rare,ice,,57.5,slow,241
-0585-spring,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-spring'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],uncommon,normal,grass,,medium_fast,67
-0585-summer,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-summer'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],uncommon,normal,grass,,medium_fast,67
-0585-autumn,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-autumn'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],uncommon,normal,grass,,medium_fast,67
-0585-winter,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-winter'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],uncommon,normal,grass,,medium_fast,67
-0586-spring,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],super-rare,normal,grass,,medium_fast,166
-0586-summer,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],super-rare,normal,grass,,medium_fast,166
-0586-autumn,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],super-rare,normal,grass,,medium_fast,166
-0586-winter,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],super-rare,normal,grass,,medium_fast,166
+0585-spring,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-spring'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],uncommon,normal,grass,19.5,medium_fast,67
+0585-summer,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-summer'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],uncommon,normal,grass,19.5,medium_fast,67
+0585-autumn,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-autumn'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],uncommon,normal,grass,19.5,medium_fast,67
+0585-winter,"['chlorophyll', 'sap-sipper', 'serene-grace']",사철록,['candy_50'],['0586-winter'],[],[],5,,0.6,0.5,0.35,0.5,['move_flash'],['land'],uncommon,normal,grass,19.5,medium_fast,67
+0586-spring,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],super-rare,normal,grass,92.5,medium_fast,166
+0586-summer,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],super-rare,normal,grass,92.5,medium_fast,166
+0586-autumn,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],super-rare,normal,grass,92.5,medium_fast,166
+0586-winter,"['chlorophyll', 'sap-sipper', 'serene-grace']",바라철록,[],[],[],[],5,,0.23,0.5,0.45,0.5,"['move_flash', 'move_cut', 'move_rock-smash']",['land'],super-rare,normal,grass,92.5,medium_fast,166
 587,"['static', 'motor-drive']",에몽가,[],[],[],[],5,0.4,0.62,0.5,0.35,0.5,"['move_flash', 'move_defog', 'move_cut']","['land','water']",uncommon,electric,flying,5,medium_fast,150
 588,"['swarm', 'shed-skin', 'no-guard']",딱정곤,['linking-cord'],['0589'],[],[],5,0.5,0.62,0.5,0.35,0.5,['move_cut'],['land'],uncommon,bug,,5.9,medium_fast,63
 589,"['swarm', 'shell-armor', 'overcoat']",슈바르고,[],[],[],[],5,1,0.23,0.5,0.45,0.5,"['move_cut', 'move_rock-smash']","['land','water']",super-rare,bug,steel,33,medium_fast,173
@@ -847,20 +847,20 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 638,['justified'],코바르온,[],[],[],[],5,2.1,0.01,0,0.75,0,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],legendary,steel,fighting,250,slow,261
 639,['justified'],테라키온,[],[],[],[],5,1.9,0.01,0,0.75,0,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],legendary,rock,fighting,260,slow,261
 640,['justified'],비리디온,[],[],[],[],5,2,0.01,0,0.75,0,"['move_flash', 'move_cut', 'move_rock-smash', 'move_strength']",['land'],legendary,grass,fighting,200,slow,261
-641,"['prankster', 'defiant']",토네로스,[],[],[],[],5,,0.01,0,0.75,1,"['move_defog', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,flying,,,slow,261
+641,"['prankster', 'defiant']",토네로스,[],[],[],[],5,,0.01,0,0.75,1,"['move_defog', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,flying,,63,slow,261
 0641-therian,['regenerator'],토네로스,[],[],[],[],5,1.4,0.01,0,0.75,1,"['move_defog', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,flying,,63,slow,261
-642,"['prankster', 'defiant']",볼트로스,[],[],[],[],5,,0.01,0,0.75,1,"['move_defog', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,electric,flying,,slow,261
+642,"['prankster', 'defiant']",볼트로스,[],[],[],[],5,,0.01,0,0.75,1,"['move_defog', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,electric,flying,61,slow,261
 0642-therian,['volt-absorb'],볼트로스,[],[],[],[],5,3,0.01,0,0.75,1,"['move_defog', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,electric,flying,61,slow,261
 643,['turboblaze'],레시라무,[],[],[],[],5,3.2,0.01,0,0.75,0,"['move_defog', 'move_cut', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,dragon,fire,330,slow,306
 644,['teravolt'],제크로무,[],[],[],[],5,2.9,0.01,0,0.75,0,"['move_flash', 'move_defog', 'move_cut', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,dragon,electric,345,slow,306
-645,"['sand-force', 'sheer-force']",랜드로스,[],[],[],[],5,,0.01,0,0.75,1,"['move_defog', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,ground,flying,,slow,270
+645,"['sand-force', 'sheer-force']",랜드로스,[],[],[],[],5,,0.01,0,0.75,1,"['move_defog', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,ground,flying,68,slow,270
 0645-therian,['intimidate'],랜드로스,[],[],[],[],5,1.3,0.01,0,0.75,1,"['move_defog', 'move_rock-smash', 'move_strength', 'move_fly']","['land','water']",legendary,ground,flying,68,slow,270
 646,['pressure'],큐레무,[],[],[],[],5,3,0.01,0,0.75,0,"['move_cut', 'move_rock-smash', 'move_strength', 'move_fly']",['land'],legendary,dragon,ice,325,slow,297
 0646-white,['teravolt'],큐레무,[],[],[],[],5,3.6,0.01,0,0.75,0,"['move_cut', 'move_rock-smash', 'move_strength', 'move_fly']",['land'],legendary,dragon,ice,325,slow,297
 0646-black,['turboblaze'],큐레무,[],[],[],[],5,3.3,0.01,0,0.75,0,"['move_cut', 'move_rock-smash', 'move_strength', 'move_fly']",['land'],legendary,dragon,ice,325,slow,297
-647,['justified'],케르디오,[],[],[],[],5,,0.01,0,0.75,0,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['water'],legendary,water,fighting,,slow,261
+647,['justified'],케르디오,[],[],[],[],5,,0.01,0,0.75,0,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['water'],legendary,water,fighting,48.5,slow,261
 0647-resolute,['justified'],케르디오,[],[],[],[],5,1.4,0.01,0,0.75,0,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['water'],legendary,water,fighting,48.5,slow,261
-648,['serene-grace'],메로엣타,[],[],[],[],5,,0.01,0,0.75,0,"['move_flash', 'move_rock-smash', 'move_strength']","['land','water']",legendary,normal,psychic,,slow,270
+648,['serene-grace'],메로엣타,[],[],[],[],5,,0.01,0,0.75,0,"['move_flash', 'move_rock-smash', 'move_strength']","['land','water']",legendary,normal,psychic,6.5,slow,270
 0648-pirouette,['serene-grace'],메로엣타,[],[],[],[],5,0.6,0.01,0,0.75,0,"['move_flash', 'move_rock-smash', 'move_strength']","['land','water']",legendary,normal,fighting,6.5,slow,270
 649,['download'],게노세크트,[],[],[],[],5,1.5,0.01,0,0.75,0,"['move_flash', 'move_fly']",['land'],legendary,bug,steel,82.5,slow,270
 650,"['overgrow', 'bulletproof']",도치마론,['candy_50'],['0651'],[],[],6,0.4,0.14,0.12,0.6,0.88,"['move_flash', 'move_cut', 'move_rock-smash', 'move_strength']",['land'],super-rare,grass,,9,medium_slow,63
@@ -888,44 +888,44 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 667,"['rivalry', 'unnerve', 'moxie']",레오꼬,['candy_40'],['0668'],[],[],6,0.6,0.69,0.88,0.35,0.12,"['move_rock-smash', 'move_strength']",['land'],rare,fire,normal,13.5,medium_slow,74
 668,"['rivalry', 'unnerve', 'moxie']",화염레오,[],[],[],[],6,1.5,0.2,0.88,0.45,0.12,"['move_rock-smash', 'move_strength']",['land'],super-rare,fire,normal,81.5,medium_slow,177
 0668-mega,[],화염레오,[],[],[],[],6,1.5,0.2,0.88,0.45,0.12,[],['land'],super-rare,fire,normal,93.3,medium_slow,177
-0669-red,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-red'],[],[],6,,0.7,1,0.35,0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
-0669-yellow,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-yellow'],[],[],6,,0.7,1,0.35,0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
-0669-orange,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-orange'],[],[],6,,0.7,1,0.35,0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
-0669-blue,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-blue'],[],[],6,,0.7,1,0.35,0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
-0669-white,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-white'],[],[],6,,0.7,1,0.35,0,['move_flash'],"['land','water']",common,fairy,,,medium_fast,61
-0670-red,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-red'],[],[],6,,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
-0670-yellow,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-yellow'],[],[],6,,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
-0670-orange,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-orange'],[],[],6,,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
-0670-blue,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-blue'],[],[],6,,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
-0670-white,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-white'],[],[],6,,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,,medium_fast,130
+0669-red,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-red'],[],[],6,,0.7,1,0.35,0,['move_flash'],"['land','water']",common,fairy,,0.1,medium_fast,61
+0669-yellow,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-yellow'],[],[],6,,0.7,1,0.35,0,['move_flash'],"['land','water']",common,fairy,,0.1,medium_fast,61
+0669-orange,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-orange'],[],[],6,,0.7,1,0.35,0,['move_flash'],"['land','water']",common,fairy,,0.1,medium_fast,61
+0669-blue,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-blue'],[],[],6,,0.7,1,0.35,0,['move_flash'],"['land','water']",common,fairy,,0.1,medium_fast,61
+0669-white,"['flower-veil', 'symbiosis']",플라베베,['candy_38'],['0670-white'],[],[],6,,0.7,1,0.35,0,['move_flash'],"['land','water']",common,fairy,,0.1,medium_fast,61
+0670-red,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-red'],[],[],6,,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,0.9,medium_fast,130
+0670-yellow,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-yellow'],[],[],6,,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,0.9,medium_fast,130
+0670-orange,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-orange'],[],[],6,,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,0.9,medium_fast,130
+0670-blue,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-blue'],[],[],6,,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,0.9,medium_fast,130
+0670-white,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671-white'],[],[],6,,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,0.9,medium_fast,130
 0670-eternal,"['flower-veil', 'symbiosis']",플라엣테,['shiny-stone'],['0671'],[],[],6,0.2,0.38,1,0.45,0,['move_flash'],"['land','water']",rare,fairy,,0.9,medium_fast,130
 0670-mega,[],플라엣테,['shiny-stone'],['0671'],[],[],6,0.2,0.38,1,0.45,0,[],"['land','water']",rare,fairy,,100.8,medium_fast,130
-0671-red,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1,0.6,0,"['move_flash', 'move_defog']","['land','water']",ultra-rare,fairy,,,medium_fast,248
-0671-yellow,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1,0.6,0,"['move_flash', 'move_defog']","['land','water']",ultra-rare,fairy,,,medium_fast,248
-0671-orange,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1,0.6,0,"['move_flash', 'move_defog']","['land','water']",ultra-rare,fairy,,,medium_fast,248
-0671-blue,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1,0.6,0,"['move_flash', 'move_defog']","['land','water']",ultra-rare,fairy,,,medium_fast,248
-0671-white,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1,0.6,0,"['move_flash', 'move_defog']","['land','water']",ultra-rare,fairy,,,medium_fast,248
+0671-red,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1,0.6,0,"['move_flash', 'move_defog']","['land','water']",ultra-rare,fairy,,10,medium_fast,248
+0671-yellow,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1,0.6,0,"['move_flash', 'move_defog']","['land','water']",ultra-rare,fairy,,10,medium_fast,248
+0671-orange,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1,0.6,0,"['move_flash', 'move_defog']","['land','water']",ultra-rare,fairy,,10,medium_fast,248
+0671-blue,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1,0.6,0,"['move_flash', 'move_defog']","['land','water']",ultra-rare,fairy,,10,medium_fast,248
+0671-white,"['flower-veil', 'symbiosis']",플라제스,[],[],[],[],6,,0.14,1,0.6,0,"['move_flash', 'move_defog']","['land','water']",ultra-rare,fairy,,10,medium_fast,248
 672,"['sap-sipper', 'grass-pelt']",메이클,['candy_40'],['0673'],[],[],6,0.9,0.62,0.5,0.35,0.5,"['move_surf', 'move_rock-smash', 'move_strength']",['land'],uncommon,grass,,31,medium_fast,70
 673,"['sap-sipper', 'grass-pelt']",고고트,[],[],[],[],6,1.7,0.14,0.5,0.45,0.5,"['move_surf', 'move_rock-smash', 'move_strength']",['land'],super-rare,grass,,91,medium_fast,186
 674,"['iron-fist', 'mold-breaker', 'scrappy']",판짱,['candy_36'],['0675'],[],[],6,0.6,0.69,0.5,0.35,0.5,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['land'],uncommon,fighting,,8,medium_fast,70
 675,"['iron-fist', 'mold-breaker', 'scrappy']",부란다,[],[],[],[],6,2.1,0.2,0.5,0.45,0.5,"['move_surf', 'move_cut', 'move_rock-smash', 'move_strength']",['land'],super-rare,fighting,dark,136,medium_fast,173
 676,['fur-coat'],트리미앙,[],[],[],[],6,1.2,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,28,medium_fast,165
-0676-heart,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,,medium_fast,165
-0676-star,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,,medium_fast,165
-0676-diamond,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,,medium_fast,165
-0676-debutante,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,,medium_fast,165
-0676-matron,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,,medium_fast,165
-0676-dandy,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,,medium_fast,165
-0676-la-reine,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,,medium_fast,165
-0676-kabuki,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,,medium_fast,165
-0676-pharaoh,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,,medium_fast,165
+0676-heart,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,28,medium_fast,165
+0676-star,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,28,medium_fast,165
+0676-diamond,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,28,medium_fast,165
+0676-debutante,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,28,medium_fast,165
+0676-matron,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,28,medium_fast,165
+0676-dandy,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,28,medium_fast,165
+0676-la-reine,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,28,medium_fast,165
+0676-kabuki,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,28,medium_fast,165
+0676-pharaoh,['fur-coat'],트리미앙,[],[],[],[],6,,0.5,0.5,0.35,0.5,"['move_surf', 'move_flash', 'move_rock-smash']",['land'],uncommon,normal,,28,medium_fast,165
 677,"['keen-eye', 'infiltrator', 'own-tempo']",냐스퍼,['candy_38'],['0678'],[],[],6,0.3,0.6,0.5,0.35,0.5,"['move_flash', 'move_cut']",['land'],uncommon,psychic,,3.5,medium_fast,71
-678,"['keen-eye', 'infiltrator', 'prankster']",냐오닉스,[],[],[],[],6,,0.23,0.5,0.45,0.5,"['move_mean-look', 'move_flash', 'move_cut']",['land'],super-rare,psychic,,,medium_fast,163
+678,"['keen-eye', 'infiltrator', 'prankster']",냐오닉스,[],[],[],[],6,,0.23,0.5,0.45,0.5,"['move_mean-look', 'move_flash', 'move_cut']",['land'],super-rare,psychic,,8.5,medium_fast,163
 0678-mega,[],냐오닉스,[],[],[],[],6,0.8,0.23,0.5,0.45,0.5,[],['land'],super-rare,psychic,,10.1,medium_fast,163
 679,['no-guard'],단칼빙,['candy_50'],['0680'],[],[],6,0.8,0.57,0.5,0.35,0.5,"['move_cut', 'move_rock-smash']",['land'],rare,steel,ghost,2,medium_fast,65
 680,['no-guard'],쌍검킬,['dusk-stone'],['0681'],[],[],6,0.8,0.28,0.5,0.45,0.5,"['move_cut', 'move_rock-smash']",['land'],super-rare,steel,ghost,4.5,medium_fast,157
-681,['stance-change'],킬가르도,[],[],[],[],6,,0.14,0.5,0.6,0.5,"['move_cut', 'move_rock-smash']",['land'],ultra-rare,steel,ghost,,medium_fast,234
-0681-blade,['stance-change'],킬가르도,[],[],[],[],6,,0.14,0.5,0.6,0.5,"['move_cut', 'move_rock-smash']",['land'],ultra-rare,steel,ghost,,medium_fast,234
+681,['stance-change'],킬가르도,[],[],[],[],6,,0.14,0.5,0.6,0.5,"['move_cut', 'move_rock-smash']",['land'],ultra-rare,steel,ghost,53,medium_fast,234
+0681-blade,['stance-change'],킬가르도,[],[],[],[],6,,0.14,0.5,0.6,0.5,"['move_cut', 'move_rock-smash']",['land'],ultra-rare,steel,ghost,53,medium_fast,234
 682,"['healer', 'aroma-veil']",슈쁘,['sachet'],['0683'],[],[],6,0.2,0.62,0.5,0.35,0.5,['move_flash'],['land'],uncommon,fairy,,0.5,medium_fast,68
 683,"['healer', 'aroma-veil']",프레프티르,[],[],[],[],6,0.8,0.44,0.5,0.45,0.5,['move_flash'],['land'],super-rare,fairy,,15.5,medium_fast,162
 684,"['sweet-veil', 'unburden']",나룸퍼프,['whipped-dream'],['0685'],[],[],6,0.4,0.62,0.5,0.35,0.5,"['move_surf', 'move_flash']",['land'],uncommon,fairy,,3.5,medium_fast,68
@@ -960,11 +960,11 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 707,"['prankster', 'magician']",클레피,[],[],[],[],6,0.2,0.23,0.5,0.35,0.5,"['move_defog', 'move_cut']",['land'],uncommon,steel,fairy,3,fast,165
 708,"['natural-cure', 'frisk', 'harvest']",나목령,['linking-cord'],['0709'],[],[],6,0.4,0.38,0.5,0.35,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],uncommon,ghost,grass,7,medium_fast,62
 709,"['natural-cure', 'frisk', 'harvest']",대로트,[],[],[],[],6,1.5,0.19,0.5,0.45,0.5,"['move_cut', 'move_rock-smash', 'move_strength']",['land'],ultra-rare,ghost,grass,71,medium_fast,166
-710,"['pickup', 'frisk', 'insomnia']",호바귀,['linking-cord'],['0711'],[],[],6,,0.38,0.5,0.35,0.5,"['move_flash', 'move_rock-smash']",['land'],uncommon,ghost,grass,,medium_fast,67
+710,"['pickup', 'frisk', 'insomnia']",호바귀,['linking-cord'],['0711'],[],[],6,,0.38,0.5,0.35,0.5,"['move_flash', 'move_rock-smash']",['land'],uncommon,ghost,grass,5,medium_fast,67
 0710-small,"['pickup', 'frisk', 'insomnia']",호바귀,['linking-cord'],['0711'],[],[],6,0.3,0.38,0.5,0.35,0.5,"['move_flash', 'move_rock-smash']",['land'],uncommon,ghost,grass,3.5,medium_fast,67
 0710-large,"['pickup', 'frisk', 'insomnia']",호바귀,['linking-cord'],['0711'],[],[],6,0.5,0.38,0.5,0.35,0.5,"['move_flash', 'move_rock-smash']",['land'],uncommon,ghost,grass,7.5,medium_fast,67
 0710-super,"['pickup', 'frisk', 'insomnia']",호바귀,['linking-cord'],['0711'],[],[],6,0.8,0.38,0.5,0.35,0.5,"['move_flash', 'move_rock-smash']",['land'],uncommon,ghost,grass,15,medium_fast,67
-711,"['pickup', 'frisk', 'insomnia']",펌킨인,[],[],[],[],6,,0.19,0.5,0.45,0.5,"['move_flash', 'move_rock-smash']",['land'],ultra-rare,ghost,grass,,medium_fast,173
+711,"['pickup', 'frisk', 'insomnia']",펌킨인,[],[],[],[],6,,0.19,0.5,0.45,0.5,"['move_flash', 'move_rock-smash']",['land'],ultra-rare,ghost,grass,12.5,medium_fast,173
 0711-small,"['pickup', 'frisk', 'insomnia']",펌킨인,[],[],[],[],6,0.7,0.19,0.5,0.45,0.5,"['move_flash', 'move_rock-smash']",['land'],ultra-rare,ghost,grass,9.5,medium_fast,173
 0711-large,"['pickup', 'frisk', 'insomnia']",펌킨인,[],[],[],[],6,1.1,0.19,0.5,0.45,0.5,"['move_flash', 'move_rock-smash']",['land'],ultra-rare,ghost,grass,14,medium_fast,173
 0711-super,"['pickup', 'frisk', 'insomnia']",펌킨인,[],[],[],[],6,1.7,0.19,0.5,0.45,0.5,"['move_flash', 'move_rock-smash']",['land'],ultra-rare,ghost,grass,39,medium_fast,173
@@ -974,10 +974,10 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 714,"['frisk', 'infiltrator', 'telepathy']",음뱃,['candy_80'],['0715'],[],[],6,0.5,0.2,0.5,0.6,0.5,"['move_defog', 'move_cut', 'move_fly']","['land','water']",super-rare,flying,dragon,8,medium_fast,49
 715,"['frisk', 'infiltrator', 'telepathy']",음번,[],[],[],[],6,1.5,0.14,0.5,0.6,0.5,"['move_defog', 'move_cut', 'move_fly']","['land','water']",ultra-rare,flying,dragon,85,medium_fast,187
 716,['fairy-aura'],제르네아스,[],[],[],[],6,3,0.03,0,0.75,0,"['move_flash', 'move_defog', 'move_cut']",['land'],legendary,fairy,,215,slow,306
-0716-active,['fairy-aura'],제르네아스,[],[],[],[],6,,0.03,0,0.75,0,"['move_flash', 'move_defog', 'move_cut']",['land'],legendary,fairy,,,slow,306
+0716-active,['fairy-aura'],제르네아스,[],[],[],[],6,,0.03,0,0.75,0,"['move_flash', 'move_defog', 'move_cut']",['land'],legendary,fairy,,215,slow,306
 717,['dark-aura'],이벨타르,[],[],[],[],6,5.8,0.03,0,0.75,0,"['move_defog', 'move_cut', 'move_fly']","['land','water']",legendary,dark,flying,203,slow,306
-718,['aura-break'],지가르데,[],[],[],[],6,,0.01,0,0.75,0,"['move_rock-smash', 'move_strength']",['land'],legendary,dragon,ground,,slow,270
-0718-10-power,['power-construct'],지가르데,[],[],[],[],6,,0.01,0,0.75,0,[],['land'],legendary,dragon,ground,,slow,270
+718,['aura-break'],지가르데,[],[],[],[],6,,0.01,0,0.75,0,"['move_rock-smash', 'move_strength']",['land'],legendary,dragon,ground,305,slow,270
+0718-10-power,['power-construct'],지가르데,[],[],[],[],6,,0.01,0,0.75,0,[],['land'],legendary,dragon,ground,33.5,slow,270
 0718-complete,['power-construct'],지가르데,[],[],[],[],6,4.5,0.01,0,0.75,0,[],['land'],legendary,dragon,ground,610,slow,270
 0718-mega,[],지가르데,[],[],[],[],6,7.7,0.01,0,0.75,0,[],['land'],legendary,dragon,ground,610,slow,270
 719,['clear-body'],디안시,[],[],[],[],6,0.7,0.01,0,0.75,0,['move_flash'],['land'],legendary,rock,fairy,8.8,slow,270
@@ -1005,17 +1005,17 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 738,['levitate'],투구뿌논,[],[],[],[],7,1.5,0.14,0.5,0.6,0.5,['move_fly'],"['land','water']",ultra-rare,bug,electric,45,medium_fast,225
 739,"['hyper-cutter', 'iron-fist', 'anger-point']",오기지게,['ice-stone'],['0740'],[],[],7,0.6,0.7,0.5,0.35,0.5,['move_rock-smash'],['land'],uncommon,fighting,,7,medium_fast,68
 740,"['hyper-cutter', 'iron-fist', 'anger-point']",모단단게,[],[],[],[],7,1.7,0.19,0.5,0.45,0.5,['move_rock-smash'],['land'],super-rare,fighting,ice,180,medium_fast,167
-741,['dancer'],춤추새,[],[],[],[],7,,0.14,0.75,0.35,0.25,"['move_defog', 'move_fly']",['land'],uncommon,fire,flying,,medium_fast,167
+741,['dancer'],춤추새,[],[],[],[],7,,0.14,0.75,0.35,0.25,"['move_defog', 'move_fly']",['land'],uncommon,fire,flying,3.4,medium_fast,167
 0741-pom-pom,['dancer'],춤추새,[],[],[],[],7,0.6,0.14,0.75,0.35,0.25,"['move_defog', 'move_fly']",['land'],uncommon,electric,flying,3.4,medium_fast,167
 0741-pau,['dancer'],춤추새,[],[],[],[],7,0.6,0.14,0.75,0.35,0.25,"['move_defog', 'move_fly']",['land'],uncommon,psychic,flying,3.4,medium_fast,167
 0741-sensu,['dancer'],춤추새,[],[],[],[],7,0.6,0.14,0.75,0.35,0.25,"['move_defog', 'move_fly']",['land'],uncommon,ghost,flying,3.4,medium_fast,167
 742,"['honey-gather', 'shield-dust', 'sweet-veil']",에블리,['candy_25'],['0743'],[],[],7,0.1,0.6,0.5,0.35,0.5,['move_defog'],['land'],uncommon,bug,fairy,0.2,medium_fast,61
 743,"['honey-gather', 'shield-dust', 'sweet-veil']",에리본,[],[],[],[],7,0.2,0.23,0.5,0.45,0.5,['move_defog'],['land'],super-rare,bug,fairy,0.5,medium_fast,162
 744,"['keen-eye', 'vital-spirit', 'steadfast']",암멍이,"['candy_50+time_day', 'candy_50+time_night']","['0745', '0745-midnight']",[],[],7,0.5,0.6,0.5,0.35,0.5,[],['land'],rare,rock,,9.2,medium_fast,56
-745,"['keen-eye', 'sand-rush', 'steadfast']",루가루암,[],[],[],[],7,,0.28,0.5,0.45,0.5,[],['land'],super-rare,rock,,,medium_fast,170
+745,"['keen-eye', 'sand-rush', 'steadfast']",루가루암,[],[],[],[],7,,0.28,0.5,0.45,0.5,[],['land'],super-rare,rock,,25,medium_fast,170
 0745-midnight,"['keen-eye', 'vital-spirit', 'no-guard']",루가루암,[],[],[],[],7,1.1,0.28,0.5,0.45,0.5,[],['land'],ultra-rare,rock,,25,medium_fast,170
 0745-dusk,['tough-claws'],루가루암,[],[],[],[],7,0.8,0.28,0.5,0.45,0.5,[],['land'],ultra-rare,rock,,25,medium_fast,170
-746,['schooling'],약어리,[],[],[],[],7,,0.19,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['water'],common,water,,,fast,61
+746,['schooling'],약어리,[],[],[],[],7,,0.19,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['water'],common,water,,0.3,fast,61
 0746-school,['schooling'],약어리,[],[],[],[],7,8.2,0.19,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['water'],super-rare,water,,78.6,fast,61
 747,"['merciless', 'limber', 'regenerator']",시마사리,['candy_50'],['0748'],[],[],7,0.4,0.6,0.5,0.35,0.5,['move_surf'],"['land','water']",common,poison,water,8,medium_fast,61
 748,"['merciless', 'limber', 'regenerator']",더시마사리,[],[],[],[],7,0.7,0.23,0.5,0.45,0.5,['move_surf'],"['land','water']",super-rare,poison,water,14.5,medium_fast,173
@@ -1045,7 +1045,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 771,"['innards-out', 'unaware']",해무기,[],[],[],[],7,0.3,0.19,0.5,0.35,0.5,[],"['land','water']",uncommon,water,,1.2,fast,144
 772,['battle-armor'],타입:널,['friendship_160'],['0773'],[],[],7,1.9,0.01,0,0.75,0,[],['land'],unique,normal,,120.5,slow,107
 773,['rks-system'],실버디,[],[],[],[],7,2.3,0.01,0,0.75,0,"['move_surf', 'move_defog']",['land'],legendary,normal,,100.5,slow,257
-774,['shields-down'],메테노,[],[],[],[],7,,0.1,0,0.45,0,[],['land'],super-rare,rock,flying,,medium_slow,154
+774,['shields-down'],메테노,[],[],[],[],7,,0.1,0,0.45,0,[],['land'],super-rare,rock,flying,40,medium_slow,154
 0774-orange,['shields-down'],메테노,[],[],[],[],7,0.3,0.1,0,0.45,0,[],['land'],super-rare,rock,flying,0.3,medium_slow,154
 0774-yellow,['shields-down'],메테노,[],[],[],[],7,0.3,0.1,0,0.45,0,[],['land'],super-rare,rock,flying,0.3,medium_slow,154
 0774-green,['shields-down'],메테노,[],[],[],[],7,0.3,0.1,0,0.45,0,[],['land'],super-rare,rock,flying,0.3,medium_slow,154
@@ -1055,7 +1055,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 775,['comatose'],자말라,[],[],[],[],7,0.4,0.14,0.5,0.35,0.5,[],['land'],uncommon,normal,,19.9,slow,168
 776,['shell-armor'],폭거북스,[],[],[],[],7,2,0.22,0.5,0.45,0.5,[],['land'],super-rare,fire,dragon,212,medium_fast,170
 777,"['iron-barbs', 'lightning-rod', 'sturdy']",토게데마루,[],[],[],[],7,0.3,0.57,0.5,0.35,0.5,[],['land'],uncommon,electric,steel,3.3,medium_fast,152
-778,['disguise'],따라큐,[],[],[],[],7,,0.14,0.5,0.6,0.5,[],['land'],ultra-rare,ghost,fairy,,medium_fast,167
+778,['disguise'],따라큐,[],[],[],[],7,,0.14,0.5,0.6,0.5,[],['land'],ultra-rare,ghost,fairy,0.7,medium_fast,167
 779,"['dazzling', 'strong-jaw', 'wonder-skin']",치갈기,[],[],[],[],7,0.9,0.25,0.5,0.35,0.5,"['move_surf', 'move_waterfall']",['water'],uncommon,water,psychic,19,medium_fast,166
 780,"['berserk', 'sap-sipper', 'cloud-nine']",할비롱,[],[],[],[],7,3,0.2,0.5,0.6,0.5,"['move_surf', 'move_defog', 'move_fly']",['land'],ultra-rare,normal,dragon,185,medium_fast,170
 0780-mega,[],할비롱,[],[],[],[],7,3,0.2,0.5,0.6,0.5,[],['land'],ultra-rare,normal,dragon,240.5,medium_fast,170
@@ -1080,10 +1080,10 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 799,['beast-boost'],악식킹,[],[],[],[],7,5.5,0.14,0,0.6,0,[],['land'],unique,dark,dragon,888,slow,257
 800,['prism-armor'],네크로즈마,[],[],[],[],7,2.4,0.03,0,0.75,0,[],['land'],legendary,psychic,,230,slow,270
 0800-dusk,['prism-armor'],네크로즈마,[],[],[],[],7,3.8,0.03,0,0.75,0,[],"['land','water']",legendary,psychic,steel,460,slow,270
-0800-dawn,['prism-armor'],네크로즈마,[],[],[],[],7,,0.03,0,0.75,0,[],"['land','water']",legendary,psychic,ghost,,slow,270
+0800-dawn,['prism-armor'],네크로즈마,[],[],[],[],7,,0.03,0,0.75,0,[],"['land','water']",legendary,psychic,ghost,350,slow,270
 0800-ultra,['neuroforce'],네크로즈마,[],[],[],[],7,7.5,0.03,0,0.75,0,[],['land'],legendary,psychic,dragon,230,slow,270
 801,['soul-heart'],마기아나,[],[],[],[],7,1,0.01,0,0.75,0,[],['land'],legendary,steel,fairy,80.5,slow,270
-0801-original,['soul-heart'],마기아나,[],[],[],[],7,,0.01,0,0.75,0,[],['land'],legendary,steel,fairy,,slow,270
+0801-original,['soul-heart'],마기아나,[],[],[],[],7,,0.01,0,0.75,0,[],['land'],legendary,steel,fairy,80.5,slow,270
 802,['technician'],마샤도,[],[],[],[],7,0.7,0.01,0,0.75,0,[],['land'],legendary,fighting,ghost,22.2,slow,270
 803,['beast-boost'],베베놈,['move_dragon-pulse'],['0804'],[],[],7,0.6,0.14,0,0.6,0,[],['land'],epic,poison,,1.8,slow,189
 804,['beast-boost'],아고용,[],[],[],[],7,3.6,0.14,0,0.6,0,['move_fly'],['land'],unique,poison,dragon,150,slow,243
@@ -1113,7 +1113,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 823,"['pressure', 'unnerve', 'mirror-armor']",아머까오,[],[],[],[],8,2.2,0.14,0.5,0.6,0.5,"['move_defog', 'move_rock-smash', 'move_fly']","['land','water']",ultra-rare,flying,steel,75,medium_slow,248
 0823-gmax,"['pressure', 'unnerve', 'mirror-armor']",아머까오,[],[],[],[],8,14,0.14,0.5,0.6,0.5,[],"['land','water']",unique,flying,steel,1000,medium_slow,248
 824,"['swarm', 'compound-eyes', 'telepathy']",두루지벌레,['candy_25'],['0825'],[],[],8,0.4,0.8,0.5,0.35,0.5,[],['land'],common,bug,,8,medium_fast,36
-825,"['swarm', 'compound-eyes', 'telepathy']",레돔벌레,['candy_50'],['0826'],[],[],8,,0.38,0.5,0.45,0.5,[],['land'],rare,bug,psychic,,medium_fast,117
+825,"['swarm', 'compound-eyes', 'telepathy']",레돔벌레,['candy_50'],['0826'],[],[],8,,0.38,0.5,0.45,0.5,[],['land'],rare,bug,psychic,19.5,medium_fast,117
 826,"['swarm', 'frisk', 'telepathy']",이올브,[],[],[],[],8,0.4,0.14,0.5,0.6,0.5,[],['land'],super-rare,bug,psychic,40.8,medium_fast,253
 0826-gmax,"['swarm', 'frisk', 'telepathy']",이올브,[],[],[],[],8,14,0.14,0.5,0.6,0.5,[],['land'],unique,bug,psychic,1000,medium_fast,253
 827,"['run-away', 'unburden', 'stakeout']",훔처우,['candy_50'],['0828'],[],[],8,0.6,0.8,0.5,0.35,0.5,[],['land'],common,dark,,8.9,fast,49
@@ -1145,7 +1145,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 846,"['swift-swim', 'propeller-tail']",찌로꼬치,['candy_50'],['0847'],[],[],8,0.5,0.8,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['water'],common,water,,1,slow,56
 847,"['swift-swim', 'propeller-tail']",꼬치조,[],[],[],[],8,1.3,0.19,0.5,0.45,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['water'],super-rare,water,,30,slow,172
 848,"['rattled', 'static', 'klutz']",일레즌,['candy_50'],['0849'],[],[],8,0.4,0.23,0.5,0.45,0.5,[],['land'],rare,electric,poison,11,medium_slow,48
-849,"['punk-rock', 'plus', 'technician']",스트린더,[],[],[],[],8,,0.14,0.5,0.6,0.5,[],['land'],super-rare,electric,poison,,medium_slow,176
+849,"['punk-rock', 'plus', 'technician']",스트린더,[],[],[],[],8,,0.14,0.5,0.6,0.5,[],['land'],super-rare,electric,poison,40,medium_slow,176
 0849-low-key,"['punk-rock', 'minus', 'technician']",스트린더,[],[],[],[],8,1.6,0.14,0.5,0.6,0.5,[],['land'],super-rare,electric,poison,40,medium_slow,176
 0849-amped-gmax,"['punk-rock', 'plus', 'technician']",스트린더,[],[],[],[],8,24,0.14,0.5,0.6,0.5,[],['land'],super-rare,electric,poison,1000,medium_slow,176
 0849-low-key-gmax,"['punk-rock', 'minus', 'technician']",스트린더,[],[],[],[],8,24,0.14,0.5,0.6,0.5,[],['land'],super-rare,electric,poison,1000,medium_slow,176
@@ -1167,7 +1167,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 862,"['reckless', 'guts', 'defiant']",가로막구리,[],[],[],[],8,1.6,0.14,0.5,0.6,0.5,['move_surf'],['land'],ultra-rare,dark,normal,46,medium_fast,260
 863,"['battle-armor', 'tough-claws', 'steely-spirit']",나이킹,[],[],[],[],8,0.8,0.28,0.5,0.45,0.5,[],['land'],rare,steel,,28,medium_fast,154
 864,"['weak-armor', 'perish-body']",산호르곤,[],[],[],[],8,1,0.1,0.75,0.6,0.25,['move_surf'],['land'],ultra-rare,ghost,,0.4,fast,179
-865,"['steadfast', 'scrappy']",창파나이트,[],[],[],[],8,,0.14,0.5,0.6,0.5,"['move_defog', 'move_rock-smash']",['land'],ultra-rare,fighting,,,medium_fast,177
+865,"['steadfast', 'scrappy']",창파나이트,[],[],[],[],8,,0.14,0.5,0.6,0.5,"['move_defog', 'move_rock-smash']",['land'],ultra-rare,fighting,,117,medium_fast,177
 866,"['tangled-feet', 'screen-cleaner', 'ice-body']",마임꽁꽁,[],[],[],[],8,1.5,0.14,0.5,0.6,0.5,[],['land'],super-rare,ice,psychic,58.2,medium_fast,182
 867,['wandering-spirit'],데스판,[],[],[],[],8,1.6,0.2,0.5,0.6,0.5,['move_mean-look'],['land'],ultra-rare,ground,ghost,66.6,medium_fast,169
 868,"['sweet-veil', 'aroma-veil']",마빌크,"['strawberry-sweet', 'berry-sweet', 'love-sweet', 'star-sweet', 'clover-sweet', 'flower-sweet', 'ribbon-sweet']","['0869', '0869', '0869', '0869', '0869', '0869', '0869']",[],[],8,0.2,0.62,1,0.35,0,[],['land'],common,fairy,,0.3,medium_fast,54
@@ -1179,10 +1179,10 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 872,"['shield-dust', 'ice-scales']",누니머기,['friendship_220+time_night'],['0873'],[],[],8,0.3,0.6,0.5,0.35,0.5,[],['land'],common,ice,bug,3.8,medium_fast,37
 873,"['shield-dust', 'ice-scales']",모스노우,[],[],[],[],8,1.3,0.23,0.5,0.45,0.5,['move_defog'],['land'],super-rare,ice,bug,42,medium_fast,166
 874,['power-spot'],돌헨진,[],[],[],[],8,2.5,0.19,0.5,0.45,0.5,[],['land'],super-rare,rock,,520,slow,165
-875,['ice-face'],빙큐보,[],[],[],[],8,,0.19,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['land'],rare,ice,,,slow,165
+875,['ice-face'],빙큐보,[],[],[],[],8,,0.19,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['land'],rare,ice,,89,slow,165
 0875-noice,['ice-face'],빙큐보,[],[],[],[],8,1.4,0.19,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['land'],rare,ice,,89,slow,165
-876,"['inner-focus', 'synchronize', 'psychic-surge']",에써르,[],[],[],[],8,,0.1,0.5,0.35,0.5,[],['land'],rare,psychic,normal,,fast,166
-877,['hunger-switch'],모르페코,[],[],[],[],8,,0.57,0.5,0.35,0.5,[],['land'],rare,electric,dark,,medium_fast,153
+876,"['inner-focus', 'synchronize', 'psychic-surge']",에써르,[],[],[],[],8,,0.1,0.5,0.35,0.5,[],['land'],rare,psychic,normal,28,fast,166
+877,['hunger-switch'],모르페코,[],[],[],[],8,,0.57,0.5,0.35,0.5,[],['land'],rare,electric,dark,3,medium_fast,153
 0877-hangry,['hunger-switch'],모르페코,[],[],[],[],8,0.3,0.57,0.5,0.35,0.5,[],['land'],rare,electric,dark,3,medium_fast,153
 878,"['sheer-force', 'heavy_metal']",끼리동,['candy_100'],['0879'],[],[],8,1.2,0.55,0.5,0.45,0.5,"['move_rock-smash', 'move_strength']",['land'],rare,steel,,100,medium_fast,66
 879,"['sheer-force', 'heavy_metal']",대왕끼리동,[],[],[],[],8,3,0.2,0.5,0.6,0.5,"['move_rock-smash', 'move_strength']",['land'],ultra-rare,steel,,650,medium_fast,175
@@ -1203,7 +1203,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 890,['pressure'],무한다이노,[],[],[],[],8,20,0.03,0,0.75,0,['move_fly'],"['land','water']",legendary,poison,dragon,950,slow,345
 0890-eternamax,['pressure'],무한다이노,[],[],[],[],8,100,0.03,0,0.75,0,['move_fly'],"['land','water']",legendary,poison,dragon,0,slow,345
 891,['inner-focus'],치고마,"['scroll-of-darkness', 'scroll-of-waters']","['0892', '0892-rapid-strike']",[],[],8,0.6,0.01,0.12,0.75,0.88,['move_rock-smash'],['land'],legendary,fighting,,12,slow,77
-892,['unseen-fist'],우라오스,[],[],[],[],8,,0.01,0.12,0.75,0.88,['move_rock-smash'],['land'],legendary,fighting,dark,,slow,275
+892,['unseen-fist'],우라오스,[],[],[],[],8,,0.01,0.12,0.75,0.88,['move_rock-smash'],['land'],legendary,fighting,dark,105,slow,275
 0892-rapid-strike,['unseen-fist'],우라오스,[],[],[],[],8,1.9,0.01,0.12,0.75,0.88,"['move_rock-smash', 'move_waterfall', 'move_dive']",['water'],legendary,fighting,water,105,slow,275
 0892-single-strike-gmax,['unseen-fist'],우라오스,[],[],[],[],8,29,0.01,0.12,0.75,0.88,[],['land'],legendary,fighting,dark,1000,slow,275
 0892-rapid-strike-gmax,['unseen-fist'],우라오스,[],[],[],[],8,26,0.01,0.12,0.75,0.88,[],['water'],legendary,fighting,water,1000,slow,275
@@ -1220,10 +1220,10 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 900,"['swarm', 'sheer-force', 'sharpness']",사마자르,[],[],[],[],8,1.8,0.2,0.5,0.6,0.5,[],['land'],ultra-rare,bug,rock,89,medium_fast,175
 901,"['guts', 'bulletproof', 'unnerve']",다투곰,[],[],[],[],8,2.4,0.2,0.5,0.6,0.5,[],['land'],ultra-rare,ground,normal,290,medium_fast,275
 0901-bloodmoon,['minds-eye'],다투곰,[],[],[],[],8,2.4,0.2,0.5,0.6,0.5,[],['land'],epic,ground,normal,290,medium_fast,275
-902,"['swift-swim', 'adaptability', 'mold-breaker']",대쓰여너,[],[],[],[],8,,0.2,0.5,0.6,0.5,"['move_surf', 'move_waterfall']",['water'],ultra-rare,water,ghost,,medium_fast,265
+902,"['swift-swim', 'adaptability', 'mold-breaker']",대쓰여너,[],[],[],[],8,,0.2,0.5,0.6,0.5,"['move_surf', 'move_waterfall']",['water'],ultra-rare,water,ghost,110,medium_fast,265
 903,"['pressure', 'unburden', 'poison-touch']",포푸니크,[],[],[],[],8,1.3,0.2,0.5,0.6,0.5,['move_rock-smash'],['land'],ultra-rare,fighting,poison,43,medium_slow,102
 904,"['poison-point', 'swift-swim', 'intimidate']",장침바루,[],[],[],[],8,2.5,0.2,0.5,0.6,0.5,"['move_surf', 'move_waterfall']",['water'],ultra-rare,dark,poison,60.5,medium_fast,179
-905,"['cute-charm', 'contrary']",러브로스,[],[],[],[],8,,0.01,1,0.75,0,['move_fly'],"['land','water']",legendary,fairy,flying,,slow,116
+905,"['cute-charm', 'contrary']",러브로스,[],[],[],[],8,,0.01,1,0.75,0,['move_fly'],"['land','water']",legendary,fairy,flying,48,slow,116
 0905-therian,['overcoat'],러브로스,[],[],[],[],8,1.6,0.01,1,0.75,0,['move_fly'],"['land','water']",legendary,fairy,flying,48,slow,116
 906,"['overgrow', 'protean']",나오하,['candy_50'],['0907'],[],[],9,0.4,0.14,0.12,0.6,0.88,[],['land'],super-rare,grass,,4.1,medium_slow,62
 907,"['overgrow', 'protean']",나로테,['candy_100'],['0908'],[],[],9,0.9,0.14,0.12,0.6,0.88,[],['land'],ultra-rare,grass,,12.2,medium_slow,144
@@ -1235,7 +1235,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 913,"['torrent', 'moxie']",아꾸왁,['candy_100'],['0914'],[],[],9,1.2,0.14,0.12,0.6,0.88,['move_surf'],"['land','water']",ultra-rare,water,,21.5,medium_slow,144
 914,"['torrent', 'moxie']",웨이니발,[],[],[],[],9,1.8,0.14,0.12,0.6,0.88,['move_surf'],"['land','water']",epic,water,fighting,61.9,medium_slow,265
 915,"['aroma-veil', 'gluttony', 'thick-fat']",맛보돈,['candy_36'],['0916'],[],[],9,0.5,0.8,0.5,0.35,0.5,[],['land'],common,normal,,10.2,medium_fast,51
-916,"['lingering-aroma', 'gluttony', 'thick-fat']",퍼퓨돈,[],[],[],[],9,,0.31,0,0.45,1,[],['land'],super-rare,normal,,,medium_fast,171
+916,"['lingering-aroma', 'gluttony', 'thick-fat']",퍼퓨돈,[],[],[],[],9,,0.31,0,0.45,1,[],['land'],super-rare,normal,,120,medium_fast,171
 917,"['insomnia', 'stakeout']",타랜툴라,['candy_25'],['0918'],[],[],9,0.3,0.8,0.5,0.35,0.5,[],['land'],common,bug,,4,fluctuating,42
 918,"['insomnia', 'stakeout']",트래피더,[],[],[],[],9,1,0.38,0.5,0.45,0.5,[],['land'],rare,bug,,16.5,fluctuating,141
 919,"['swarm', 'tinted-lens']",콩알뚜기,['candy_25'],['0920'],[],[],9,0.2,0.6,0.5,0.35,0.5,[],['land'],common,bug,,1,medium_fast,42
@@ -1244,17 +1244,17 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 922,"['volt-absorb', 'natural-cure', 'iron-fist']",빠모트,['candy_75'],['0923'],[],[],9,0.4,0.25,0.5,0.45,0.5,[],['land'],rare,electric,fighting,6.5,medium_fast,123
 923,"['volt-absorb', 'natural-cure', 'iron-fist']",빠르모트,[],[],[],[],9,0.9,0.14,0.5,0.6,0.5,[],['land'],super-rare,electric,fighting,41,medium_fast,245
 924,"['run-away', 'pickup', 'own-tempo']",두리쥐,['candy_45'],['0925'],[],[],9,0.3,0.47,0,0.35,0,[],['land'],common,normal,,1.8,fast,61
-925,"['friend-guard', 'cheek-pouch', 'technician']",파밀리쥐,[],[],[],[],9,,0.23,0,0.45,0,[],['land'],super-rare,normal,,,fast,165
+925,"['friend-guard', 'cheek-pouch', 'technician']",파밀리쥐,[],[],[],[],9,,0.23,0,0.45,0,[],['land'],super-rare,normal,,2.3,fast,165
 0925-family-of-three,"['friend-guard', 'cheek-pouch', 'technician']",파밀리쥐,[],[],[],[],9,0.3,0.23,0,0.45,0,[],['land'],super-rare,normal,,2.8,fast,165
 926,"['own-tempo', 'klutz']",쫀도기,['candy_45'],['0927'],[],[],9,0.3,0.6,0.5,0.35,0.5,[],['land'],uncommon,fairy,,10.9,medium_slow,62
 927,"['well-baked-body', 'aroma-veil']",바우첼,[],[],[],[],9,0.5,0.28,0.5,0.45,0.5,[],['land'],super-rare,fairy,,14.9,medium_slow,167
 928,"['early-bird', 'harvest']",미니브,['candy_45'],['0929'],[],[],9,0.3,0.8,0.5,0.35,0.5,[],['land'],common,grass,normal,6.5,medium_slow,52
 929,"['early-bird', 'harvest']",올리뇨,['candy_75'],['0930'],[],[],9,0.6,0.38,0.5,0.45,0.5,[],['land'],super-rare,grass,normal,11.9,medium_slow,124
 930,"['seed-sower', 'harvest']",올리르바,[],[],[],[],9,1.4,0.14,0.5,0.6,0.5,[],['land'],ultra-rare,grass,normal,48.2,medium_slow,255
-931,"['intimidate', 'hustle', 'guts']",시비꼬,[],[],[],[],9,,0.6,0.5,0.35,0.5,['move_fly'],['land'],uncommon,normal,flying,,fluctuating,146
-0931-blue,"['intimidate', 'hustle', 'guts']",시비꼬,[],[],[],[],9,,0.6,0.5,0.35,0.5,['move_fly'],['land'],uncommon,normal,flying,,fluctuating,146
-0931-yellow,"['intimidate', 'hustle', 'sheer-force']",시비꼬,[],[],[],[],9,,0.6,0.5,0.35,0.5,['move_fly'],['land'],uncommon,normal,flying,,fluctuating,146
-0931-white,"['intimidate', 'hustle', 'sheer-force']",시비꼬,[],[],[],[],9,,0.6,0.5,0.35,0.5,['move_fly'],['land'],uncommon,normal,flying,,fluctuating,146
+931,"['intimidate', 'hustle', 'guts']",시비꼬,[],[],[],[],9,,0.6,0.5,0.35,0.5,['move_fly'],['land'],uncommon,normal,flying,2.4,fluctuating,146
+0931-blue,"['intimidate', 'hustle', 'guts']",시비꼬,[],[],[],[],9,,0.6,0.5,0.35,0.5,['move_fly'],['land'],uncommon,normal,flying,2.4,fluctuating,146
+0931-yellow,"['intimidate', 'hustle', 'sheer-force']",시비꼬,[],[],[],[],9,,0.6,0.5,0.35,0.5,['move_fly'],['land'],uncommon,normal,flying,2.4,fluctuating,146
+0931-white,"['intimidate', 'hustle', 'sheer-force']",시비꼬,[],[],[],[],9,,0.6,0.5,0.35,0.5,['move_fly'],['land'],uncommon,normal,flying,2.4,fluctuating,146
 932,"['purifying-salt', 'sturdy', 'clear-body']",베베솔트,['candy_35'],['0933'],[],[],9,0.4,0.8,0.5,0.35,0.5,[],['land'],common,rock,,16,medium_slow,56
 933,"['purifying-salt', 'sturdy', 'clear-body']",스태솔트,['candy_70'],['0934'],[],[],9,0.6,0.38,0.5,0.45,0.5,[],['land'],super-rare,rock,,105,medium_slow,124
 934,"['purifying-salt', 'sturdy', 'clear-body']",콜로솔트,[],[],[],[],9,2.3,0.14,0.5,0.6,0.5,[],['land'],ultra-rare,rock,,240,medium_slow,250
@@ -1287,7 +1287,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 961,"['gooey', 'rattled', 'sand-veil']",바닥트리오,[],[],[],[],9,1.2,0.16,0.5,0.45,0.5,['move_surf'],['water'],rare,water,,5.4,medium_fast,149
 962,"['big-pecks', 'keen-eye', 'rocky-payload']",떨구새,[],[],[],[],9,1.5,0.08,0.5,0.35,0.5,['move_fly'],['land'],uncommon,flying,dark,42.9,slow,243
 963,"['water-veil', 'water-veil']",맨돌핀,['candy_50'],['0964'],[],[],9,1.3,0.62,0.5,0.35,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['water'],uncommon,water,,60.2,slow,63
-964,"['zero-to-hero', 'zero-to-hero']",돌핀맨,[],[],[],[],9,,0.14,0.5,0.45,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['water'],super-rare,water,,,slow,160
+964,"['zero-to-hero', 'zero-to-hero']",돌핀맨,[],[],[],[],9,,0.14,0.5,0.45,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['water'],super-rare,water,,60.2,slow,160
 0964-hero,"['zero-to-hero', 'zero-to-hero']",돌핀맨,[],[],[],[],9,1.8,0.14,0.5,0.45,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['water'],super-rare,water,,97.4,slow,160
 965,"['overcoat', 'slow-start']",부르롱,['candy_60'],['0966'],[],[],9,1,0.6,0.5,0.35,0.5,[],['land'],common,steel,poison,35,medium_fast,60
 966,"['overcoat', 'filter']",부르르룸,[],[],[],[],9,1.8,0.23,0.5,0.45,0.5,[],['land'],super-rare,steel,poison,120,medium_fast,175
@@ -1303,16 +1303,16 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 975,"['thick-fat', 'slush-rush', 'sheer-force']",우락고래,[],[],[],[],9,4.5,0.16,0.5,0.6,0.5,[],['land'],ultra-rare,ice,,700,medium_slow,182
 976,"['mold-breaker', 'sharpness']",가비루사,[],[],[],[],9,2.5,0.31,0.5,0.45,0.5,"['move_surf', 'move_waterfall']",['water'],super-rare,water,psychic,90,fast,167
 977,"['unaware', 'oblivious', 'water-veil']",어써러셔,[],[],[],[],9,12,0.08,0.5,0.6,0.5,"['move_surf', 'move_waterfall', 'move_dive']",['water'],ultra-rare,water,,220,slow,265
-978,"['commander', 'storm-drain']",싸리용,[],[],[],[],9,,0.2,0.5,0.6,0.5,['move_surf'],['water'],ultra-rare,dragon,water,,medium_slow,166
+978,"['commander', 'storm-drain']",싸리용,[],[],[],[],9,,0.2,0.5,0.6,0.5,['move_surf'],['water'],ultra-rare,dragon,water,8,medium_slow,166
 0978-droopy,"['commander', 'storm-drain']",싸리용,[],[],[],[],9,0.3,0.2,0.5,0.6,0.5,['move_surf'],['water'],ultra-rare,dragon,water,8,medium_slow,166
 0978-stretchy,"['commander', 'storm-drain']",싸리용,[],[],[],[],9,0.3,0.2,0.5,0.6,0.5,['move_surf'],['water'],ultra-rare,dragon,water,8,medium_slow,166
-0978-mega-curly,[],싸리용,[],[],[],[],9,,0.2,0.5,0.6,0.5,[],['water'],ultra-rare,dragon,water,,medium_slow,166
-0978-mega-droopy,[],싸리용,[],[],[],[],9,,0.2,0.5,0.6,0.5,[],['water'],ultra-rare,dragon,water,,medium_slow,166
-0978-mega-stretchy,[],싸리용,[],[],[],[],9,,0.2,0.5,0.6,0.5,[],['water'],ultra-rare,dragon,water,,medium_slow,166
+0978-mega-curly,[],싸리용,[],[],[],[],9,,0.2,0.5,0.6,0.5,[],['water'],ultra-rare,dragon,water,8,medium_slow,166
+0978-mega-droopy,[],싸리용,[],[],[],[],9,,0.2,0.5,0.6,0.5,[],['water'],ultra-rare,dragon,water,8,medium_slow,166
+0978-mega-stretchy,[],싸리용,[],[],[],[],9,,0.2,0.5,0.6,0.5,[],['water'],ultra-rare,dragon,water,8,medium_slow,166
 979,"['vital-spirit', 'inner-focus', 'defiant']",저승갓숭,[],[],[],[],9,1.2,0.14,0.5,0.6,0.5,[],['land'],epic,fighting,ghost,56,medium_fast,268
 980,"['poison-point', 'water-absorb', 'unaware']",토오,[],[],[],[],9,1.8,0.28,0.5,0.45,0.5,"['move_surf', 'move_waterfall']","['land','water']",ultra-rare,poison,ground,223,medium_fast,151
 981,"['cud-chew', 'armor-tail', 'sap-sipper']",키키링,[],[],[],[],9,3.2,0.14,0.5,0.45,0.5,[],['land'],ultra-rare,normal,psychic,160,medium_fast,260
-982,"['serene-grace', 'run-away', 'rattled']",노고고치,[],[],[],[],9,,0.14,0.5,0.45,0.5,[],['land'],super-rare,normal,,,medium_fast,182
+982,"['serene-grace', 'run-away', 'rattled']",노고고치,[],[],[],[],9,,0.14,0.5,0.45,0.5,[],['land'],super-rare,normal,,39.2,medium_fast,182
 0982-three-segment,"['serene-grace', 'run-away', 'rattled']",노고고치,[],[],[],[],9,4.5,0.14,0.5,0.45,0.5,[],['land'],super-rare,normal,,47.4,medium_fast,182
 983,"['defiant', 'supreme-overlord', 'pressure']",대도각참,[],[],[],[],9,2,0.08,0.5,0.6,0.5,[],['land'],unique,dark,steel,120,medium_fast,275
 984,['protosynthesis'],위대한엄니,[],[],[],[],9,2.2,0.1,0,0.6,0,[],['land'],unique,ground,fighting,320,slow,285
@@ -1324,7 +1324,7 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 990,['quark-drive'],무쇠바퀴,[],[],[],[],9,0.9,0.1,0,0.6,0,[],['land'],unique,ground,steel,240,slow,285
 991,['quark-drive'],무쇠보따리,[],[],[],[],9,0.6,0.16,0,0.6,0,[],['water'],unique,ice,water,11,slow,285
 992,['quark-drive'],무쇠손,[],[],[],[],9,1.8,0.16,0,0.6,0,[],['land'],unique,fighting,electric,380.7,slow,285
-993,['quark-drive'],무쇠머리,[],[],[],[],9,,0.1,0,0.6,0,['move_fly'],"['land','water']",unique,dark,flying,,slow,285
+993,['quark-drive'],무쇠머리,[],[],[],[],9,,0.1,0,0.6,0,['move_fly'],"['land','water']",unique,dark,flying,111,slow,285
 994,['quark-drive'],무쇠독나방,[],[],[],[],9,1.2,0.1,0,0.6,0,[],"['land','water']",unique,fire,poison,36,slow,285
 995,['quark-drive'],무쇠가시,[],[],[],[],9,1.6,0.1,0,0.6,0,[],['land'],unique,rock,electric,303,slow,285
 996,"['thermal-exchange', 'ice-body']",드니차,['candy_50'],['0997'],[],[],9,0.5,0.14,0.5,0.35,0.5,[],['land'],rare,dragon,ice,17,slow,64
@@ -1358,9 +1358,9 @@ id,ability,comment,evol_cost,evol_next,form_cost,form_next,generation,height_m,r
 1015,"['toxic-chain', 'frisk']",이야후,[],[],[],[],9,1,0.01,0,0.75,0,[],['land'],legendary,poison,psychic,12.2,slow,278
 1016,"['toxic-chain', 'technician']",기로치,[],[],[],[],9,1.4,0.01,0,0.75,0,['move_fly'],['land'],legendary,poison,fairy,30.1,slow,278
 1017,['defiant'],오거폰,[],[],[],[],9,1.2,0.02,0,0.75,0,[],['land'],legendary,grass,,39.8,slow,275
-1017-wellspring,['water-absorb'],오거폰,[],[],[],[],9,,0.02,0,0.75,0,[],['water'],legendary,grass,water,,slow,275
-1017-hearthflame,['mold-breaker'],오거폰,[],[],[],[],9,,0.02,0,0.75,0,[],['land'],legendary,grass,fire,,slow,275
-1017-cornerstone,['sturdy'],오거폰,[],[],[],[],9,,0.02,0,0.75,0,[],['land'],legendary,grass,rock,,slow,275
+1017-wellspring,['water-absorb'],오거폰,[],[],[],[],9,,0.02,0,0.75,0,[],['water'],legendary,grass,water,39.8,slow,275
+1017-hearthflame,['mold-breaker'],오거폰,[],[],[],[],9,,0.02,0,0.75,0,[],['land'],legendary,grass,fire,39.8,slow,275
+1017-cornerstone,['sturdy'],오거폰,[],[],[],[],9,,0.02,0,0.75,0,[],['land'],legendary,grass,rock,39.8,slow,275
 1018,"['stamina', 'sturdy', 'stalwart']",브리두라스,[],[],[],[],9,2,0.03,0.5,0.6,0.5,['move_rock-smash'],['land'],epic,steel,dragon,60,medium_fast,300
 1019,"['supersweet-syrup', 'regenerator', 'sticky-hold']",과미드라,[],[],[],[],9,1.8,0.03,0.5,0.6,0.5,[],['land'],epic,grass,dragon,93,fluctuating,270
 1020,['protosynthesis'],꿰뚫는화염,[],[],[],[],9,3.5,0.03,0,0.6,0,[],['land'],unique,fire,dragon,590,slow,295

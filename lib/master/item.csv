@@ -1,5 +1,21 @@
 id,buy,category,comment,purchasable,sell,sellable,tier
 safari-ball,200,pokeball,사파리볼,TRUE,10,TRUE,common
+beast-ball,3000,pokeball,비스트볼,TRUE,150,TRUE,epic
+dive-ball,1000,pokeball,다이브볼,FALSE,50,TRUE,rare
+dream-ball,3000,pokeball,드림볼,FALSE,150,TRUE,epic
+dusk-ball,1000,pokeball,다크볼,TRUE,50,TRUE,rare
+fast-ball,1500,pokeball,스피드볼,TRUE,75,TRUE,rare
+friend-ball,1500,pokeball,프렌드볼,TRUE,75,TRUE,rare
+heavy-ball,1500,pokeball,헤비볼,TRUE,75,TRUE,rare
+level-ball,1500,pokeball,레벨볼,TRUE,75,TRUE,rare
+love-ball,1500,pokeball,러브러브볼,TRUE,75,TRUE,rare
+lure-ball,1500,pokeball,루어볼,TRUE,75,TRUE,rare
+moon-ball,1500,pokeball,문볼,TRUE,75,TRUE,rare
+nest-ball,1000,pokeball,네스트볼,TRUE,50,TRUE,rare
+net-ball,1000,pokeball,넷트볼,TRUE,50,TRUE,rare
+quick-ball,1000,pokeball,퀵볼,TRUE,50,TRUE,rare
+repeat-ball,1000,pokeball,리피트볼,TRUE,50,TRUE,rare
+timer-ball,1000,pokeball,타이머볼,TRUE,50,TRUE,rare
 safari-zone-ticket,400,etc,사파리존입장권,TRUE,0,FALSE,rare
 fire-stone,20000,etc,불꽃의돌,TRUE,1500,TRUE,epic
 water-stone,20000,etc,물의돌,TRUE,1500,TRUE,epic
@@ -143,6 +159,7 @@ hearthflame-mask,999999999,key,화덕의가면,TRUE,0,FALSE,legendary
 red-orb,999999999,key,주홍구슬,FALSE,0,FALSE,legendary
 blue-orb,999999999,key,쪽빛구슬,FALSE,0,FALSE,legendary
 soothe-bell,999999999,key,평온의 방울,TRUE,0,FALSE,epic
+gs-ball,999999999,key,GS볼,TRUE,0,FALSE,legendary
 normal-candy,999999999,candy,노말 사탕,FALSE,30,TRUE,common
 fire-candy,999999999,candy,불 사탕,FALSE,30,TRUE,common
 water-candy,999999999,candy,물 사탕,FALSE,30,TRUE,common
