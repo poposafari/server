@@ -1,7 +1,8 @@
 import { db } from '@poposerver/lib/db';
 import { user, userCostume, userPokemon, userItem, userPokedex } from '@poposerver/lib/schema';
 import { SAFARI_TICKET_REGEN_INTERVAL_MS } from '@poposerver/lib/constants/safari-ticket';
-import { eq, and, or, isNotNull, like, sql } from 'drizzle-orm';
+import { BALL_IDS } from '@poposerver/lib/constants/ball';
+import { eq, and, or, isNotNull, like, inArray, sql } from 'drizzle-orm';
 
 export class UserRepository {
   async findByAccountId(accountId: number) {
@@ -133,7 +134,7 @@ export class UserRepository {
         and(
           eq(userItem.accountId, accountId),
           or(
-            eq(userItem.itemId, 'safari-ball'),
+            inArray(userItem.itemId, BALL_IDS),
             eq(userItem.itemId, 'safari-zone-ticket'),
             like(userItem.itemId, '%-candy'),
           ),
