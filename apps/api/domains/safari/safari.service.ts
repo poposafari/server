@@ -16,6 +16,8 @@ import {
   getSafariItems,
   addSafariActive,
   publishWildDespawn,
+  getGameTime,
+  getMoonPhase,
 } from '@poposerver/lib/state';
 import {
   POKEMON_LEVEL_MAX,
@@ -49,11 +51,20 @@ import {
   S000_REWARD_TICKET_QUANTITY,
   SAFARI_ENTRY_BALL_ID,
   SAFARI_ENTRY_BALL_QUANTITY,
+  PokemonSpawnTile,
+  PokemonData,
 } from '@poposerver/lib/types';
 import { AppError } from '@poposerver/lib/utils/error';
 import { auditTx, auditAsync } from '@poposerver/lib/utils/audit';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
 import { PC_STORAGE, PC_BOX_CAPACITY } from '@poposerver/lib/constants/pc';
+import {
+  BALL_NUMBERS,
+  BallId,
+  FRIEND_BALL_FRIENDSHIP,
+  SAFARI_BALL_ID,
+  ballCaptureMul,
+} from '@poposerver/lib/constants/ball';
 import { ensureSafariBucket } from './safari-world';
 
 type CatchResult = 'caught' | 'fail' | 'flee';
@@ -189,6 +200,8 @@ export class SafariService {
   async catchWild(
     authId: string,
     uid: string,
+    ballId: BallId,
+    spawnTile: PokemonSpawnTile | null,
     ip?: string,
   ): Promise<{
     result: CatchResult | 'level_cap';
@@ -213,13 +226,17 @@ export class SafariService {
 
     const mapId = userState.mapId;
 
-    const [safariBall] = await db
+    if (mapId === S000_MAP_ID && ballId !== SAFARI_BALL_ID) {
+      throw new AppError('Only safari balls in s000', 400, AppErrorCode.DTO_INVALID);
+    }
+
+    const [ownedBall] = await db
       .select({ quantity: userItem.quantity })
       .from(userItem)
-      .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
+      .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, ballId)));
 
-    if (!safariBall || safariBall.quantity <= 0) {
-      throw new AppError('No safari balls', 400, AppErrorCode.SAFARI_BALL_NOT_FOUND);
+    if (!ownedBall || ownedBall.quantity <= 0) {
+      throw new AppError('No balls', 400, AppErrorCode.SAFARI_BALL_NOT_FOUND);
     }
 
     const [userRow] = await db
@@ -230,9 +247,9 @@ export class SafariService {
 
     const wild = await getWild(authId, mapId, uid);
     if (!wild) {
-      await this.consumeSafariBall(accountId, safariBall.quantity);
+      await this.consumeBall(accountId, ballId, ownedBall.quantity);
 
-      this.auditCatchAttempt(accountId, mapId, uid, null, ip);
+      this.auditCatchAttempt(accountId, mapId, uid, null, ballId, spawnTile, ip);
       this.auditCatchFail(accountId, mapId, uid, null, 'expired', ip);
       return { result: 'flee' };
     }
@@ -261,6 +278,7 @@ export class SafariService {
         exp: userPokemon.exp,
         isShiny: userPokemon.isShiny,
         tier: userPokemon.tier,
+        gender: userPokemon.gender,
       })
       .from(userPokemon)
       .where(and(eq(userPokemon.accountId, accountId), isNotNull(userPokemon.partySlot)))
@@ -295,20 +313,31 @@ export class SafariService {
       partyBonus = this.calculatePartyBonus(bonusData);
     }
 
-    this.auditCatchAttempt(accountId, mapId, uid, wild, ip, partyBonus);
+    this.auditCatchAttempt(accountId, mapId, uid, wild, ballId, spawnTile, ip, partyBonus);
 
-    const result: CatchResult = isS000Starter
-      ? 'caught'
-      : this.calculateCatchResult(
-          pokemonData.rateCapture,
-          pokemonData.rateFlee,
-          wild.feed
-            ? this.gummiCaptureMul(wild.feed, [pokemonData.type1, pokemonData.type2])
-            : null,
-          wild.mud,
-          wild.balm,
-          partyBonus,
-        );
+    let result: CatchResult;
+    if (isS000Starter) {
+      result = 'caught';
+    } else {
+      const ballMul = await this.resolveBallMul(ballId, {
+        accountId,
+        mapId,
+        wild,
+        pokemonData,
+        trainerLevel: userLevelFromExp(userRow?.exp ?? 0),
+        lead: partyPokemons[0] ?? null,
+        spawnTile,
+      });
+      result = this.calculateCatchResult(
+        pokemonData.rateCapture,
+        pokemonData.rateFlee,
+        wild.feed ? this.gummiCaptureMul(wild.feed, [pokemonData.type1, pokemonData.type2]) : null,
+        wild.mud,
+        wild.balm,
+        partyBonus,
+        ballMul,
+      );
+    }
 
     // 결과에 따른 힙 메모리 업데이트
 
@@ -355,15 +384,15 @@ export class SafariService {
       }
 
       await db.transaction(async (tx) => {
-        if (safariBall.quantity === 1) {
+        if (ownedBall.quantity === 1) {
           await tx
             .delete(userItem)
-            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
+            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, ballId)));
         } else {
           await tx
             .update(userItem)
             .set({ quantity: sql`${userItem.quantity} - 1` })
-            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
+            .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, ballId)));
         }
 
         const existingPartySlots = await tx
@@ -424,7 +453,8 @@ export class SafariService {
             boxNumber: targetBox,
             gridNumber: targetGrid,
             partySlot: targetPartySlot,
-            ballId: 1,
+            ballId: BALL_NUMBERS[ballId],
+            friendship: ballId === 'friend-ball' ? FRIEND_BALL_FRIENDSHIP : 0,
             caughtLocation: userState.mapId,
           })
           .returning();
@@ -584,9 +614,53 @@ export class SafariService {
         userExp: userExpResult!,
       };
     } else {
-      await this.consumeSafariBall(accountId, safariBall.quantity);
+      await this.consumeBall(accountId, ballId, ownedBall.quantity);
       return { result };
     }
+  }
+
+  private async resolveBallMul(
+    ballId: BallId,
+    input: {
+      accountId: number;
+      mapId: string;
+      wild: SafariWild;
+      pokemonData: PokemonData;
+      trainerLevel: number;
+      lead: { pokedexId: string; gender: number } | null;
+      spawnTile: PokemonSpawnTile | null;
+    },
+  ): Promise<number> {
+    const { accountId, mapId, wild, pokemonData } = input;
+
+    let caughtBefore = false;
+    if (ballId === 'repeat-ball') {
+      const [row] = await db
+        .select({ caughtCount: userPokedex.caughtCount })
+        .from(userPokedex)
+        .where(
+          and(eq(userPokedex.accountId, accountId), eq(userPokedex.pokedexId, wild.pokedexId)),
+        );
+      caughtBefore = (row?.caughtCount ?? 0) > 0;
+    }
+
+    const gameTime = await getGameTime();
+
+    return ballCaptureMul(ballId, {
+      pokedexId: wild.pokedexId,
+      level: wild.level,
+      gender: wild.gender,
+      turn: wild.turn,
+      types: [pokemonData.type1, pokemonData.type2],
+      weightKg: pokemonData.weightKg,
+      trainerLevel: input.trainerLevel,
+      lead: input.lead,
+      caughtBefore,
+      mapId,
+      timeOfDay: gameTime.phase,
+      moonPhase: getMoonPhase(),
+      spawnTile: input.spawnTile,
+    });
   }
 
   private auditCatchAttempt(
@@ -594,6 +668,8 @@ export class SafariService {
     mapId: string,
     uid: string,
     wild: SafariWild | null,
+    ballId: BallId,
+    spawnTile: PokemonSpawnTile | null,
     ip?: string,
     partyBonus?: number,
   ): void {
@@ -603,6 +679,8 @@ export class SafariService {
       detail: {
         mapId,
         wildUid: uid,
+        ballId,
+        spawnTile,
         pokedexId: wild?.pokedexId ?? null,
         level: wild?.level ?? null,
         isShiny: wild?.isShiny ?? null,
@@ -696,16 +774,20 @@ export class SafariService {
     });
   }
 
-  private async consumeSafariBall(accountId: number, currentQuantity: number): Promise<void> {
+  private async consumeBall(
+    accountId: number,
+    ballId: BallId,
+    currentQuantity: number,
+  ): Promise<void> {
     if (currentQuantity === 1) {
       await db
         .delete(userItem)
-        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, ballId)));
     } else {
       await db
         .update(userItem)
         .set({ quantity: sql`${userItem.quantity} - 1` })
-        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, 'safari-ball')));
+        .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, ballId)));
     }
   }
 
@@ -918,12 +1000,13 @@ export class SafariService {
     mud: boolean,
     balm: boolean,
     partyBonus: number,
+    ballMul: number,
   ): CatchResult {
     const captureMul = (feedCaptureMul ?? 1) * (mud ? MUD_CAPTURE_MUL : 1);
     const fleeMul = this.wildFleeMul(mud, balm);
 
     const finalCapture = Math.min(
-      rateCapture * captureMul + partyBonus,
+      (rateCapture * captureMul + partyBonus) * ballMul,
       LEVEL_CURVE.CAPTURE_RATE_CAP,
     );
     const finalFlee = Math.min(rateFlee * fleeMul, LEVEL_CURVE.FLEE_RATE_CAP);

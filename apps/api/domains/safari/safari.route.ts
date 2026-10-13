@@ -4,6 +4,7 @@ import { zodValidate } from '../../hooks/validate.hook';
 import { SafariController } from './safari.controller';
 import { SafariService } from './safari.service';
 import {
+  catchWildSchema,
   enterSafariSchema,
   feedWildSchema,
   safariTargetParamsSchema,
@@ -32,7 +33,7 @@ router.post(
 router.post(
   '/safari/wilds/:uid/catch',
   sessionAuthGuard,
-  zodValidate({ params: safariTargetParamsSchema }),
+  zodValidate({ params: safariTargetParamsSchema, body: catchWildSchema }),
   controller.catchWild,
 );
 

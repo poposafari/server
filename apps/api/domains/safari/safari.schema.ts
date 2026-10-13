@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { BALL_IDS, BallId } from '@poposerver/lib/constants/ball';
 
 export const enterSafariSchema = z.object({
   mapId: z.string().regex(/^s\d{3}$/),
@@ -24,6 +25,13 @@ export const useItemWildSchema = z.object({
 });
 
 export type UseItemWildInput = z.infer<typeof useItemWildSchema>;
+
+export const catchWildSchema = z.object({
+  ballId: z.enum(BALL_IDS as [BallId, ...BallId[]]),
+  spawnTile: z.enum(['land', 'water']).optional(),
+});
+
+export type CatchWildInput = z.infer<typeof catchWildSchema>;
 
 export const catchWildResultSchema = z.object({
   result: z.enum(['caught', 'fail', 'flee', 'level_cap']),

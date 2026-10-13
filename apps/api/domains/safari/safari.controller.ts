@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
 import { AuditAction } from '@poposerver/lib/types';
 import { SafariService } from './safari.service';
-import { FeedWildInput, SafariTargetParams, UseItemWildInput } from './safari.schema';
+import {
+  CatchWildInput,
+  FeedWildInput,
+  SafariTargetParams,
+  UseItemWildInput,
+} from './safari.schema';
 
 export class SafariController {
   constructor(private readonly service: SafariService) {}
@@ -24,7 +29,8 @@ export class SafariController {
   // catchWild: 트랜잭션 결합 기록(service의 auditTx). req.audit 세팅하지 않음(중복 방지).
   catchWild = async (req: Request, res: Response) => {
     const { uid } = req.params as unknown as SafariTargetParams;
-    const data = await this.service.catchWild(req.authId!, uid, req.ip);
+    const { ballId, spawnTile } = req.body as CatchWildInput;
+    const data = await this.service.catchWild(req.authId!, uid, ballId, spawnTile ?? null, req.ip);
     return res.status(200).json({ success: true, data });
   };
 

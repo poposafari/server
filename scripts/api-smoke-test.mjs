@@ -758,13 +758,20 @@ let wildUid;
     `wilds=${md?.wilds?.length} items=${md?.items?.length}`,
   );
 }
-await expectStatus('uuid 아닌 wild uid', 'POST', '/safari/wilds/not-a-uuid/catch', undefined, 400);
+await expectStatus(
+  'uuid 아닌 wild uid',
+  'POST',
+  '/safari/wilds/not-a-uuid/catch',
+  { ballId: 'safari-ball' },
+  400,
+);
 if (wildUid) {
+  await expectStatus('볼 id 없는 포획 거부', 'POST', `/safari/wilds/${wildUid}/catch`, {}, 400);
   const r = await expectStatus(
     '스타터 포획(확정)',
     'POST',
     `/safari/wilds/${wildUid}/catch`,
-    undefined,
+    { ballId: 'safari-ball' },
     200,
   );
   const caught = r.body?.data?.pokemon?.id;
@@ -890,7 +897,7 @@ if (wildUid2) {
     400,
   );
   const ballBefore = qty(accountId, 'safari-ball');
-  const c = await req('POST', `/safari/wilds/${wildUid2}/catch`);
+  const c = await req('POST', `/safari/wilds/${wildUid2}/catch`, { ballId: 'safari-ball' });
   record(
     '일반존 포획 시도 [POST /safari/wilds/:uid/catch]',
     [200, 404, 409].includes(c.status),
