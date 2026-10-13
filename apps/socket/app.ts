@@ -22,6 +22,7 @@ import {
   updateUserStatePet,
   updateUserStatePosition,
   getGameTime,
+  getMoonPhase,
   GameTimeState,
   getMapWeather,
   WeatherState,
@@ -229,6 +230,7 @@ export class SocketApp implements Broadcaster {
       timeOfDay: state.phase,
       startedAt: state.startedAt,
       duration: state.duration,
+      moonPhase: getMoonPhase(state.startedAt),
     });
   }
 
@@ -410,6 +412,7 @@ export class SocketApp implements Broadcaster {
             timeOfDay: gameTime?.phase ?? 'day',
             gameTimeStartedAt: gameTime?.startedAt,
             gameTimeDuration: gameTime?.duration,
+            moonPhase: getMoonPhase(gameTime?.startedAt),
             weather: weather?.weather ?? 'sunny',
             weatherStartedAt: weather?.startedAt,
             weatherDuration: weather?.duration,
