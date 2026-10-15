@@ -1,6 +1,6 @@
-import { drainDirty, persistUserStateFromRedisToDb, logger } from '@poposerver/lib';
+import { drainDirty, markDirty, persistUserStateFromRedisToDb, logger } from '@poposerver/lib';
 
-const FLUSH_INTERVAL_MS = 180_000;
+const FLUSH_INTERVAL_MS = 60_000;
 const FLUSH_CONCURRENCY = 10;
 
 export async function flushDirtyPositions(): Promise<void> {
@@ -16,11 +16,13 @@ export async function flushDirtyPositions(): Promise<void> {
     const results = await Promise.allSettled(
       batch.map((authId) => persistUserStateFromRedisToDb(authId, { deleteFromRedis: false })),
     );
-    for (const r of results) {
+    for (let j = 0; j < results.length; j += 1) {
+      const r = results[j];
       if (r.status === 'fulfilled') success++;
       else {
         failures++;
-        logger.warn('[FLUSH] persist failed:', r.reason);
+        markDirty(batch[j]);
+        logger.warn(`[FLUSH] persist failed authId=${batch[j]}:`, r.reason);
       }
     }
   }
