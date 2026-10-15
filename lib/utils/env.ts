@@ -21,6 +21,8 @@ const envSchema = z.object({
 
   DB_POOL_MAX: z.coerce.number().int().positive().default(10),
 
+  REDIS_URL: z.string().regex(/^rediss?:\/\/.+/, 'REDIS_URL must start with redis:// or rediss://'),
+
   // SERVICE — 통합 모놀리스는 한 포트로 REST + WebSocket을 모두 서빙한다.
   API_PORT: z.coerce.number(),
 

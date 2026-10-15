@@ -1,4 +1,5 @@
 export { db, connectDB } from './db';
+export { redis, redisSub, connectRedis, closeRedis } from './redis';
 export * from './constants/overworld-init-pos';
 export * from './constants/map-policy';
 export * from './state';

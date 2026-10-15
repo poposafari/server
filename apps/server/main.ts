@@ -1,6 +1,7 @@
 import 'express-async-errors';
 import http from 'http';
 import { connectDB } from '@poposerver/lib/db';
+import { connectRedis, closeRedis } from '@poposerver/lib/redis';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import { envConfig } from '@poposerver/lib/utils/env';
 import { logger } from '@poposerver/lib/utils/logger';
@@ -16,6 +17,7 @@ import { startPositionFlushLoop, flushAllPositions } from './flush/position-flus
 async function boot() {
   try {
     await connectDB('SERVER');
+    await connectRedis('SERVER');
     await MasterData.load('SERVER');
 
     const app = buildApp();
@@ -54,6 +56,7 @@ async function boot() {
           server.closeIdleConnections();
           setTimeout(() => server.closeAllConnections(), 5000).unref();
         });
+        await closeRedis();
         logger.info('[Bye] Cleanup finished.');
         process.exit(0);
       } catch (error) {
