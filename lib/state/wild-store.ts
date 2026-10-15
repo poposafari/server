@@ -1,4 +1,4 @@
-// 사파리 존 야생/아이템/방문/active — 힙 스토어.
+// 사파리 존 야생/아이템/active — 힙 스토어.
 // 버킷 수명은 "사파리존 소속"에 묶인다 — disconnect는 유지, 명시적 퇴장(deleteAllSafariData)에서만 삭제.
 
 import { SafariItem, SafariWild } from './types';
@@ -7,7 +7,6 @@ type WildEntry = { wild: SafariWild; expiresAt: number | null }; // shiny/S000 �
 
 const wilds = new Map<string, Map<string, WildEntry>>(); // key: `${authId}:${mapId}`
 const items = new Map<string, SafariItem[]>(); // key: `${authId}:${mapId}`
-const visited = new Map<string, Set<string>>(); // key: authId → Set<mapId>
 const active = new Set<string>(); // `${authId}:${mapId}`
 
 function bucketKey(authId: string, mapId: string): string {
@@ -149,12 +148,6 @@ export async function setSafariItems(
   list: SafariItem[],
 ): Promise<void> {
   items.set(bucketKey(authId, mapId), list);
-  let set = visited.get(authId);
-  if (!set) {
-    set = new Set();
-    visited.set(authId, set);
-  }
-  set.add(mapId);
 }
 
 export async function getSafariItems(authId: string, mapId: string): Promise<SafariItem[] | null> {
@@ -164,13 +157,6 @@ export async function getSafariItems(authId: string, mapId: string): Promise<Saf
 /** 동기 스냅샷: 아이템 목록(없으면 빈 배열). emit 직전 호출용. */
 export function snapshotItems(authId: string, mapId: string): SafariItem[] {
   return items.get(bucketKey(authId, mapId)) ?? [];
-}
-
-// ── 방문 맵 ──
-
-export async function getSafariVisitedMaps(authId: string): Promise<string[]> {
-  const set = visited.get(authId);
-  return set ? [...set] : [];
 }
 
 // ── active 인덱스 (스폰 루프 탐색 대상) ──
@@ -202,5 +188,4 @@ export async function deleteAllSafariData(authId: string): Promise<void> {
   for (const key of [...active]) {
     if (key.startsWith(prefix)) active.delete(key);
   }
-  visited.delete(authId);
 }
