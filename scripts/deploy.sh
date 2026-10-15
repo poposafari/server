@@ -36,6 +36,14 @@ touch docker/prod/flags/maintenance
 echo "[2/9] image pull (tag=$IMAGE_TAG)"
 IMAGE_TAG=$IMAGE_TAG $COMPOSE pull server
 
+echo "[2.5/9] redis (create only if not running)"
+if docker ps --format '{{.Names}}' | grep -q '^poposerver_redis$'; then
+  echo "  redis already running"
+else
+  $COMPOSE up -d --no-deps redis
+  echo "  redis created"
+fi
+
 echo "[3/9] recreate app container (PG·nginx 무손상)"
 # --no-deps       : postgres를 up 대상/재생성에서 제외 → 데이터 컨테이너 무손상
 IMAGE_TAG=$IMAGE_TAG $COMPOSE up -d --no-deps --remove-orphans server
