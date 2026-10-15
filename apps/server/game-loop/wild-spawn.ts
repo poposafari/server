@@ -2,8 +2,8 @@ import {
   addWild,
   getAllMapWeathers,
   getAllWildsWithCleanup,
+  getPosition,
   getSafariActive,
-  getUserState,
   logger,
   MasterData,
   publishWildSpawn,
@@ -69,8 +69,8 @@ async function processPair(
   if (mapId === S000_MAP_ID) return 'skipped';
 
   // self-heal: 실제 사용자 상태가 이 맵에 없으면 인덱스에서 제거
-  const state = await getUserState(authId);
-  if (!state || state.mapId !== mapId) {
+  const position = getPosition(authId);
+  if (!position || position.mapId !== mapId) {
     await removeSafariActive(authId, mapId);
     return 'skipped';
   }

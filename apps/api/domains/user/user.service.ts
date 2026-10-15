@@ -5,7 +5,7 @@ import {
   PokemonGender,
   UserStartLocation,
 } from '@poposerver/lib/types';
-import { setUserState } from '@poposerver/lib/state';
+import { initPosition, setUserState } from '@poposerver/lib/state';
 import { computeSafariTicketState } from '@poposerver/lib/constants/safari-ticket';
 import { userExpProgress } from '@poposerver/lib/utils/user-exp-curve';
 import { eq } from 'drizzle-orm';
@@ -100,9 +100,6 @@ export class UserService {
     const petLeader = party[0] ?? null;
 
     await setUserState(authId, {
-      mapId: profile.lastMapId,
-      x: String(profile.lastX),
-      y: String(profile.lastY),
       nickname: profile.nickname,
       gender: String(profile.gender),
       costume: JSON.stringify(equippedCostumes),
@@ -110,9 +107,9 @@ export class UserService {
       'pet:pokedexId': petLeader ? String(petLeader.pokedexId) : '',
       'pet:isShiny': petLeader?.isShiny ? '1' : '0',
       createdAt: new Date().toISOString(),
-      lastMoveTime: String(Date.now()),
       visitedMaps: JSON.stringify(visitedMapIds),
     });
+    initPosition(authId, { mapId: profile.lastMapId, x: profile.lastX, y: profile.lastY });
 
     return {
       profile,

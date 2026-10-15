@@ -1,5 +1,6 @@
 import { RoomMemberState, UserState } from './types';
 import { getUserState } from './user-state';
+import { getPosition } from './position';
 
 const rooms = new Map<string, Set<string>>();
 
@@ -32,7 +33,16 @@ export async function getRoomMemberStates(mapId: string): Promise<RoomMemberStat
   const out: RoomMemberState[] = [];
   for (const userId of set) {
     const state = await getUserState(userId);
-    if (state) out.push({ userId, ...state });
+    const position = getPosition(userId);
+    if (state && position) {
+      out.push({
+        userId,
+        ...state,
+        mapId: position.mapId,
+        x: String(position.x),
+        y: String(position.y),
+      });
+    }
   }
   return out;
 }

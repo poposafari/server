@@ -1,7 +1,7 @@
 import { eq, sql, and, inArray, notInArray } from 'drizzle-orm';
 import { db } from './db';
 import { user, userCostume, userTownMap } from './schema';
-import { getUserState, deleteUserState, setUserStateCreatedAt } from './state';
+import { getUserState, getPosition, deleteUserState, setUserStateCreatedAt } from './state';
 import { logger } from './utils/logger';
 
 export interface PersistUserStateOptions {
@@ -14,11 +14,10 @@ export async function persistUserStateFromRedisToDb(
 ): Promise<void> {
   const { deleteFromRedis = true } = options;
   const state = await getUserState(authId);
-  if (!state) return;
+  const position = getPosition(authId);
+  if (!state || !position) return;
 
   const accountId = Number(authId);
-  const x = Number(state.x) || 0;
-  const y = Number(state.y) || 0;
 
   const now = Date.now();
   let deltaSeconds = 0;
@@ -34,9 +33,9 @@ export async function persistUserStateFromRedisToDb(
     await tx
       .update(user)
       .set({
-        lastMapId: state.mapId,
-        lastX: x,
-        lastY: y,
+        lastMapId: position.mapId,
+        lastX: position.x,
+        lastY: position.y,
         playtime: sql`${user.playtime} + ${deltaSeconds}`,
       })
       .where(eq(user.accountId, accountId));

@@ -10,6 +10,7 @@ import {
   envConfig,
   extractPetState,
   getRoomMemberStates,
+  getPosition,
   getUserState,
   logger,
   persistUserStateFromRedisToDb,
@@ -18,9 +19,9 @@ import {
   removeUserFromRoom,
   setUserStateSocketId,
   setUserStateVisitedMaps,
-  updateUserStateMap,
   updateUserStatePet,
-  updateUserStatePosition,
+  movePosition,
+  setPosition,
   getGameTime,
   getMoonPhase,
   GameTimeState,
@@ -80,8 +81,6 @@ export class SocketApp implements Broadcaster {
   private moveBuffer: Map<string, Map<string, MoveBufferEntry>> = new Map();
   private tickInterval: NodeJS.Timeout | null = null;
 
-  /** In-memory 좌표 캐시: userId → { x, y }. move 핸들러에서 await 없이 좌표 업데이트 */
-  private userPositions: Map<string, { x: number; y: number }> = new Map();
   // private tickSeq = 0;
 
   constructor(httpServer: HttpServer) {
@@ -110,7 +109,7 @@ export class SocketApp implements Broadcaster {
   }
 
   private startTickLoop(): void {
-    this.tickInterval = setInterval(async () => {
+    this.tickInterval = setInterval(() => {
       const startedAt = performance.now();
       let nonEmpty = false;
       for (const [roomId, usersMap] of this.moveBuffer) {
@@ -124,7 +123,6 @@ export class SocketApp implements Broadcaster {
           this.io.to(roomId).emit('users_moved', { updates });
           loadtestMetrics.countEmit(updates.length);
         }
-        await this.syncPositionsToState(usersMap);
         usersMap.clear();
       }
       loadtestMetrics.countTick(nonEmpty, performance.now() - startedAt);
@@ -143,7 +141,7 @@ export class SocketApp implements Broadcaster {
 
   /**
    * [tick 모드] 이동을 방별 버퍼에 덮어쓴다. 같은 틱 안의 연속 이동은 마지막 것만 남는다.
-   * 실제 emit/state 반영은 startTickLoop이 담당.
+   * 실제 emit은 startTickLoop이 담당.
    */
   private dispatchMoveBuffered(roomId: string, userId: string, entry: MoveBufferEntry): void {
     if (!this.moveBuffer.has(roomId)) this.moveBuffer.set(roomId, new Map());
@@ -151,31 +149,14 @@ export class SocketApp implements Broadcaster {
   }
 
   /**
-   * [immediate 모드] 틱 도입 전 동작 재현 — move 이벤트 수신 즉시 해당 방에 브로드캐스트하고
-   * 좌표를 state에 기록한다. payload 형태는 tick 모드와 동일(updates 배열, 길이 1)이라
+   * [immediate 모드] 틱 도입 전 동작 재현 — move 이벤트 수신 즉시 해당 방에 브로드캐스트한다.
+   * payload 형태는 tick 모드와 동일(updates 배열, 길이 1)이라
    * 클라이언트는 수정 없이 그대로 동작한다.
    */
   private dispatchMoveImmediate(roomId: string, userId: string, entry: MoveBufferEntry): void {
     if (shouldSyncOtherPlayers(roomId)) {
       this.io.to(roomId).emit('users_moved', { updates: [{ userId, ...entry }] });
       loadtestMetrics.countEmit(1);
-    }
-    void updateUserStatePosition(userId, {
-      x: String(entry.x),
-      y: String(entry.y),
-      lastMoveTime: entry.lastMoveTime,
-    }).catch((err) =>
-      logger.error(`[Socket] immediate position sync failed userId=${userId}`, err),
-    );
-  }
-
-  private async syncPositionsToState(usersMap: Map<string, MoveBufferEntry>): Promise<void> {
-    for (const [userId, entry] of usersMap) {
-      await updateUserStatePosition(userId, {
-        x: String(entry.x),
-        y: String(entry.y),
-        lastMoveTime: entry.lastMoveTime,
-      });
     }
   }
 
@@ -320,7 +301,7 @@ export class SocketApp implements Broadcaster {
             action: AuditAction.SOCKET_CONNECT,
             detail: {
               socketId: socket.id,
-              mapId: existingState?.mapId ?? null,
+              mapId: getPosition(authId)?.mapId ?? null,
               // false면 /game/connections가 만든 state가 없는 상태로 붙은 것 → init이 실패한다.
               hasState: !!existingState,
               // true면 같은 계정의 이전 연결을 밀어내고 들어온 접속(다중 로그인).
@@ -344,8 +325,9 @@ export class SocketApp implements Broadcaster {
 
         try {
           const existingState = await getUserState(authId);
+          const position = getPosition(authId);
           logger.info(`[Socket] init existingState done: socketId=${socket.id}`);
-          if (!existingState) {
+          if (!existingState || !position) {
             socket.emit('init_error', {
               message: 'Game state not found. Please enter the game first.',
             });
@@ -354,11 +336,7 @@ export class SocketApp implements Broadcaster {
 
           // init 시점 킥 제거 — connection 핸들러에서 이미 처리됨
 
-          const mapId = existingState.mapId;
-          this.userPositions.set(authId, {
-            x: Number(existingState.x),
-            y: Number(existingState.y),
-          });
+          const mapId = position.mapId;
 
           const syncOthers = shouldSyncOtherPlayers(mapId);
 
@@ -382,13 +360,12 @@ export class SocketApp implements Broadcaster {
             socket.to(mapId).emit('user_joined', {
               userId: authId,
               mapId,
-              x: existingState.x,
-              y: existingState.y,
+              x: String(position.x),
+              y: String(position.y),
               nickname: existingState.nickname,
               costume: existingState.costume,
               gender: existingState.gender,
               pet: extractPetState(existingState),
-              lastMoveTime: existingState.lastMoveTime,
             });
           }
 
@@ -405,9 +382,9 @@ export class SocketApp implements Broadcaster {
             nickname: existingState.nickname,
             gender: existingState.gender,
             lastLocation: {
-              map: existingState.mapId,
-              x: Number(existingState.x),
-              y: Number(existingState.y),
+              map: position.mapId,
+              x: position.x,
+              y: position.y,
             },
             timeOfDay: gameTime?.phase ?? 'day',
             gameTimeStartedAt: gameTime?.startedAt,
@@ -450,23 +427,25 @@ export class SocketApp implements Broadcaster {
             ? (parsed.moveType as MoveType)
             : 'walk';
 
-        const pos = this.userPositions.get(userId) ?? { x: 0, y: 0 };
         const step = moveType === 'jump' ? 2 : 1;
+        let dx = 0;
+        let dy = 0;
         switch (direction as MoveDirection) {
           case 'up':
-            pos.y -= step;
+            dy = -step;
             break;
           case 'down':
-            pos.y += step;
+            dy = step;
             break;
           case 'left':
-            pos.x -= step;
+            dx = -step;
             break;
           case 'right':
-            pos.x += step;
+            dx = step;
             break;
         }
-        this.userPositions.set(userId, pos);
+        const pos = movePosition(userId, dx, dy);
+        if (!pos) return;
 
         const entry: MoveBufferEntry = {
           x: pos.x,
@@ -531,14 +510,7 @@ export class SocketApp implements Broadcaster {
             await removeSafariActive(userId, roomId);
           }
 
-          const now = new Date().toISOString();
-          await updateUserStateMap(userId, {
-            mapId: targetMapId,
-            x: String(x),
-            y: String(y),
-            lastMoveTime: now,
-          });
-          this.userPositions.set(userId, { x, y });
+          setPosition(userId, { mapId: targetMapId, x, y });
 
           if (syncToOthers) {
             socket.join(targetMapId);
@@ -577,7 +549,6 @@ export class SocketApp implements Broadcaster {
                   costume: state.costume,
                   gender: state.gender,
                   pet: extractPetState(state),
-                  lastMoveTime: now,
                 }
               : {
                   userId,
@@ -588,7 +559,6 @@ export class SocketApp implements Broadcaster {
                   costume: '',
                   gender: '',
                   pet: null,
-                  lastMoveTime: now,
                 };
             socket.to(targetMapId).emit('user_joined', userJoinedPayload);
           }
@@ -682,16 +652,6 @@ export class SocketApp implements Broadcaster {
           const currentState = await getUserState(userId);
           const isOwner = currentState?.socketId === socket.id;
           ownedSlot = isOwner;
-
-          const pos = this.userPositions.get(userId);
-          if (pos && isOwner && currentState?.mapId === roomId) {
-            await updateUserStatePosition(userId, {
-              x: String(pos.x),
-              y: String(pos.y),
-              lastMoveTime: new Date().toISOString(),
-            });
-          }
-          this.userPositions.delete(userId);
 
           await persistUserStateFromRedisToDb(userId, { deleteFromRedis: isOwner });
 

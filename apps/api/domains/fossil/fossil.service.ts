@@ -6,7 +6,7 @@ import { AppError } from '@poposerver/lib/utils/error';
 import { auditTx } from '@poposerver/lib/utils/audit';
 import { AppErrorCode, AuditAction, PokemonNatural } from '@poposerver/lib/types';
 import { rollGender, rollSafariShiny, pickOne } from '@poposerver/lib/utils/rng';
-import { getUserState } from '@poposerver/lib/state';
+import { getPosition } from '@poposerver/lib/state';
 import { totalExpForLevel } from '@poposerver/lib/utils/exp-curve';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
 import { PC_STORAGE } from '@poposerver/lib/constants/pc';
@@ -57,8 +57,7 @@ export class FossilService {
     }
 
     // caughtLocation = 현재 사용자의 맵
-    const userState = await getUserState(authId);
-    const caughtLocation = userState?.mapId ?? 'p001';
+    const caughtLocation = getPosition(authId)?.mapId ?? 'p001';
 
     // 화석 복원 포켓몬은 고정 L20
     const level = FOSSIL_LEVEL;

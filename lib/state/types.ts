@@ -1,7 +1,4 @@
 export interface UserState {
-  mapId: string;
-  x: string;
-  y: string;
   nickname: string;
   gender: string;
   costume: string;
@@ -9,11 +6,10 @@ export interface UserState {
   'pet:pokedexId': string;
   'pet:isShiny': string;
   createdAt: string;
-  lastMoveTime: string;
   visitedMaps: string;
 }
 
-export type RoomMemberState = { userId: string } & UserState;
+export type RoomMemberState = { userId: string; mapId: string; x: string; y: string } & UserState;
 
 export interface GameTimeState {
   phase: string;

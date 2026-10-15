@@ -3,8 +3,8 @@ import { db } from '@poposerver/lib/db';
 import { user, userItem, userPokemon, userPokedex } from '@poposerver/lib/schema';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import {
-  getUserState,
-  updateUserStateMap,
+  getPosition,
+  setPosition,
   deleteAllSafariData,
   SafariWild,
   SafariItem,
@@ -91,12 +91,12 @@ export class SafariService {
     entry?: { x: number; y: number };
   }> {
     // 1-a. 검증: 현재 사용자가 plaza 또는 safari에 있는지 확인
-    const userState = await getUserState(authId);
-    if (!userState) {
+    const position = getPosition(authId);
+    if (!position) {
       throw new AppError('Must be in plaza to enter safari', 400, AppErrorCode.NOT_IN_PLAZA);
     }
 
-    const currentPrefix = userState.mapId[0];
+    const currentPrefix = position.mapId[0];
     if (currentPrefix !== 'p' && currentPrefix !== 's') {
       throw new AppError('Must be in plaza to enter safari', 400, AppErrorCode.NOT_IN_PLAZA);
     }
@@ -137,12 +137,7 @@ export class SafariService {
 
     if (needEntry) {
       const entry = targetMap.entry ?? { x: UserStartLocation.x, y: UserStartLocation.y };
-      await updateUserStateMap(authId, {
-        mapId,
-        x: String(entry.x),
-        y: String(entry.y),
-        lastMoveTime: String(Date.now()),
-      });
+      setPosition(authId, { mapId, x: entry.x, y: entry.y });
       return { mapData, entry };
     }
 
@@ -150,12 +145,12 @@ export class SafariService {
   }
 
   async pickItem(authId: string, uid: string): Promise<{ itemId: string; newQuantity: number }> {
-    const userState = await getUserState(authId);
-    if (!userState || !userState.mapId.startsWith('s')) {
+    const position = getPosition(authId);
+    if (!position || !position.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
-    const mapId = userState.mapId;
+    const mapId = position.mapId;
     const items = await getSafariItems(authId, mapId);
     if (!items) {
       throw new AppError('Safari map data not found', 404, AppErrorCode.NOT_FOUND);
@@ -219,12 +214,12 @@ export class SafariService {
   }> {
     const accountId = Number(authId);
 
-    const userState = await getUserState(authId);
-    if (!userState || !userState.mapId.startsWith('s')) {
+    const position = getPosition(authId);
+    if (!position || !position.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
-    const mapId = userState.mapId;
+    const mapId = position.mapId;
 
     if (mapId === S000_MAP_ID && ballId !== SAFARI_BALL_ID) {
       throw new AppError('Only safari balls in s000', 400, AppErrorCode.DTO_INVALID);
@@ -455,7 +450,7 @@ export class SafariService {
             partySlot: targetPartySlot,
             ballId: BALL_NUMBERS[ballId],
             friendship: ballId === 'friend-ball' ? FRIEND_BALL_FRIENDSHIP : 0,
-            caughtLocation: userState.mapId,
+            caughtLocation: position.mapId,
           })
           .returning();
 
@@ -596,11 +591,10 @@ export class SafariService {
       });
 
       if (isS000Starter) {
-        await updateUserStateMap(authId, {
+        setPosition(authId, {
           mapId: POST_S000_LOCATION.map,
-          x: String(POST_S000_LOCATION.x),
-          y: String(POST_S000_LOCATION.y),
-          lastMoveTime: String(Date.now()),
+          x: POST_S000_LOCATION.x,
+          y: POST_S000_LOCATION.y,
         });
         await deleteAllSafariData(authId);
       }
@@ -804,12 +798,12 @@ export class SafariService {
       throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
     }
 
-    const userState = await getUserState(authId);
-    if (!userState || !userState.mapId.startsWith('s')) {
+    const position = getPosition(authId);
+    if (!position || !position.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
-    const mapId = userState.mapId;
+    const mapId = position.mapId;
     const wild = await getWild(authId, mapId, uid);
     if (!wild) {
       return { result: 'flee', itemId, quantity: await this.getItemQuantity(accountId, itemId) };
@@ -870,12 +864,12 @@ export class SafariService {
       throw new AppError('Item not found', 404, AppErrorCode.ITEM_NOT_FOUND);
     }
 
-    const userState = await getUserState(authId);
-    if (!userState || !userState.mapId.startsWith('s')) {
+    const position = getPosition(authId);
+    if (!position || !position.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
-    const mapId = userState.mapId;
+    const mapId = position.mapId;
     const wild = await getWild(authId, mapId, uid);
     if (!wild) {
       return { result: 'flee', itemId, quantity: await this.getItemQuantity(accountId, itemId) };
@@ -1035,23 +1029,18 @@ export class SafariService {
   async exit(
     authId: string,
   ): Promise<{ mapId: string; entry: { x: number; y: number }; fromMapId: string }> {
-    const userState = await getUserState(authId);
-    if (!userState || !userState.mapId.startsWith('s')) {
+    const position = getPosition(authId);
+    if (!position || !position.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
-    const fromMapId = userState.mapId;
+    const fromMapId = position.mapId;
 
     await deleteAllSafariData(authId);
 
     const p001 = MasterData.getMap('p001');
     const entry = p001?.entry ?? { x: UserStartLocation.x, y: UserStartLocation.y };
-    await updateUserStateMap(authId, {
-      mapId: 'p001',
-      x: String(entry.x),
-      y: String(entry.y),
-      lastMoveTime: String(Date.now()),
-    });
+    setPosition(authId, { mapId: 'p001', x: entry.x, y: entry.y });
 
     return { mapId: 'p001', entry, fromMapId };
   }
