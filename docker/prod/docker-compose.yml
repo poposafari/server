@@ -36,6 +36,23 @@ services:
           # TODO(9-0): 1주차 docker stats 실측 baseline + 30~50% margin으로 교체
           memory: 1024M
 
+  redis:
+    image: redis:8-alpine
+    container_name: poposerver_redis
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+    command: ['redis-server', '--save', '', '--appendonly', 'no', '--notify-keyspace-events', 'Ex']
+    networks:
+      - poposerver_prod
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+
   # 통합 모놀리스: 한 프로세스가 REST(Fastify) + WebSocket(Socket.IO) + 게임 루프를 모두 담당.
   # nginx가 api. / socket. 서브도메인을 이 단일 upstream(172.28.0.10:9000)으로 라우팅한다.
   server:

@@ -29,6 +29,15 @@ services:
     networks:
       - poposerver_network
 
+  redis:
+    image: redis:8-alpine
+    container_name: poposerver_redis
+    command: ['redis-server', '--save', '', '--appendonly', 'no', '--notify-keyspace-events', 'Ex']
+    ports:
+      - '127.0.0.1:6379:6379'
+    networks:
+      - poposerver_network
+
 volumes:
   pg_data:
 
