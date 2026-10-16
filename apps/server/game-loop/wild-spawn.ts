@@ -26,10 +26,9 @@ export async function runWildSpawnCycle(concurrency: number = CONCURRENCY): Prom
     return;
   }
 
-  const gameTime = await getGameTime();
-  const timeOfDay = (gameTime?.phase ?? TimeOfDay.DAY) as TimeOfDay;
+  const timeOfDay = getGameTime().phase as TimeOfDay;
 
-  const weatherByMap = await getAllMapWeathers();
+  const weatherByMap = getAllMapWeathers();
 
   let spawned = 0;
   let skipped = 0;

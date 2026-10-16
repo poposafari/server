@@ -8,9 +8,9 @@ import { logger } from '@poposerver/lib/utils/logger';
 import { registerBroadcaster } from '@poposerver/lib';
 import { buildApp } from '../api/app';
 import { SocketApp } from '../socket/app';
-import { startWeatherClock } from './game-loop/weather';
+import { initWeather, startWeatherClock } from './game-loop/weather';
 import { startWildSpawnLoop } from './game-loop/wild-spawn';
-import { startWorldTickLoop } from './game-loop/world-tick';
+import { initGameTime, startWorldTickLoop } from './game-loop/world-tick';
 import { startJanitorLoops } from './game-loop/janitor';
 import { startPositionFlushLoop, flushAllPositions } from './flush/position-flush';
 
@@ -24,6 +24,9 @@ async function boot() {
     const server = http.createServer(app);
     const socketApp = new SocketApp(server);
     registerBroadcaster(socketApp);
+
+    await initWeather();
+    await initGameTime();
 
     const stopWeather = startWeatherClock();
     const stopSpawn = startWildSpawnLoop();

@@ -2,7 +2,9 @@ import {
   WeatherState,
   Weather,
   MasterData,
-  getAllMapWeathers,
+  getMapWeather,
+  loadStoredMapWeathers,
+  restoreMapWeather,
   setMapWeather,
   publishMapWeather,
   logger,
@@ -31,11 +33,15 @@ function randomDuration(): number {
   return MIN_MS + Math.floor(Math.random() * (MAX_MS - MIN_MS + 1));
 }
 
-async function rollMap(mapId: string, now: number): Promise<WeatherState> {
+function isAlive(state: WeatherState | null, now: number): state is WeatherState {
+  return state !== null && state.startedAt + state.duration > now;
+}
+
+async function rollMap(mapId: string): Promise<WeatherState> {
   const state: WeatherState = {
     mapId,
     weather: pickWeather(),
-    startedAt: now,
+    startedAt: Date.now(),
     duration: randomDuration(),
   };
   await setMapWeather(state);
@@ -43,48 +49,46 @@ async function rollMap(mapId: string, now: number): Promise<WeatherState> {
   return state;
 }
 
-export function startWeatherClock(): () => void {
-  const cache = new Map<string, WeatherState>();
-  let running = false;
-  let stopped = false;
+async function reviveStored(): Promise<number> {
+  const mapIds = MasterData.getAllMaps().map((m) => m.id);
+  const stored = await loadStoredMapWeathers(mapIds);
+  const now = Date.now();
+  const alive = Object.values(stored).filter((e) => isAlive(e, now));
+  alive.forEach((e) => restoreMapWeather(e));
+  return alive.length;
+}
 
-  void (async () => {
-    const now = Date.now();
-    const existing = await getAllMapWeathers();
-    const maps = MasterData.getAllMaps();
-
-    let revived = 0;
-    let rolled = 0;
-    for (const m of maps) {
-      const e = existing[m.id];
-
-      if (e && e.startedAt + e.duration > now) {
-        cache.set(m.id, e);
-        await publishMapWeather(e);
-        revived++;
-      } else {
-        const next = await rollMap(m.id, now);
-        cache.set(m.id, next);
-        rolled++;
+async function rollDue(logEach: boolean): Promise<number> {
+  const maps = MasterData.getAllMaps();
+  let rolled = 0;
+  for (let i = 0; i < maps.length; i += 1) {
+    const mapId = maps[i].id;
+    if (!isAlive(getMapWeather(mapId), Date.now())) {
+      const next = await rollMap(mapId);
+      rolled += 1;
+      if (logEach) {
+        logger.info(`[WEATHER] ${mapId} → ${next.weather} (${Math.round(next.duration / 1000)}s)`);
       }
     }
-    logger.info(`[WEATHER] init done: revived=${revived} rolled=${rolled}`);
-  })().catch((err) => logger.error('[WEATHER] init failed:', err));
+  }
+  return rolled;
+}
+
+export async function initWeather(): Promise<void> {
+  const revived = await reviveStored();
+  const rolled = await rollDue(false);
+  logger.info(`[WEATHER] init done: revived=${revived} rolled=${rolled}`);
+}
+
+export function startWeatherClock(): () => void {
+  let running = false;
+  let stopped = false;
 
   const timer = setInterval(async () => {
     if (running || stopped) return;
     running = true;
     try {
-      const now = Date.now();
-      for (const [mapId, state] of cache) {
-        if (state.startedAt + state.duration <= now) {
-          const next = await rollMap(mapId, now);
-          cache.set(mapId, next);
-          logger.info(
-            `[WEATHER] ${mapId} → ${next.weather} (${Math.round(next.duration / 1000)}s)`,
-          );
-        }
-      }
+      await rollDue(true);
     } catch (err) {
       logger.error('[WEATHER] tick failed:', err);
     } finally {

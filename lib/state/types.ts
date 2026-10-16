@@ -15,6 +15,7 @@ export interface GameTimeState {
   phase: string;
   startedAt: number; // 시작 시간(ms)
   duration: number; // 전체 시간(ms)
+  moonPhase: number;
 }
 
 export interface WeatherState {

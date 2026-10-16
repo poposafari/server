@@ -17,7 +17,6 @@ import {
   addSafariActive,
   publishWildDespawn,
   getGameTime,
-  getMoonPhase,
 } from '@poposerver/lib/state';
 import {
   POKEMON_LEVEL_MAX,
@@ -638,7 +637,7 @@ export class SafariService {
       caughtBefore = (row?.caughtCount ?? 0) > 0;
     }
 
-    const gameTime = await getGameTime();
+    const gameTime = getGameTime();
 
     return ballCaptureMul(ballId, {
       pokedexId: wild.pokedexId,
@@ -652,7 +651,7 @@ export class SafariService {
       caughtBefore,
       mapId,
       timeOfDay: gameTime.phase,
-      moonPhase: getMoonPhase(),
+      moonPhase: gameTime.moonPhase,
       spawnTile: input.spawnTile,
     });
   }

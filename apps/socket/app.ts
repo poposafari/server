@@ -23,7 +23,6 @@ import {
   movePosition,
   setPosition,
   getGameTime,
-  getMoonPhase,
   GameTimeState,
   getMapWeather,
   WeatherState,
@@ -211,7 +210,7 @@ export class SocketApp implements Broadcaster {
       timeOfDay: state.phase,
       startedAt: state.startedAt,
       duration: state.duration,
-      moonPhase: getMoonPhase(state.startedAt),
+      moonPhase: state.moonPhase,
     });
   }
 
@@ -372,8 +371,8 @@ export class SocketApp implements Broadcaster {
           data.userId = authId;
           data.roomId = mapId;
 
-          const gameTime = await getGameTime();
-          const weather = await getMapWeather(mapId);
+          const gameTime = getGameTime();
+          const weather = getMapWeather(mapId);
           const safari: SafariSnapshot | undefined = mapId.startsWith('s')
             ? { wilds: snapshotWilds(authId, mapId), items: snapshotItems(authId, mapId) }
             : undefined;
@@ -386,10 +385,10 @@ export class SocketApp implements Broadcaster {
               x: position.x,
               y: position.y,
             },
-            timeOfDay: gameTime?.phase ?? 'day',
-            gameTimeStartedAt: gameTime?.startedAt,
-            gameTimeDuration: gameTime?.duration,
-            moonPhase: getMoonPhase(gameTime?.startedAt),
+            timeOfDay: gameTime.phase,
+            gameTimeStartedAt: gameTime.startedAt,
+            gameTimeDuration: gameTime.duration,
+            moonPhase: gameTime.moonPhase,
             weather: weather?.weather ?? 'sunny',
             weatherStartedAt: weather?.startedAt,
             weatherDuration: weather?.duration,
@@ -563,7 +562,7 @@ export class SocketApp implements Broadcaster {
             socket.to(targetMapId).emit('user_joined', userJoinedPayload);
           }
 
-          const weather = await getMapWeather(targetMapId);
+          const weather = getMapWeather(targetMapId);
           const safari: SafariSnapshot | undefined = targetMapId.startsWith('s')
             ? {
                 wilds: snapshotWilds(userId, targetMapId),

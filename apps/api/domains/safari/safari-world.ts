@@ -41,8 +41,7 @@ export async function ensureSafariBucket(
   const targetMap = MasterData.getMap(mapId);
   if (!targetMap || targetMap.type !== 'safari') return false;
 
-  const gameTime = await getGameTime();
-  const timeOfDay = (gameTime?.phase ?? TimeOfDay.DAY) as TimeOfDay;
+  const timeOfDay = getGameTime().phase as TimeOfDay;
   const weather: Weather = Weather.SUNNY; // TODO: 날씨 시스템 구현 후 교체
 
   // 정책: 최초 진입 시 항상 max까지 스폰 (min은 고려하지 않음).
