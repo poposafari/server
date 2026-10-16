@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { MasterData } from '@poposerver/lib/utils/master-data';
+import { RedisRetry, withRedisRetry } from '@poposerver/lib/redis-retry';
 import {
   getGameTime,
   createSafariBucket,
@@ -27,13 +28,15 @@ import { TimeOfDay, Weather, S000_MAP_ID, AuditSource } from '@poposerver/lib/ty
 export async function ensureSafariBucket(
   authId: string,
   mapId: string,
+  retry: RedisRetry,
   auditSource: AuditSource = 'api',
   ip?: string | null,
 ): Promise<boolean> {
   if (!mapId.startsWith('s')) return false;
 
-  const existingWildIds = await listWildIds(authId, mapId);
-  const existingItems = await getSafariItems(authId, mapId);
+  const [existingWildIds, existingItems] = await withRedisRetry(retry, () =>
+    Promise.all([listWildIds(authId, mapId), getSafariItems(authId, mapId)]),
+  );
   const isFirstEntry = existingWildIds.length === 0 && existingItems === null;
   if (!isFirstEntry) return false;
 
@@ -70,7 +73,9 @@ export async function ensureSafariBucket(
     picked: false,
   }));
 
-  const stamped = await createSafariBucket(authId, mapId, entries, items);
+  const stamped = await withRedisRetry(retry, () =>
+    createSafariBucket(authId, mapId, entries, items),
+  );
 
   auditWildSpawn({ authId, mapId, wilds: stamped, origin: 'first_entry', source: auditSource, ip });
   auditSafariItemSpawn({ authId, mapId, items, source: auditSource, ip });

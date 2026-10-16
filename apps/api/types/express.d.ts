@@ -6,6 +6,7 @@ declare global {
     interface Request {
       authId: string;
       sessionId: string;
+      receivedAt?: number;
       audit?: {
         action: AuditAction;
         detail?: Record<string, unknown>;

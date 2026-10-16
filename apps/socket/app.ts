@@ -37,6 +37,11 @@ import {
   AuditAction,
   MasterData,
   loadtestMetrics,
+  AppErrorCode,
+  RedisRetryCancelled,
+  isRedisGiveUp,
+  redisRetry,
+  withRedisRetry,
 } from '@poposerver/lib';
 import { ensureSafariBucket } from '../api/domains/safari/safari-world';
 
@@ -323,6 +328,7 @@ export class SocketApp implements Broadcaster {
       }
 
       socket.on('init', async () => {
+        const receivedAt = Date.now();
         const authId = data.authId;
         logger.info(`[Socket] init start: socketId=${socket.id} authId=${authId ?? 'missing'}`);
         if (!authId) {
@@ -330,6 +336,12 @@ export class SocketApp implements Broadcaster {
           return;
         }
 
+        const retry = redisRetry(
+          `socket.init authId=${authId}`,
+          receivedAt,
+          () => socket.disconnected,
+        );
+        let activeSafariMapId: string | null = null;
         try {
           const existingState = await getUserState(authId);
           const position = getPosition(authId);
@@ -354,7 +366,8 @@ export class SocketApp implements Broadcaster {
 
           if (mapId.startsWith('s')) {
             await addSafariActive(authId, mapId);
-            await ensureSafariBucket(authId, mapId, 'socket', socketIp(socket));
+            activeSafariMapId = mapId;
+            await ensureSafariBucket(authId, mapId, retry, 'socket', socketIp(socket));
           }
           logger.info(`[Socket] init addUserToRoom done: socketId=${socket.id}`);
 
@@ -382,7 +395,7 @@ export class SocketApp implements Broadcaster {
           const gameTime = getGameTime();
           const weather = getMapWeather(mapId);
           const safari = mapId.startsWith('s')
-            ? await readSafariSnapshot(authId, mapId)
+            ? await withRedisRetry(retry, () => readSafariSnapshot(authId, mapId))
             : undefined;
           socket.emit('init_ok', {
             userId: authId,
@@ -404,6 +417,22 @@ export class SocketApp implements Broadcaster {
           });
           logger.info(`[Socket] init success: ${socket.id} userId=${authId}`);
         } catch (error) {
+          if (activeSafariMapId && !data.userId) {
+            await removeSafariActive(authId, activeSafariMapId);
+          }
+          if (error instanceof RedisRetryCancelled) {
+            logger.info(
+              `[Socket] init cancelled: socketId=${socket.id} disconnected while waiting`,
+            );
+            return;
+          }
+          if (isRedisGiveUp(error)) {
+            socket.emit('init_error', {
+              message: 'Safari state unavailable',
+              code: AppErrorCode.SAFARI_STATE_UNAVAILABLE,
+            });
+            return;
+          }
           logger.error(`[Socket] init failed: socketId=${socket.id} authId=${authId}`, error);
           socket.emit('init_error', { message: 'Init failed' });
         }
@@ -470,6 +499,7 @@ export class SocketApp implements Broadcaster {
       });
 
       socket.on('change_map', async (payload: { targetMapId?: string; x?: number; y?: number }) => {
+        const receivedAt = Date.now();
         const userId = data.userId;
         const roomId = data.roomId;
         if (!userId || !roomId) {
@@ -503,6 +533,11 @@ export class SocketApp implements Broadcaster {
         //   return;
         // }
 
+        const retry = redisRetry(
+          `socket.change_map authId=${userId}`,
+          receivedAt,
+          () => socket.disconnected,
+        );
         try {
           const syncFromOthers = shouldSyncOtherPlayers(roomId);
           const syncToOthers = shouldSyncOtherPlayers(targetMapId);
@@ -527,7 +562,7 @@ export class SocketApp implements Broadcaster {
 
           if (targetMapId.startsWith('s')) {
             await addSafariActive(userId, targetMapId);
-            await ensureSafariBucket(userId, targetMapId, 'socket', socketIp(socket));
+            await ensureSafariBucket(userId, targetMapId, retry, 'socket', socketIp(socket));
           }
 
           const roomStates = syncToOthers ? await getRoomMemberStates(targetMapId) : [];
@@ -572,7 +607,7 @@ export class SocketApp implements Broadcaster {
 
           const weather = getMapWeather(targetMapId);
           const safari = targetMapId.startsWith('s')
-            ? await readSafariSnapshot(userId, targetMapId)
+            ? await withRedisRetry(retry, () => readSafariSnapshot(userId, targetMapId))
             : undefined;
           socket.emit('change_map_ok', {
             mapId: targetMapId,
@@ -593,6 +628,17 @@ export class SocketApp implements Broadcaster {
             source: 'socket',
           });
         } catch (error) {
+          if (error instanceof RedisRetryCancelled) {
+            logger.info(`[Socket] change_map cancelled: socketId=${socket.id} disconnected`);
+            return;
+          }
+          if (isRedisGiveUp(error)) {
+            socket.emit('change_map_error', {
+              message: 'Safari state unavailable',
+              code: AppErrorCode.SAFARI_STATE_UNAVAILABLE,
+            });
+            return;
+          }
           logger.error('[Socket] change_map failed:', error);
           socket.emit('change_map_error', { message: 'Change map failed' });
         }

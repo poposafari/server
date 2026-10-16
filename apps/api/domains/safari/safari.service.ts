@@ -54,7 +54,8 @@ import {
   PokemonData,
 } from '@poposerver/lib/types';
 import { AppError } from '@poposerver/lib/utils/error';
-import { auditTx, auditAsync } from '@poposerver/lib/utils/audit';
+import { auditTx, auditAsync, type Tx } from '@poposerver/lib/utils/audit';
+import { redisRetry, withRedisRetry } from '@poposerver/lib/redis-retry';
 import { LEVEL_CURVE } from '@poposerver/lib/constants/level-curve';
 import { PC_STORAGE, PC_BOX_CAPACITY } from '@poposerver/lib/constants/pc';
 import {
@@ -84,6 +85,7 @@ export class SafariService {
     authId: string,
     mapId: string,
     needEntry: boolean,
+    receivedAt: number,
     ip?: string,
   ): Promise<{
     mapData: { wilds: SafariWild[]; items: SafariItem[] };
@@ -121,14 +123,19 @@ export class SafariService {
       }
     }
 
+    const retry = redisRetry(`safari.enter authId=${authId}`, receivedAt);
+    // 2. 버킷 생성(첫 진입)/유지(재진입)를 ensureSafariBucket에 위임 — 소켓 조인과 공유하는 유일한 생성 지점.
+    const createBucket = () => ensureSafariBucket(authId, mapId, retry, 'api', ip);
     if (needEntry && currentPrefix === 'p' && mapId !== S000_MAP_ID) {
-      await this.consumeTicketAndGrantBalls(Number(authId), mapId, ip);
+      await this.consumeTicketAndGrantBalls(Number(authId), mapId, createBucket, ip);
+    } else {
+      await createBucket();
     }
 
-    // 2. 버킷 생성(첫 진입)/유지(재진입)를 ensureSafariBucket에 위임 — 소켓 조인과 공유하는 유일한 생성 지점.
-    await ensureSafariBucket(authId, mapId, 'api', ip);
-    const wilds = await getAllWildsWithCleanup(authId, mapId);
-    const items = (await getSafariItems(authId, mapId)) ?? [];
+    const [wilds, storedItems] = await withRedisRetry(retry, () =>
+      Promise.all([getAllWildsWithCleanup(authId, mapId), getSafariItems(authId, mapId)]),
+    );
+    const items = storedItems ?? [];
     // safari:active 인덱스가 어떤 이유로든 빠져있을 수 있으니 idempotent하게 보장
     await addSafariActive(authId, mapId);
 
@@ -143,14 +150,19 @@ export class SafariService {
     return { mapData };
   }
 
-  async pickItem(authId: string, uid: string): Promise<{ itemId: string; newQuantity: number }> {
+  async pickItem(
+    authId: string,
+    uid: string,
+    receivedAt: number,
+  ): Promise<{ itemId: string; newQuantity: number }> {
     const position = getPosition(authId);
     if (!position || !position.mapId.startsWith('s')) {
       throw new AppError('Not in safari zone', 400, AppErrorCode.NOT_IN_SAFARI);
     }
 
     const mapId = position.mapId;
-    const items = await getSafariItems(authId, mapId);
+    const retry = redisRetry(`safari.pickItem authId=${authId}`, receivedAt);
+    const items = await withRedisRetry(retry, () => getSafariItems(authId, mapId));
     if (!items) {
       throw new AppError('Safari map data not found', 404, AppErrorCode.NOT_FOUND);
     }
@@ -167,23 +179,26 @@ export class SafariService {
     }
 
     targetItem.picked = true;
-    await setSafariItems(authId, mapId, items);
 
     const accountId = Number(authId);
-    const [result] = await db
-      .insert(userItem)
-      .values({
-        accountId,
-        itemId: targetItem.itemId,
-        quantity: 1,
-      })
-      .onConflictDoUpdate({
-        target: [userItem.accountId, userItem.itemId],
-        set: {
-          quantity: sql`${userItem.quantity} + 1`,
-        },
-      })
-      .returning({ quantity: userItem.quantity });
+    const result = await db.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(userItem)
+        .values({
+          accountId,
+          itemId: targetItem.itemId,
+          quantity: 1,
+        })
+        .onConflictDoUpdate({
+          target: [userItem.accountId, userItem.itemId],
+          set: {
+            quantity: sql`${userItem.quantity} + 1`,
+          },
+        })
+        .returning({ quantity: userItem.quantity });
+      await withRedisRetry(retry, () => setSafariItems(authId, mapId, items));
+      return row;
+    });
 
     return {
       itemId: targetItem.itemId,
@@ -196,6 +211,7 @@ export class SafariService {
     uid: string,
     ballId: BallId,
     spawnTile: PokemonSpawnTile | null,
+    receivedAt: number,
     ip?: string,
   ): Promise<{
     result: CatchResult | 'level_cap';
@@ -239,9 +255,10 @@ export class SafariService {
       .where(eq(user.accountId, accountId));
     const isS000Starter = mapId === S000_MAP_ID && !!userRow?.hasStarter;
 
-    const wild = await getWild(authId, mapId, uid);
+    const retry = redisRetry(`safari.catchWild authId=${authId}`, receivedAt);
+    const wild = await withRedisRetry(retry, () => getWild(authId, mapId, uid));
     if (!wild) {
-      await this.consumeBall(accountId, ballId, ownedBall.quantity);
+      await this.consumeBall(db, accountId, ballId, ownedBall.quantity);
 
       this.auditCatchAttempt(accountId, mapId, uid, null, ballId, spawnTile, ip);
       this.auditCatchFail(accountId, mapId, uid, null, 'expired', ip);
@@ -331,24 +348,6 @@ export class SafariService {
         partyBonus,
         ballMul,
       );
-    }
-
-    // 결과에 따른 힙 메모리 업데이트
-
-    if (result === 'caught') {
-      wild.caught = 1;
-      // 즉시 디스폰: 키 삭제 + 디스폰 통지
-      await deleteWild(authId, mapId, wild.uid);
-      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'caught' });
-    } else if (result === 'flee') {
-      wild.caught = 2;
-      await deleteWild(authId, mapId, wild.uid);
-      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
-      this.auditCatchFail(accountId, mapId, uid, wild, 'flee', ip);
-    } else if (result === 'fail') {
-      wild.turn += 1;
-      await updateWild(authId, mapId, wild);
-      this.auditCatchFail(accountId, mapId, uid, wild, 'break_out', ip);
     }
 
     // DB 트랜잭션
@@ -587,7 +586,13 @@ export class SafariService {
             })
             .where(eq(user.accountId, accountId));
         }
+
+        await withRedisRetry(retry, () =>
+          isS000Starter ? deleteAllSafariData(authId) : deleteWild(authId, mapId, wild.uid),
+        );
       });
+
+      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'caught' });
 
       if (isS000Starter) {
         setPosition(authId, {
@@ -595,7 +600,6 @@ export class SafariService {
           x: POST_S000_LOCATION.x,
           y: POST_S000_LOCATION.y,
         });
-        await deleteAllSafariData(authId);
       }
 
       return {
@@ -607,7 +611,23 @@ export class SafariService {
         userExp: userExpResult!,
       };
     } else {
-      await this.consumeBall(accountId, ballId, ownedBall.quantity);
+      if (result === 'flee') {
+        wild.caught = 2;
+      } else {
+        wild.turn += 1;
+      }
+      await db.transaction(async (tx) => {
+        await this.consumeBall(tx, accountId, ballId, ownedBall.quantity);
+        await withRedisRetry<unknown>(retry, () =>
+          result === 'flee' ? deleteWild(authId, mapId, wild.uid) : updateWild(authId, mapId, wild),
+        );
+      });
+      if (result === 'flee') {
+        await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
+        this.auditCatchFail(accountId, mapId, uid, wild, 'flee', ip);
+      } else {
+        this.auditCatchFail(accountId, mapId, uid, wild, 'break_out', ip);
+      }
       return { result };
     }
   }
@@ -715,6 +735,7 @@ export class SafariService {
   private async consumeTicketAndGrantBalls(
     accountId: number,
     mapId: string,
+    afterConsume: () => Promise<unknown>,
     ip?: string,
   ): Promise<void> {
     await db.transaction(async (tx) => {
@@ -764,20 +785,23 @@ export class SafariService {
         ip: ip ?? null,
         source: 'api',
       });
+
+      await afterConsume();
     });
   }
 
   private async consumeBall(
+    executor: typeof db | Tx,
     accountId: number,
     ballId: BallId,
     currentQuantity: number,
   ): Promise<void> {
     if (currentQuantity === 1) {
-      await db
+      await executor
         .delete(userItem)
         .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, ballId)));
     } else {
-      await db
+      await executor
         .update(userItem)
         .set({ quantity: sql`${userItem.quantity} - 1` })
         .where(and(eq(userItem.accountId, accountId), eq(userItem.itemId, ballId)));
@@ -788,6 +812,7 @@ export class SafariService {
     authId: string,
     uid: string,
     itemId: string,
+    receivedAt: number,
     ip?: string,
   ): Promise<{ result: FleeResult; itemId: string; quantity: number }> {
     const accountId = Number(authId);
@@ -803,7 +828,8 @@ export class SafariService {
     }
 
     const mapId = position.mapId;
-    const wild = await getWild(authId, mapId, uid);
+    const retry = redisRetry(`safari.feedWild authId=${authId}`, receivedAt);
+    const wild = await withRedisRetry(retry, () => getWild(authId, mapId, uid));
     if (!wild) {
       return { result: 'flee', itemId, quantity: await this.getItemQuantity(accountId, itemId) };
     }
@@ -829,22 +855,27 @@ export class SafariService {
     const fled = mapId === S000_MAP_ID ? false : Math.random() < finalFlee;
     const result: FleeResult = fled ? 'flee' : 'stay';
 
+    if (fled) {
+      wild.caught = 2;
+    } else {
+      wild.feed = itemId;
+      wild.turn += 1;
+    }
+
     const quantity = await this.consumeWildItem(
       accountId,
       itemId,
       AuditAction.SAFARI_FEED,
       { mapId, wildUid: uid, pokedexId: wild.pokedexId, itemId, result },
+      () =>
+        withRedisRetry<unknown>(retry, () =>
+          fled ? deleteWild(authId, mapId, wild.uid) : updateWild(authId, mapId, wild),
+        ),
       ip,
     );
 
     if (fled) {
-      wild.caught = 2;
-      await deleteWild(authId, mapId, wild.uid);
       await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
-    } else {
-      wild.feed = itemId;
-      wild.turn += 1;
-      await updateWild(authId, mapId, wild);
     }
 
     return { result, itemId, quantity };
@@ -854,6 +885,7 @@ export class SafariService {
     authId: string,
     uid: string,
     itemId: ToolItemId,
+    receivedAt: number,
     ip?: string,
   ): Promise<{ result: FleeResult; itemId: string; quantity: number }> {
     const accountId = Number(authId);
@@ -869,7 +901,8 @@ export class SafariService {
     }
 
     const mapId = position.mapId;
-    const wild = await getWild(authId, mapId, uid);
+    const retry = redisRetry(`safari.useItemWild authId=${authId}`, receivedAt);
+    const wild = await withRedisRetry(retry, () => getWild(authId, mapId, uid));
     if (!wild) {
       return { result: 'flee', itemId, quantity: await this.getItemQuantity(accountId, itemId) };
     }
@@ -899,18 +932,8 @@ export class SafariService {
     const fled = mapId === S000_MAP_ID ? false : Math.random() < finalFlee;
     const result: FleeResult = fled ? 'flee' : 'stay';
 
-    const quantity = await this.consumeWildItem(
-      accountId,
-      itemId,
-      AuditAction.SAFARI_USE_ITEM,
-      { mapId, wildUid: uid, pokedexId: wild.pokedexId, itemId, result },
-      ip,
-    );
-
     if (fled) {
       wild.caught = 2;
-      await deleteWild(authId, mapId, wild.uid);
-      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
     } else {
       if (itemId === 'mud') {
         wild.mud = true;
@@ -918,7 +941,22 @@ export class SafariService {
         wild.balm = true;
       }
       wild.turn += 1;
-      await updateWild(authId, mapId, wild);
+    }
+
+    const quantity = await this.consumeWildItem(
+      accountId,
+      itemId,
+      AuditAction.SAFARI_USE_ITEM,
+      { mapId, wildUid: uid, pokedexId: wild.pokedexId, itemId, result },
+      () =>
+        withRedisRetry<unknown>(retry, () =>
+          fled ? deleteWild(authId, mapId, wild.uid) : updateWild(authId, mapId, wild),
+        ),
+      ip,
+    );
+
+    if (fled) {
+      await publishWildDespawn({ authId, mapId, wildUid: wild.uid, reason: 'fled' });
     }
 
     return { result, itemId, quantity };
@@ -929,6 +967,7 @@ export class SafariService {
     itemId: string,
     action: AuditAction,
     detail: Record<string, unknown>,
+    afterConsume: () => Promise<unknown>,
     ip?: string,
   ): Promise<number> {
     return db.transaction(async (tx) => {
@@ -964,6 +1003,8 @@ export class SafariService {
         ip: ip ?? null,
         source: 'api',
       });
+
+      await afterConsume();
 
       return owned.quantity - 1;
     });
@@ -1027,6 +1068,7 @@ export class SafariService {
 
   async exit(
     authId: string,
+    receivedAt: number,
   ): Promise<{ mapId: string; entry: { x: number; y: number }; fromMapId: string }> {
     const position = getPosition(authId);
     if (!position || !position.mapId.startsWith('s')) {
@@ -1035,7 +1077,8 @@ export class SafariService {
 
     const fromMapId = position.mapId;
 
-    await deleteAllSafariData(authId);
+    const retry = redisRetry(`safari.exit authId=${authId}`, receivedAt);
+    await withRedisRetry(retry, () => deleteAllSafariData(authId));
 
     const p001 = MasterData.getMap('p001');
     const entry = p001?.entry ?? { x: UserStartLocation.x, y: UserStartLocation.y };
