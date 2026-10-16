@@ -30,8 +30,8 @@ import {
   SafariItem,
   WildDespawnReason,
   removeSafariActive,
-  snapshotWilds,
-  snapshotItems,
+  getAllWildsWithCleanup,
+  getSafariItems,
   shouldSyncOtherPlayers,
   auditAsync,
   AuditAction,
@@ -42,6 +42,14 @@ import { ensureSafariBucket } from '../api/domains/safari/safari-world';
 
 /** init_ok / change_map_ok에 실리는 사파리 스냅샷(클라 렌더 재조정의 권위 소스). */
 type SafariSnapshot = { wilds: SafariWild[]; items: SafariItem[] };
+
+async function readSafariSnapshot(authId: string, mapId: string): Promise<SafariSnapshot> {
+  const [wilds, items] = await Promise.all([
+    getAllWildsWithCleanup(authId, mapId),
+    getSafariItems(authId, mapId),
+  ]);
+  return { wilds, items: items ?? [] };
+}
 
 function socketIp(socket: Socket): string | null {
   const fwd = socket.handshake.headers['x-forwarded-for'];
@@ -373,8 +381,8 @@ export class SocketApp implements Broadcaster {
 
           const gameTime = getGameTime();
           const weather = getMapWeather(mapId);
-          const safari: SafariSnapshot | undefined = mapId.startsWith('s')
-            ? { wilds: snapshotWilds(authId, mapId), items: snapshotItems(authId, mapId) }
+          const safari = mapId.startsWith('s')
+            ? await readSafariSnapshot(authId, mapId)
             : undefined;
           socket.emit('init_ok', {
             userId: authId,
@@ -563,11 +571,8 @@ export class SocketApp implements Broadcaster {
           }
 
           const weather = getMapWeather(targetMapId);
-          const safari: SafariSnapshot | undefined = targetMapId.startsWith('s')
-            ? {
-                wilds: snapshotWilds(userId, targetMapId),
-                items: snapshotItems(userId, targetMapId),
-              }
+          const safari = targetMapId.startsWith('s')
+            ? await readSafariSnapshot(userId, targetMapId)
             : undefined;
           socket.emit('change_map_ok', {
             mapId: targetMapId,

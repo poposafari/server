@@ -2,9 +2,8 @@ import crypto from 'crypto';
 import { MasterData } from '@poposerver/lib/utils/master-data';
 import {
   getGameTime,
-  addWild,
+  createSafariBucket,
   listWildIds,
-  setSafariItems,
   getSafariItems,
   SafariItem,
 } from '@poposerver/lib/state';
@@ -53,15 +52,11 @@ export async function ensureSafariBucket(
     weather,
   );
   const isS000 = mapId === S000_MAP_ID;
-  for (const w of wilds) {
-    // S000/shiny는 무TTL(null), 그 외는 랜덤 TTL.
-    const ttlSec = isS000 || w.isShiny ? null : randomWildTtlSec();
-    w.expiresAt = await addWild(authId, mapId, w, ttlSec);
-  }
+  const entries = wilds.map((wild) => ({
+    wild,
+    ttlSec: isS000 || wild.isShiny ? null : randomWildTtlSec(),
+  }));
 
-  auditWildSpawn({ authId, mapId, wilds, origin: 'first_entry', source: auditSource, ip });
-
-  // 아이템 생성
   const itemPool = targetMap.item.spawn ?? [];
   const itemCount = itemPool.length > 0 ? randomInt(targetMap.item.min, targetMap.item.max) : 0;
   const selectedItemIds = pickWeightedMany(
@@ -74,8 +69,10 @@ export async function ensureSafariBucket(
     itemId,
     picked: false,
   }));
-  await setSafariItems(authId, mapId, items);
 
+  const stamped = await createSafariBucket(authId, mapId, entries, items);
+
+  auditWildSpawn({ authId, mapId, wilds: stamped, origin: 'first_entry', source: auditSource, ip });
   auditSafariItemSpawn({ authId, mapId, items, source: auditSource, ip });
 
   return true;

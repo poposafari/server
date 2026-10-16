@@ -1,13 +1,23 @@
-// 사파리 존 야생/아이템/active — 힙 스토어.
-// 버킷 수명은 "사파리존 소속"에 묶인다 — disconnect는 유지, 명시적 퇴장(deleteAllSafariData)에서만 삭제.
-
+import type { ChainableCommander } from 'ioredis';
+import { redis, redisSub } from '../redis';
+import { logger } from '../utils/logger';
+import { MasterData } from '../utils/master-data';
 import { SafariItem, SafariWild } from './types';
 
-type WildEntry = { wild: SafariWild; expiresAt: number | null }; // shiny/S000 → null
+const WILD_PREFIX = 'wild:';
 
-const wilds = new Map<string, Map<string, WildEntry>>(); // key: `${authId}:${mapId}`
-const items = new Map<string, SafariItem[]>(); // key: `${authId}:${mapId}`
-const active = new Set<string>(); // `${authId}:${mapId}`
+const active = new Set<string>();
+
+export interface WildSpawnEntry {
+  wild: SafariWild;
+  ttlSec: number | null;
+}
+
+export interface ExpiredWildRef {
+  authId: string;
+  mapId: string;
+  uid: string;
+}
 
 function bucketKey(authId: string, mapId: string): string {
   return `${authId}:${mapId}`;
@@ -18,25 +28,109 @@ function splitKey(key: string): { authId: string; mapId: string } {
   return { authId: key.slice(0, sep), mapId: key.slice(sep + 1) };
 }
 
-// ── 야생 개체 ──
+function wildKey(authId: string, mapId: string, uid: string): string {
+  return `${WILD_PREFIX}${authId}:${mapId}:${uid}`;
+}
 
-export async function addWild(
+function wildIndexKey(authId: string, mapId: string): string {
+  return `wild-uids:${authId}:${mapId}`;
+}
+
+function itemsKey(authId: string, mapId: string): string {
+  return `items:${authId}:${mapId}`;
+}
+
+function parseWildKey(key: string): ExpiredWildRef | null {
+  if (!key.startsWith(WILD_PREFIX)) return null;
+  const parts = key.slice(WILD_PREFIX.length).split(':');
+  if (parts.length !== 3 || parts.some((p) => p.length === 0)) return null;
+  const [authId, mapId, uid] = parts;
+  return { authId, mapId, uid };
+}
+
+function parseWild(key: string, raw: string | null): SafariWild | null {
+  if (raw === null) return null;
+  try {
+    const v = JSON.parse(raw) as SafariWild;
+    if (typeof v.uid === 'string' && typeof v.pokedexId === 'string') return v;
+  } catch {
+    logger.warn(`[WILD_STORE] ignored invalid value at ${key}`);
+    return null;
+  }
+  logger.warn(`[WILD_STORE] ignored invalid value at ${key}`);
+  return null;
+}
+
+function parseItems(key: string, raw: string | null): SafariItem[] | null {
+  if (raw === null) return null;
+  try {
+    const v = JSON.parse(raw) as SafariItem[];
+    if (Array.isArray(v)) return v;
+  } catch {
+    logger.warn(`[WILD_STORE] ignored invalid value at ${key}`);
+    return null;
+  }
+  logger.warn(`[WILD_STORE] ignored invalid value at ${key}`);
+  return null;
+}
+
+function isAlive(wild: SafariWild, now: number): boolean {
+  return wild.expiresAt === undefined || wild.expiresAt > now;
+}
+
+async function execOrThrow(tx: ChainableCommander): Promise<void> {
+  const results = await tx.exec();
+  if (!results) throw new Error('Redis transaction was discarded');
+  const failed = results.find(([err]) => err)?.[0];
+  if (failed) throw failed;
+}
+
+function queueWilds(
+  tx: ChainableCommander,
   authId: string,
   mapId: string,
-  wild: SafariWild,
-  ttlSec: number | null,
-): Promise<number | undefined> {
-  const key = bucketKey(authId, mapId);
-  let bucket = wilds.get(key);
-  if (!bucket) {
-    bucket = new Map();
-    wilds.set(key, bucket);
-  }
-  const expiresAt = ttlSec === null ? null : Date.now() + ttlSec * 1000;
-  const { expiresAt: _ignored, ...payload } = wild;
-  void _ignored;
-  bucket.set(wild.uid, { wild: payload as SafariWild, expiresAt });
-  return expiresAt === null ? undefined : expiresAt;
+  entries: WildSpawnEntry[],
+): SafariWild[] {
+  const now = Date.now();
+  return entries.map(({ wild, ttlSec }) => {
+    const stamped: SafariWild = {
+      ...wild,
+      expiresAt: ttlSec === null ? undefined : now + ttlSec * 1000,
+    };
+    const key = wildKey(authId, mapId, wild.uid);
+    if (stamped.expiresAt === undefined) {
+      tx.set(key, JSON.stringify(stamped));
+    } else {
+      tx.set(key, JSON.stringify(stamped), 'PXAT', stamped.expiresAt);
+    }
+    tx.sadd(wildIndexKey(authId, mapId), wild.uid);
+    return stamped;
+  });
+}
+
+export async function addWilds(
+  authId: string,
+  mapId: string,
+  entries: WildSpawnEntry[],
+): Promise<SafariWild[]> {
+  if (entries.length === 0) return [];
+  const tx = redis.multi();
+  const stamped = queueWilds(tx, authId, mapId, entries);
+  await execOrThrow(tx);
+  return stamped;
+}
+
+export async function createSafariBucket(
+  authId: string,
+  mapId: string,
+  entries: WildSpawnEntry[],
+  items: SafariItem[],
+): Promise<SafariWild[]> {
+  const tx = redis.multi();
+  const stamped = queueWilds(tx, authId, mapId, entries);
+  tx.set(itemsKey(authId, mapId), JSON.stringify(items));
+  await execOrThrow(tx);
+  return stamped;
 }
 
 export async function getWild(
@@ -44,56 +138,33 @@ export async function getWild(
   mapId: string,
   wildUid: string,
 ): Promise<SafariWild | null> {
-  const entry = wilds.get(bucketKey(authId, mapId))?.get(wildUid);
-  if (!entry) return null;
-  if (entry.expiresAt !== null && entry.expiresAt <= Date.now()) return null;
-  return { ...entry.wild, expiresAt: entry.expiresAt ?? undefined };
+  const key = wildKey(authId, mapId, wildUid);
+  const wild = parseWild(key, await redis.get(key));
+  if (!wild || !isAlive(wild, Date.now())) return null;
+  return wild;
 }
 
 export async function listWildIds(authId: string, mapId: string): Promise<string[]> {
-  const bucket = wilds.get(bucketKey(authId, mapId));
-  if (!bucket) return [];
-  return [...bucket.keys()];
+  return redis.smembers(wildIndexKey(authId, mapId));
 }
 
-/**
- * 살아있는 wild만 반환하고, 만료된 개체는 버킷에서 제거.
- * 살아있는 wild에 expiresAt(절대 epoch ms)을 부여해 반환(클라 페이로드용).
- */
 export async function getAllWildsWithCleanup(authId: string, mapId: string): Promise<SafariWild[]> {
-  const bucket = wilds.get(bucketKey(authId, mapId));
-  if (!bucket) return [];
+  const indexKey = wildIndexKey(authId, mapId);
+  const uids = await redis.smembers(indexKey);
+  if (uids.length === 0) return [];
 
+  const keys = uids.map((uid) => wildKey(authId, mapId, uid));
+  const raws = await redis.mget(keys);
   const now = Date.now();
-  const out: SafariWild[] = [];
-  for (const [uid, entry] of bucket) {
-    if (entry.expiresAt !== null && entry.expiresAt <= now) {
-      bucket.delete(uid);
-      continue;
-    }
-    out.push({ ...entry.wild, expiresAt: entry.expiresAt ?? undefined });
-  }
-  return out;
-}
-
-/**
- * 동기 스냅샷: 만료 개체를 정리하고 살아있는 wild를 반환한다.
- * emit 직전에 호출하기 위한 동기 버전 — 호출~emit 사이에 await(매크로태스크)가 끼지 않아
- * world-tick despawn 스캔과의 순서가 보장된다. getAllWildsWithCleanup의 async 버전과 동일 로직.
- */
-export function snapshotWilds(authId: string, mapId: string): SafariWild[] {
-  const bucket = wilds.get(bucketKey(authId, mapId));
-  if (!bucket) return [];
-  const now = Date.now();
-  const out: SafariWild[] = [];
-  for (const [uid, entry] of bucket) {
-    if (entry.expiresAt !== null && entry.expiresAt <= now) {
-      bucket.delete(uid);
-      continue;
-    }
-    out.push({ ...entry.wild, expiresAt: entry.expiresAt ?? undefined });
-  }
-  return out;
+  const live: SafariWild[] = [];
+  const stale: string[] = [];
+  raws.forEach((raw, i) => {
+    const wild = parseWild(keys[i], raw);
+    if (wild && isAlive(wild, now)) live.push(wild);
+    else if (raw === null) stale.push(uids[i]);
+  });
+  if (stale.length > 0) await redis.srem(indexKey, ...stale);
+  return live;
 }
 
 export async function updateWild(
@@ -101,65 +172,56 @@ export async function updateWild(
   mapId: string,
   wild: SafariWild,
 ): Promise<boolean> {
-  const bucket = wilds.get(bucketKey(authId, mapId));
-  const entry = bucket?.get(wild.uid);
-  if (!entry) return false;
-  const { expiresAt: _ignored, ...payload } = wild;
-  void _ignored;
-  entry.wild = payload as SafariWild; // expiresAt(entry) 유지
-  return true;
+  const res = await redis.set(
+    wildKey(authId, mapId, wild.uid),
+    JSON.stringify(wild),
+    'KEEPTTL',
+    'XX',
+  );
+  return res === 'OK';
 }
 
 export async function deleteWild(authId: string, mapId: string, wildUid: string): Promise<void> {
-  wilds.get(bucketKey(authId, mapId))?.delete(wildUid);
+  const tx = redis.multi();
+  tx.del(wildKey(authId, mapId, wildUid));
+  tx.srem(wildIndexKey(authId, mapId), wildUid);
+  await execOrThrow(tx);
 }
 
-/**
- * 만료된 wild를 전 버킷에서 스캔·제거하고 (authId, mapId, uid) 목록을 반환한다.
- * 게임 루프가 1초마다 호출 → 각 항목에 despawn(ttl) emit. 빈 버킷은 회수(delete).
- * shiny/S000(expiresAt=null)은 skip.
- */
-export interface ExpiredWildRef {
-  authId: string;
-  mapId: string;
-  uid: string;
+export async function subscribeWildExpiry(
+  onExpired: (ref: ExpiredWildRef) => void,
+): Promise<() => void> {
+  const channel = `__keyevent@${redis.options.db ?? 0}__:expired`;
+  const handler = (ch: string, key: string) => {
+    if (ch !== channel) return;
+    const ref = parseWildKey(key);
+    if (!ref) return;
+    redis
+      .srem(wildIndexKey(ref.authId, ref.mapId), ref.uid)
+      .catch((err) => logger.warn(`[WILD_STORE] index cleanup failed for ${key}:`, err));
+    onExpired(ref);
+  };
+  redisSub.on('message', handler);
+  await redisSub.subscribe(channel);
+  logger.info(`[WILD_STORE] subscribed to ${channel}`);
+  return () => {
+    redisSub.off('message', handler);
+    redisSub.unsubscribe(channel).catch(() => undefined);
+  };
 }
-
-export function scanExpiredWilds(now: number): ExpiredWildRef[] {
-  const expired: ExpiredWildRef[] = [];
-  for (const [key, bucket] of wilds) {
-    const { authId, mapId } = splitKey(key);
-    for (const [uid, entry] of bucket) {
-      if (entry.expiresAt !== null && entry.expiresAt <= now) {
-        bucket.delete(uid);
-        expired.push({ authId, mapId, uid });
-      }
-    }
-    if (bucket.size === 0) wilds.delete(key);
-  }
-  return expired;
-}
-
-// ── 아이템 ──
 
 export async function setSafariItems(
   authId: string,
   mapId: string,
   list: SafariItem[],
 ): Promise<void> {
-  items.set(bucketKey(authId, mapId), list);
+  await redis.set(itemsKey(authId, mapId), JSON.stringify(list));
 }
 
 export async function getSafariItems(authId: string, mapId: string): Promise<SafariItem[] | null> {
-  return items.get(bucketKey(authId, mapId)) ?? null;
+  const key = itemsKey(authId, mapId);
+  return parseItems(key, await redis.get(key));
 }
-
-/** 동기 스냅샷: 아이템 목록(없으면 빈 배열). emit 직전 호출용. */
-export function snapshotItems(authId: string, mapId: string): SafariItem[] {
-  return items.get(bucketKey(authId, mapId)) ?? [];
-}
-
-// ── active 인덱스 (스폰 루프 탐색 대상) ──
 
 export async function addSafariActive(authId: string, mapId: string): Promise<void> {
   active.add(bucketKey(authId, mapId));
@@ -170,22 +232,27 @@ export async function removeSafariActive(authId: string, mapId: string): Promise
 }
 
 export async function getSafariActive(): Promise<{ authId: string; mapId: string }[]> {
-  const out: { authId: string; mapId: string }[] = [];
-  for (const key of active) out.push(splitKey(key));
-  return out;
+  return [...active].map(splitKey);
 }
 
-// ── 사파리 전체 삭제 (명시적 퇴장) ──
-
 export async function deleteAllSafariData(authId: string): Promise<void> {
+  const mapIds = MasterData.getAllMaps()
+    .filter((m) => m.type === 'safari')
+    .map((m) => m.id);
+
+  const read = redis.pipeline();
+  mapIds.forEach((mapId) => read.smembers(wildIndexKey(authId, mapId)));
+  const indexes = (await read.exec()) ?? [];
+
+  const tx = redis.multi();
+  mapIds.forEach((mapId, i) => {
+    const [err, uids] = indexes[i] ?? [null, []];
+    if (err) throw err;
+    (uids as string[]).forEach((uid) => tx.del(wildKey(authId, mapId, uid)));
+    tx.del(wildIndexKey(authId, mapId), itemsKey(authId, mapId));
+  });
+  await execOrThrow(tx);
+
   const prefix = `${authId}:`;
-  for (const key of [...wilds.keys()]) {
-    if (key.startsWith(prefix)) wilds.delete(key);
-  }
-  for (const key of [...items.keys()]) {
-    if (key.startsWith(prefix)) items.delete(key);
-  }
-  for (const key of [...active]) {
-    if (key.startsWith(prefix)) active.delete(key);
-  }
+  [...active].filter((key) => key.startsWith(prefix)).forEach((key) => active.delete(key));
 }

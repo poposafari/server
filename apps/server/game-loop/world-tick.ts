@@ -5,8 +5,8 @@ import {
   publishGameTime,
   publishWildDespawn,
   restoreGameTime,
-  scanExpiredWilds,
   setGameTime,
+  subscribeWildExpiry,
   logger,
 } from '@poposerver/lib';
 
@@ -32,20 +32,20 @@ export async function initGameTime(): Promise<void> {
   await advanceGameTime();
 }
 
-export function startWorldTickLoop(): () => void {
+export async function startWorldTickLoop(): Promise<() => void> {
   let running = false;
   let stopped = false;
+
+  const unsubscribe = await subscribeWildExpiry(({ authId, mapId, uid }) => {
+    publishWildDespawn({ authId, mapId, wildUid: uid, reason: 'ttl' }).catch((err) =>
+      logger.error('[WORLD_TICK] despawn publish failed:', err),
+    );
+  });
 
   const timer = setInterval(async () => {
     if (running || stopped) return;
     running = true;
     try {
-      const now = Date.now();
-      const expired = scanExpiredWilds(now);
-      for (const { authId, mapId, uid } of expired) {
-        await publishWildDespawn({ authId, mapId, wildUid: uid, reason: 'ttl' });
-      }
-
       await advanceGameTime();
     } catch (err) {
       logger.error('[WORLD_TICK] tick failed:', err);
@@ -54,10 +54,11 @@ export function startWorldTickLoop(): () => void {
     }
   }, TICK_MS);
 
-  logger.info(`[WORLD_TICK] Loop started: every ${TICK_MS}ms (despawn scan + game-time broadcast)`);
+  logger.info(`[WORLD_TICK] Loop started: every ${TICK_MS}ms (game-time broadcast)`);
 
   return () => {
     stopped = true;
     clearInterval(timer);
+    unsubscribe();
   };
 }

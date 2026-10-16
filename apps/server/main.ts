@@ -30,7 +30,7 @@ async function boot() {
 
     const stopWeather = startWeatherClock();
     const stopSpawn = startWildSpawnLoop();
-    const stopWorldTick = startWorldTickLoop();
+    const stopWorldTick = await startWorldTickLoop();
     const stopJanitor = startJanitorLoops();
     const stopFlush = startPositionFlushLoop();
 

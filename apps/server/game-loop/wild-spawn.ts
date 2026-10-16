@@ -1,5 +1,5 @@
 import {
-  addWild,
+  addWilds,
   getAllMapWeathers,
   getAllWildsWithCleanup,
   getPosition,
@@ -90,16 +90,16 @@ async function processPair(
   const newWilds = await generateWildBatch(Number(authId), mapId, need, timeOfDay, weather);
   if (newWilds.length === 0) return 'skipped';
 
-  for (const w of newWilds) {
-    const ttlSec = w.isShiny ? null : randomWildTtlSec();
-    const expiresAt = await addWild(authId, mapId, w, ttlSec);
-    w.expiresAt = expiresAt;
-    await publishWildSpawn({ authId, mapId, wild: w });
-  }
+  const stamped = await addWilds(
+    authId,
+    mapId,
+    newWilds.map((wild) => ({ wild, ttlSec: wild.isShiny ? null : randomWildTtlSec() })),
+  );
+  await Promise.all(stamped.map((wild) => publishWildSpawn({ authId, mapId, wild })));
 
-  auditWildSpawn({ authId, mapId, wilds: newWilds, origin: 'top_up', source: 'worker' });
+  auditWildSpawn({ authId, mapId, wilds: stamped, origin: 'top_up', source: 'worker' });
 
-  return newWilds.length;
+  return stamped.length;
 }
 
 export function startWildSpawnLoop(): () => Promise<void> {
