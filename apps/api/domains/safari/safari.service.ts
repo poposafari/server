@@ -49,7 +49,6 @@ import {
   S000_REWARD_TICKET_ID,
   S000_REWARD_TICKET_QUANTITY,
   SAFARI_ENTRY_BALL_ID,
-  SAFARI_ENTRY_BALL_QUANTITY,
   PokemonSpawnTile,
   PokemonData,
 } from '@poposerver/lib/types';
@@ -65,6 +64,7 @@ import {
   SAFARI_BALL_ID,
   ballCaptureMul,
 } from '@poposerver/lib/constants/ball';
+import { trainerRankStepOf } from '@poposerver/lib/constants/trainer-rank';
 import { ensureSafariBucket } from './safari-world';
 
 type CatchResult = 'caught' | 'fail' | 'flee';
@@ -80,6 +80,12 @@ const BALM_FLEE_MUL = 0.7;
 
 type ToolItemId = 'mud' | 'balm';
 
+interface SafariBallGrant {
+  itemId: string;
+  quantity: number;
+  newQuantity: number;
+}
+
 export class SafariService {
   async enter(
     authId: string,
@@ -90,6 +96,7 @@ export class SafariService {
   ): Promise<{
     mapData: { wilds: SafariWild[]; items: SafariItem[] };
     entry?: { x: number; y: number };
+    ballGrant?: SafariBallGrant;
   }> {
     // 1-a. 검증: 현재 사용자가 plaza 또는 safari에 있는지 확인
     const position = getPosition(authId);
@@ -126,8 +133,9 @@ export class SafariService {
     const retry = redisRetry(`safari.enter authId=${authId}`, receivedAt);
     // 2. 버킷 생성(첫 진입)/유지(재진입)를 ensureSafariBucket에 위임 — 소켓 조인과 공유하는 유일한 생성 지점.
     const createBucket = () => ensureSafariBucket(authId, mapId, retry, 'api', ip);
+    let ballGrant: SafariBallGrant | undefined;
     if (needEntry && currentPrefix === 'p' && mapId !== S000_MAP_ID) {
-      await this.consumeTicketAndGrantBalls(Number(authId), mapId, createBucket, ip);
+      ballGrant = await this.consumeTicketAndGrantBalls(Number(authId), mapId, createBucket, ip);
     } else {
       await createBucket();
     }
@@ -144,7 +152,7 @@ export class SafariService {
     if (needEntry) {
       const entry = targetMap.entry ?? { x: UserStartLocation.x, y: UserStartLocation.y };
       setPosition(authId, { mapId, x: entry.x, y: entry.y });
-      return { mapData, entry };
+      return { mapData, entry, ballGrant };
     }
 
     return { mapData };
@@ -737,8 +745,8 @@ export class SafariService {
     mapId: string,
     afterConsume: () => Promise<unknown>,
     ip?: string,
-  ): Promise<void> {
-    await db.transaction(async (tx) => {
+  ): Promise<SafariBallGrant> {
+    return db.transaction(async (tx) => {
       const [ticket] = await tx
         .select({ quantity: userItem.quantity })
         .from(userItem)
@@ -764,15 +772,22 @@ export class SafariService {
           );
       }
 
-      if (SAFARI_ENTRY_BALL_QUANTITY > 0) {
-        await tx
-          .insert(userItem)
-          .values({ accountId, itemId: SAFARI_ENTRY_BALL_ID, quantity: SAFARI_ENTRY_BALL_QUANTITY })
-          .onConflictDoUpdate({
-            target: [userItem.accountId, userItem.itemId],
-            set: { quantity: sql`${userItem.quantity} + ${SAFARI_ENTRY_BALL_QUANTITY}` },
-          });
-      }
+      const [userRow] = await tx
+        .select({ exp: user.exp })
+        .from(user)
+        .where(eq(user.accountId, accountId));
+      const level = userLevelFromExp(userRow?.exp ?? 0);
+      const rank = trainerRankStepOf(level);
+      const quantity = rank.safariEntryBalls;
+
+      const [ball] = await tx
+        .insert(userItem)
+        .values({ accountId, itemId: SAFARI_ENTRY_BALL_ID, quantity })
+        .onConflictDoUpdate({
+          target: [userItem.accountId, userItem.itemId],
+          set: { quantity: sql`${userItem.quantity} + ${quantity}` },
+        })
+        .returning({ quantity: userItem.quantity });
 
       await auditTx(tx, {
         accountId,
@@ -780,13 +795,17 @@ export class SafariService {
         detail: {
           mapId,
           ticketConsumed: true,
-          ballsGranted: SAFARI_ENTRY_BALL_QUANTITY,
+          level,
+          rank: rank.key,
+          ballsGranted: quantity,
         },
         ip: ip ?? null,
         source: 'api',
       });
 
       await afterConsume();
+
+      return { itemId: SAFARI_ENTRY_BALL_ID, quantity, newQuantity: ball.quantity };
     });
   }
 

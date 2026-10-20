@@ -153,6 +153,33 @@ const qty = (acc, item) =>
   );
 const money = (acc) => sql(`select money from "user" where account_id=${acc}`);
 
+function checkEntryBallGrant(tag, r, ballBefore, want, level, rank) {
+  const g = r.body?.data?.ballGrant;
+  const ballAfter = Number(qty(accountId, 'safari-ball'));
+  check(
+    `${tag} 입장 응답 ballGrant`,
+    g?.itemId === 'safari-ball' && g?.quantity === want && g?.newQuantity === ballAfter,
+    `ballGrant=${JSON.stringify(g)} db=${ballAfter}`,
+  );
+  check(
+    `DB: ${tag} 사파리볼 +${want}`,
+    ballAfter === ballBefore + want,
+    `${ballBefore} → ${ballAfter}`,
+  );
+  const detail = sql(
+    `select detail::text from audit_log where account_id=${accountId} and action='SAFARI_ENTER' order by id desc limit 1`,
+  );
+  let d = null;
+  try {
+    d = JSON.parse(detail);
+  } catch {}
+  check(
+    `${tag} audit SAFARI_ENTER detail`,
+    d?.level === level && d?.rank === rank && d?.ballsGranted === want,
+    `detail=${detail}`,
+  );
+}
+
 async function signup(suffix = '') {
   const uname = 'test' + suffix + Date.now().toString().slice(-7);
   const pw = 'testpass123';
@@ -808,6 +835,7 @@ console.log('\n--- 사파리 (일반존 s001) ---');
 let itemUid2, wildUid2;
 {
   const ticketBefore = qty(accountId, 'safari-zone-ticket');
+  const ballBefore = Number(qty(accountId, 'safari-ball'));
   const r = await expectStatus(
     's001 입장(티켓 소모)',
     'POST',
@@ -820,6 +848,7 @@ let itemUid2, wildUid2;
     Number(qty(accountId, 'safari-zone-ticket')) === Number(ticketBefore) - 1,
     `${ticketBefore} → ${qty(accountId, 'safari-zone-ticket')}`,
   );
+  checkEntryBallGrant('Lv1 수습생', r, ballBefore, 10, 1, 'apprentice');
   const md = r.body?.data?.mapData;
   itemUid2 = md?.items?.find((i) => !i.picked)?.uid;
   wildUid2 = md?.wilds?.[0]?.uid;
@@ -918,6 +947,19 @@ if (wildUid2) {
     r.body?.data?.mapId === 'p001',
     `resp=${JSON.stringify(r.body?.data)}`,
   );
+}
+sql(`update "user" set exp=7600 where account_id=${accountId}`);
+{
+  const ballBefore = Number(qty(accountId, 'safari-ball'));
+  const r = await expectStatus(
+    'Lv11 s001 입장(티켓 소모)',
+    'POST',
+    '/safari/enter',
+    { mapId: 's001', needEntry: true },
+    200,
+  );
+  checkEntryBallGrant('Lv11 연구원', r, ballBefore, 15, 11, 'researcher');
+  await expectStatus('Lv11 사파리 퇴장', 'POST', '/safari/exit', undefined, 200);
 }
 await expectStatus(
   '사파리 밖에서 줍기 거부',
