@@ -352,17 +352,32 @@ console.log('\n--- 아이템 ---');
 sql(`update "user" set money=100000 where account_id=${accountId}`);
 {
   await expectStatus(
-    '구매(safari-ball x10 @200)',
+    '구매(quick-ball x10 @1000)',
     'POST',
-    '/users/me/items/safari-ball/buy',
+    '/users/me/items/quick-ball/buy',
     { quantity: 10 },
     200,
   );
-  check('DB: 소지금 100000→98000', money(accountId) === '98000', `money=${money(accountId)}`);
+  check('DB: 소지금 100000→90000', money(accountId) === '90000', `money=${money(accountId)}`);
   check(
-    'DB: safari-ball 1→11',
-    qty(accountId, 'safari-ball') === '11',
-    `qty=${qty(accountId, 'safari-ball')}`,
+    'DB: quick-ball 0→10',
+    qty(accountId, 'quick-ball') === '10',
+    `qty=${qty(accountId, 'quick-ball')}`,
+  );
+}
+{
+  const r = await expectStatus(
+    '사파리볼 구매 거부',
+    'POST',
+    '/users/me/items/safari-ball/buy',
+    { quantity: 1 },
+    400,
+  );
+  check('사파리볼 구매 거부 code', r.body?.code === 'ITEM_NOT_PURCHASABLE', `code=${r.body?.code}`);
+  check(
+    'DB: 사파리볼 구매 거부 후 소지금·수량 그대로',
+    money(accountId) === '90000' && qty(accountId, 'safari-ball') === '1',
+    `money=${money(accountId)} qty=${qty(accountId, 'safari-ball')}`,
   );
 }
 await expectStatus(
@@ -382,36 +397,51 @@ await expectStatus(
 await expectStatus(
   '구매 수량 validation(0)',
   'POST',
-  '/users/me/items/safari-ball/buy',
+  '/users/me/items/quick-ball/buy',
   { quantity: 0 },
   400,
 );
 await expectStatus(
   '소지금 초과 구매',
   'POST',
-  '/users/me/items/safari-ball/buy',
+  '/users/me/items/quick-ball/buy',
   { quantity: 9999 },
   400,
 );
 {
   await expectStatus(
-    '판매(safari-ball x4 @10)',
+    '판매(quick-ball x4 @50)',
     'POST',
-    '/users/me/items/safari-ball/sell',
+    '/users/me/items/quick-ball/sell',
     { quantity: 4 },
     200,
   );
-  check('DB: 소지금 98000→98040', money(accountId) === '98040', `money=${money(accountId)}`);
+  check('DB: 소지금 90000→90200', money(accountId) === '90200', `money=${money(accountId)}`);
   check(
-    'DB: safari-ball 11→7',
-    qty(accountId, 'safari-ball') === '7',
-    `qty=${qty(accountId, 'safari-ball')}`,
+    'DB: quick-ball 10→6',
+    qty(accountId, 'quick-ball') === '6',
+    `qty=${qty(accountId, 'quick-ball')}`,
+  );
+}
+{
+  const r = await expectStatus(
+    '사파리볼 판매 거부',
+    'POST',
+    '/users/me/items/safari-ball/sell',
+    { quantity: 1 },
+    400,
+  );
+  check('사파리볼 판매 거부 code', r.body?.code === 'ITEM_NOT_SELLABLE', `code=${r.body?.code}`);
+  check(
+    'DB: 사파리볼 판매 거부 후 소지금·수량 그대로',
+    money(accountId) === '90200' && qty(accountId, 'safari-ball') === '1',
+    `money=${money(accountId)} qty=${qty(accountId, 'safari-ball')}`,
   );
 }
 await expectStatus(
   '보유량 초과 판매',
   'POST',
-  '/users/me/items/safari-ball/sell',
+  '/users/me/items/quick-ball/sell',
   { quantity: 999 },
   400,
 );
@@ -444,7 +474,7 @@ await expectStatus(
     { quantity: 1 },
     200,
   );
-  check('DB: 소지금 98040→83040', money(accountId) === '83040', `money=${money(accountId)}`);
+  check('DB: 소지금 90200→75200', money(accountId) === '75200', `money=${money(accountId)}`);
   await expectStatus(
     '자전거 중복 구매 거부',
     'POST',

@@ -1,5 +1,5 @@
 id,buy,category,comment,purchasable,sell,sellable,tier
-safari-ball,200,pokeball,사파리볼,TRUE,10,TRUE,common
+safari-ball,200,pokeball,사파리볼,FALSE,0,FALSE,common
 beast-ball,3000,pokeball,비스트볼,TRUE,150,TRUE,epic
 dive-ball,1000,pokeball,다이브볼,FALSE,50,TRUE,rare
 dream-ball,3000,pokeball,드림볼,FALSE,150,TRUE,epic
@@ -16,7 +16,7 @@ net-ball,1000,pokeball,넷트볼,TRUE,50,TRUE,rare
 quick-ball,1000,pokeball,퀵볼,TRUE,50,TRUE,rare
 repeat-ball,1000,pokeball,리피트볼,TRUE,50,TRUE,rare
 timer-ball,1000,pokeball,타이머볼,TRUE,50,TRUE,rare
-safari-zone-ticket,400,etc,사파리존입장권,TRUE,0,FALSE,rare
+safari-zone-ticket,1000,etc,사파리존입장권,TRUE,0,FALSE,rare
 fire-stone,20000,etc,불꽃의돌,TRUE,1500,TRUE,epic
 water-stone,20000,etc,물의돌,TRUE,1500,TRUE,epic
 thunder-stone,20000,etc,천둥의돌,TRUE,1500,TRUE,epic
