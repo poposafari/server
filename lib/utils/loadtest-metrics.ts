@@ -1,4 +1,4 @@
-import { monitorEventLoopDelay, IntervalHistogram } from 'perf_hooks';
+import { monitorEventLoopDelay, ELDHistogram } from 'perf_hooks';
 import { envConfig } from './env';
 
 export interface LoadtestMetricsSnapshot {
@@ -40,7 +40,7 @@ const TICK_SAMPLE_CAP = 20000;
 class LoadtestMetrics {
   readonly enabled = envConfig.LOADTEST_METRICS;
 
-  private loopDelay: IntervalHistogram | null = null;
+  private loopDelay: ELDHistogram | null = null;
   private tickSamples: number[] = [];
   private lastScrapeAt = Date.now();
 
@@ -111,7 +111,7 @@ function round(n: number): number {
   return Math.round(n * 1000) / 1000;
 }
 
-function histToPercentiles(h: IntervalHistogram): Percentiles {
+function histToPercentiles(h: ELDHistogram): Percentiles {
   const ns = 1e6;
   return {
     count: h.count,
