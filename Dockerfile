@@ -1,5 +1,5 @@
 # 스테이징/프로덕션: tsc 빌드 후 node로 실행 (ts-node 미사용)
-FROM node:20-alpine
+FROM node:24.22.1-alpine
 
 # pnpm 버전 명시 — @latest는 Node 메이저 호환성을 깨뜨려 빌드 사고 유발
 # (예: pnpm 11+는 Node 22.13+ 필요, node:sqlite 빌트인 사용)
